@@ -1,0 +1,1 @@
+Bower extension for Brackets
