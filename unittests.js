@@ -31,7 +31,7 @@ define(function (require, exports, module) {
     var BowerInstall     = require("main"),
         NodeConnection   = brackets.getModule("utils/NodeConnection"),
         FileUtils        = brackets.getModule("file/FileUtils"),
-        NativeFileSystem = brackets.getModule("file/NativeFileSystem"),
+        NativeFileSystem = brackets.getModule("file/NativeFileSystem").NativeFileSystem,
         ExtensionUtils   = brackets.getModule("utils/ExtensionUtils"),
         SpecRunnerUtils  = brackets.getModule("spec/SpecRunnerUtils"),
         Async            = brackets.getModule("utils/Async");
@@ -39,7 +39,7 @@ define(function (require, exports, module) {
     // TODO: should put in system temp folder, but we don't have a generic way to get that
     var testFolder      = FileUtils.getNativeModuleDirectoryPath(module) + "/tmp-test";
 
-    describe("BowerInstall", function () {
+    describe("bower-install", function () {
         
         // Unit tests for the underlying node server.
         describe("BowerDomain", function () {

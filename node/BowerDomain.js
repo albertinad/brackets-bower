@@ -82,7 +82,7 @@ maxerr: 50, node: true */
      */
     function _cmdInstallPackage(path, name, cb) {
         log.debug("Installing " + name + " into " + path);
-        _run(path, "install", name, {})
+        _run(path, "install", [name], {})
             .on("end", function () {
                 cb(null);
             })
