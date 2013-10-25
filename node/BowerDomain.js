@@ -28,7 +28,7 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
     
-    var child_process = require("child_process"),
+    var bower = require("bower"),
         EventEmitter = require("events").EventEmitter,
         log4js = require("log4js"),
         _ = require("lodash");
@@ -39,24 +39,6 @@ maxerr: 50, node: true */
     
     log.debug("Started parent.");
 
-    function _run(path, command) {
-        var parent = module.filename.substr(0, module.filename.lastIndexOf("/"));
-        log.debug("Forking module: " + parent + "/BowerChildProxy.js");
-        var emitter = new EventEmitter(),
-            child = child_process.fork(parent + "/BowerChildProxy.js", [], {cwd: path || undefined});
-        child.on("message", function (eventData) {
-            log.debug("Receiving: " + JSON.stringify(eventData));
-            var args = eventData.args;
-            args.unshift(eventData.event);
-            emitter.emit.apply(emitter, args);
-        });
-        child.send({
-            command: command,
-            args: Array.prototype.slice.call(arguments, 2)
-        });
-        return emitter;
-    }
-
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
      * @param {function(?string, ?Array.<{name: string, url: string}>)} cb Callback to receive 
@@ -65,7 +47,7 @@ maxerr: 50, node: true */
      *     an error.
      */
     function _cmdGetPackages(cb) {
-        _run(null, "search", "", {})
+        bower.commands.search()
             .on("end", function (data) {
                 // For some reason the package list is an array inside an array.
                 log.debug("Packages: " + JSON.stringify(_.flatten(data)));
@@ -85,7 +67,7 @@ maxerr: 50, node: true */
      */
     function _cmdInstallPackage(path, name, cb) {
         log.debug("Installing " + name + " into " + path);
-        _run(path, "install", [name], {})
+        bower.commands.install([name], {}, {cwd: path})
             .on("end", function () {
                 cb(null);
             })
