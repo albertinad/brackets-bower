@@ -1,0 +1,10 @@
+{
+  "name": "brackets-bower-node",
+  "description": "Node modules for the Brackets bower extension",
+  "version": "0.1.0",
+  "dependencies": {
+    "log4js": "~0.6.9",
+    "bower": "~1.2.7",
+    "lodash": "~2.2.1"
+  }
+}

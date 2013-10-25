@@ -30,7 +30,8 @@ maxerr: 50, node: true */
     
     var child_process = require("child_process"),
         EventEmitter = require("events").EventEmitter,
-        log4js = require("log4js");
+        log4js = require("log4js"),
+        _ = require("lodash");
  
     log4js.loadAppender("file");
     log4js.addAppender(log4js.appenders.file("/tmp/BowerDomain.log"), "logfile");
@@ -65,8 +66,10 @@ maxerr: 50, node: true */
      */
     function _cmdGetPackages(cb) {
         _run(null, "search", "", {})
-            .on("packages", function (data) {
-                cb(null, data);
+            .on("end", function (data) {
+                // For some reason the package list is an array inside an array.
+                log.debug("Packages: " + JSON.stringify(_.flatten(data)));
+                cb(null, _.flatten(data));
             })
             .on("error", function (error) {
                 cb(error.message, null);

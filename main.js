@@ -79,10 +79,7 @@ define(function (require, exports, module) {
             pkgName
         ).done(function (error) {
             _updateStatus("Bower: installed " + pkgName);
-            // TODO: this isn't merged into master yet
-            if (ProjectManager.refreshFileTree) {
-                ProjectManager.refreshFileTree();
-            }
+            ProjectManager.refreshFileTree();
         }).fail(function (error) {
             // Make sure the user sees the error even if other packages get installed.
             failed.push(pkgName);
@@ -188,13 +185,17 @@ define(function (require, exports, module) {
 
         QuickOpen.addQuickOpenPlugin({
             name: "installFromBower",
+            languageIds: [],
             search: _search,
             match: _match,
             itemSelect: _itemSelect,
             label: "Install from Bower"
         });
         
-        StatusBar.addIndicator(STATUS_BOWER, null, false);
+        // TODO: this shouldn't be necessary, see #5682
+        var indicator = $("<div/>");
+        StatusBar.addIndicator(STATUS_BOWER, indicator, false);
+        indicator.prependTo($("#status-indicators"));
     }
     
     _init();
