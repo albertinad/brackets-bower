@@ -77,7 +77,7 @@ define(function (require, exports, module) {
         ).done(function (error) {
             _updateStatus("Bower: installed " + pkgName);
             ProjectManager.refreshFileTree().done(function () {
-                ProjectManager.showInTree(new NativeFileSystem.DirectoryEntry(ProjectManager.getProjectRoot().fullPath + "/bower_components/" + pkgName));
+                ProjectManager.showInTree(new NativeFileSystem.DirectoryEntry(ProjectManager.getProjectRoot().fullPath + "bower_components/" + pkgName));
             });
         }).fail(function (error) {
             // Make sure the user sees the error even if other packages get installed.
