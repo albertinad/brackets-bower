@@ -40,10 +40,6 @@ define(function (require, exports, module) {
         StatusBar      = brackets.getModule("widgets/StatusBar"),
         template       = require("text!template.html");
     
-    // This should be okay to do (even though Chosen isn't AMD) because it just requires
-    // jQuery to already be defined.
-    require("components/chosen/chosen/chosen.jquery");
-
     var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
         STATUS_BOWER = "status-bower";
 
