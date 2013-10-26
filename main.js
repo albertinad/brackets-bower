@@ -51,6 +51,7 @@ define(function (require, exports, module) {
         queue = [],
         packages,
         installPromise,
+        latestQuery,
         failed = [];
     
     function _updateStatus(status) {
@@ -126,17 +127,29 @@ define(function (require, exports, module) {
     }
     
     function _search(query, matcher) {
+        latestQuery = query;
+        
         if (!packages) {
-            // Packages haven't yet been fetched. Get them asynchronously and return a promise.
-            // TODO: this doesn't seem to actually do the right thing--when the result list shows up
-            // initially after the first fetch it isn't filtered properly.
+            // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead
+            // and do so.
             if (!packageListPromise) {
                 packageListPromise = new $.Deferred();
                 _fetchPackageList().done(function () {
-                    packageListPromise.resolve(_search(query, matcher));
+                    packageListPromise.resolve();
                 }).fail(packageListPromise.reject);
             }
-            return packageListPromise;
+
+            // Due to bugs in smart autocomplete, we have to return separate promises for each call
+            // to _search, but make sure to only resolve the last one.
+            var result = new $.Deferred();
+            packageListPromise.done(function () {
+                if (query === latestQuery) {
+                    result.resolve(_search(latestQuery, matcher));
+                } else {
+                    result.reject();
+                }
+            });
+            return result.promise();
         }
         
         // Remove initial "+"
