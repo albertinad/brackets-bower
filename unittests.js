@@ -28,8 +28,7 @@
 define(function (require, exports, module) {
     "use strict";
     
-    var BowerInstall     = require("main"),
-        NodeConnection   = brackets.getModule("utils/NodeConnection"),
+    var NodeConnection   = brackets.getModule("utils/NodeConnection"),
         FileUtils        = brackets.getModule("file/FileUtils"),
         NativeFileSystem = brackets.getModule("file/NativeFileSystem").NativeFileSystem,
         ExtensionUtils   = brackets.getModule("utils/ExtensionUtils"),
@@ -142,7 +141,7 @@ define(function (require, exports, module) {
                                  "installing jquery", 10000);
                 });
                 runs(function () {
-                    waitsForDone(FileUtils.readAsText(new NativeFileSystem.FileEntry(testFolder + "/components/jquery/jquery.js")),
+                    waitsForDone(FileUtils.readAsText(new NativeFileSystem.FileEntry(testFolder + "/bower_components/jquery/jquery.js")),
                                  "reading installed jquery");
                 });
             });

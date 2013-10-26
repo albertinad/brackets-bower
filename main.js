@@ -38,8 +38,7 @@ define(function (require, exports, module) {
         QuickOpen      = brackets.getModule("search/QuickOpen"),
         ProjectManager = brackets.getModule("project/ProjectManager"),
         StatusBar      = brackets.getModule("widgets/StatusBar"),
-        NativeFileSystem = brackets.getModule("file/NativeFileSystem").NativeFileSystem,
-        template       = require("text!template.html");
+        NativeFileSystem = brackets.getModule("file/NativeFileSystem").NativeFileSystem;
     
     var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
         STATUS_BOWER = "status-bower";
