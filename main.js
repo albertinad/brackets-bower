@@ -53,12 +53,32 @@ define(function (require, exports, module) {
         latestQuery,
         failed = [],
         $fetchSpinner,
-        lastFetchTime;
+        lastFetchTime,
+        $status;
     
-    function _updateStatus(status) {
+    function _showStatus(status, busy) {
+        if (!$status) {
+            $status = $("<div class='bower-install-status hidden'><div class='inner'><span class='text'></span><div class='spinner'></div></div></div>")
+                .insertAfter($("#project-files-header"));
+            setTimeout(function () {
+                $status.removeClass("hidden");
+            }, 0);
+        }
         status = status || "";
-        StatusBar.updateIndicator(STATUS_BOWER, !!status);
-        $("#" + STATUS_BOWER).text(status); // TODO: weird that we can't just pass this into updateIndicator()
+        $status.find(".text").text(status);
+        $status.find(".spinner").toggleClass("spin", busy);
+    }
+    
+    function _hideStatusLater() {
+        setTimeout(function () {
+            if ($status) {
+                $status.addClass("hidden")
+                    .on("webkitTransitionEnd", function () {
+                        $status.remove();
+                        $status = null;
+                    });
+            }
+        }, 3000);
     }
 
     function _installNext() {
@@ -66,18 +86,15 @@ define(function (require, exports, module) {
             return;
         }
         
-        StatusBar.showBusyIndicator();
-        
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
-        // TODO: detect if bower child process died--catch exception
         var pkgName = queue.shift();
-        _updateStatus("Bower: installing " + pkgName + "...");
+        _showStatus("Installing " + pkgName + "...", true);
         installPromise = nodeConnection.domains.bower.installPackage(
             ProjectManager.getProjectRoot().fullPath,
             pkgName
         ).done(function (error) {
-            _updateStatus("Bower: installed " + pkgName);
+            _showStatus("Installed " + pkgName, false);
             
             var rootPath = ProjectManager.getProjectRoot().fullPath,
                 rootDir = FileSystem.getDirectoryForPath(rootPath),
@@ -99,11 +116,11 @@ define(function (require, exports, module) {
         }).always(function () {
             installPromise = null;
             if (queue.length === 0) {
-                StatusBar.hideBusyIndicator();
                 if (failed.length > 0) {
-                    _updateStatus("Bower: Error installing " + failed.join(", "));
+                    _showStatus("Error installing " + failed.join(", "), false);
                     failed = [];
                 }
+                _hideStatusLater();
             } else {
                 _installNext();
             }
@@ -177,6 +194,11 @@ define(function (require, exports, module) {
     function _search(query, matcher) {
         var curTime = Date.now();
         latestQuery = query;
+
+        if (packages && (lastFetchTime === undefined || curTime - lastFetchTime > 1000 * 60 * 10)) {
+            // Packages were fetched more than ten minutes ago. Force a refetch.
+            packages = null;
+        }
         
         if (lastFetchTime === undefined || curTime - lastFetchTime > 1000 * 60 * 10) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
@@ -243,6 +265,8 @@ define(function (require, exports, module) {
         
         KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Ctrl-Shift-B"});
         
+        ExtensionUtils.loadStyleSheet(module, "styles.css");
+
         AppInit.appReady(function () {
             nodeConnection = new NodeConnection();
             nodeConnection.connect(true).then(function () {
@@ -263,11 +287,6 @@ define(function (require, exports, module) {
             itemSelect: _itemSelect,
             label: "Install from Bower"
         });
-        
-        var indicator = $("<div/>");
-        StatusBar.addIndicator(STATUS_BOWER, indicator, false);
-        // TODO: this shouldn't be necessary, see #5682
-        indicator.prependTo($("#status-indicators"));
     }
     
     _init();
