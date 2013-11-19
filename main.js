@@ -52,7 +52,8 @@ define(function (require, exports, module) {
         installPromise,
         latestQuery,
         failed = [],
-        $fetchSpinner;
+        $fetchSpinner,
+        lastFetchTime;
     
     function _updateStatus(status) {
         status = status || "";
@@ -174,18 +175,28 @@ define(function (require, exports, module) {
     }
     
     function _search(query, matcher) {
+        var curTime = Date.now();
         latestQuery = query;
         
+        if (lastFetchTime === undefined || curTime - lastFetchTime > 1000 * 60 * 10) {
+            // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
+            packages = null;
+            packageListPromise = null;
+            lastFetchTime = curTime;
+        }
+        
         if (!packages) {
-            // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead
-            // and do so.
+            // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
             if (!packageListPromise) {
                 packageListPromise = new $.Deferred();
                 _showFetchSpinner();
                 _fetchPackageList()
                     .done(packageListPromise.resolve)
                     .fail(packageListPromise.reject)
-                    .always(_hideFetchSpinner);
+                    .always(function () {
+                        _hideFetchSpinner();
+                        packageListPromise = null;
+                    });
             }
 
             // Due to bugs in smart autocomplete, we have to return separate promises for each call
@@ -253,9 +264,9 @@ define(function (require, exports, module) {
             label: "Install from Bower"
         });
         
-        // TODO: this shouldn't be necessary, see #5682
         var indicator = $("<div/>");
         StatusBar.addIndicator(STATUS_BOWER, indicator, false);
+        // TODO: this shouldn't be necessary, see #5682
         indicator.prependTo($("#status-indicators"));
     }
     
