@@ -38,7 +38,7 @@ define(function (require, exports, module) {
         QuickOpen      = brackets.getModule("search/QuickOpen"),
         ProjectManager = brackets.getModule("project/ProjectManager"),
         StatusBar      = brackets.getModule("widgets/StatusBar"),
-        NativeFileSystem = brackets.getModule("file/NativeFileSystem").NativeFileSystem;
+        FileSystem     = brackets.getModule("filesystem/FileSystem");
     
     var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
         STATUS_BOWER = "status-bower";
@@ -76,8 +76,20 @@ define(function (require, exports, module) {
             pkgName
         ).done(function (error) {
             _updateStatus("Bower: installed " + pkgName);
+            
+            var rootPath = ProjectManager.getProjectRoot().fullPath,
+                rootDir = FileSystem.getDirectoryForPath(rootPath),
+                bowerPath = rootPath + "bower_components/",
+                bowerDir = FileSystem.getDirectoryForPath(bowerPath);
+
+            // Temporary hack to deal with the fact that the filesystem caches directory entries and
+            // doesn't refresh unless you switch away from the Brackets window and back. This should
+            // go away when we have file watchers.
+            rootDir._clearCachedData();
+            bowerDir._clearCachedData();
+            
             ProjectManager.refreshFileTree().done(function () {
-                ProjectManager.showInTree(new NativeFileSystem.DirectoryEntry(ProjectManager.getProjectRoot().fullPath + "bower_components/" + pkgName));
+                ProjectManager.showInTree(FileSystem.getDirectoryForPath(bowerPath + pkgName));
             });
         }).fail(function (error) {
             // Make sure the user sees the error even if other packages get installed.
