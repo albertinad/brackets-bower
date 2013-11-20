@@ -1,7 +1,7 @@
 {
     "name": "brackets-bower",
     "title": "Install from Bower",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Quickly install front-end packages from Bower. Hit Ctrl/Cmd-Shift-B, then start typing the name of a package (it might take a little while the first time). Once you see the package you want, hit Enter and the package will be installed into your current folder.",
     "homepage": "https://github.com/njx/brackets-bower",
     "engines": {
