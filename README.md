@@ -6,9 +6,8 @@ into your current project using a Quick Open-style interface.
 ### Installing into Brackets
 
 1. Choose **File > Extension Manager...**
-2. Click on the Available tab
-3. Search for "Install from Bower"
-4. Click the Install button
+2. Search for "Install from Bower"
+3. Click the Install button
 
 Note that this will only work with Brackets Sprint 34 or later.
 
