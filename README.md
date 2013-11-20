@@ -23,7 +23,7 @@ The package will be installed into a "bower_components" folder in your current p
 
 You can also access this from normal Quick Open (Cmd/Ctrl-Shift-O) by typing a "+" 
 before the package name. (I'm not totally convinced Quick Open is the right UI for
-this--would love to get feedback).
+this--would love to get feedback.)
 
 ### Problems? Suggestions?
 
