@@ -14,7 +14,7 @@ Note that this will only work with Brackets Sprint 34 or later.
 
 ### Using
 
-1. Choose **File > Install from Bower...** or hit Cmd/Ctrl-Shift-B
+1. Choose **File > Install from Bower...** or hit **Cmd/Ctrl-Shift-B**
 2. Start typing the name of a Bower package. (The first time you do this in a run,
    you might need to wait a bit to see results.)
 3. Choose a package
