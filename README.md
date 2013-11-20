@@ -27,4 +27,4 @@ this--would love to get feedback.)
 
 ### Problems? Suggestions?
 
-[File an issue!](https://github.com/njx/brackets-bower)
+[File an issue!](https://github.com/njx/brackets-bower/issues)
