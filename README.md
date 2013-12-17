@@ -11,6 +11,8 @@ into your current project using a Quick Open-style interface.
 
 Note that this will only work with Brackets Sprint 34 or later.
 
+**Note:** For some packages to install properly, you'll need to have git installed as well.
+
 ### Using
 
 1. Choose **File > Install from Bower...** or hit **Cmd/Ctrl-Shift-B**
