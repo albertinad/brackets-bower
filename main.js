@@ -159,23 +159,30 @@ define(function (require, exports, module) {
     function _showFetchSpinner() {
         // Bit of a hack that we know the actual element here.
         var $quickOpenInput = $("#quickOpenSearch"),
+            $parent = $quickOpenInput.parent(),
+            $label = $parent.find("span.find-dialog-label"),
             inputOffset = $quickOpenInput.offset(),
             inputWidth = $quickOpenInput.outerWidth(),
             inputHeight = $quickOpenInput.outerHeight(),
-            $parent = $quickOpenInput.parent(),
             parentOffset = $parent.offset(),
             parentWidth = $parent.outerWidth(),
             parentPosition = $parent.position(),
-            
+
             // This calculation is a little nasty because the parent modal bar isn't actually position: relative,
             // so we both have to account for the input's offset within the modal bar as well as the modal bar's
             // position within its offset parent.
-            spinnerTop = parentPosition.top + inputOffset.top - parentOffset.top + (inputHeight / 2) - 4,
-            
+            spinnerTop = parentPosition.top + inputOffset.top - parentOffset.top + (inputHeight / 2) - 7,
+
             // Hack: for now we don't deal with the modal bar's offset parent for the horizontal calculation since we
             // happen to know it's the full width.
             spinnerRight = (parentOffset.left + parentWidth) - (inputOffset.left + inputWidth) + 14;
-        
+
+        if ($label) {
+            $label.css({
+                right: "40px"
+            });
+        }
+
         $fetchSpinner = $("<div class='spinner spin'/>")
             .css({
                 position: "absolute",
