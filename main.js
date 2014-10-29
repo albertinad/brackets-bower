@@ -37,120 +37,23 @@ define(function (require, exports, module) {
         Menus          = brackets.getModule("command/Menus"),
         QuickOpen      = brackets.getModule("search/QuickOpen"),
         ProjectManager = brackets.getModule("project/ProjectManager"),
-        StatusBar      = brackets.getModule("widgets/StatusBar"),
         FileSystem     = brackets.getModule("filesystem/FileSystem");
 
-    var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
-        STATUS_BOWER = "status-bower";
+    // local module
+    var StatusDisplay = require("src/StatusDisplay");
+
+    var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower";
 
     var nodeConnection,
         nodePromise = new $.Deferred(),
         packageListPromise,
-        modalBar,
         queue = [],
         packages,
         installPromise,
         latestQuery,
         failed = [],
-        lastFetchTime,
-        $fetchSpinner,
-        $status,
-        $statusPackages;
-    
+        lastFetchTime;
 
-    function _showStatus(status, busy) {
-        if (!$status) {
-            $status = $("<div class='bower-install-status hidden'><div class='inner'><span class='text'></span><div class='spinner'></div></div></div>")
-                .insertAfter($("#project-files-header"));
-            setTimeout(function () {
-                $status.removeClass("hidden");
-            }, 0);
-        }
-        status = status || "";
-        $status.find(".text").text(status);
-        $status.find(".spinner").toggleClass("spin", busy);
-    }
-
-    function _hideStatusLater() {
-        setTimeout(function () {
-            if ($status) {
-                $status.addClass("hidden")
-                    .on("webkitTransitionEnd", function () {
-                        $status.remove();
-                        $status = null;
-                    });
-            }
-        }, 3000);
-    }
-
-    function _showLoadingPackagesStatus(text, busy) {
-        if (!$statusPackages) {
-            var message = [
-                    "<div class='bower-loading-status'>",
-                    "<span id='loading-text'></span>",
-                    "<span class='spinner'></span>",
-                    "</div>"
-                ];
-
-            $statusPackages = $(message.join(""));
-            $statusPackages.appendTo("#status-info");
-        }
-
-        $statusPackages.find("#loading-text").text(text);
-        $statusPackages.find(".spinner").toggleClass("spin", busy);
-    }
-
-    function _hideLoadingPackagesStatus() {
-        setTimeout(function () {
-            if ($statusPackages) {
-                console.log("#################");
-                $statusPackages.remove();
-                $statusPackages = null;
-            }
-        }, 500);
-    }
-
-    function _showFetchSpinner() {
-        // Bit of a hack that we know the actual element here.
-        var $quickOpenInput = $("#quickOpenSearch"),
-            $parent = $quickOpenInput.parent(),
-            $label = $parent.find("span.find-dialog-label"),
-            inputOffset = $quickOpenInput.offset(),
-            inputWidth = $quickOpenInput.outerWidth(),
-            inputHeight = $quickOpenInput.outerHeight(),
-            parentOffset = $parent.offset(),
-            parentWidth = $parent.outerWidth(),
-            parentPosition = $parent.position(),
-
-            // This calculation is a little nasty because the parent modal bar isn't actually position: relative,
-            // so we both have to account for the input's offset within the modal bar as well as the modal bar's
-            // position within its offset parent.
-            spinnerTop = parentPosition.top + inputOffset.top - parentOffset.top + (inputHeight / 2) - 7,
-
-            // Hack: for now we don't deal with the modal bar's offset parent for the horizontal calculation since we
-            // happen to know it's the full width.
-            spinnerRight = (parentOffset.left + parentWidth) - (inputOffset.left + inputWidth) + 14;
-
-        if ($label) {
-            $label.css({
-                right: "40px"
-            });
-        }
-
-        $fetchSpinner = $("<div class='spinner spin'/>")
-            .css({
-                position: "absolute",
-                top: spinnerTop + "px",
-                right: spinnerRight + "px"
-            })
-            .appendTo($parent);
-    }
-
-    function _hideFetchSpinner() {
-        if ($fetchSpinner) {
-            $fetchSpinner.remove();
-        }
-    }
 
     function _installNext() {
         if (installPromise || queue.length === 0) {
@@ -160,12 +63,14 @@ define(function (require, exports, module) {
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
         var pkgName = queue.shift();
-        _showStatus("Installing " + pkgName + "...", true);
+
+        StatusDisplay.showInProject("Installing " + pkgName + "...", true);
+
         installPromise = nodeConnection.domains.bower.installPackage(
             ProjectManager.getProjectRoot().fullPath,
             pkgName
         ).done(function (error) {
-            _showStatus("Installed " + pkgName, false);
+            StatusDisplay.showInProject("Installed " + pkgName, false);
             
             var rootPath = ProjectManager.getProjectRoot().fullPath,
                 rootDir = FileSystem.getDirectoryForPath(rootPath),
@@ -188,10 +93,10 @@ define(function (require, exports, module) {
             installPromise = null;
             if (queue.length === 0) {
                 if (failed.length > 0) {
-                    _showStatus("Error installing " + failed.join(", "), false);
+                    StatusDisplay.showInProject("Error installing " + failed.join(", "), false);
                     failed = [];
                 }
-                _hideStatusLater();
+                StatusDisplay.hideInProject();
             } else {
                 _installNext();
             }
@@ -258,16 +163,16 @@ define(function (require, exports, module) {
             if (!packageListPromise) {
                 packageListPromise = new $.Deferred();
 
-                _showFetchSpinner();
-                _showLoadingPackagesStatus("Loading Bower registry", true);
+                StatusDisplay.showQuickSearchSpinner();
+                StatusDisplay.showStatusInfo("Loading Bower Registry", true);
 
                 _fetchPackageList()
                     .done(packageListPromise.resolve)
                     .fail(packageListPromise.reject)
                     .always(function () {
-                        _hideFetchSpinner();
-                        _showLoadingPackagesStatus("Ready", false);
-                        _hideLoadingPackagesStatus();
+                        StatusDisplay.hideQuickSearchSpinner();
+                        StatusDisplay.showStatusInfo("Bower Registry Ready", false);
+                        StatusDisplay.hideStatusInfo();
 
                         packageListPromise = null;
                     });
