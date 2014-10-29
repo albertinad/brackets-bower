@@ -39,7 +39,7 @@ define(function (require, exports, module) {
         ProjectManager = brackets.getModule("project/ProjectManager"),
         StatusBar      = brackets.getModule("widgets/StatusBar"),
         FileSystem     = brackets.getModule("filesystem/FileSystem");
-    
+
     var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
         STATUS_BOWER = "status-bower";
 
@@ -52,10 +52,12 @@ define(function (require, exports, module) {
         installPromise,
         latestQuery,
         failed = [],
-        $fetchSpinner,
         lastFetchTime,
-        $status;
+        $fetchSpinner,
+        $status,
+        $statusPackages;
     
+
     function _showStatus(status, busy) {
         if (!$status) {
             $status = $("<div class='bower-install-status hidden'><div class='inner'><span class='text'></span><div class='spinner'></div></div></div>")
@@ -68,7 +70,7 @@ define(function (require, exports, module) {
         $status.find(".text").text(status);
         $status.find(".spinner").toggleClass("spin", busy);
     }
-    
+
     function _hideStatusLater() {
         setTimeout(function () {
             if ($status) {
@@ -79,6 +81,75 @@ define(function (require, exports, module) {
                     });
             }
         }, 3000);
+    }
+
+    function _showLoadingPackagesStatus(text, busy) {
+        if (!$statusPackages) {
+            var message = [
+                    "<div class='bower-loading-status'>",
+                    "<span id='loading-text'></span>",
+                    "<span class='spinner'></span>",
+                    "</div>"
+                ];
+
+            $statusPackages = $(message.join(""));
+            $statusPackages.appendTo("#status-info");
+        }
+
+        $statusPackages.find("#loading-text").text(text);
+        $statusPackages.find(".spinner").toggleClass("spin", busy);
+    }
+
+    function _hideLoadingPackagesStatus() {
+        setTimeout(function () {
+            if ($statusPackages) {
+                console.log("#################");
+                $statusPackages.remove();
+                $statusPackages = null;
+            }
+        }, 500);
+    }
+
+    function _showFetchSpinner() {
+        // Bit of a hack that we know the actual element here.
+        var $quickOpenInput = $("#quickOpenSearch"),
+            $parent = $quickOpenInput.parent(),
+            $label = $parent.find("span.find-dialog-label"),
+            inputOffset = $quickOpenInput.offset(),
+            inputWidth = $quickOpenInput.outerWidth(),
+            inputHeight = $quickOpenInput.outerHeight(),
+            parentOffset = $parent.offset(),
+            parentWidth = $parent.outerWidth(),
+            parentPosition = $parent.position(),
+
+            // This calculation is a little nasty because the parent modal bar isn't actually position: relative,
+            // so we both have to account for the input's offset within the modal bar as well as the modal bar's
+            // position within its offset parent.
+            spinnerTop = parentPosition.top + inputOffset.top - parentOffset.top + (inputHeight / 2) - 7,
+
+            // Hack: for now we don't deal with the modal bar's offset parent for the horizontal calculation since we
+            // happen to know it's the full width.
+            spinnerRight = (parentOffset.left + parentWidth) - (inputOffset.left + inputWidth) + 14;
+
+        if ($label) {
+            $label.css({
+                right: "40px"
+            });
+        }
+
+        $fetchSpinner = $("<div class='spinner spin'/>")
+            .css({
+                position: "absolute",
+                top: spinnerTop + "px",
+                right: spinnerRight + "px"
+            })
+            .appendTo($parent);
+    }
+
+    function _hideFetchSpinner() {
+        if ($fetchSpinner) {
+            $fetchSpinner.remove();
+        }
     }
 
     function _installNext() {
@@ -143,71 +214,39 @@ define(function (require, exports, module) {
     
     function _fetchPackageList() {
         var result = new $.Deferred();
-        nodePromise.done(function () {
-            nodeConnection.domains.bower.getPackages().done(function (pkgs) {
+
+        nodePromise
+            .then(function () {
+                return nodeConnection.domains.bower.getPackages();
+            })
+            .then(function (pkgs) {
                 pkgs.sort(function (pkg1, pkg2) {
-                    var name1 = pkg1.name.toLowerCase(), name2 = pkg2.name.toLowerCase();
+                    var name1 = pkg1.name.toLowerCase(),
+                        name2 = pkg2.name.toLowerCase();
+
                     return (name1 < name2 ? -1 : (name1 === name2 ? 0 : 1));
                 });
+
                 packages = pkgs;
+
                 result.resolve();
-            }).fail(result.reject);
-        }).fail(result.reject);
+            })
+            .fail(result.reject);
+
         return result;
     }
     
-    function _showFetchSpinner() {
-        // Bit of a hack that we know the actual element here.
-        var $quickOpenInput = $("#quickOpenSearch"),
-            $parent = $quickOpenInput.parent(),
-            $label = $parent.find("span.find-dialog-label"),
-            inputOffset = $quickOpenInput.offset(),
-            inputWidth = $quickOpenInput.outerWidth(),
-            inputHeight = $quickOpenInput.outerHeight(),
-            parentOffset = $parent.offset(),
-            parentWidth = $parent.outerWidth(),
-            parentPosition = $parent.position(),
-
-            // This calculation is a little nasty because the parent modal bar isn't actually position: relative,
-            // so we both have to account for the input's offset within the modal bar as well as the modal bar's
-            // position within its offset parent.
-            spinnerTop = parentPosition.top + inputOffset.top - parentOffset.top + (inputHeight / 2) - 7,
-
-            // Hack: for now we don't deal with the modal bar's offset parent for the horizontal calculation since we
-            // happen to know it's the full width.
-            spinnerRight = (parentOffset.left + parentWidth) - (inputOffset.left + inputWidth) + 14;
-
-        if ($label) {
-            $label.css({
-                right: "40px"
-            });
-        }
-
-        $fetchSpinner = $("<div class='spinner spin'/>")
-            .css({
-                position: "absolute",
-                top: spinnerTop + "px",
-                right: spinnerRight + "px"
-            })
-            .appendTo($parent);
-    }
-    
-    function _hideFetchSpinner() {
-        if ($fetchSpinner) {
-            $fetchSpinner.remove();
-        }
-    }
-    
     function _search(query, matcher) {
-        var curTime = Date.now();
+        var curTime = Date.now(),
+            maxTime = 1000 * 60 * 10; // 10 minutes
         latestQuery = query;
 
-        if (packages && (lastFetchTime === undefined || curTime - lastFetchTime > 1000 * 60 * 10)) {
+        if (packages && (lastFetchTime === undefined || curTime - lastFetchTime > maxTime)) {
             // Packages were fetched more than ten minutes ago. Force a refetch.
             packages = null;
         }
         
-        if (lastFetchTime === undefined || curTime - lastFetchTime > 1000 * 60 * 10) {
+        if (lastFetchTime === undefined || curTime - lastFetchTime > maxTime) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
             packages = null;
             packageListPromise = null;
@@ -218,12 +257,18 @@ define(function (require, exports, module) {
             // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
             if (!packageListPromise) {
                 packageListPromise = new $.Deferred();
+
                 _showFetchSpinner();
+                _showLoadingPackagesStatus("Loading Bower registry", true);
+
                 _fetchPackageList()
                     .done(packageListPromise.resolve)
                     .fail(packageListPromise.reject)
                     .always(function () {
                         _hideFetchSpinner();
+                        _showLoadingPackagesStatus("Ready", false);
+                        _hideLoadingPackagesStatus();
+
                         packageListPromise = null;
                     });
             }
