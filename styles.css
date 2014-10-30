@@ -6,17 +6,13 @@
     z-index: 10;
     bottom: 0;
     height: 27px;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    transition: bottom 250ms cubic-bezier(0, 1.02, 0.6, 1);
 }
 
 .bower-loading-status {
     padding-left: 10px;
-}
-
-.bower-install-status,
-.bower-loading-status {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    transition: bottom 250ms cubic-bezier(0, 1.02, 0.6, 1);
 }
 
 .bower-install-status.hidden {
@@ -26,7 +22,7 @@
 .bower-install-status .inner {
     padding: 5px 12px;
     font-size: 13px;
-    font-style: italic;    
+    font-style: italic;
     color: #94A3A7;
 }
 

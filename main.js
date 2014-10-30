@@ -32,6 +32,7 @@ define(function (require, exports, module) {
     var AppInit        = brackets.getModule("utils/AppInit"),
         ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
         NodeConnection = brackets.getModule("utils/NodeConnection"),
+        StringMatch    = brackets.getModule("utils/StringMatch"),
         CommandManager = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus          = brackets.getModule("command/Menus"),
@@ -52,7 +53,8 @@ define(function (require, exports, module) {
         installPromise,
         latestQuery,
         failed = [],
-        lastFetchTime;
+        lastFetchTime,
+        status = StatusDisplay.create();
 
 
     function _installNext() {
@@ -64,13 +66,13 @@ define(function (require, exports, module) {
         // BowerDomain?)
         var pkgName = queue.shift();
 
-        StatusDisplay.showInProject("Installing " + pkgName + "...", true);
+        status.showInProject("Installing " + pkgName + "...", true);
 
         installPromise = nodeConnection.domains.bower.installPackage(
             ProjectManager.getProjectRoot().fullPath,
             pkgName
         ).done(function (error) {
-            StatusDisplay.showInProject("Installed " + pkgName, false);
+            status.showInProject("Installed " + pkgName, false);
             
             var rootPath = ProjectManager.getProjectRoot().fullPath,
                 rootDir = FileSystem.getDirectoryForPath(rootPath),
@@ -93,10 +95,10 @@ define(function (require, exports, module) {
             installPromise = null;
             if (queue.length === 0) {
                 if (failed.length > 0) {
-                    StatusDisplay.showInProject("Error installing " + failed.join(", "), false);
+                    status.showInProject("Error installing " + failed.join(", "), false);
                     failed = [];
                 }
-                StatusDisplay.hideInProject();
+                status.hideInProject();
             } else {
                 _installNext();
             }
@@ -163,16 +165,16 @@ define(function (require, exports, module) {
             if (!packageListPromise) {
                 packageListPromise = new $.Deferred();
 
-                StatusDisplay.showQuickSearchSpinner();
-                StatusDisplay.showStatusInfo("Loading Bower Registry", true);
+                status.showQuickSearchSpinner();
+                status.showStatusInfo("Loading Bower Registry", true);
 
                 _fetchPackageList()
                     .done(packageListPromise.resolve)
                     .fail(packageListPromise.reject)
                     .always(function () {
-                        StatusDisplay.hideQuickSearchSpinner();
-                        StatusDisplay.showStatusInfo("Bower Registry Ready", false);
-                        StatusDisplay.hideStatusInfo();
+                        status.hideQuickSearchSpinner();
+                        status.showStatusInfo("Bower Registry Ready", false);
+                        status.hideStatusInfo();
 
                         packageListPromise = null;
                     });
@@ -204,7 +206,7 @@ define(function (require, exports, module) {
         });
         
         // Sort based on ranking & basic alphabetical order
-        QuickOpen.basicMatchSort(filteredList);
+        StringMatch.basicMatchSort(filteredList);
 
         return filteredList;
     }

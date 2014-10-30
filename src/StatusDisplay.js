@@ -29,80 +29,71 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var $fetchSpinner,
-        $statusProject,
-        $statusInfo;
-    
-    var insertType = {
-        AFTER: 0,
-        APPEND: 1
+    var AppInit = brackets.getModule("utils/AppInit");
+
+    var $sectionProjectFiles,
+        $sectionStatusInfo,
+        insertType = {
+            AFTER: 0,
+            APPEND: 1
+        };
+
+    /**
+     * @constructor
+     */
+    function StatusDisplay() {
+        this._$fetchSpinner = null;
+        this._$statusProject = null;
+        this._$statusInfo = null;
+
+        this._templateShowInProject = null;
+        this._templateShowInStatus = null;
+    }
+
+    StatusDisplay.prototype.initialize = function () {
+        this._templateShowInProject = [
+            "<div class='bower-install-status hidden'>",
+            "<div class='inner'>",
+            "<span class='text'>",
+            "</span><div class='spinner'></div>",
+            "</div></div>"
+        ].join("");
+
+        this._templateShowInStatus = [
+            "<div class='bower-loading-status'>",
+            "<span class='text'></span>",
+            "<span class='spinner'></span>",
+            "</div>"
+        ].join("");
+
+        this._templateSpinner = "<div class='spinner spin'></div>";
     };
 
-    function _internalShow($element, $parent, insertType, template, text, busy) {
-        if (!$element) {
-            $element = $(template);
-            
-            if(insertType === insertType.AFTER) {
-                $element.insertAfter($parent);
-            } else {
-                $parent.append($element);
-            }
-            
-            setTimeout(function () {
-                $element.removeClass("hidden");
-            }, 0);
+    StatusDisplay.prototype.showInProject = function (text, busy) {
+        if(this._$statusProject === null || this._$statusProject === undefined) {
+            this._$statusProject = $(this._templateShowInProject);
         }
 
-        text = text || "";
+        this._internalShow(this._$statusProject, $sectionProjectFiles, insertType.AFTER, text, busy);
+    };
 
-        $element.find(".text").text(text);
-        $element.find(".spinner").toggleClass("spin", busy);
-    }
+    StatusDisplay.prototype.hideInProject = function () {
+        this._internalHideLaterAnimation($statusProject);
+    };
 
-    function _internalHideLater($element, time) {
-        time = time || 3000;
-
-        function hide() {
-            if ($element) {
-                $element.addClass("hidden")
-                    .on("webkitTransitionEnd", function () {
-                        $element.remove();
-                        $element = null;
-                    });
-            }
+    StatusDisplay.prototype.showStatusInfo = function (text, busy) {
+        if(this._$statusInfo === null || this._$statusInfo === undefined) {
+            this._$statusInfo = $(this._templateShowInStatus);
         }
 
-        setTimeout(hide, time);
-    }
+        this._internalShow(this._$statusInfo, $sectionStatusInfo, insertType.APPEND, text, busy);
+    };
 
-    function showInProject(statusText, busy) {
-        var $sectionProjects = $("#project-files-header"),
-            template = "<div class='bower-install-status hidden'><div class='inner'><span class='text'></span><div class='spinner'></div></div></div>";
+    StatusDisplay.prototype.hideStatusInfo = function () {
+        this._internalHideLater(this._$statusInfo);
+    };
 
-        _internalShow($statusProject, $sectionProjects, insertType.AFTER, template, statusText, busy);
-    }
-
-    function hideInProject() {
-        _internalHideLater($statusProject);
-    }
-
-    function showStatusInfo(statusText, busy) {
-        var $sectionStatusInfo = $("#status-info"),
-            template = [
-                "<div class='bower-loading-status'>",
-                "<span class='text'></span>",
-                "<span class='spinner'></span>",
-                "</div>"
-            ].join("");
-
-        _internalShow($statusInfo, $sectionStatusInfo, insertType.APPEND, template, statusText, busy);
-    }
-
-    function hideStatusInfo() {
-        _internalHideLater($statusInfo);
-    }
-
-    function showQuickSearchSpinner() {
+    StatusDisplay.prototype.showQuickSearchSpinner = function () {
         // Bit of a hack that we know the actual element here.
         var $quickOpenInput = $("#quickOpenSearch"),
             $parent = $quickOpenInput.parent(),
@@ -129,27 +120,96 @@ define(function (require, exports) {
             });
         }
 
-        $fetchSpinner = $("<div class='spinner spin'></div>")
+        this._$fetchSpinner = $(this._templateSpinner)
             .css({
                 position: "absolute",
                 top: spinnerTop + "px",
                 right: spinnerRight + "px"
             })
             .appendTo($parent);
+    };
+
+    StatusDisplay.prototype.hideQuickSearchSpinner = function () {
+        if (this._$fetchSpinner) {
+            this._$fetchSpinner.remove();
+        }
+    };
+
+    /**
+     * @private
+     */
+    StatusDisplay.prototype._internalShow = function ($element, $parent, insertType, text, busy) {
+        var hasChildren = $parent.find($element).length !== 0;
+
+        if (!hasChildren) {
+            if (insertType === insertType.AFTER) {
+                $element.insertAfter($parent);
+            } else {
+                $parent.append($element);
+            }
+
+            window.setTimeout(function () {
+                $element.removeClass("hidden");
+            }, 0);
+        }
+
+        text = text || "";
+
+        $element.find(".text").text(text);
+        $element.find(".spinner").toggleClass("spin", busy);
+    };
+
+    /**
+     * @private
+     */
+    StatusDisplay.prototype._internalHideLaterAnimation = function ($element, time) {
+        time = time || 3000;
+
+        function hide() {
+            if ($element) {
+                $element.addClass("hidden")
+                    .on("webkitTransitionEnd", function () {
+                        $element.remove();
+                        $element = null;
+                    });
+            }
+        }
+
+        window.setTimeout(hide, time);
+    };
+
+    /**
+     * @private
+     */
+    StatusDisplay.prototype._internalHideLater = function ($element, time) {
+        time = time || 3000;
+
+        function hide() {
+            if ($element) {
+                $element.remove();
+                $element = null;
+            }
+        }
+
+        window.setTimeout(hide, time);
+    };
+
+    /**
+     * @return {StatusDisplay}
+     */
+    function createStatusDisplay() {
+        var status = new StatusDisplay();
+        status.initialize();
+
+        return status;
     }
 
-    function hideQuickSearchSpinner() {
-        if ($fetchSpinner) {
-            $fetchSpinner.remove();
-        }
-    }
+    AppInit.htmlReady(function () {
+        $sectionProjectFiles = $("#project-files-header");
+        $sectionStatusInfo = $("#status-info");
+    });
 
     // public API
 
-    exports.showInProject = showInProject;
-    exports.hideInProject = hideInProject;
-    exports.showStatusInfo = showStatusInfo;
-    exports.hideStatusInfo = hideStatusInfo;
-    exports.showQuickSearchSpinner = showQuickSearchSpinner;
-    exports.hideQuickSearchSpinner = hideQuickSearchSpinner;
+    exports.create = createStatusDisplay;
 });
