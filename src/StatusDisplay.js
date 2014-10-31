@@ -70,7 +70,7 @@ define(function (require, exports) {
     };
 
     StatusDisplay.prototype.showInProject = function (text, busy) {
-        if(this._$statusProject === null || this._$statusProject === undefined) {
+        if (this._$statusProject === null || this._$statusProject === undefined) {
             this._$statusProject = $(this._templateShowInProject);
         }
 
@@ -82,7 +82,7 @@ define(function (require, exports) {
     };
 
     StatusDisplay.prototype.showStatusInfo = function (text, busy) {
-        if(this._$statusInfo === null || this._$statusInfo === undefined) {
+        if (this._$statusInfo === null || this._$statusInfo === undefined) {
             this._$statusInfo = $(this._templateShowInStatus);
         }
 
