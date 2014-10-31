@@ -5,14 +5,11 @@
     border-top: 1px solid #474a4b;
     z-index: 10;
     bottom: 0;
+    left: 0;
     height: 27px;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     transition: bottom 250ms cubic-bezier(0, 1.02, 0.6, 1);
-}
-
-.bower-loading-status {
-    padding-left: 10px;
 }
 
 .bower-install-status.hidden {
@@ -24,6 +21,18 @@
     font-size: 13px;
     font-style: italic;
     color: #94A3A7;
+}
+
+.bower-install-status .inner .text {
+    display: inline-block;
+    width: calc(100% - 20px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.bower-loading-status {
+    padding-left: 10px;
 }
 
 .bower-loading-status .spinner,

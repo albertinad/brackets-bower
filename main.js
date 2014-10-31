@@ -163,17 +163,27 @@ define(function (require, exports, module) {
         if (!packages) {
             // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
             if (!packageListPromise) {
+                var displayMessage = "Loading Bower Registry";
+
                 packageListPromise = new $.Deferred();
 
                 status.showQuickSearchSpinner();
-                status.showStatusInfo("Loading Bower Registry", true);
+                status.showStatusInfo(displayMessage, true);
 
                 _fetchPackageList()
-                    .done(packageListPromise.resolve)
-                    .fail(packageListPromise.reject)
+                    .done(function () {
+                        displayMessage = "Bower Registry Ready";
+
+                        packageListPromise.resolve();
+                    })
+                    .fail(function () {
+                        displayMessage = "Loading Bower Registry fails...";
+
+                        packageListPromise.reject();
+                    })
                     .always(function () {
                         status.hideQuickSearchSpinner();
-                        status.showStatusInfo("Bower Registry Ready", false);
+                        status.showStatusInfo(displayMessage, false);
                         status.hideStatusInfo();
 
                         packageListPromise = null;
@@ -222,7 +232,7 @@ define(function (require, exports, module) {
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(bowerInstallCmd);
         
-        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Ctrl-Shift-B"});
+        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Shift-Alt-B"});
         
         ExtensionUtils.loadStyleSheet(module, "styles.css");
 

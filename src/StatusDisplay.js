@@ -78,7 +78,7 @@ define(function (require, exports) {
     };
 
     StatusDisplay.prototype.hideInProject = function () {
-        this._internalHideLaterAnimation($statusProject);
+        this._internalHideLaterAnimation(this._$statusProject);
     };
 
     StatusDisplay.prototype.showStatusInfo = function (text, busy) {
