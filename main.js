@@ -66,13 +66,13 @@ define(function (require, exports, module) {
         // BowerDomain?)
         var pkgName = queue.shift();
 
-        status.showInProject("Installing " + pkgName + "...", true);
+        status.showStatusInfo("Installing " + pkgName + "...", true);
 
         installPromise = nodeConnection.domains.bower.installPackage(
             ProjectManager.getProjectRoot().fullPath,
             pkgName
         ).done(function (error) {
-            status.showInProject("Installed " + pkgName, false);
+            status.showStatusInfo("Installed " + pkgName, false);
             
             var rootPath = ProjectManager.getProjectRoot().fullPath,
                 rootDir = FileSystem.getDirectoryForPath(rootPath),
@@ -95,10 +95,10 @@ define(function (require, exports, module) {
             installPromise = null;
             if (queue.length === 0) {
                 if (failed.length > 0) {
-                    status.showInProject("Error installing " + failed.join(", "), false);
+                    status.showStatusInfo("Error installing " + failed.join(", "), false);
                     failed = [];
                 }
-                status.hideInProject();
+                status.hideStatusInfo();
             } else {
                 _installNext();
             }
