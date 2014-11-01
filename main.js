@@ -146,6 +146,10 @@ define(function (require, exports, module) {
     function _search(query, matcher) {
         var curTime = Date.now(),
             maxTime = 1000 * 60 * 10; // 10 minutes
+
+        // Remove initial "+"
+        query = query.slice(1);
+
         latestQuery = query;
 
         if (packages && (lastFetchTime === undefined || curTime - lastFetchTime > maxTime)) {
@@ -159,11 +163,11 @@ define(function (require, exports, module) {
             packageListPromise = null;
             lastFetchTime = curTime;
         }
-        
+
         if (!packages) {
             // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
             if (!packageListPromise) {
-                var displayMessage = "Loading Bower Registry";
+                var displayMessage = "Loading Bower registry";
 
                 packageListPromise = new $.Deferred();
 
@@ -172,12 +176,12 @@ define(function (require, exports, module) {
 
                 _fetchPackageList()
                     .done(function () {
-                        displayMessage = "Bower Registry Ready";
+                        displayMessage = "Bower registry ready";
 
                         packageListPromise.resolve();
                     })
                     .fail(function () {
-                        displayMessage = "Loading Bower Registry fails...";
+                        displayMessage = "Couldn't load Bower registry";
 
                         packageListPromise.reject();
                     })
@@ -193,19 +197,19 @@ define(function (require, exports, module) {
             // Due to bugs in smart autocomplete, we have to return separate promises for each call
             // to _search, but make sure to only resolve the last one.
             var result = new $.Deferred();
+
             packageListPromise.done(function () {
-                if (query === latestQuery) {
+                // validate for an empty string avoids an exception in smart autocomplete
+                if (query === latestQuery && query.trim() !== "") {
                     result.resolve(_search(latestQuery, matcher));
                 } else {
                     result.reject();
                 }
             });
+
             return result.promise();
         }
-        
-        // Remove initial "+"
-        query = query.slice(1);
-        
+
         // Filter and rank how good each match is
         var filteredList = $.map(packages, function (pkg) {
             var searchResult = matcher.match(pkg.name, query);
@@ -214,15 +218,17 @@ define(function (require, exports, module) {
             }
             return searchResult;
         });
-        
+
         // Sort based on ranking & basic alphabetical order
         StringMatch.basicMatchSort(filteredList);
 
         return filteredList;
     }
-    
+
     function _itemSelect(result) {
-        _addToQueue(result.pkg.name);
+        if(result) {
+            _addToQueue(result.pkg.name);
+        }
     }
     
     function _init() {
@@ -232,7 +238,7 @@ define(function (require, exports, module) {
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(bowerInstallCmd);
         
-        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Shift-Alt-B"});
+        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Cmd-Alt-B"});
         
         ExtensionUtils.loadStyleSheet(module, "styles.css");
 
