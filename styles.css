@@ -5,6 +5,7 @@
     border-top: 1px solid #474a4b;
     z-index: 10;
     bottom: 0;
+    left: 0;
     height: 27px;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
@@ -18,10 +19,27 @@
 .bower-install-status .inner {
     padding: 5px 12px;
     font-size: 13px;
-    font-style: italic;    
+    font-style: italic;
     color: #94A3A7;
 }
 
+.bower-install-status .inner .text {
+    display: inline-block;
+    width: calc(100% - 20px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.bower-loading-status {
+    padding-left: 10px;
+}
+
+.bower-loading-status .spinner,
 .bower-install-status .spinner {
     margin-left: 5px;
+}
+
+.bower-loading-status .spinner {
+    top: 3px;
 }
