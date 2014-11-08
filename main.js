@@ -61,6 +61,9 @@ define(function (require, exports, module) {
         if (installPromise || queue.length === 0) {
             return;
         }
+
+        var rootPath = ProjectManager.getProjectRoot().fullPath,
+            bowerPath = rootPath + "bower_components/";
         
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
@@ -69,30 +72,21 @@ define(function (require, exports, module) {
         status.showStatusInfo("Installing " + pkgName + "...", true);
 
         installPromise = nodeConnection.domains.bower.installPackage(
-            ProjectManager.getProjectRoot().fullPath,
+            rootPath,
             pkgName
         ).done(function (error) {
             status.showStatusInfo("Installed " + pkgName, false);
-            
-            var rootPath = ProjectManager.getProjectRoot().fullPath,
-                rootDir = FileSystem.getDirectoryForPath(rootPath),
-                bowerPath = rootPath + "bower_components/",
-                bowerDir = FileSystem.getDirectoryForPath(bowerPath);
 
-            // Temporary hack to deal with the fact that the filesystem caches directory entries and
-            // doesn't refresh unless you switch away from the Brackets window and back. This should
-            // go away when we have file watchers.
-            rootDir._clearCachedData();
-            bowerDir._clearCachedData();
-            
-            ProjectManager.refreshFileTree().done(function () {
+            setTimeout(function () {
                 ProjectManager.showInTree(FileSystem.getDirectoryForPath(bowerPath + pkgName));
-            });
+            }, 1000);
+
         }).fail(function (error) {
             // Make sure the user sees the error even if other packages get installed.
             failed.push(pkgName);
         }).always(function () {
             installPromise = null;
+
             if (queue.length === 0) {
                 if (failed.length > 0) {
                     status.showStatusInfo("Error installing " + failed.join(", "), false);
@@ -226,7 +220,7 @@ define(function (require, exports, module) {
     }
 
     function _itemSelect(result) {
-        if(result) {
+        if (result) {
             _addToQueue(result.pkg.name);
         }
     }
