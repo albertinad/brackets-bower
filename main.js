@@ -232,7 +232,7 @@ define(function (require, exports, module) {
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(bowerInstallCmd);
         
-        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Cmd-Alt-B"});
+        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Ctrl-Alt-B"});
         
         ExtensionUtils.loadStyleSheet(module, "styles.css");
 
