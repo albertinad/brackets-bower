@@ -1,24 +1,24 @@
 /*
  * Copyright (c) 2013 Narciso Jaramillo. All rights reserved.
- *  
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"), 
- * to deal in the Software without restriction, including without limitation 
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- *  
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *  
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
+ *
  */
 
 
@@ -29,21 +29,24 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var AppInit        = brackets.getModule("utils/AppInit"),
-        ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
-        NodeConnection = brackets.getModule("utils/NodeConnection"),
-        StringMatch    = brackets.getModule("utils/StringMatch"),
-        CommandManager = brackets.getModule("command/CommandManager"),
+    var AppInit           = brackets.getModule("utils/AppInit"),
+        ExtensionUtils    = brackets.getModule("utils/ExtensionUtils"),
+        NodeConnection    = brackets.getModule("utils/NodeConnection"),
+        StringMatch       = brackets.getModule("utils/StringMatch"),
+        StringUtils       = brackets.getModule("utils/StringUtils"),
+        CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
-        Menus          = brackets.getModule("command/Menus"),
-        QuickOpen      = brackets.getModule("search/QuickOpen"),
-        ProjectManager = brackets.getModule("project/ProjectManager"),
-        FileSystem     = brackets.getModule("filesystem/FileSystem");
+        Menus             = brackets.getModule("command/Menus"),
+        QuickOpen         = brackets.getModule("search/QuickOpen"),
+        ProjectManager    = brackets.getModule("project/ProjectManager"),
+        FileSystem        = brackets.getModule("filesystem/FileSystem");
 
     // local module
-    var StatusDisplay = require("src/StatusDisplay");
+    var StatusDisplay = require("src/StatusDisplay"),
+        Strings       = require("strings");
 
-    var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower";
+    var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
+        KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     var nodeConnection,
         nodePromise = new $.Deferred(),
@@ -64,18 +67,18 @@ define(function (require, exports, module) {
 
         var rootPath = ProjectManager.getProjectRoot().fullPath,
             bowerPath = rootPath + "bower_components/";
-        
+
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
         var pkgName = queue.shift();
 
-        status.showStatusInfo("Installing " + pkgName + "...", true);
+        status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
 
         installPromise = nodeConnection.domains.bower.installPackage(
             rootPath,
             pkgName
         ).done(function (error) {
-            status.showStatusInfo("Installed " + pkgName, false);
+            status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
             setTimeout(function () {
                 ProjectManager.showInTree(FileSystem.getDirectoryForPath(bowerPath + pkgName));
@@ -89,7 +92,8 @@ define(function (require, exports, module) {
 
             if (queue.length === 0) {
                 if (failed.length > 0) {
-                    status.showStatusInfo("Error installing " + failed.join(", "), false);
+                    var errorMessage = StringUtils.format(Strings.STATUS_ERROR_INSTALLING, failed.join(", "));
+                    status.showStatusInfo(errorMessage, false);
                     failed = [];
                 }
                 status.hideStatusInfo();
@@ -98,21 +102,21 @@ define(function (require, exports, module) {
             }
         });
     }
-    
+
     function _addToQueue(pkgName) {
         queue.push(pkgName);
         _installNext();
     }
-    
+
     function _quickOpenBower() {
         QuickOpen.beginSearch("+", "");
     }
-    
+
     function _match(query) {
         // TODO: doesn't seem to work if no file is open. Bug in Quick Open?
         return (query.length > 0 && query.charAt(0) === "+");
     }
-    
+
     function _fetchPackageList() {
         var result = new $.Deferred();
 
@@ -136,7 +140,7 @@ define(function (require, exports, module) {
 
         return result;
     }
-    
+
     function _search(query, matcher) {
         var curTime = Date.now(),
             maxTime = 1000 * 60 * 10; // 10 minutes
@@ -150,7 +154,7 @@ define(function (require, exports, module) {
             // Packages were fetched more than ten minutes ago. Force a refetch.
             packages = null;
         }
-        
+
         if (lastFetchTime === undefined || curTime - lastFetchTime > maxTime) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
             packages = null;
@@ -161,7 +165,7 @@ define(function (require, exports, module) {
         if (!packages) {
             // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
             if (!packageListPromise) {
-                var displayMessage = "Loading Bower registry";
+                var displayMessage = Strings.STATUS_BOWER_LOADING;
 
                 packageListPromise = new $.Deferred();
 
@@ -170,12 +174,12 @@ define(function (require, exports, module) {
 
                 _fetchPackageList()
                     .done(function () {
-                        displayMessage = "Bower registry ready";
+                        displayMessage = Strings.STATUS_BOWER_READY;
 
                         packageListPromise.resolve();
                     })
                     .fail(function () {
-                        displayMessage = "Couldn't load Bower registry";
+                        displayMessage = Strings.STATUS_BOWER_NOT_LOADED;
 
                         packageListPromise.reject();
                     })
@@ -224,16 +228,18 @@ define(function (require, exports, module) {
             _addToQueue(result.pkg.name);
         }
     }
-    
+
     function _init() {
-        var bowerInstallCmd = CommandManager.register("Install from Bower...", CMD_INSTALL_FROM_BOWER, _quickOpenBower),
+        var bowerInstallCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, _quickOpenBower),
             fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
-        
+
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(bowerInstallCmd);
-        
-        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {key: "Ctrl-Alt-B"});
-        
+
+        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {
+            key: KEY_INSTALL_FROM_BOWER
+        });
+
         ExtensionUtils.loadStyleSheet(module, "styles.css");
 
         AppInit.appReady(function () {
@@ -254,9 +260,9 @@ define(function (require, exports, module) {
             search: _search,
             match: _match,
             itemSelect: _itemSelect,
-            label: "Install from Bower"
+            label: Strings.TITLE_QUICK_OPEN
         });
     }
-    
+
     _init();
 });
