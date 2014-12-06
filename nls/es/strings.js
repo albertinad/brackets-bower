@@ -30,7 +30,7 @@ define({
     "STATUS_BOWER_LOADING": "Cargando registro de Bower",
     "STATUS_BOWER_READY": "Registro de Bower preparado",
     "STATUS_BOWER_NOT_LOADED": "No se pudo cargar el registro de Bower",
-    "STATUS_INSTALLING_PKG ": "Instalando {0} ...",
+    "STATUS_INSTALLING_PKG": "Instalando {0} ...",
     "STATUS_PKG_INSTALLED": "{0} instalado",
     "STATUS_ERROR_INSTALLING": "Error en la instalación de {0}"
 });

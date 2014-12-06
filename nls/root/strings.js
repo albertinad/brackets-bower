@@ -30,7 +30,7 @@ define({
     "STATUS_BOWER_LOADING": "Loading Bower registry",
     "STATUS_BOWER_READY": "Bower registry ready",
     "STATUS_BOWER_NOT_LOADED": "Couldn't load Bower registry",
-    "STATUS_INSTALLING_PKG ": "Installing {0} ...",
+    "STATUS_INSTALLING_PKG": "Installing {0} ...",
     "STATUS_PKG_INSTALLED": "Installed {0}",
-    "STATUS_ERROR_INSTALLING": "Error installing {0}" 
+    "STATUS_ERROR_INSTALLING": "Error installing {0}"
 })
