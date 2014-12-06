@@ -29,21 +29,24 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var AppInit = brackets.getModule("utils/AppInit"),
-        ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
-        NodeDomain = brackets.getModule("utils/NodeDomain"),
-        StringMatch = brackets.getModule("utils/StringMatch"),
-        CommandManager = brackets.getModule("command/CommandManager"),
+    var AppInit           = brackets.getModule("utils/AppInit"),
+        ExtensionUtils    = brackets.getModule("utils/ExtensionUtils"),
+        NodeDomain        = brackets.getModule("utils/NodeDomain"),
+        StringMatch       = brackets.getModule("utils/StringMatch"),
+        StringUtils       = brackets.getModule("utils/StringUtils"),
+        CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
-        Menus = brackets.getModule("command/Menus"),
-        QuickOpen = brackets.getModule("search/QuickOpen"),
-        ProjectManager = brackets.getModule("project/ProjectManager"),
-        FileSystem = brackets.getModule("filesystem/FileSystem");
+        Menus             = brackets.getModule("command/Menus"),
+        QuickOpen         = brackets.getModule("search/QuickOpen"),
+        ProjectManager    = brackets.getModule("project/ProjectManager"),
+        FileSystem        = brackets.getModule("filesystem/FileSystem");
 
     // local module
-    var StatusDisplay = require("src/StatusDisplay");
+    var StatusDisplay = require("src/StatusDisplay"),
+        Strings       = require("strings");
 
-    var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower";
+    var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
+        KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     var bowerDomain = new NodeDomain("bower", ExtensionUtils.getModulePath(module, "node/BowerDomain")),
         packageListPromise,
@@ -67,12 +70,12 @@ define(function (require, exports, module) {
             bowerPath = rootPath + "bower_components/",
             pkgName = queue.shift();
 
-        status.showStatusInfo("Installing " + pkgName + "...", true);
+        status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
 
         installPromise = bowerDomain.exec("installPackage", rootPath, pkgName);
 
         installPromise.done(function () {
-            status.showStatusInfo("Installed " + pkgName, false);
+            status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
             setTimeout(function () {
                 ProjectManager.showInTree(FileSystem.getDirectoryForPath(bowerPath + pkgName));
@@ -86,7 +89,8 @@ define(function (require, exports, module) {
 
             if (queue.length === 0) {
                 if (failed.length > 0) {
-                    status.showStatusInfo("Error installing " + failed.join(", "), false);
+                    var errorMessage = StringUtils.format(Strings.STATUS_ERROR_INSTALLING, failed.join(", "));
+                    status.showStatusInfo(errorMessage, false);
                     failed = [];
                 }
                 status.hideStatusInfo();
@@ -156,7 +160,7 @@ define(function (require, exports, module) {
         if (!packages) {
             // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
             if (!packageListPromise) {
-                var displayMessage = "Loading Bower registry";
+                var displayMessage = Strings.STATUS_BOWER_LOADING;
 
                 packageListPromise = new $.Deferred();
 
@@ -165,12 +169,12 @@ define(function (require, exports, module) {
 
                 _fetchPackageList()
                     .done(function () {
-                        displayMessage = "Bower registry ready";
+                        displayMessage = Strings.STATUS_BOWER_READY;
 
                         packageListPromise.resolve();
                     })
                     .fail(function () {
-                        displayMessage = "Couldn't load Bower registry";
+                        displayMessage = Strings.STATUS_BOWER_NOT_LOADED;
 
                         packageListPromise.reject();
                     })
@@ -221,14 +225,14 @@ define(function (require, exports, module) {
     }
 
     function _init() {
-        var bowerInstallCmd = CommandManager.register("Install from Bower...", CMD_INSTALL_FROM_BOWER, _quickOpenBower),
+        var bowerInstallCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, _quickOpenBower),
             fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
 
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(bowerInstallCmd);
 
         KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {
-            key: "Ctrl-Alt-B"
+            key: KEY_INSTALL_FROM_BOWER
         });
 
         ExtensionUtils.loadStyleSheet(module, "styles.css");
@@ -239,7 +243,7 @@ define(function (require, exports, module) {
             search: _search,
             match: _match,
             itemSelect: _itemSelect,
-            label: "Install from Bower"
+            label: Strings.TITLE_QUICK_OPEN
         });
     }
 
