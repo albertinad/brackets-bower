@@ -47,8 +47,8 @@ define(function (require, exports, module) {
     var StatusDisplay = require("src/StatusDisplay"),
         Strings       = require("strings");
 
-    // templates
-    var bowerPanel = require("text!panel.html");
+    // mustache templates
+    var bowerPanel = require("text!templates/panel.html");
 
     var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
         CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
