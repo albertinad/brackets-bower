@@ -43,3 +43,7 @@
 .bower-loading-status .spinner {
     top: 3px;
 }
+
+#bower-config-icon {
+    background-image: url("images/bower-logo-grey.png");
+}

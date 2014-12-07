@@ -34,9 +34,11 @@ define(function (require, exports, module) {
         NodeDomain        = brackets.getModule("utils/NodeDomain"),
         StringMatch       = brackets.getModule("utils/StringMatch"),
         StringUtils       = brackets.getModule("utils/StringUtils"),
+        Resizer           = brackets.getModule("utils/Resizer"),
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus             = brackets.getModule("command/Menus"),
+        WorkspaceManager  = brackets.getModule("view/WorkspaceManager"),
         QuickOpen         = brackets.getModule("search/QuickOpen"),
         ProjectManager    = brackets.getModule("project/ProjectManager"),
         FileSystem        = brackets.getModule("filesystem/FileSystem");
@@ -45,7 +47,12 @@ define(function (require, exports, module) {
     var StatusDisplay = require("src/StatusDisplay"),
         Strings       = require("strings");
 
-    var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
+    // templates
+    var bowerPanel = require("text!panel.html");
+
+    var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
+        CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
+        CMD_BOWER_CONFIG       = "com.adobe.brackets.commands.bower.toggleConfigView",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     var bowerDomain = new NodeDomain("bower", ExtensionUtils.getModulePath(module, "node/BowerDomain")),
@@ -56,7 +63,9 @@ define(function (require, exports, module) {
         latestQuery,
         failed = [],
         lastFetchTime,
-        status = StatusDisplay.create();
+        status = StatusDisplay.create(),
+        $bowerPanel,
+        isBowerPanelVisible = false;
 
 
     function _installNext() {
@@ -67,18 +76,17 @@ define(function (require, exports, module) {
         }
 
         var rootPath = ProjectManager.getProjectRoot().fullPath,
-            bowerPath = rootPath + "bower_components/",
             pkgName = queue.shift();
 
         status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
 
         installPromise = bowerDomain.exec("installPackage", rootPath, pkgName);
 
-        installPromise.done(function () {
+        installPromise.done(function (err, pkgPath) {
             status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
             setTimeout(function () {
-                ProjectManager.showInTree(FileSystem.getDirectoryForPath(bowerPath + pkgName));
+                ProjectManager.showInTree(FileSystem.getDirectoryForPath(pkgPath));
             }, 1000);
 
         }).fail(function (error) {
@@ -224,18 +232,47 @@ define(function (require, exports, module) {
         }
     }
 
+    function _toggleSetup() {
+        if(isBowerPanelVisible) {
+            Resizer.hide($bowerPanel);
+        } else {
+            Resizer.show($bowerPanel);
+        }
+
+        isBowerPanelVisible = !isBowerPanelVisible;
+    }
+
     function _init() {
-        var bowerInstallCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, _quickOpenBower),
-            fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
+        var $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>"),
+            configCmd = CommandManager.register(Strings.TITLE_BOWER, CMD_BOWER_CONFIG, _toggleSetup),
+            installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, _quickOpenBower),
+            fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU),
+            bowerPanelHTML = Mustache.render(bowerPanel, { Strings: Strings });
 
         fileMenu.addMenuDivider();
-        fileMenu.addMenuItem(bowerInstallCmd);
+        fileMenu.addMenuItem(installCmd);
+        fileMenu.addMenuItem(configCmd);
 
         KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {
             key: KEY_INSTALL_FROM_BOWER
         });
 
-        ExtensionUtils.loadStyleSheet(module, "styles.css");
+        ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
+
+        // right panel button
+        $bowerIcon.appendTo("#main-toolbar .buttons");
+        $bowerIcon.click(function () {
+            CommandManager.execute(CMD_BOWER_CONFIG);
+        });
+
+        // bottom panel
+        WorkspaceManager.createBottomPanel(EXTENSION_NAME, $(bowerPanelHTML), 100);
+
+        $bowerPanel = $("#brackets-bower-panel");
+
+        $bowerPanel.on("click", ".close", function () {
+            Resizer.hide($bowerPanel);
+        });
 
         QuickOpen.addQuickOpenPlugin({
             name: "installFromBower",

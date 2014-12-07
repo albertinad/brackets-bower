@@ -1,24 +1,24 @@
 /*
  * Copyright (c) 2013 Narciso Jaramillo. All rights reserved.
- *  
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"), 
- * to deal in the Software without restriction, including without limitation 
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- *  
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *  
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
+ *
  */
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
@@ -27,23 +27,23 @@ maxerr: 50, node: true */
 
 (function () {
     "use strict";
-    
-    var bower = require("bower"),
+
+    var bower        = require("bower"),
         EventEmitter = require("events").EventEmitter,
-        log4js = require("log4js"),
-        _ = require("lodash");
- 
+        log4js       = require("log4js"),
+        _            = require("lodash");
+
     log4js.loadAppender("file");
     log4js.addAppender(log4js.appenders.file("/tmp/BowerDomain.log"), "logfile");
     var log = log4js.getLogger("logfile");
-    
+
     log.debug("Started parent.");
 
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
-     * @param {function(?string, ?Array.<{name: string, url: string}>)} cb Callback to receive 
-     *     the list of package names. First parameter is either an error string or null if no 
-     *     error; second parameter is either the array of name/url objects or null if there was 
+     * @param {function(?string, ?Array.<{name: string, url: string}>)} cb Callback to receive
+     *     the list of package names. First parameter is either an error string or null if no
+     *     error; second parameter is either the array of name/url objects or null if there was
      *     an error.
      */
     function _cmdGetPackages(cb) {
@@ -57,7 +57,7 @@ maxerr: 50, node: true */
                 cb(error.message, null);
             });
     }
-    
+
     /**
      * Installs the package with the given name.
      * @param {string} path The path to the folder within which to install the package.
@@ -66,16 +66,18 @@ maxerr: 50, node: true */
      *     Parameter is an error string, or null if no error.
      */
     function _cmdInstallPackage(path, name, cb) {
+        path += bower.config.directory;
+
         log.debug("Installing " + name + " into " + path);
         bower.commands.install([name], {}, {cwd: path})
             .on("end", function () {
-                cb(null);
+                cb(null, path + name);
             })
             .on("error", function (error) {
                 cb(error ? error.message : "Unknown error");
             });
     }
-    
+
     /**
      * Initializes the domain with its commands.
      * @param {DomainManager} domainmanager The DomainManager for the server
@@ -115,9 +117,9 @@ maxerr: 50, node: true */
             []
         );
     }
-    
+
     exports.init = init;
-    
+
     // For local unit testing (outside Brackets)
     exports._cmdGetPackages = _cmdGetPackages;
     exports._cmdInstallPackage = _cmdInstallPackage;

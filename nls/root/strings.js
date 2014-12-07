@@ -25,6 +25,7 @@
 /*global define */
 
 define({
+    "TITLE_BOWER": "Bower",
     "TITLE_SHORTCUT": "Install from Bower...",
     "TITLE_QUICK_OPEN": "Install from Bower",
     "STATUS_BOWER_LOADING": "Loading Bower registry",
