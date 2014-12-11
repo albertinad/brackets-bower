@@ -28,10 +28,9 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
 
-    var bower        = require("bower"),
-        EventEmitter = require("events").EventEmitter,
-        log4js       = require("log4js"),
-        _            = require("lodash");
+    var bower  = require("bower"),
+        log4js = require("log4js"),
+        _      = require("lodash");
 
     log4js.loadAppender("file");
     log4js.addAppender(log4js.appenders.file("/tmp/BowerDomain.log"), "logfile");
@@ -41,13 +40,14 @@ maxerr: 50, node: true */
 
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
+     * @param {object} config Key-value object to specify optional configuration.
      * @param {function(?string, ?Array.<{name: string, url: string}>)} cb Callback to receive
      *     the list of package names. First parameter is either an error string or null if no
      *     error; second parameter is either the array of name/url objects or null if there was
      *     an error.
      */
-    function _cmdGetPackages(cb) {
-        bower.commands.search()
+    function _cmdGetPackages(config, cb) {
+        bower.commands.search(null, config)
             .on("end", function (data) {
                 // For some reason the package list is an array inside an array.
                 log.debug("Packages: " + JSON.stringify(_.flatten(data)));
@@ -62,19 +62,28 @@ maxerr: 50, node: true */
      * Installs the package with the given name.
      * @param {string} path The path to the folder within which to install the package.
      * @param {string} name Name of package to install.
-     * @param {function(?string)} cb Callback for when the installation is finished.
-     *     Parameter is an error string, or null if no error.
+     * @param {object} config Key-value object to specify optional configuration.
+     * @param {function(?string, ?string)} cb Callback for when the installation is finished.
+     * First parameter is an error string, or null if no error, and second parameter is either
+     * the full installation path or null if there was an error.
      */
-    function _cmdInstallPackage(path, name, cb) {
-        path += bower.config.directory;
-
+    function _cmdInstallPackage(path, name, config, cb) {
         log.debug("Installing " + name + " into " + path);
-        bower.commands.install([name], {}, {cwd: path})
-            .on("end", function () {
-                cb(null, path + name);
+
+        if (!config) {
+            config = {};
+        }
+
+        config.cwd = path;
+
+        bower.commands.install([name], {}, config)
+            .on("end", function (installedPackages) {
+                var installedPackage = installedPackages[name];
+
+                cb(null, installedPackage.canonicalDir);
             })
             .on("error", function (error) {
-                cb(error ? error.message : "Unknown error");
+                cb(error ? error.message : "Unknown error", null);
             });
     }
 
@@ -86,19 +95,25 @@ maxerr: 50, node: true */
         if (!domainManager.hasDomain("bower")) {
             domainManager.registerDomain("bower", {major: 0, minor: 1});
         }
+
         domainManager.registerCommand(
             "bower",
             "getPackages",
             _cmdGetPackages,
             true,
             "Returns a list of all packages from the bower registry.",
-            [],
+            [{
+                name: "config",
+                type: "object",
+                description: "Configuration object."
+            }],
             [{
                 name: "packages",
                 type: "{Array.<{name: string, url: string}>}",
                 description: "List of all packages in the bower registry."
             }]
         );
+
         domainManager.registerCommand(
             "bower",
             "installPackage",
@@ -113,8 +128,16 @@ maxerr: 50, node: true */
                 name: "name",
                 type: "string",
                 description: "Name of package to install"
+            }, {
+                name: "config",
+                type: "object",
+                description: "Configuration object."
             }],
-            []
+            [{
+                name: "installationPath",
+                type: "string",
+                description: "Path to the installed package."
+            }]
         );
     }
 

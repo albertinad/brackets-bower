@@ -45,6 +45,7 @@ define(function (require, exports, module) {
 
     // local module
     var StatusDisplay = require("src/StatusDisplay"),
+        Config        = require("src/Config"),
         Strings       = require("strings");
 
     // mustache templates
@@ -76,17 +77,18 @@ define(function (require, exports, module) {
         }
 
         var rootPath = ProjectManager.getProjectRoot().fullPath,
-            pkgName = queue.shift();
+            pkgName = queue.shift(),
+            config = Config.getDefaultConfiguration();
 
         status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
 
-        installPromise = bowerDomain.exec("installPackage", rootPath, pkgName);
+        installPromise = bowerDomain.exec("installPackage", rootPath, pkgName, config);
 
-        installPromise.done(function (err, pkgPath) {
+        installPromise.done(function (installationPath) {
             status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
-            setTimeout(function () {
-                ProjectManager.showInTree(FileSystem.getDirectoryForPath(pkgPath));
+            window.setTimeout(function () {
+                ProjectManager.showInTree(FileSystem.getDirectoryForPath(installationPath));
             }, 1000);
 
         }).fail(function (error) {
@@ -124,9 +126,10 @@ define(function (require, exports, module) {
     }
 
     function _fetchPackageList() {
-        var result = new $.Deferred();
+        var result = new $.Deferred(),
+            config = Config.getDefaultConfiguration();
 
-        bowerDomain.exec("getPackages")
+        bowerDomain.exec("getPackages", config)
             .done(function (pkgs) {
                 pkgs.sort(function (pkg1, pkg2) {
                     var name1 = pkg1.name.toLowerCase(),
