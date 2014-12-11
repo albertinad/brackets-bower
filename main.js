@@ -43,6 +43,7 @@ define(function (require, exports, module) {
 
     // local module
     var StatusDisplay = require("src/StatusDisplay"),
+        Config        = require("src/Config"),
         Strings       = require("strings");
 
     var CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
@@ -65,23 +66,24 @@ define(function (require, exports, module) {
             return;
         }
 
-        var rootPath = ProjectManager.getProjectRoot().fullPath,
-            bowerPath = rootPath + "bower_components/";
+        var rootPath = ProjectManager.getProjectRoot().fullPath;
 
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
-        var pkgName = queue.shift();
+        var pkgName = queue.shift(),
+            config = Config.getDefaultConfiguration();
 
         status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
 
         installPromise = nodeConnection.domains.bower.installPackage(
             rootPath,
-            pkgName
-        ).done(function (error) {
+            pkgName,
+            config
+        ).done(function (installationPath) {
             status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
-            setTimeout(function () {
-                ProjectManager.showInTree(FileSystem.getDirectoryForPath(bowerPath + pkgName));
+            window.setTimeout(function () {
+                ProjectManager.showInTree(FileSystem.getDirectoryForPath(installationPath));
             }, 1000);
 
         }).fail(function (error) {
@@ -122,7 +124,9 @@ define(function (require, exports, module) {
 
         nodePromise
             .then(function () {
-                return nodeConnection.domains.bower.getPackages();
+                var config = Config.getDefaultConfiguration();
+
+                return nodeConnection.domains.bower.getPackages(config);
             })
             .then(function (pkgs) {
                 pkgs.sort(function (pkg1, pkg2) {
