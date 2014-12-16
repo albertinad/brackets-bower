@@ -4,7 +4,12 @@
     "version": "0.1.5",
     "description": "Quickly install front-end packages from Bower. Hit Ctrl/Cmd-Alt-B, then start typing the name of a package. Once you see the package you want, hit Enter and the package will be installed into your project folder. NOTE: To install some packages, you must have git installed.",
     "homepage": "https://github.com/njx/brackets-bower",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/njx/brackets-bower.git"
+    },
     "engines": {
         "brackets": ">=0.34.0"
-    }
+    },
+    "i18n": ["en", "es"]
 }

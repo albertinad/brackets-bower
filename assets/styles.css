@@ -44,6 +44,64 @@
     top: 3px;
 }
 
+/* panel */
+
 #bower-config-icon {
-    background-image: url("images/bower-logo-grey.png");
+    background: url("images/bower-icon.png") no-repeat 0 0;
+    background-position: 0 0;
+}
+
+#bower-config-icon.success {
+    background-position: 0 -25px;
+}
+
+#bower-config-icon.active {
+    background-position: 0 -49px;
+}
+
+#bower-config-icon.warning {
+    background-position: 0 -73px;
+}
+
+#bower-config-icon.error {
+    background-position: 0 -97px;
+}
+
+/* common */
+
+.bower-title {
+    font-size: 14px;
+    line-height: normal;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+}
+
+.bower-row {
+    padding: 3px;
+    display: block;
+}
+
+.bower-row .bower-row-item {
+    display: inline-block;
+    width: 50%;
+}
+
+/* configuration */
+
+.bower-config {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+}
+
+.bower-config .header-section .bower-title {
+    padding-bottom: 3px;
+}
+
+.bower-config tr:hover {
+    cursor: pointer;
 }
