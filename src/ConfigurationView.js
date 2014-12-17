@@ -51,6 +51,10 @@ define(function (require, exports) {
             })
             .on("click", "[data-bower-config-action='create']", function () {
                 // TODO
+                BowerConfiguration.create()
+                    .done(function (path) {
+                        BowerConfiguration.open(path);
+                    });
             })
             .on("click", "[data-bower-config]", function () {
                 var path = $(this).data("bower-config");

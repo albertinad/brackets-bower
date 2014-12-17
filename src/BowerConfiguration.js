@@ -70,8 +70,33 @@ define(function (require, exports) {
         return result;
     }
 
+    /**
+     * Create the ".bowerrc" file for the given path. If the path is not provided, it will
+     * take the current directory path as default.
+     * @param {string=} path
+     * @return {Promise}
+     */
     function create(path) {
-        // TODO
+        var promise = new $.Deferred(),
+            file;
+
+        path = (path || _getDefaultDirectory()) + FILE_NAME;
+
+        file = FileSystem.getFileForPath(path);
+
+        if(!file) {
+            promise.reject();
+        }
+
+        file.write("", function (error, result) {
+            if(error) {
+                promise.reject(error);
+            } else {
+                promise.resolve(path);
+            }
+        });
+
+        return promise;
     }
 
     function openInEditor(configFilePath) {
