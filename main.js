@@ -29,21 +29,14 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var AppInit           = brackets.getModule("utils/AppInit"),
-        ExtensionUtils    = brackets.getModule("utils/ExtensionUtils"),
-        NodeDomain        = brackets.getModule("utils/NodeDomain"),
-        StringMatch       = brackets.getModule("utils/StringMatch"),
-        StringUtils       = brackets.getModule("utils/StringUtils"),
+    var ExtensionUtils    = brackets.getModule("utils/ExtensionUtils"),
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
-        Menus             = brackets.getModule("command/Menus"),
-        QuickOpen         = brackets.getModule("search/QuickOpen"),
-        ProjectManager    = brackets.getModule("project/ProjectManager"),
-        FileSystem        = brackets.getModule("filesystem/FileSystem");
+        Menus             = brackets.getModule("command/Menus");
 
-    // local module
-    var StatusDisplay = require("src/StatusDisplay"),
-        Config        = require("src/Config"),
+    // local modules
+    var Bower         = require("src/bower/Bower"),
+        QuickInstall  = require("src/QuickInstall"),
         PanelView     = require("src/PanelView"),
         Strings       = require("strings");
 
@@ -52,188 +45,11 @@ define(function (require, exports, module) {
         CMD_BOWER_CONFIG       = "com.adobe.brackets.commands.bower.toggleConfigView",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
-    var bowerDomain = new NodeDomain("bower", ExtensionUtils.getModulePath(module, "node/BowerDomain")),
-        packageListPromise,
-        queue = [],
-        packages,
-        installPromise,
-        latestQuery,
-        failed = [],
-        lastFetchTime,
-        status = StatusDisplay.create();
-
-
-    function _installNext() {
-        // TODO: timeout if an install takes too long (maybe that should be in
-        // BowerDomain?)
-        if (installPromise || queue.length === 0) {
-            return;
-        }
-
-        var rootPath = ProjectManager.getProjectRoot().fullPath,
-            pkgName = queue.shift(),
-            config = Config.getDefaultConfiguration();
-
-        status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
-
-        installPromise = bowerDomain.exec("installPackage", rootPath, pkgName, config);
-
-        installPromise.done(function (installationPath) {
-            status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
-
-            window.setTimeout(function () {
-                ProjectManager.showInTree(FileSystem.getDirectoryForPath(installationPath));
-            }, 1000);
-
-        }).fail(function (error) {
-            // Make sure the user sees the error even if other packages get installed.
-            failed.push(pkgName);
-        }).always(function () {
-            installPromise = null;
-
-            if (queue.length === 0) {
-                if (failed.length > 0) {
-                    var errorMessage = StringUtils.format(Strings.STATUS_ERROR_INSTALLING, failed.join(", "));
-                    status.showStatusInfo(errorMessage, false);
-                    failed = [];
-                }
-                status.hideStatusInfo();
-            } else {
-                _installNext();
-            }
-        });
-    }
-
-    function _addToQueue(pkgName) {
-        queue.push(pkgName);
-
-        _installNext();
-    }
-
-    function _quickOpenBower() {
-        QuickOpen.beginSearch("+", "");
-    }
-
-    function _match(query) {
-        // TODO: doesn't seem to work if no file is open. Bug in Quick Open?
-        return (query.length > 0 && query.charAt(0) === "+");
-    }
-
-    function _fetchPackageList() {
-        var result = new $.Deferred(),
-            config = Config.getDefaultConfiguration();
-
-        bowerDomain.exec("getPackages", config)
-            .done(function (pkgs) {
-                pkgs.sort(function (pkg1, pkg2) {
-                    var name1 = pkg1.name.toLowerCase(),
-                        name2 = pkg2.name.toLowerCase();
-
-                    return (name1 < name2 ? -1 : (name1 === name2 ? 0 : 1));
-                });
-
-                packages = pkgs;
-
-                result.resolve();
-            })
-            .fail(result.reject);
-
-        return result;
-    }
-
-    function _search(query, matcher) {
-        var curTime = Date.now(),
-            maxTime = 1000 * 60 * 10; // 10 minutes
-
-        // Remove initial "+"
-        query = query.slice(1);
-
-        latestQuery = query;
-
-        if (packages && (lastFetchTime === undefined || curTime - lastFetchTime > maxTime)) {
-            // Packages were fetched more than ten minutes ago. Force a refetch.
-            packages = null;
-        }
-
-        if (lastFetchTime === undefined || curTime - lastFetchTime > maxTime) {
-            // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
-            packages = null;
-            packageListPromise = null;
-            lastFetchTime = curTime;
-        }
-
-        if (!packages) {
-            // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
-            if (!packageListPromise) {
-                var displayMessage = Strings.STATUS_BOWER_LOADING;
-
-                packageListPromise = new $.Deferred();
-
-                status.showQuickSearchSpinner();
-                status.showStatusInfo(displayMessage, true);
-
-                _fetchPackageList()
-                    .done(function () {
-                        displayMessage = Strings.STATUS_BOWER_READY;
-
-                        packageListPromise.resolve();
-                    })
-                    .fail(function () {
-                        displayMessage = Strings.STATUS_BOWER_NOT_LOADED;
-
-                        packageListPromise.reject();
-                    })
-                    .always(function () {
-                        status.hideQuickSearchSpinner();
-                        status.showStatusInfo(displayMessage, false);
-                        status.hideStatusInfo();
-
-                        packageListPromise = null;
-                    });
-            }
-
-            // Due to bugs in smart autocomplete, we have to return separate promises for each call
-            // to _search, but make sure to only resolve the last one.
-            var result = new $.Deferred();
-
-            packageListPromise.done(function () {
-                // validate for an empty string avoids an exception in smart autocomplete
-                if (query === latestQuery && query.trim() !== "") {
-                    result.resolve(_search(latestQuery, matcher));
-                } else {
-                    result.reject();
-                }
-            });
-
-            return result.promise();
-        }
-
-        // Filter and rank how good each match is
-        var filteredList = $.map(packages, function (pkg) {
-            var searchResult = matcher.match(pkg.name, query);
-            if (searchResult) {
-                searchResult.pkg = pkg;
-            }
-            return searchResult;
-        });
-
-        // Sort based on ranking & basic alphabetical order
-        StringMatch.basicMatchSort(filteredList);
-
-        return filteredList;
-    }
-
-    function _itemSelect(result) {
-        if (result) {
-            _addToQueue(result.pkg.name);
-        }
-    }
-
     function _init() {
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
         var configCmd = CommandManager.register(Strings.TITLE_BOWER, CMD_BOWER_CONFIG, PanelView.toggle),
-            installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, _quickOpenBower),
+            installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, QuickInstall.quickOpenBower),
             fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
 
         fileMenu.addMenuDivider();
@@ -244,16 +60,13 @@ define(function (require, exports, module) {
             key: KEY_INSTALL_FROM_BOWER
         });
 
-        PanelView.init(EXTENSION_NAME, CMD_BOWER_CONFIG);
+        var bowerDomainPath = ExtensionUtils.getModulePath(module, "/node/BowerDomain");
 
-        QuickOpen.addQuickOpenPlugin({
-            name: "installFromBower",
-            languageIds: [],
-            search: _search,
-            match: _match,
-            itemSelect: _itemSelect,
-            label: Strings.TITLE_QUICK_OPEN
-        });
+        Bower.init(bowerDomainPath);
+
+        QuickInstall.init();
+
+        PanelView.init(EXTENSION_NAME, CMD_BOWER_CONFIG);
     }
 
     _init();
