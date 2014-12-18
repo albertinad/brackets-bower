@@ -23,7 +23,7 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, expect, beforeEach, afterEach, waits, waitsFor, waitsForDone, runs, $, brackets, waitsForDone, spyOn, tinycolor, KeyEvent */
+/*global define, describe, it, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
     "use strict";
@@ -32,8 +32,7 @@ define(function (require, exports, module) {
         FileUtils        = brackets.getModule("file/FileUtils"),
         FileSystem       = brackets.getModule("filesystem/FileSystem"),
         ExtensionUtils   = brackets.getModule("utils/ExtensionUtils"),
-        SpecRunnerUtils  = brackets.getModule("spec/SpecRunnerUtils"),
-        Async            = brackets.getModule("utils/Async");
+        SpecRunnerUtils  = brackets.getModule("spec/SpecRunnerUtils");
 
     // TODO: should put in system temp folder, but we don't have a generic way to get that
     var testFolder      = FileUtils.getNativeModuleDirectoryPath(module) + "/tmp-test";
@@ -55,7 +54,6 @@ define(function (require, exports, module) {
 
                     bowerDomain = new NodeDomain("bower", bowerDomainPath);
                     fileUtilsDomain = new NodeDomain("fileUtils", fileUtilsDomainPath);
-                    //waitsForDone(nodePromise, "connecting to node server");
                 });
 
                 runs(function () {
@@ -92,7 +90,8 @@ define(function (require, exports, module) {
             });
 
             it("should return a list of package names", function () {
-                var serverInfo, packages, i;
+                var packages,
+                    i;
 
                 runs(function () {
                     bowerDomain.exec("getPackages", emptyConfig)
