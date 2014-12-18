@@ -39,4 +39,4 @@ define({
     "STATUS_INSTALLING_PKG": "Installing {0} ...",
     "STATUS_PKG_INSTALLED": "Installed {0}",
     "STATUS_ERROR_INSTALLING": "Error installing {0}"
-})
+});
