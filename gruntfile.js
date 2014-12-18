@@ -8,9 +8,7 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
 
-        pkg: grunt.file.readJSON('package.json'),
-        banner: "/*! <%= pkg.name %> - v<%= pkg.version %> - " +
-            "<%= grunt.template.today('yyyy-mm-dd') %>\n */\n",
+        pkg: grunt.file.readJSON("package.json"),
 
         jshint: {
             all: {
@@ -42,4 +40,5 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask("package", ["jshint", "zip"]);
+    grunt.registerTask("default", ["jshint"]);
 };
