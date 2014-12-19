@@ -6,7 +6,39 @@
 
     <table class="bottom-panel-table table table-striped table-condensed">
         <tbody>
-            {{> configItem }}
+            {{#bowerrc}}
+            <tr data-bower-config="{{ path }}">
+                <td>
+                    <div class="path bower-row-item">{{ path }}</div>
+                </td>
+
+                <td>
+                    <div class="controls bower-row-item">
+                        <button class="btn" data-bower-config-action="reload" title="{{Strings.RELOAD}}">
+                            <span>{{ Strings.RELOAD }}</span>
+                        </button>
+                        <button class="btn" data-bower-config-action="delete" title="{{Strings.DELETE}}">
+                            <span>{{ Strings.DELETE }}</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {{/bowerrc}}
+
+            {{^bowerrc}}
+            <tr>
+                <td>
+                    <span class="bower-row-item">{{ Strings.BOWERRC_NOT_FOUND}}</span>
+                </td>
+                <td>
+                    <div class="bower-row-item">
+                        <button class="btn" data-bower-config-action="create" title="{{Strings.CREATE}}">
+                            <span>{{ Strings.CREATE }}</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {{/bowerrc}}
         </tbody>
     </table>
 </div>

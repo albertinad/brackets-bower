@@ -24,17 +24,12 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
 
 define(function (require, exports) {
     "use strict";
 
     var ProjectManager  = brackets.getModule("project/ProjectManager"),
-        FileSystem      = brackets.getModule("filesystem/FileSystem"),
-        CommandManager  = brackets.getModule("command/CommandManager"),
-        Commands        = brackets.getModule("command/Commands"),
-        EditorManager   = brackets.getModule("editor/EditorManager"),
-        MainViewManager = brackets.getModule("view/MainViewManager");
+        FileUtils       = require("src/utils/FileUtils");
 
     var FILE_NAME = ".bowerrc";
 
@@ -53,21 +48,9 @@ define(function (require, exports) {
      * @return {Promise}
      */
     function exists(path) {
-        var result = new $.Deferred();
-
         path = (path || _getDefaultDirectory()) + FILE_NAME;
 
-        FileSystem.resolve(path, function (error, item, stat) {
-            var fileExists = error ? false : stat.isFile;
-
-            if (fileExists) {
-                result.resolve(path);
-            } else {
-                result.reject(error);
-            }
-        });
-
-        return result;
+        return FileUtils.exists(path);
     }
 
     /**
@@ -77,39 +60,18 @@ define(function (require, exports) {
      * @return {Promise}
      */
     function create(path) {
-        var promise = new $.Deferred(),
-            file;
+        var content = "";
 
         path = (path || _getDefaultDirectory()) + FILE_NAME;
 
-        file = FileSystem.getFileForPath(path);
-
-        if(!file) {
-            promise.reject();
-        }
-
-        file.write("", function (error, result) {
-            if(error) {
-                promise.reject(error);
-            } else {
-                promise.resolve(path);
-            }
-        });
-
-        return promise;
+        return FileUtils.createFile(path, content);
     }
 
-    function openInEditor(configFilePath) {
-        CommandManager.execute(Commands.FILE_OPEN, {
-            fullPath: configFilePath
-        }).done(function () {
-            EditorManager.getCurrentFullEditor().setCursorPos(0, 0, true);
-
-            MainViewManager.focusActivePane();
-        });
+    function open(configFilePath) {
+        FileUtils.openInEditor(configFilePath);
     }
 
     exports.exists = exists;
     exports.create = create;
-    exports.open   = openInEditor;
+    exports.open   = open;
 });

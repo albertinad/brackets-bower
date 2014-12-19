@@ -24,14 +24,11 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
 
 define(function (require, exports) {
     "use strict";
 
     var configurationTemplate = require("text!../templates/configuration.html"),
-        noConfigTemplate      = require("text!../templates/configuration-no-bowerrc.html"),
-        configEntryTemplate   = require("text!../templates/configuration-entry.html"),
         Strings               = require("../strings"),
         BowerConfiguration    = require("./BowerConfiguration");
 
@@ -50,10 +47,12 @@ define(function (require, exports) {
                 event.stopPropagation();
             })
             .on("click", "[data-bower-config-action='create']", function () {
-                // TODO
                 BowerConfiguration.create()
                     .done(function (path) {
-                        BowerConfiguration.open(path);
+                        if(path) {
+                            BowerConfiguration.open(path);
+                            _refreshUi();
+                        }
                     });
             })
             .on("click", "[data-bower-config]", function () {
@@ -63,33 +62,32 @@ define(function (require, exports) {
             });
     }
 
-    function show() {
-        var sectionHtml,
-            data;
+    function _getViewData () {
+        return {
+            Strings: Strings,
+            bowerrc: []
+        };
+    }
+
+    function showConfiguration() {
+        var data = _getViewData(),
+            sectionHtml;
 
         BowerConfiguration.exists()
             .done(function (path) {
-                data = {
-                    bowerrcPath: path,
-                    Strings: Strings
-                };
-
-                sectionHtml = Mustache.render(configurationTemplate, data, {
-                    configItem: configEntryTemplate
-                });
-            })
-            .fail(function (error) {
-                data = {
-                    Strings: Strings
-                };
-
-                sectionHtml = Mustache.render(configurationTemplate, data, {
-                     configItem: noConfigTemplate
-                });
+                data.bowerrc.push({ path: path });
             })
             .always(function () {
+                sectionHtml = Mustache.render(configurationTemplate, data);
+
                 $panelSection.append(sectionHtml);
             });
+    }
+
+    function _refreshUi() {
+        $panelSection.empty();
+
+        showConfiguration();
     }
 
     function hide () {
@@ -97,6 +95,6 @@ define(function (require, exports) {
     }
 
     exports.render = render;
-    exports.show   = show;
+    exports.show   = showConfiguration;
     exports.hide   = hide;
 });

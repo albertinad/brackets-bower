@@ -95,6 +95,9 @@
 .bower-config {
     display: flex;
     flex-direction: column;
+}
+
+.bower-config .header-section {
     padding: 8px;
 }
 
