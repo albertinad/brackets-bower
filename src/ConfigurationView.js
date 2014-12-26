@@ -42,6 +42,7 @@ define(function (require, exports) {
         function _onDeleteClick (event) {
             event.stopPropagation();
 
+            /*jshint validthis:true */
             var path = $(this).data("bower-config");
 
             BowerConfiguration.remove(path)
@@ -64,6 +65,7 @@ define(function (require, exports) {
         }
 
         function _onConfigListClick () {
+            /*jshint validthis:true */
             var path = $(this).data("bower-config");
 
             BowerConfiguration.open(path);

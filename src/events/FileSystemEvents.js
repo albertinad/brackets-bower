@@ -53,7 +53,9 @@ define(function (require, exports) {
             bowerConfigRegex = new RegExp(bowerConfigFile);
 
         FileSystem.on("change.bower", function (event, entry, added, removed) {
-            if(!entry) return;
+            if(!entry) {
+                return;
+            }
 
             if(entry.isFile && entry.fullPath.match(bowerConfigRegex)) {
 

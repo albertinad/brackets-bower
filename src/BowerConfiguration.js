@@ -66,7 +66,7 @@ define(function (require, exports) {
             directory: "bower_components/",
             interactive: false
         };
-        var content = JSON.stringify(defaultConfiguration, null, 4),
+        var content = JSON.stringify(defaultConfiguration, null, 4);
 
         path = (path || _getDefaultDirectory()) + FILE_NAME;
 
