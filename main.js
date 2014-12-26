@@ -32,13 +32,15 @@ define(function (require, exports, module) {
     var ExtensionUtils    = brackets.getModule("utils/ExtensionUtils"),
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
-        Menus             = brackets.getModule("command/Menus");
+        Menus             = brackets.getModule("command/Menus"),
+        AppInit           = brackets.getModule("utils/AppInit");
 
     // local modules
-    var Bower         = require("src/bower/Bower"),
-        QuickInstall  = require("src/QuickInstall"),
-        PanelView     = require("src/PanelView"),
-        Strings       = require("strings");
+    var Bower            = require("src/bower/Bower"),
+        QuickInstall     = require("src/QuickInstall"),
+        PanelView        = require("src/PanelView"),
+        FileSystemEvents = require("src/events/FileSystemEvents"),
+        Strings          = require("strings");
 
     var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
         CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
@@ -70,4 +72,6 @@ define(function (require, exports, module) {
     }
 
     _init();
+
+    AppInit.appReady(FileSystemEvents.init);
 });

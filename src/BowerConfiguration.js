@@ -28,8 +28,10 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager  = brackets.getModule("project/ProjectManager"),
-        FileUtils       = require("src/utils/FileUtils");
+    var ProjectManager = brackets.getModule("project/ProjectManager"),
+        FileUtils      = require("src/utils/FileUtils"),
+        Event          = require("src/events/Events"),
+        EventEmitter   = require("src/events/EventEmitter");
 
     var FILE_NAME = ".bowerrc";
 
@@ -60,18 +62,47 @@ define(function (require, exports) {
      * @return {Promise}
      */
     function create(path) {
-        var content = "";
+        var defaultConfiguration = {
+            directory: "bower_components/",
+            interactive: false
+        };
+        var content = JSON.stringify(defaultConfiguration, null, 4),
 
         path = (path || _getDefaultDirectory()) + FILE_NAME;
 
         return FileUtils.createFile(path, content);
     }
 
+    /**
+     * Delete the ".bowerrc" located at the given path. If the path is not provided, it will
+     * delete the ".bowerrc" file from the root project.
+     * @param {string=} path
+     * @return {Promise}
+     */
+    function remove(path) {
+        path = (path || _getDefaultDirectory()) + FILE_NAME;
+
+        return FileUtils.deleteFile(path);
+    }
+
+    /**
+     * Open the ".bowerrc" file in the editor.
+     * @param {string} configFilePath The absolute path of the configuration file.
+     */
     function open(configFilePath) {
         FileUtils.openInEditor(configFilePath);
     }
 
+    function _init () {
+        EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, function () {
+            console.log("bowerrc change! should reload config");
+        });
+    }
+
+    _init();
+
     exports.exists = exists;
     exports.create = create;
+    exports.remove = remove;
     exports.open   = open;
 });

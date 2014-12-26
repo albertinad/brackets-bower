@@ -24,35 +24,18 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global define */
 
 define(function (require, exports) {
     "use strict";
 
-    var NodeDomain    = brackets.getModule("utils/NodeDomain"),
-        Configuration = require("src/Configuration");
+    /**
+     * Events definition for the extension.
+     */
 
-    var bowerDomain;
+    var extensionPrefix = "com.adobe.brackets.extension.bower.events.";
 
-    function init(domainPath) {
-        bowerDomain = new NodeDomain("bower", domainPath);
-    }
-
-    function install(path, packageName) {
-        // TODO: timeout if an install takes too long (maybe that should be in
-        // BowerDomain?)
-        var config = Configuration.getDefaultConfiguration();
-
-        return bowerDomain.exec("installPackage", path, packageName, config);
-    }
-
-    function search () {
-        var config = Configuration.getDefaultConfiguration();
-
-        return bowerDomain.exec("getPackages", config);
-    }
-
-    exports.init          = init;
-    exports.install       = install;
-    exports.search        = search;
+    exports.BOWER_BOWERRC_CREATE = extensionPrefix + "bowerrc.create";
+    exports.BOWER_BOWERRC_CHANGE = extensionPrefix + "bowerrc.change";
+    exports.BOWER_BOWERRC_DELETE = extensionPrefix + "bowerrc.delete";
 });

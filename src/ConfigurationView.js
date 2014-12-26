@@ -37,29 +37,42 @@ define(function (require, exports) {
     function render($container) {
         $panelSection = $container;
 
-        $panelSection
-            .on("click", "[data-bower-config-action='reload']", function (event) {
-                // TODO
-                event.stopPropagation();
-            })
-            .on("click", "[data-bower-config-action='delete']", function (event) {
-                // TODO
-                event.stopPropagation();
-            })
-            .on("click", "[data-bower-config-action='create']", function () {
-                BowerConfiguration.create()
-                    .done(function (path) {
-                        if(path) {
-                            BowerConfiguration.open(path);
-                            _refreshUi();
-                        }
-                    });
-            })
-            .on("click", "[data-bower-config]", function () {
-                var path = $(this).data("bower-config");
+        // callbacks
 
-                BowerConfiguration.open(path);
-            });
+        function _onDeleteClick (event) {
+            event.stopPropagation();
+
+            var path = $(this).data("bower-config");
+
+            BowerConfiguration.remove(path)
+                .done(function () {
+                    _refreshUi();
+                })
+                .fail(function (error) {
+                    // TODO warn the user
+                });
+        }
+
+        function _onCreateClick() {
+            BowerConfiguration.create()
+                .done(function (path) {
+                    if(path) {
+                        BowerConfiguration.open(path);
+                        _refreshUi();
+                    }
+                });
+        }
+
+        function _onConfigListClick () {
+            var path = $(this).data("bower-config");
+
+            BowerConfiguration.open(path);
+        }
+
+        $panelSection
+            .on("click", "[data-bower-config-action='delete']", _onDeleteClick)
+            .on("click", "[data-bower-config-action='create']", _onCreateClick)
+            .on("click", "[data-bower-config]", _onConfigListClick);
     }
 
     function _getViewData () {

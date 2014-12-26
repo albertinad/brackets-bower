@@ -58,8 +58,9 @@ define(function (require, exports) {
     }
 
     /**
-     * @param {string} path
-     * @param {string} content
+     * Create a new file by giving the absolute path and the content.
+     * @param {string} path The absolute path.
+     * @param {string} content Content to write to the file.
      * @return {Promise}
      */
     function createFile(path, content) {
@@ -84,7 +85,29 @@ define(function (require, exports) {
     }
 
     /**
-     * @param {string} filePath
+     * Permanently delete the given file.
+     * @param {string} path The absolute path of the file to remove.
+     */
+    function deleteFile(path) {
+        var promise = new $.Deferred(),
+            file = FileSystem.getFileForPath(path);
+
+        function onDeleted(error) {
+            if(error) {
+                promise.reject(error);
+            } else {
+                promise.resolve();
+            }
+        }
+
+        file.unlink(onDeleted);
+
+        return promise;
+    }
+
+    /**
+     * Open the given file in the Editor and set focus.
+     * @param {string} filePath The absolute path of the file to open in the editor.
      */
     function openInEditor(filePath) {
 
@@ -98,6 +121,7 @@ define(function (require, exports) {
     }
 
     exports.exists       = exists;
-    exports.createFile       = createFile;
+    exports.createFile   = createFile;
+    exports.deleteFile   = deleteFile;
     exports.openInEditor = openInEditor;
 });
