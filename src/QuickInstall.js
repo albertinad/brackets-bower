@@ -101,34 +101,9 @@ define(function (require, exports, module) {
         return (query.length > 0 && query.charAt(0) === "+");
     }
 
-    function _fetchPackageList() {
-        var result = new $.Deferred();
-
-        Bower.search().done(function (pkgs) {
-            pkgs.sort(function (pkg1, pkg2) {
-                var name1 = pkg1.name.toLowerCase(),
-                    name2 = pkg2.name.toLowerCase();
-
-                return (name1 < name2 ? -1 : (name1 === name2 ? 0 : 1));
-            });
-
-            packages = pkgs;
-
-            result.resolve();
-        })
-        .fail(result.reject);
-
-        return result;
-    }
-
-    function _search(query, matcher) {
+    function _resetFetchStatusIfNeeded() {
         var curTime = Date.now(),
             maxTime = 1000 * 60 * 10; // 10 minutes
-
-        // Remove initial "+"
-        query = query.slice(1);
-
-        latestQuery = query;
 
         if (packages && (lastFetchTime === undefined || curTime - lastFetchTime > maxTime)) {
             // Packages were fetched more than ten minutes ago. Force a refetch.
@@ -141,6 +116,44 @@ define(function (require, exports, module) {
             packageListPromise = null;
             lastFetchTime = curTime;
         }
+    }
+
+    function _getSortedPackages (pkgs) {
+        pkgs.sort(function (pkg1, pkg2) {
+            var name1 = pkg1.name.toLowerCase(),
+                name2 = pkg2.name.toLowerCase();
+
+            return (name1 < name2 ? -1 : (name1 === name2 ? 0 : 1));
+        });
+
+        return pkgs;
+    }
+
+    function _fetchPackageList() {
+        var result = new $.Deferred();
+
+        Bower.listCache().then(function (pkgs) {
+            packages = _getSortedPackages(pkgs);
+
+            return Bower.search();
+        })
+        .done(function (pkgs) {
+            packages = _getSortedPackages(pkgs);
+
+            result.resolve();
+        })
+        .fail(result.reject);
+
+        return result;
+    }
+
+    function _search(query, matcher) {
+        // Remove initial "+"
+        query = query.slice(1);
+
+        latestQuery = query;
+
+        _resetFetchStatusIfNeeded();
 
         if (!packages) {
             // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
@@ -191,6 +204,7 @@ define(function (require, exports, module) {
         // Filter and rank how good each match is
         var filteredList = $.map(packages, function (pkg) {
             var searchResult = matcher.match(pkg.name, query);
+
             if (searchResult) {
                 searchResult.pkg = pkg;
             }

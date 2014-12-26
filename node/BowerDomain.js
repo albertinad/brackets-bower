@@ -41,6 +41,11 @@ maxerr: 50, node: true */
 
     log.debug("Started parent.");
 
+    function _getPackagesData (data) {
+        // For some reason the package list is an array inside an array.
+        return _.flatten(data);
+    }
+
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
      * @param {object} config Key-value object to specify optional configuration.
@@ -52,9 +57,33 @@ maxerr: 50, node: true */
     function _cmdGetPackages(config, cb) {
         bower.commands.search(null, config)
             .on("end", function (data) {
-                // For some reason the package list is an array inside an array.
-                log.debug("Packages: " + JSON.stringify(_.flatten(data)));
-                cb(null, _.flatten(data));
+                var packages = _getPackagesData(data);
+
+                log.debug("Packages: " + JSON.stringify(packages));
+
+                cb(null, packages);
+            })
+            .on("error", function (error) {
+                cb(error.message, null);
+            });
+    }
+
+    /**
+     * Returns a list of all packages names from bower cache.
+     * @param {object} config Key-value object to specify optional configuration.
+     * @param {function(?string, ?Array)} cb Callback o receive
+     *      the list of packages names that are on the bower cache. First parameter is an error
+     *      string or null if no error, and the second parameter is the results array or null
+     *      if there was an error.
+     */
+    function _cmdGetPackagesFromCache(config, cb) {
+        bower.commands.cache.list(null, null, config)
+            .on("end", function (data) {
+                var packages = _getPackagesData(data);
+
+                log.debug("Packages: " + JSON.stringify(packages));
+
+                cb(null, packages);
             })
             .on("error", function (error) {
                 cb(error.message, null);
@@ -127,6 +156,24 @@ maxerr: 50, node: true */
                 name: "packages",
                 type: "{Array.<{name: string, url: string}>}",
                 description: "List of all packages in the bower registry."
+            }]
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "getPackagesFromCache",
+            _cmdGetPackagesFromCache,
+            true,
+            "Returns a list of all packages from the bower cache.",
+            [{
+                name: "config",
+                type: "object",
+                description: "Configuration object."
+            }],
+            [{
+                name: "packages",
+                type: "{Array}",
+                description: "List of all packages in the bower cache."
             }]
         );
 

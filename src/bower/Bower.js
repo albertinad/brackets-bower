@@ -52,6 +52,25 @@ define(function (require, exports) {
         return bowerDomain.exec("getPackages", config);
     }
 
+    function listCache() {
+        var config = Configuration.getDefaultConfiguration(),
+            promise = bowerDomain.exec("getPackagesFromCache", config);
+
+        // the packages returned from "bower cache list" doesn't have
+        // the "name" property, so we added it
+        promise.then(function (pkgs) {
+            pkgs.forEach(function (item) {
+                var name = item.pkgMeta.name;
+
+                item.name = name;
+            });
+
+            return pkgs;
+        });
+
+        return promise;
+    }
+
     function getConfiguration (path) {
         return bowerDomain.exec("getConfiguration", path);
     }
@@ -59,5 +78,6 @@ define(function (require, exports) {
     exports.init             = init;
     exports.install          = install;
     exports.search           = search;
+    exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;
 });
