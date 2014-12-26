@@ -43,6 +43,13 @@ to configure http and https proxy from your global git configuration in your sys
 git config --global --set http.proxy proxyValue
 git config --global --set https.proxy proxyValue
 
+### .bowerrc
+
+The extension automatically detects if the .bowerrc file exists at the root project.
+It allows to create a default one and to delete it later. All the changes made to
+the configurable properties are automatically propagated to bower once the file is
+saved.
+
 ### Problems? Suggestions?
 
 [File an issue!](https://github.com/njx/brackets-bower/issues)
