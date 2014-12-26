@@ -28,9 +28,12 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
 
-    var bower  = require("bower"),
-        log4js = require("log4js"),
-        _      = require("lodash");
+    var bower       = require("bower"),
+        bowerConfig = require("bower-config"),
+        log4js      = require("log4js"),
+        _           = require("lodash");
+
+    var DOMAIN_NAME = "bower";
 
     log4js.loadAppender("file");
     log4js.addAppender(log4js.appenders.file("/tmp/BowerDomain.log"), "logfile");
@@ -88,6 +91,19 @@ maxerr: 50, node: true */
     }
 
     /**
+     * Read and get the configuration from the ".bowerrc" file.
+     * @param {string} path The path to the folder to read the configuration.
+     * @param {function(?string, ?string)} cb Callback for when the configuration is ready.
+     */
+    function _cmdGetConfiguration(path, cb) {
+        log.debug("Loading configuration");
+
+        var config = bowerConfig.read(path);
+
+        cb(null, config);
+    }
+
+    /**
      * Initializes the domain with its commands.
      * @param {DomainManager} domainmanager The DomainManager for the server
      */
@@ -97,7 +113,7 @@ maxerr: 50, node: true */
         }
 
         domainManager.registerCommand(
-            "bower",
+            DOMAIN_NAME,
             "getPackages",
             _cmdGetPackages,
             true,
@@ -115,7 +131,7 @@ maxerr: 50, node: true */
         );
 
         domainManager.registerCommand(
-            "bower",
+            DOMAIN_NAME,
             "installPackage",
             _cmdInstallPackage,
             true,
@@ -139,11 +155,30 @@ maxerr: 50, node: true */
                 description: "Path to the installed package."
             }]
         );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "getConfiguration",
+            _cmdGetConfiguration,
+            true,
+            "Get the configuration.",
+            [{
+                name: "path",
+                type: "string",
+                description: "Path to folder to read the configuration."
+            }],
+            [{
+                name: "config",
+                type: "Object",
+                description: "Configuration object."
+            }]
+        );
     }
 
     exports.init = init;
 
     // For local unit testing (outside Brackets)
-    exports._cmdGetPackages = _cmdGetPackages;
-    exports._cmdInstallPackage = _cmdInstallPackage;
+    exports._cmdGetPackages      = _cmdGetPackages;
+    exports._cmdInstallPackage   = _cmdInstallPackage;
+    exports._cmdGetConfiguration = _cmdGetConfiguration;
 }());

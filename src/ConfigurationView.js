@@ -30,7 +30,7 @@ define(function (require, exports) {
 
     var configurationTemplate = require("text!../templates/configuration.html"),
         Strings               = require("../strings"),
-        BowerConfiguration    = require("./BowerConfiguration");
+        BowerConfiguration    = require("src/bower/Configuration");
 
     var $panelSection;
 

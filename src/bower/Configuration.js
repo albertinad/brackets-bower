@@ -24,16 +24,21 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
+/*global define, brackets */
 
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager = brackets.getModule("project/ProjectManager"),
-        FileUtils      = require("src/utils/FileUtils"),
-        Event          = require("src/events/Events"),
-        EventEmitter   = require("src/events/EventEmitter");
+    var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
+        ProjectManager     = brackets.getModule("project/ProjectManager"),
+        FileUtils          = require("src/utils/FileUtils"),
+        Event              = require("src/events/Events"),
+        EventEmitter       = require("src/events/EventEmitter"),
+        Bower              = require("src/bower/Bower");
 
     var FILE_NAME = ".bowerrc";
+
+    var cacheConfig = null;
 
     function _getDefaultDirectory(path) {
         if (!path) {
@@ -44,6 +49,35 @@ define(function (require, exports) {
     }
 
     /**
+     * Creates the default configuration based on those settings defined
+     * in brackets preferences.
+     * @param {object=} config Configuration object.
+     */
+    function _createDefaultConfiguration(config) {
+        var proxy = PreferencesManager.get("proxy");
+
+        cacheConfig = config || {};
+
+        if (proxy) {
+            cacheConfig.proxy = proxy;
+            cacheConfig.httpsProxy = proxy;
+        }
+    }
+
+    /**
+     * Gets the default configuration. If the configuration is not cached, it
+     * creates it and then return it.
+     * @returns {Object} Configuration object
+     */
+    function getDefaultConfiguration() {
+        if (!cacheConfig) {
+            _createDefaultConfiguration();
+        }
+
+        return cacheConfig;
+    }
+
+     /**
      * Checks if the bowerrc json file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
      * @param {path=} path
@@ -93,16 +127,62 @@ define(function (require, exports) {
         FileUtils.openInEditor(configFilePath);
     }
 
-    function _init () {
+    /**
+     * Reload the configuration.
+     * @param {string} configFilePath The absolute path root directory.
+     */
+    function reload(path) {
+        path = path || _getDefaultDirectory();
+        // TODO: this function should be replaced by a call to "reload" the default preferences
+        // on bower.
+        // TODO: expose a reload configuration API from bower module
+        Bower.getConfiguration(path).done(function (configuration) {
+            cacheConfig = configuration;
+        });
+    }
+
+    /**
+     * Callback when the default preferences change. If the "proxy" preference has changed,
+     * create the default configuration with the new value.
+     * @param {Array} preferencesChanged Array of preferences keys that could have changed.
+     */
+    function _onPreferencesChange(preferencesChanged) {
+        if (!cacheConfig) {
+            return;
+        }
+
+        var indexProxy = preferencesChanged.indexOf("proxy");
+
+        if (indexProxy !== -1) {
+            var proxy = PreferencesManager.get("proxy");
+
+            if (cacheConfig.proxy !== proxy) {
+                _createDefaultConfiguration(cacheConfig);
+            }
+        }
+    }
+
+    function _init() {
+
         EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, function () {
-            console.log("bowerrc change! should reload config");
+            reload();
+        });
+
+        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, function () {
+            reload();
+        });
+
+        PreferencesManager.on("change", function (event, data) {
+            _onPreferencesChange(data.ids);
         });
     }
 
     _init();
 
-    exports.exists = exists;
-    exports.create = create;
-    exports.remove = remove;
-    exports.open   = open;
+    exports.exists                  = exists;
+    exports.create                  = create;
+    exports.remove                  = remove;
+    exports.open                    = open;
+    exports.reload                  = reload;
+    exports.getDefaultConfiguration = getDefaultConfiguration;
 });

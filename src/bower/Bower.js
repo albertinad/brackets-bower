@@ -30,7 +30,7 @@ define(function (require, exports) {
     "use strict";
 
     var NodeDomain    = brackets.getModule("utils/NodeDomain"),
-        Configuration = require("src/Configuration");
+        Configuration = require("src/bower/Configuration");
 
     var bowerDomain;
 
@@ -52,7 +52,12 @@ define(function (require, exports) {
         return bowerDomain.exec("getPackages", config);
     }
 
-    exports.init          = init;
-    exports.install       = install;
-    exports.search        = search;
+    function getConfiguration (path) {
+        return bowerDomain.exec("getConfiguration", path);
+    }
+
+    exports.init             = init;
+    exports.install          = install;
+    exports.search           = search;
+    exports.getConfiguration = getConfiguration;
 });
