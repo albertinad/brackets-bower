@@ -136,8 +136,8 @@ maxerr: 50, node: true */
      * @param {DomainManager} domainmanager The DomainManager for the server
      */
     function init(domainManager) {
-        if (!domainManager.hasDomain("bower")) {
-            domainManager.registerDomain("bower", {major: 0, minor: 1});
+        if (!domainManager.hasDomain(DOMAIN_NAME)) {
+            domainManager.registerDomain(DOMAIN_NAME, {major: 0, minor: 1});
         }
 
         domainManager.registerCommand(
