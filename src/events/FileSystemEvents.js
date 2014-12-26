@@ -56,18 +56,17 @@ define(function (require, exports) {
             if(!entry) return;
 
             if(entry.isFile && entry.fullPath.match(bowerConfigRegex)) {
-                console.log("is modified!");
 
                 EventEmitter.trigger(Event.BOWER_BOWERRC_CHANGE);
 
             } else if(entry.isDirectory && entry.fullPath.match(projectPathRegex)) {
 
                 if(added && _isFileByPathInArray(added, bowerConfigFile)) {
-                    console.log("is created!");
+
                     EventEmitter.trigger(Event.BOWER_BOWERRC_CREATE);
 
                 } else if(removed && _isFileByPathInArray(removed, bowerConfigFile)) {
-                    console.log("is deleted!");
+
                     EventEmitter.trigger(Event.BOWER_BOWERRC_DELETE);
                 }
             }
