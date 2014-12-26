@@ -133,7 +133,9 @@ define(function (require, exports, module) {
         var result = new $.Deferred();
 
         Bower.listCache().then(function (pkgs) {
-            packages = _getSortedPackages(pkgs);
+            if(pkgs.length !== 0) {
+                packages = _getSortedPackages(pkgs);
+            }
 
             return Bower.search();
         })

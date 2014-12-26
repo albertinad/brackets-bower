@@ -71,10 +71,8 @@ maxerr: 50, node: true */
     /**
      * Returns a list of all packages names from bower cache.
      * @param {object} config Key-value object to specify optional configuration.
-     * @param {function(?string, ?Array)} cb Callback o receive
-     *      the list of packages names that are on the bower cache. First parameter is an error
-     *      string or null if no error, and the second parameter is the results array or null
-     *      if there was an error.
+     * @param {function(?Array)} cb Callback o receive
+     *      the list of packages names that are on the bower cache.
      */
     function _cmdGetPackagesFromCache(config, cb) {
         bower.commands.cache.list(null, null, config)
@@ -86,7 +84,8 @@ maxerr: 50, node: true */
                 cb(null, packages);
             })
             .on("error", function (error) {
-                cb(error.message, null);
+                // returns as a result an empty array
+                cb(null, []);
             });
     }
 
