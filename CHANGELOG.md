@@ -1,5 +1,8 @@
 # Changelog
 
+## v.0.1.7
+* Use bower cache list while loading the Bower packages from the registry.
+
 ## v0.1.6
 * ".bowerrc" configuration file is now supported. Automatically checks if the ".bowerrc"
 file exists, create one at the root project and deletes it. Update the configurable
