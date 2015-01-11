@@ -31,7 +31,8 @@ maxerr: 50, node: true */
     var bower       = require("bower"),
         bowerConfig = require("bower-config"),
         log4js      = require("log4js"),
-        _           = require("lodash");
+        _           = require("lodash"),
+        Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
 
@@ -132,6 +133,18 @@ maxerr: 50, node: true */
     }
 
     /**
+     * Executes a system program with arguments.
+     * @param {string} cmd The full path to the program.
+     * @param {array} args The arguments for the program to execute.
+     * @param {function(?string, ?string)} cb Callback for when the program has executed.
+     */
+    function _cmdExecCommand(cmd, args, cb) {
+        log.debug("Executing command");
+
+        Cli.execCommand(cmd, args, cb);
+    }
+
+    /**
      * Initializes the domain with its commands.
      * @param {DomainManager} domainmanager The DomainManager for the server
      */
@@ -217,6 +230,29 @@ maxerr: 50, node: true */
                 name: "config",
                 type: "Object",
                 description: "Configuration object."
+            }]
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "execCommand",
+            _cmdExecCommand,
+            true,
+            "Utility to execute commands",
+            [{
+                name: "cmd",
+                type: "string",
+                description: "System command to execute in a child process."
+            }],
+            [{
+                name: "args",
+                type: "array",
+                description: "Sytem command's arguments."
+            }],
+            [{
+                name: "result",
+                type: "string",
+                description: "Result of the command execution."
             }]
         );
     }

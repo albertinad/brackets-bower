@@ -29,9 +29,9 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var Resizer          = brackets.getModule("utils/Resizer"),
-        WorkspaceManager = brackets.getModule("view/WorkspaceManager"),
-        CommandManager   = brackets.getModule("command/CommandManager");
+    var Resizer           = brackets.getModule("utils/Resizer"),
+        WorkspaceManager  = brackets.getModule("view/WorkspaceManager"),
+        CommandManager    = brackets.getModule("command/CommandManager");
 
     var Strings           = require("../strings"),
         ConfigurationView = require("./ConfigurationView"),
@@ -39,17 +39,26 @@ define(function (require, exports, module) {
 
     var $panel,
         $bowerIcon,
-        isVisible = false;
+        isVisible = false,
+
+        bowerStatus = {
+            DEFAULT: "default",
+            ACTIVE: "active",
+            WARNING: "warning"
+        },
+        _currentStatusClass = bowerStatus.DEFAULT;
 
     function toggle() {
         if (isVisible) {
             Resizer.hide($panel);
-            $bowerIcon.removeClass("active");
+
+            _setBowerIconStatus(_currentStatusClass);
 
             ConfigurationView.hide();
         } else {
             Resizer.show($panel);
-            $bowerIcon.addClass("active");
+
+            _setBowerIconStatus(bowerStatus.ACTIVE);
 
             ConfigurationView.show();
         }
@@ -57,12 +66,31 @@ define(function (require, exports, module) {
         isVisible = !isVisible;
     }
 
+    function _setBowerIconStatus(status) {
+        var statusArray = [];
+
+        for (var availableStatus in bowerStatus) {
+            statusArray.push(bowerStatus[availableStatus]);
+        }
+
+        $bowerIcon.removeClass(statusArray.join(" "));
+        $bowerIcon.addClass(status);
+    }
+
+    function setStatus (status) {
+        _currentStatusClass = status;
+
+        _setBowerIconStatus(status);
+    }
+
     /**
      * @param {String} extensionName
      */
     function init(extensionName, commandToActive) {
         // bottom panel
-        var panelHTML = Mustache.render(panelTemplate, { Strings: Strings });
+        var panelHTML = Mustache.render(panelTemplate, {
+            Strings: Strings
+        });
 
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);
 
@@ -82,6 +110,8 @@ define(function (require, exports, module) {
         ConfigurationView.render($("#brackets-bower-config"));
     }
 
-    exports.init   = init;
-    exports.toggle = toggle;
+    exports.init        = init;
+    exports.toggle      = toggle;
+    exports.setStatus   = setStatus;
+    exports.bowerStatus = bowerStatus;
 });

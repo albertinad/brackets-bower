@@ -67,6 +67,16 @@
     background-position: 0 -97px;
 }
 
+/* error dialog */
+
+#bower-error-dialog[data-severity-type=warning] .modal-header {
+    background-color: #e3b551;
+}
+
+#bower-error-dialog[data-severity-type=warning] .dialog-title{
+    color: #fff;
+}
+
 /* common */
 
 .bower-title {

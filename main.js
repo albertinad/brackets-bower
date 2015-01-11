@@ -33,10 +33,13 @@ define(function (require, exports, module) {
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus             = brackets.getModule("command/Menus"),
-        AppInit           = brackets.getModule("utils/AppInit");
+        AppInit           = brackets.getModule("utils/AppInit"),
+        StringUtils       = brackets.getModule("utils/StringUtils");
 
     // local modules
     var Bower            = require("src/bower/Bower"),
+        Requirements     = require("src/bower/GitChecker"),
+        ErrorManager     = require("src/ErrorManager"),
         QuickInstall     = require("src/QuickInstall"),
         PanelView        = require("src/PanelView"),
         FileSystemEvents = require("src/events/FileSystemEvents"),
@@ -47,7 +50,20 @@ define(function (require, exports, module) {
         CMD_BOWER_CONFIG       = "com.adobe.brackets.commands.bower.toggleConfigView",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
-    function _init() {
+    function _checkRequirements () {
+        var platform = brackets.platform;
+
+        Requirements.isGitOnSystem(platform)
+            .fail(function () {
+            var paths = Requirements.getDefaultGitPaths(platform).join("\n"),
+                description = StringUtils.format(Strings.GIT_NOT_FOUND_DESCRIPTION, paths);
+
+                PanelView.setStatus(PanelView.bowerStatus.WARNING);
+                ErrorManager.showWarning(Strings.GIT_NOT_FOUND_TITLE, description);
+            });
+    }
+
+    function init() {
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
         var configCmd = CommandManager.register(Strings.TITLE_BOWER, CMD_BOWER_CONFIG, PanelView.toggle),
@@ -69,9 +85,11 @@ define(function (require, exports, module) {
         QuickInstall.init();
 
         PanelView.init(EXTENSION_NAME, CMD_BOWER_CONFIG);
+
+        _checkRequirements();
     }
 
-    _init();
+    init();
 
     AppInit.appReady(FileSystemEvents.init);
 });

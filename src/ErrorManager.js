@@ -21,26 +21,35 @@
  *
  */
 
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define */
 
-define({
-    "TITLE_BOWER": "Bower",
-    "TITLE_WARNING": "Bower Warning",
-    "TITLE_SHORTCUT": "Install from Bower...",
-    "TITLE_QUICK_OPEN": "Install from Bower",
-    "CONFIG_TITLE": "Configuration",
-    "BOWERRC_NOT_FOUND": ".bowerrc file not found!",
-    "CREATE": "Create",
-    "RELOAD": "Reload",
-    "DELETE": "Delete",
-    "STATUS_BOWER_LOADING": "Loading Bower registry",
-    "STATUS_BOWER_READY": "Bower registry ready",
-    "STATUS_BOWER_NOT_LOADED": "Couldn't load Bower registry",
-    "STATUS_INSTALLING_PKG": "Installing {0} ...",
-    "STATUS_PKG_INSTALLED": "Installed {0}",
-    "STATUS_ERROR_INSTALLING": "Error installing {0}",
-    "TEXT_CLOSE": "Close",
-    "GIT_NOT_FOUND_TITLE": "Git wasn't found on your system",
-    "GIT_NOT_FOUND_DESCRIPTION": "Brackets-bower extension searched for Git in the following system paths:\n\n {0} \n\nBower requires Git installed to download and install some packages.\nBrackets-bower extension may not work properly."
+/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
+maxerr: 50, browser: true */
+/*global $, define, brackets */
+
+define(function (require, exports, module) {
+    "use strict";
+
+    var Dialogs    = brackets.getModule("widgets/Dialogs"),
+        Strings    = require("../strings"),
+        dialogHTML = require("text!../templates/error-dialog.html");
+
+    var errorSeverity = {
+        WARNING: "warning"
+    };
+
+    function showWarning (title, description) {
+        var dialog,
+            dialogTemplate = Mustache.render(dialogHTML, {
+                Strings: Strings,
+                severity: errorSeverity.WARNING,
+                title: title,
+                description: description
+            });
+
+        dialog = Dialogs.showModalDialogUsingTemplate(dialogTemplate);
+
+        dialog.done();
+    };
+
+    exports.showWarning = showWarning;
 });

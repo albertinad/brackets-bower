@@ -75,9 +75,14 @@ define(function (require, exports) {
         return bowerDomain.exec("getConfiguration", path);
     }
 
+    function executeCommand (cmd, args) {
+        return bowerDomain.exec("execCommand", cmd, args);
+    }
+
     exports.init             = init;
     exports.install          = install;
     exports.search           = search;
     exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;
+    exports.executeCommand   = executeCommand;
 });
