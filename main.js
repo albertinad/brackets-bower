@@ -38,7 +38,7 @@ define(function (require, exports, module) {
 
     // local modules
     var Bower            = require("src/bower/Bower"),
-        Requirements     = require("src/bower/GitChecker"),
+        GitChecker       = require("src/bower/GitChecker"),
         ErrorManager     = require("src/ErrorManager"),
         QuickInstall     = require("src/QuickInstall"),
         PanelView        = require("src/PanelView"),
@@ -53,12 +53,13 @@ define(function (require, exports, module) {
     function _checkRequirements () {
         var platform = brackets.platform;
 
-        Requirements.isGitOnSystem(platform)
+        GitChecker.isGitOnSystem(platform)
             .fail(function () {
-            var paths = Requirements.getDefaultGitPaths(platform).join("\n"),
-                description = StringUtils.format(Strings.GIT_NOT_FOUND_DESCRIPTION, paths);
+                var paths = GitChecker.getDefaultPaths(platform).join("\n"),
+                    description = StringUtils.format(Strings.GIT_NOT_FOUND_DESCRIPTION, paths);
 
                 PanelView.setStatus(PanelView.bowerStatus.WARNING);
+
                 ErrorManager.showWarning(Strings.GIT_NOT_FOUND_TITLE, description);
             });
     }

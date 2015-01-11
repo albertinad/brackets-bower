@@ -26,6 +26,7 @@
 
 define({
     "TITLE_CONFIGURATION": "Bower",
+    "TITLE_WARNING": "Advertencia de Bower",
     "TITLE_SHORTCUT": "Instalar desde Bower...",
     "TITLE_QUICK_OPEN": "Instalar desde Bower",
     "CONFIG_TITLE": "Configuración",
@@ -38,5 +39,8 @@ define({
     "STATUS_BOWER_NOT_LOADED": "No se pudo cargar el registro de Bower",
     "STATUS_INSTALLING_PKG": "Instalando {0} ...",
     "STATUS_PKG_INSTALLED": "{0} instalado",
-    "STATUS_ERROR_INSTALLING": "Error en la instalación de {0}"
+    "STATUS_ERROR_INSTALLING": "Error en la instalación de {0}",
+    "TEXT_CLOSE": "Cerrar",
+    "GIT_NOT_FOUND_TITLE": "No se encontró Git en su sistema",
+    "GIT_NOT_FOUND_DESCRIPTION": "La extensión Brackets-bower buscó a Git en los siguientes rutas del sistema:\n\n {0} \n\nBower require tener instalado Git para descargar e instalar algunos paquetes.\nBrackets-bower puede no funcionar correctamente."
 });

@@ -46,14 +46,14 @@ define(function (require, exports) {
         GIT_ARG_VERSION   = "--version",
         GIT_VERSION_REGEX = /^git version\s+(.*)$/;
 
-    function getDefaultGitPaths (platform) {
+    function getDefaultPaths (platform) {
         var platformPaths = (platform === "win") ? defaultOsPaths.win : defaultOsPaths.nix;
 
         return [DEFAULT_GIT].concat(platformPaths);
     }
 
     function _findGit (platform, callback) {
-        var paths = getDefaultGitPaths(platform),
+        var paths = getDefaultPaths(platform),
             gitFindings = [],
             gitErrors = [],
             count = paths.length;
@@ -101,6 +101,6 @@ define(function (require, exports) {
         return deferred.promise();
     }
 
-    exports.isGitOnSystem      = isGitOnSystem;
-    exports.getDefaultGitPaths = getDefaultGitPaths;
+    exports.isGitOnSystem   = isGitOnSystem;
+    exports.getDefaultPaths = getDefaultPaths;
 });
