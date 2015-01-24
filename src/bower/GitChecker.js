@@ -44,7 +44,7 @@ define(function (require, exports) {
 
     var DEFAULT_GIT       = "git",
         GIT_ARG_VERSION   = "--version",
-        GIT_VERSION_REGEX = /^git version\s+(.*)$/;
+        GIT_VERSION_REGEX = /^git version\s(.*)$/;
 
     function getDefaultPaths (platform) {
         var platformPaths = (platform === "win") ? defaultOsPaths.win : defaultOsPaths.nix;
