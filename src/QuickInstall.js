@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         lastFetchTime,
         status = StatusDisplay.create();
 
-    var MAX_TIME_FETCH = 1000 * 60 * 10; // 10 minutes
+    var MAX_TIME_FETCH = 600000; // 10 minutes
 
     function _installNext() {
         if (installPromise || queue.length === 0) {
