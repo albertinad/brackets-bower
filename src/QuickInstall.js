@@ -48,6 +48,8 @@ define(function (require, exports, module) {
         lastFetchTime,
         status = StatusDisplay.create();
 
+    var MAX_TIME_FETCH = 1000 * 60 * 10; // 10 minutes
+
     function _installNext() {
         if (installPromise || queue.length === 0) {
             return;
@@ -102,15 +104,9 @@ define(function (require, exports, module) {
     }
 
     function _resetFetchStatusIfNeeded() {
-        var curTime = Date.now(),
-            maxTime = 1000 * 60 * 10; // 10 minutes
+        var curTime = Date.now();
 
-        if (packages && (lastFetchTime === undefined || curTime - lastFetchTime > maxTime)) {
-            // Packages were fetched more than ten minutes ago. Force a refetch.
-            packages = null;
-        }
-
-        if (lastFetchTime === undefined || curTime - lastFetchTime > maxTime) {
+        if (lastFetchTime === undefined || (curTime - lastFetchTime > MAX_TIME_FETCH)) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
             packages = null;
             packageListPromise = null;
