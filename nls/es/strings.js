@@ -42,5 +42,5 @@ define({
     "STATUS_ERROR_INSTALLING": "Error en la instalación de {0}",
     "TEXT_CLOSE": "Cerrar",
     "GIT_NOT_FOUND_TITLE": "No se encontró Git en su sistema",
-    "GIT_NOT_FOUND_DESCRIPTION": "La extensión Brackets-bower buscó a Git en los siguientes rutas del sistema:\n\n {0} \n\nBower require tener instalado Git para descargar e instalar algunos paquetes.\nBrackets-bower puede no funcionar correctamente."
+    "GIT_NOT_FOUND_DESCRIPTION": "La extensión Brackets-bower buscó a Git en el PATH del sistema.\n\nBower require tener instalado Git y configurado en la variable PATH del sistema, \npara descargar e instalar algunos paquetes.\nBrackets-bower puede no funcionar correctamente."
 });

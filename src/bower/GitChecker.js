@@ -31,76 +31,32 @@ define(function (require, exports) {
 
     var Bower = require("src/bower/Bower");
 
-    var defaultOsPaths = {
-        win: [
-            "C:\\Program Files\\Git\\cmd\\git.exe",
-            "C:\\Program Files (x86)\\Git\\cmd\\git.exe"
-        ],
-        nix: [
-            "/usr/local/git/bin/git",
-            "/usr/bin/git"
-        ]
-    };
-
-    var DEFAULT_GIT       = "git",
-        GIT_ARG_VERSION   = "--version",
+    var DEFAULT_GIT = "git",
+        GIT_ARG_VERSION = "--version",
         GIT_VERSION_REGEX = /^git version\s(.*)$/;
 
-    function getDefaultPaths (platform) {
-        var platformPaths = (platform === "win") ? defaultOsPaths.win : defaultOsPaths.nix;
+    /**
+     * Search for Git on the system Path.
+     */
+    function findGitOnSystem() {
+        var deferred = new $.Deferred(),
+            execPromise = Bower.executeCommand(DEFAULT_GIT, [GIT_ARG_VERSION]);
 
-        return [DEFAULT_GIT].concat(platformPaths);
-    }
+        execPromise.then(function (result) {
+            var version = result.output,
+                match = version.match(GIT_VERSION_REGEX);
 
-    function _findGit (platform, callback) {
-        var paths = getDefaultPaths(platform),
-            gitFindings = [],
-            gitErrors = [],
-            count = paths.length;
-
-        paths.forEach(function (path) {
-            var args = [GIT_ARG_VERSION],
-                execPromise = Bower.executeCommand(path, args);
-
-            execPromise.then(function (result) {
-                var version = result.output,
-                    match = version.match(GIT_VERSION_REGEX);
-
-                if(match) {
-                    gitFindings.push(path);
-                } else {
-                    gitErrors.push(path);
-                }
-            })
-            .fail(function (error) {
-                gitErrors.push(error.cmd);
-            })
-            .always(function () {
-                count -= 1;
-
-                if(count === 0) {
-                    callback(gitFindings, gitErrors);
-                }
-            });
-        });
-    }
-
-    function isGitOnSystem (platform) {
-        var deferred = new $.Deferred();
-
-        function onFindCallback (findings, errors) {
-            if(findings.length === 0) {
-                deferred.reject(errors);
-            } else {
+            if (match) {
                 deferred.resolve();
+            } else {
+                deferred.reject();
             }
-        }
-
-        _findGit(platform, onFindCallback);
+        }).fail(function (error) {
+             deferred.reject(error);
+        });
 
         return deferred.promise();
     }
 
-    exports.isGitOnSystem   = isGitOnSystem;
-    exports.getDefaultPaths = getDefaultPaths;
+    exports.findGitOnSystem = findGitOnSystem;
 });

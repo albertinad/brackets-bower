@@ -51,16 +51,11 @@ define(function (require, exports, module) {
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     function _checkRequirements () {
-        var platform = brackets.platform;
-
-        GitChecker.isGitOnSystem(platform)
+        GitChecker.findGitOnSystem()
             .fail(function () {
-                var paths = GitChecker.getDefaultPaths(platform).join("\n"),
-                    description = StringUtils.format(Strings.GIT_NOT_FOUND_DESCRIPTION, paths);
-
                 PanelView.setStatus(PanelView.bowerStatus.WARNING);
 
-                ErrorManager.showWarning(Strings.GIT_NOT_FOUND_TITLE, description);
+                ErrorManager.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
             });
     }
 
