@@ -31,8 +31,8 @@ define(function (require, exports) {
 
     var Bower = require("src/bower/Bower");
 
-    var DEFAULT_GIT = "git",
-        GIT_ARG_VERSION = "--version",
+    var DEFAULT_GIT       = "git",
+        GIT_ARG_VERSION   = "--version",
         GIT_VERSION_REGEX = /^git version\s(.*)$/;
 
     /**
