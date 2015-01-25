@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var NodeDomain    = brackets.getModule("utils/NodeDomain"),
-        Configuration = require("src/bower/Configuration");
+    var NodeDomain           = brackets.getModule("utils/NodeDomain"),
+        ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;
 
@@ -41,19 +41,19 @@ define(function (require, exports) {
     function install(path, packageName) {
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
-        var config = Configuration.getDefaultConfiguration();
+        var config = ConfigurationManager.getConfiguration();
 
         return bowerDomain.exec("installPackage", path, packageName, config);
     }
 
     function search () {
-        var config = Configuration.getDefaultConfiguration();
+        var config = ConfigurationManager.getConfiguration();
 
         return bowerDomain.exec("getPackages", config);
     }
 
     function listCache() {
-        var config = Configuration.getDefaultConfiguration(),
+        var config = ConfigurationManager.getConfiguration(),
             promise = bowerDomain.exec("getPackagesFromCache", config);
 
         // the packages returned from "bower cache list" doesn't have

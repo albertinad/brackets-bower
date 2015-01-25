@@ -30,7 +30,7 @@ define(function (require, exports) {
 
     var configurationTemplate = require("text!../templates/configuration.html"),
         Strings               = require("../strings"),
-        BowerConfiguration    = require("src/bower/Configuration");
+        ConfigurationManager  = require("src/bower/ConfigurationManager");
 
     var $panelSection;
 
@@ -42,33 +42,24 @@ define(function (require, exports) {
         function _onDeleteClick (event) {
             event.stopPropagation();
 
-            /*jshint validthis:true */
-            var path = $(this).data("bower-config");
-
-            BowerConfiguration.remove(path)
+            ConfigurationManager.remove()
                 .done(function () {
                     _refreshUi();
-                })
-                .fail(function (error) {
-                    // TODO warn the user
                 });
         }
 
         function _onCreateClick() {
-            BowerConfiguration.create()
+            ConfigurationManager.create()
                 .done(function (path) {
                     if(path) {
-                        BowerConfiguration.open(path);
+                        ConfigurationManager.open(path);
                         _refreshUi();
                     }
                 });
         }
 
         function _onConfigListClick () {
-            /*jshint validthis:true */
-            var path = $(this).data("bower-config");
-
-            BowerConfiguration.open(path);
+            ConfigurationManager.open();
         }
 
         $panelSection
@@ -88,7 +79,7 @@ define(function (require, exports) {
         var data = _getViewData(),
             sectionHtml;
 
-        BowerConfiguration.exists()
+        ConfigurationManager.findConfiguration()
             .done(function (path) {
                 data.bowerrc.push({ path: path });
             })
