@@ -29,7 +29,7 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var template            = require("text!../templates/dependencies.html"),
+    var template            = require("text!../templates/bower-json.html"),
         Strings             = require("../strings"),
         DependenciesManager = require("src/bower/DependenciesManager");
 

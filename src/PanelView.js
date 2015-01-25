@@ -35,7 +35,7 @@ define(function (require, exports, module) {
 
     var Strings           = require("../strings"),
         ConfigurationView = require("./ConfigurationView"),
-        DependenciesView  = require("./DependenciesView"),
+        BowerJsonView  = require("./BowerJsonView"),
         SettingsDialog    = require("./SettingsDialog"),
         panelTemplate     = require("text!../templates/panel.html");
 
@@ -93,9 +93,9 @@ define(function (require, exports, module) {
 
         if (panel === "config") {
             ConfigurationView.show();
-            DependenciesView.hide();
+            BowerJsonView.hide();
         } else {
-            DependenciesView.show();
+            BowerJsonView.show();
             ConfigurationView.hide();
         }
     }
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
         });
 
         ConfigurationView.render($("#brackets-bower-config"));
-        DependenciesView.render($("#brackets-bower-dependencies"));
+        BowerJsonView.render($("#brackets-bower-dependencies"));
     }
 
     exports.init        = init;

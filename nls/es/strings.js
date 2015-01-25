@@ -31,6 +31,7 @@ define({
     "TITLE_QUICK_OPEN": "Instalar desde Bower",
     "TITLE_CONFIG": "Configuración",
     "TITLE_DEPENDENCIES": "Dependencias",
+    "TITLE_BOWER_JSON": "bower.json",
     "TITLE_SETTINGS": "Configuración de Bower",
     "BOWERRC_NOT_FOUND": "El archivo .bowerrc no se encontró!",
     "BOWER_JSON_NOT_FOUND": "El archivo bower.json no se encontró!",
