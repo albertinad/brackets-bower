@@ -96,7 +96,7 @@ define(function (require, exports) {
             if (error) {
                 promise.reject(error);
             } else {
-                promise.esolve();
+                promise.resolve();
             }
         }
 

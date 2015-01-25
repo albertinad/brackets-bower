@@ -35,12 +35,12 @@ define(function (require, exports, module) {
 
     var Strings           = require("../strings"),
         ConfigurationView = require("./ConfigurationView"),
+        DependenciesView  = require("./DependenciesView"),
         panelTemplate     = require("text!../templates/panel.html");
 
     var $panel,
         $bowerIcon,
         isVisible = false,
-
         bowerStatus = {
             DEFAULT: "default",
             ACTIVE: "active",
@@ -86,20 +86,34 @@ define(function (require, exports, module) {
         _setBowerIconStatus(status);
     }
 
+    function _onPanelOptionSelected () {
+        /*jshint validthis:true */
+        var panel = $(this).data("bower-panel-btn");
+
+        if(panel === "config") {
+            ConfigurationView.show();
+            DependenciesView.hide();
+        } else {
+            DependenciesView.show();
+            ConfigurationView.hide();
+        }
+    }
+
     /**
      * @param {String} extensionName
      */
     function init(extensionName, commandToActive) {
-        // bottom panel
-        var panelHTML = Mustache.render(panelTemplate, {
-            Strings: Strings
-        });
+        var panelHTML = Mustache.render(panelTemplate, { Strings: Strings }),
+            $header;
 
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);
 
         $panel = $("#brackets-bower-panel");
+        $header = $panel.find(".bower-panel-header");
 
-        $panel.on("click", ".close", toggle);
+        $header
+            .on("click", ".close", toggle)
+            .on("click", "[data-bower-panel-btn]", _onPanelOptionSelected);
 
         // right panel button
         $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
@@ -111,6 +125,7 @@ define(function (require, exports, module) {
         });
 
         ConfigurationView.render($("#brackets-bower-config"));
+        DependenciesView.render($("#brackets-bower-dependencies"));
     }
 
     exports.init        = init;

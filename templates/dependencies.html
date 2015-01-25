@@ -1,12 +1,12 @@
 <div class="bower-config-file">
 
     <div class="header-section">
-        <div class="bower-title">{{ Strings.TITLE_CONFIG }}</div>
+        <div class="bower-title">{{ Strings.TITLE_DEPENDENCIES }}</div>
     </div>
 
     <table class="bottom-panel-table table table-striped table-condensed">
         <tbody>
-            {{#bowerrc}}
+            {{#bowerJson}}
             <tr data-bower-config="{{ path }}">
                 <td>
                     <div class="path bower-row-item">{{ path }}</div>
@@ -14,28 +14,28 @@
 
                 <td>
                     <div class="controls bower-row-item">
-                        <button class="btn" data-bower-config-action="delete" title="{{Strings.DELETE}}">
+                        <button class="btn" data-bower-json-action="delete" title="{{Strings.DELETE}}">
                             <span>{{ Strings.DELETE }}</span>
                         </button>
                     </div>
                 </td>
             </tr>
-            {{/bowerrc}}
+            {{/bowerJson}}
 
-            {{^bowerrc}}
+            {{^bowerJson}}
             <tr>
                 <td>
-                    <span class="bower-row-item">{{ Strings.BOWERRC_NOT_FOUND}}</span>
+                    <span class="bower-row-item">{{ Strings.BOWER_JSON_NOT_FOUND}}</span>
                 </td>
                 <td>
                     <div class="bower-row-item">
-                        <button class="btn" data-bower-config-action="create" title="{{Strings.CREATE}}">
+                        <button class="btn" data-bower-json-action="create" title="{{Strings.CREATE}}">
                             <span>{{ Strings.CREATE }}</span>
                         </button>
                     </div>
                 </td>
             </tr>
-            {{/bowerrc}}
+            {{/bowerJson}}
         </tbody>
     </table>
 </div>

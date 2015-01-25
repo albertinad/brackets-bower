@@ -33,8 +33,10 @@ define(function (require, exports) {
         Bower     = require("src/bower/Bower");
 
     /**
+     * Configuration file constructor.
      * @param {string} path
      * @param {object=} defaultConfiguration
+     * @constructor
      */
     function ConfigurationFile(path, defaultConfiguration) {
         BowerFile.call(this, ".bowerrc", path);
