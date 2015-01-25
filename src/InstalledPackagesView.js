@@ -28,7 +28,7 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var installedTemplate  = require("text!../templates/installed.html"),
+    var installedTemplate  = require("text!../templates/installed-packages.html"),
         Strings            = require("../strings"),
         BowerPackages      = require("src/bower/Packages"),
         Bower              = require("src/bower/Bower");
@@ -50,7 +50,6 @@ define(function (require, exports) {
 
             /*jshint validthis:true */
             var name = $(this).data("name");
-            var row  = $( 'tr[data-bower-dependency=' + name + ']' );
 
             var path = BowerPackages.getDirectory();
 
@@ -66,25 +65,13 @@ define(function (require, exports) {
                 });
         }
 
-        function _onCreateClick() {
-            BowerPackages.create()
-                .done(function (path) {
-                    if(path) {
-                        _refreshUi();
-                        BowerPackages.open(path);
-                    }
-                });
-        }
-
         $panelSection
-            .on("click", "[data-bower-installed-action='delete']", _onDeleteClick)
-            .on("click", "[data-bower-installed-action='create']", _onCreateClick);
+            .on("click", "[data-bower-installed-action='delete']", _onDeleteClick);
     }
 
     function _getViewData () {
         return {
             Strings: Strings,
-            has_json: false,
             dependencies: []
         };
     }

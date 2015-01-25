@@ -31,27 +31,11 @@
             {{/dependencies}}
 
             {{^dependencies}}
-            {{^has_json}}
-            <tr>
-                <td>
-                    <span class="bower-row-item">{{ Strings.BOWERJSON_NOT_FOUND}}</span>
-                </td>
-                <td>
-                    <div class="bower-row-item">
-                        <button class="btn primary" data-bower-installed-action="create" title="{{Strings.CREATE}}">
-                            <span>{{ Strings.CREATE }}</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            {{/has_json}}
-            {{#has_json}}
             <tr>
                 <td>
                     <span class="bower-row-item">{{ Strings.PANEL_INSTALLED_NO_FILES}}</span>
                 </td>
             </tr>
-            {{/has_json}}
             {{/dependencies}}
         </tbody>
     </table>

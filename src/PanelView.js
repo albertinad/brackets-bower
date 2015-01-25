@@ -35,10 +35,10 @@ define(function (require, exports, module) {
 
     var Strings            = require("../strings"),
         ConfigurationView  = require("./ConfigurationView"),
-        InstalledView      = require("./InstalledView"),
         PanelButtonsView   = require("./PanelButtonsView"),
         panelTemplate      = require("text!../templates/panel.html"),
         DependenciesView  = require("./DependenciesView"),
+        // InstalledView      = require("./InstalledView"),
         BowerConfiguration = require("src/bower/Configuration");
 
     var $panel,
@@ -90,18 +90,18 @@ define(function (require, exports, module) {
         _setBowerIconStatus(status);
     }
 
-    function _onPanelOptionSelected() {
-        /*jshint validthis:true */
-        var panel = $(this).data("bower-panel-btn");
+    // function _onPanelOptionSelected() {
+    //     /*jshint validthis:true */
+    //     var panel = $(this).data("bower-panel-btn");
 
-        if (panel === "config") {
-            ConfigurationView.show();
-            DependenciesView.hide();
-        } else {
-            DependenciesView.show();
-            ConfigurationView.hide();
-        }
-    }
+    //     if (panel === "config") {
+    //         ConfigurationView.show();
+    //         DependenciesView.hide();
+    //     } else {
+    //         DependenciesView.show();
+    //         ConfigurationView.hide();
+    //     }
+    // }
 
     /**
      * Check if there is a config file. 
@@ -110,18 +110,18 @@ define(function (require, exports, module) {
      *
      * @return {void}
      */
-    function showPanel() {
-        BowerConfiguration.exists()
-            .done(function (path) {
-                InstalledView.show();
-                _currentview = InstalledView;
-            })
-            .fail(function() {
-                ConfigurationView.show();
-                _currentview = ConfigurationView;
-            })
+    // function showPanel() {
+    //     BowerConfiguration.exists()
+    //         .done(function (path) {
+    //             InstalledView.show();
+    //             _currentview = InstalledView;
+    //         })
+    //         .fail(function() {
+    //             ConfigurationView.show();
+    //             _currentview = ConfigurationView;
+    //         });
 
-    }
+    // }
 
     /**
      * @param {String} extensionName
@@ -133,11 +133,11 @@ define(function (require, exports, module) {
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);
 
         $panel = $("#brackets-bower-panel");
-        $header = $panel.find(".bower-panel-header");
+        // $header = $panel.find(".bower-panel-header");
 
-        $header
-            .on("click", ".close", toggle)
-            .on("click", "[data-bower-panel-btn]", _onPanelOptionSelected);
+        // $header
+        //     .on("click", ".close", toggle)
+        //     .on("click", "[data-bower-panel-btn]", _onPanelOptionSelected);
 
         // right panel button
         $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
@@ -149,9 +149,9 @@ define(function (require, exports, module) {
         });
 
         ConfigurationView.render($("#brackets-bower-config"));
-        InstalledView.render($("#brackets-bower-installed"));
+        DependenciesView.render($("#brackets-bower-config"));
+        // InstalledView.render($("#brackets-bower-installed"));
         PanelButtonsView.render($("#brackets-bower-button-bar"));
-        DependenciesView.render($("#brackets-bower-dependencies"));
     }
 
     exports.init        = init;

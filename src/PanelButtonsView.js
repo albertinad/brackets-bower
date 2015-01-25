@@ -31,7 +31,8 @@ define(function (require, exports) {
     var buttonsTemplate  = require("text!../templates/panel-buttons.html"),
         Strings            = require("../strings"),
         ConfigurationView  = require("./ConfigurationView"),
-        InstalledView      = require("./InstalledView"),
+        DependenciesView   = require("./DependenciesView"),
+        PackagesView       = require("./InstalledPackagesView"),
         QuickInstall       = require("./QuickInstall");
         // BowerConfiguration = require("src/bower/Configuration");
         // Bower              = require("src/bower/Bower");
@@ -49,9 +50,12 @@ define(function (require, exports) {
          * @return {void}
          */
         function _onShowConfig (event) {
-            InstalledView.hide();
+            DependenciesView.hide();
             ConfigurationView.hide();
+            PackagesView.hide();
+
             ConfigurationView.show();
+            DependenciesView.show();
         }
 
         /**
@@ -63,8 +67,10 @@ define(function (require, exports) {
          */
         function _onShowInstalled() {
             ConfigurationView.hide();
-            InstalledView.hide();
-            InstalledView.show();
+            DependenciesView.hide();
+            PackagesView.hide();
+
+            PackagesView.show();
         }
 
         function _onShowInstall() {
