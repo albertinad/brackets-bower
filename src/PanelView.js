@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
+/*global $, define, brackets, Mustache */
 
 define(function (require, exports, module) {
     "use strict";
@@ -33,17 +33,23 @@ define(function (require, exports, module) {
         WorkspaceManager   = brackets.getModule("view/WorkspaceManager"),
         CommandManager     = brackets.getModule("command/CommandManager");
 
+<<<<<<< HEAD
     var Strings            = require("../strings"),
         ConfigurationView  = require("./ConfigurationView"),
         InstalledView      = require("./InstalledView"),
         PanelButtonsView   = require("./PanelButtonsView"),
         panelTemplate      = require("text!../templates/panel.html"),
         BowerConfiguration = require("src/bower/Configuration");
+=======
+    var Strings           = require("../strings"),
+        ConfigurationView = require("./ConfigurationView"),
+        DependenciesView  = require("./DependenciesView"),
+        panelTemplate     = require("text!../templates/panel.html");
+>>>>>>> 8ac163237b27834db7af96e29bd6439e4a48088f
 
     var $panel,
         $bowerIcon,
         isVisible = false,
-
         bowerStatus = {
             DEFAULT: "default",
             ACTIVE: "active",
@@ -51,6 +57,20 @@ define(function (require, exports, module) {
         },
         _currentStatusClass = bowerStatus.DEFAULT,
         _currentview;
+
+    function _setBowerIconStatus(status) {
+        var statusArray = [],
+            availableStatus;
+
+        for (availableStatus in bowerStatus) {
+            if (bowerStatus.hasOwnProperty(availableStatus)) {
+                statusArray.push(bowerStatus[availableStatus]);
+            }
+        }
+
+        $bowerIcon.removeClass(statusArray.join(" "));
+        $bowerIcon.addClass(status);
+    }
 
     function toggle() {
         if (isVisible) {
@@ -70,21 +90,23 @@ define(function (require, exports, module) {
         isVisible = !isVisible;
     }
 
-    function _setBowerIconStatus(status) {
-        var statusArray = [];
-
-        for (var availableStatus in bowerStatus) {
-            statusArray.push(bowerStatus[availableStatus]);
-        }
-
-        $bowerIcon.removeClass(statusArray.join(" "));
-        $bowerIcon.addClass(status);
-    }
-
-    function setStatus (status) {
+    function setStatus(status) {
         _currentStatusClass = status;
 
         _setBowerIconStatus(status);
+    }
+
+    function _onPanelOptionSelected() {
+        /*jshint validthis:true */
+        var panel = $(this).data("bower-panel-btn");
+
+        if (panel === "config") {
+            ConfigurationView.show();
+            DependenciesView.hide();
+        } else {
+            DependenciesView.show();
+            ConfigurationView.hide();
+        }
     }
 
     /**
@@ -111,16 +133,17 @@ define(function (require, exports, module) {
      * @param {String} extensionName
      */
     function init(extensionName, commandToActive) {
-        // bottom panel
-        var panelHTML = Mustache.render(panelTemplate, {
-            Strings: Strings
-        });
+        var panelHTML = Mustache.render(panelTemplate, { Strings: Strings }),
+            $header;
 
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);
 
         $panel = $("#brackets-bower-panel");
+        $header = $panel.find(".bower-panel-header");
 
-        $panel.on("click", ".close", toggle);
+        $header
+            .on("click", ".close", toggle)
+            .on("click", "[data-bower-panel-btn]", _onPanelOptionSelected);
 
         // right panel button
         $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
@@ -132,8 +155,12 @@ define(function (require, exports, module) {
         });
 
         ConfigurationView.render($("#brackets-bower-config"));
+<<<<<<< HEAD
         InstalledView.render($("#brackets-bower-installed"));
         PanelButtonsView.render($("#brackets-bower-button-bar"));
+=======
+        DependenciesView.render($("#brackets-bower-dependencies"));
+>>>>>>> 8ac163237b27834db7af96e29bd6439e4a48088f
     }
 
     exports.init        = init;

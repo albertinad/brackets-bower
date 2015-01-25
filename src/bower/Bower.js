@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var NodeDomain    = brackets.getModule("utils/NodeDomain"),
-        Configuration = require("src/bower/Configuration");
+    var NodeDomain           = brackets.getModule("utils/NodeDomain"),
+        ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;
 
@@ -41,11 +41,12 @@ define(function (require, exports) {
     function install(path, packageName) {
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
-        var config = Configuration.getDefaultConfiguration();
+        var config = ConfigurationManager.getConfiguration();
 
         return bowerDomain.exec("installPackage", path, packageName, config);
     }
 
+<<<<<<< .merge_file_vjJDLL
     function uninstall(path, packageName) {
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
@@ -68,12 +69,16 @@ define(function (require, exports) {
 
     function search () {
         var config = Configuration.getDefaultConfiguration();
+=======
+    function search() {
+        var config = ConfigurationManager.getConfiguration();
+>>>>>>> .merge_file_dLQbwk
 
         return bowerDomain.exec("getPackages", config);
     }
 
     function listCache() {
-        var config = Configuration.getDefaultConfiguration(),
+        var config = ConfigurationManager.getConfiguration(),
             promise = bowerDomain.exec("getPackagesFromCache", config);
 
         // the packages returned from "bower cache list" doesn't have
@@ -91,11 +96,11 @@ define(function (require, exports) {
         return promise;
     }
 
-    function getConfiguration (path) {
+    function getConfiguration(path) {
         return bowerDomain.exec("getConfiguration", path);
     }
 
-    function executeCommand (cmd, args) {
+    function executeCommand(cmd, args) {
         return bowerDomain.exec("execCommand", cmd, args);
     }
 

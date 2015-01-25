@@ -55,10 +55,16 @@
     top: 3px;
 }
 
-/* Panel buttons */
-#brackets-bower-button-bar {
-    padding-left: 40px;
-    text-align: right;
+/* panel options */
+
+.bower-panel-header .title {
+    padding-right: 10px;
+}
+
+.bower-panel-header .panels .btn-bower-panel-active {
+    background-color: #555;
+    box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.06);
+    color: #ffffff;
 }
 
 /* panel */
@@ -117,22 +123,22 @@
     width: 50%;
 }
 
-/* configuration */
+/* configuration files: .bowerrc and bower.json */
 
-.bower-config {
+.bower-config-file {
     display: flex;
     flex-direction: column;
 }
 
-.bower-config .header-section {
+.bower-config-file .header-section {
     padding: 8px;
 }
 
-.bower-config .header-section .bower-title {
+.bower-config-file .header-section .bower-title {
     padding-bottom: 3px;
 }
 
-.bower-config tr:hover {
+.bower-config-file tr:hover {
     cursor: pointer;
 }
 

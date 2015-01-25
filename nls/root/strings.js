@@ -29,9 +29,14 @@ define({
     "TITLE_WARNING": "Bower Warning",
     "TITLE_SHORTCUT": "Install from Bower...",
     "TITLE_QUICK_OPEN": "Install from Bower",
-    "CONFIG_TITLE": "Configuration",
+    "TITLE_CONFIG": "Configuration",
+    "TITLE_DEPENDENCIES": "Dependencies",
     "BOWERRC_NOT_FOUND": ".bowerrc file not found!",
+<<<<<<< HEAD
     "BOWERJSON_NOT_FOUND": "Bower.json file not found!",
+=======
+    "BOWER_JSON_NOT_FOUND": "bower.json file not found!",
+>>>>>>> 8ac163237b27834db7af96e29bd6439e4a48088f
     "CREATE": "Create",
     "RELOAD": "Reload",
     "DELETE": "Delete",
