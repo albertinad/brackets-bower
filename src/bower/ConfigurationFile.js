@@ -30,15 +30,16 @@ define(function (require, exports) {
     "use strict";
 
     var BowerFile = require("src/bower/BowerFile"),
-        Bower = require("src/bower/Bower");
+        Bower     = require("src/bower/Bower");
 
     /**
-     * @param {string=} path
+     * @param {string} path
+     * @param {object=} defaultConfiguration
      */
-    function ConfigurationFile(path) {
+    function ConfigurationFile(path, defaultConfiguration) {
         BowerFile.call(this, ".bowerrc", path);
 
-        this._cacheConfig = {};
+        this._cacheConfig = defaultConfiguration || {};
     }
 
     ConfigurationFile.prototype = Object.create(BowerFile.prototype);
@@ -77,13 +78,12 @@ define(function (require, exports) {
      * Reload the configuration.
      * @param {string} configFilePath The absolute path root directory.
      */
-    ConfigurationFile.prototype.reload = function (path) {
+    ConfigurationFile.prototype.reload = function () {
         var that = this,
-            filePath = this.getFileAbsolutePath(path),
             deferred = new $.Deferred();
 
         // TODO: Expose a reload configuration API from bower module
-        Bower.getConfiguration(filePath).done(function (configuration) {
+        Bower.getConfiguration(this.AbsolutePath).done(function (configuration) {
             that._cacheConfig = configuration;
 
             deferred.resolve();

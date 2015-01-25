@@ -42,8 +42,14 @@ define(function (require, exports) {
             path = ProjectManager.getProjectRoot().fullPath;
         }
 
-        this._filePath = path + fileName;
+        this._absolutePath = path + fileName;
     }
+
+    Object.defineProperty(BowerFile.prototype, "AbsolutePath", {
+        get: function () {
+            return this._absolutePath;
+        }
+    });
 
     /**
      * Create the file for the given path. If the path is not provided, it will
@@ -51,7 +57,7 @@ define(function (require, exports) {
      * @return {Promise}
      */
     BowerFile.prototype.create = function () {
-        return FileUtils.createFile(this._filePath, this.content());
+        return FileUtils.createFile(this._absolutePath, this.content());
     }
 
     /**
@@ -59,14 +65,14 @@ define(function (require, exports) {
      * @return {Promise}
      */
     BowerFile.prototype.remove = function () {
-        return FileUtils.deleteFile(this._filePath);
+        return FileUtils.deleteFile(this._absolutePath);
     }
 
     /**
      * Open the file in the editor.
      */
     BowerFile.prototype.open = function () {
-        FileUtils.openInEditor(this._filePath);
+        FileUtils.openInEditor(this._absolutePath);
     }
 
     /**

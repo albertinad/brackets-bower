@@ -42,14 +42,14 @@ define(function (require, exports) {
         function _onDeleteClick (event) {
             event.stopPropagation();
 
-            ConfigurationManager.remove()
+            ConfigurationManager.removeConfiguration()
                 .done(function () {
                     _refreshUi();
                 });
         }
 
         function _onCreateClick() {
-            ConfigurationManager.create()
+            ConfigurationManager.createConfiguration()
                 .done(function (path) {
                     if(path) {
                         ConfigurationManager.open(path);

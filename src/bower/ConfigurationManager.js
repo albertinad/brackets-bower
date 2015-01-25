@@ -30,82 +30,93 @@ define(function (require, exports) {
     "use strict";
 
     var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
-        ProjectManager = brackets.getModule("project/ProjectManager"),
-        ConfigurationFile = require("src/bower/ConfigurationFile"),
-        Event = require("src/events/Events"),
-        EventEmitter = require("src/events/EventEmitter"),
-        FileUtils = require("src/utils/FileUtils");
+        ProjectManager     = brackets.getModule("project/ProjectManager"),
+        AppInit            = brackets.getModule("utils/AppInit"),
+        ConfigurationFile  = require("src/bower/ConfigurationFile"),
+        Event              = require("src/events/Events"),
+        EventEmitter       = require("src/events/EventEmitter"),
+        FileUtils          = require("src/utils/FileUtils");
 
-    function ConfigurationManager() {
-        this._configurationFile = null;
-        this._defaultConfiguration = {};
+    var _configurationFile    = null,
+        _defaultConfiguration = {};
 
-        this._setUpDefaultConfiguration();
+    function createConfiguration(path) {
+        _configurationFile = new ConfigurationFile(path, _defaultConfiguration);
 
-        var that = this;
-
-        PreferencesManager.on("change", function (event, data) {
-            that._onPreferencesChange(data.ids);
-        });
+        return _configurationFile.create();
     }
 
-    ConfigurationManager.prototype.create = function (path) {
-        this._configurationFile = new ConfigurationFile(path);
-
-        return this._configurationFile.create();
-    };
-
-    ConfigurationManager.prototype.remove = function () {
+    function removeConfiguration() {
         var deferred = new $.Deferred();
 
-        if(this._configurationFile !== null) {
-            this._configurationFile.remove()
+        if (_configurationFile !== null) {
+            _configurationFile.remove()
                 .done(deferred.resolve);
         } else {
             deferred.resolve();
         }
 
         return deferred;
-    };
+    }
 
-    ConfigurationManager.prototype.open = function () {
-        if(this._configurationFile !== null) {
-            this._configurationFile.open();
+    function open() {
+        if (_configurationFile !== null) {
+            _configurationFile.open();
         }
-    };
+    }
 
-    ConfigurationManager.prototype.getConfiguration = function () {
+    function getConfiguration() {
         var config;
 
-        if(this._configurationFile !== null) {
-            config = this._configurationFile.getValue();
+        if (_configurationFile !== null) {
+            config = _configurationFile.getValue();
         } else {
-            config = this._defaultConfiguration;
+            config = _defaultConfiguration;
         }
 
         return config;
-    };
+    }
+
+    /**
+     * Checks if the file exists in the given directory. If the directory
+     * is not set, the root project directory is taken as the default directory.
+     * @param {string=} path
+     * @return {Promise}
+     */
+    function findConfiguration(path) {
+        if (!path) {
+            path = ProjectManager.getProjectRoot().fullPath;
+        }
+
+        path += ".bowerrc";
+
+        return FileUtils.exists(path);
+    }
+
+    function _loadConfiguration(path) {
+        _configurationFile = new ConfigurationFile(path, _defaultConfiguration);
+    }
 
     /**
      * Creates the default configuration based on those settings defined
      * in brackets preferences.
      */
-    ConfigurationManager.prototype._setUpDefaultConfiguration = function () {
+    function _setUpDefaultConfiguration() {
         var proxy = PreferencesManager.get("proxy");
 
         if (proxy) {
-            this._defaultConfiguration.proxy = proxy;
-            this._defaultConfiguration.httpsProxy = proxy;
+            _defaultConfiguration.proxy = proxy;
+            _defaultConfiguration.httpsProxy = proxy;
         }
-    };
+    }
 
     /**
      * Callback when the default preferences change. If the "proxy" preference has changed,
      * create the default configuration with the new value.
      * @param {Array} preferencesChanged Array of preferences keys that could have changed.
      */
-    ConfigurationManager.prototype._onPreferencesChange = function (preferencesChanged) {
-        if (!this._defaultConfiguration) {
+    function _onPreferencesChange(preferencesChanged) {
+        if (!_defaultConfiguration) {
             return;
         }
 
@@ -114,51 +125,54 @@ define(function (require, exports) {
         if (indexProxy !== -1) {
             var proxy = PreferencesManager.get("proxy");
 
-            if (this._defaultConfiguration.proxy !== proxy) {
-                this._setUpDefaultConfiguration(cacheConfig);
+            if (_defaultConfiguration.proxy !== proxy) {
+                _setUpDefaultConfiguration(cacheConfig);
 
-                if(this._configurationFile !== null) {
-                    this._configurationFile.setDefaults(this._defaultConfiguration);
+                if (_configurationFile !== null) {
+                    _configurationFile.setDefaults(_defaultConfiguration);
                 }
             }
         }
-    };
+    }
 
-    /**
-     * Checks if the file exists in the given directory. If the directory
-     * is not set, the root project directory is taken as the default directory.
-     * @param {string=} path
-     * @return {Promise}
-     */
-    ConfigurationManager.prototype.findConfiguration = function (path) {
-        if(!path) {
-            path = ProjectManager.getProjectRoot().fullPath;
-        }
-
-        path += ".bowerrc";
-
-        return FileUtils.exists(path);
-    };
-
-    ConfigurationManager.prototype._reload = function () {
-        if(this._configurationFile === null) {
+    function _onConfigurationChanged() {
+        if (_configurationFile === null) {
             return;
         }
 
-        var that = this;
-
-        this._configurationFile.reload()
+        _configurationFile.reload()
             .then(function () {
-                that._configurationFile.setDefaults(that._defaultConfiguration);
+                _configurationFile.setDefaults(_defaultConfiguration);
             });
-    };
+    }
 
-    ConfigurationManager.prototype.bindEvents = function () {
-        EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, this._reload.bind(this));
-        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, this._reload.bind(this));
-    };
+    function _init() {
+        _setUpDefaultConfiguration();
 
-    var configuration = new ConfigurationManager();
+        AppInit.appReady(function () {
+            // search for the configuration file if it exists
+            var defaultPath = ProjectManager.getProjectRoot().fullPath;
 
-    return configuration;
+            findConfiguration(defaultPath).then(function () {
+                _loadConfiguration(defaultPath);
+            });
+        });
+
+        EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, _onConfigurationChanged.bind(this));
+        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, _onConfigurationChanged.bind(this));
+
+        PreferencesManager.on("change", function (event, data) {
+            _onPreferencesChange(data.ids);
+        });
+    }
+
+
+
+    _init();
+
+    exports.createConfiguration = createConfiguration;
+    exports.removeConfiguration = removeConfiguration;
+    exports.getConfiguration    = getConfiguration;
+    exports.findConfiguration   = findConfiguration;
+    exports.open                = open;
 });
