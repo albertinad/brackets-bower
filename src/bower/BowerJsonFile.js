@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015 Narciso Jaramillo. All rights reserved.
+ * Copyright (c) 2014 Narciso Jaramillo. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,39 +24,37 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define */
+/*global define, brackets */
 
 define(function (require, exports) {
     "use strict";
 
-    var Bower = require("src/bower/Bower");
-
-    var DEFAULT_GIT       = "git",
-        GIT_ARG_VERSION   = "--version",
-        GIT_VERSION_REGEX = /^git version\s(.*)$/;
+    var ProjectManager = brackets.getModule("project/ProjectManager"),
+        BowerFile      = require("src/bower/BowerFile");
 
     /**
-     * Search for Git on the system Path.
+     * Bower json file constructor.
+     * @param {path} path
+     * @constructor
      */
-    function findGitOnSystem() {
-        var deferred = new $.Deferred(),
-            execPromise = Bower.executeCommand(DEFAULT_GIT, [GIT_ARG_VERSION]);
-
-        execPromise.then(function (result) {
-            var version = result.output,
-                match = version.match(GIT_VERSION_REGEX);
-
-            if (match) {
-                deferred.resolve();
-            } else {
-                deferred.reject();
-            }
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
+    function BowerJsonFile(path) {
+        BowerFile.call(this, "bower.json", path);
     }
 
-    exports.findGitOnSystem = findGitOnSystem;
+    BowerJsonFile.prototype = Object.create(BowerFile.prototype);
+    BowerJsonFile.prototype.constructor = BowerJsonFile;
+    BowerJsonFile.prototype.parentClass = BowerFile.prototype;
+
+    BowerJsonFile.prototype.content = function () {
+        var projectName = ProjectManager.getProjectRoot().name,
+            defaultBowerJson = {
+                name: projectName,
+                dependencies: {},
+                devDependencies: {}
+            };
+
+        return JSON.stringify(defaultBowerJson, null, 4);
+    };
+
+    return BowerJsonFile;
 });

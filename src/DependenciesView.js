@@ -29,29 +29,29 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var configurationTemplate = require("text!../templates/configuration.html"),
-        Strings               = require("../strings"),
-        ConfigurationManager  = require("src/bower/ConfigurationManager");
+    var template            = require("text!../templates/dependencies.html"),
+        Strings             = require("../strings"),
+        DependenciesManager = require("src/bower/DependenciesManager");
 
     var $panelSection;
 
     function _getViewData() {
         return {
             Strings: Strings,
-            bowerrc: []
+            bowerJson: []
         };
     }
 
-    function showConfiguration() {
+    function show() {
         var data = _getViewData(),
             sectionHtml;
 
-        ConfigurationManager.findConfiguration()
+        DependenciesManager.findBowerJson()
             .done(function (path) {
-                data.bowerrc.push({ path: path });
+                data.bowerJson.push({ path: path });
             })
             .always(function () {
-                sectionHtml = Mustache.render(configurationTemplate, data);
+                sectionHtml = Mustache.render(template, data);
 
                 $panelSection.append(sectionHtml);
             });
@@ -60,7 +60,7 @@ define(function (require, exports) {
     function _refreshUi() {
         $panelSection.empty();
 
-        showConfiguration();
+        show();
     }
 
     function render($container) {
@@ -71,30 +71,30 @@ define(function (require, exports) {
         function _onDeleteClick(event) {
             event.stopPropagation();
 
-            ConfigurationManager.removeConfiguration()
+            DependenciesManager.removeBowerJson()
                 .done(function () {
                     _refreshUi();
                 });
         }
 
         function _onCreateClick() {
-            ConfigurationManager.createConfiguration()
+            DependenciesManager.createBowerJson()
                 .done(function (path) {
                     if (path) {
-                        ConfigurationManager.open(path);
+                        DependenciesManager.open();
                         _refreshUi();
                     }
                 });
         }
 
         function _onConfigListClick() {
-            ConfigurationManager.open();
+            DependenciesManager.open();
         }
 
         $panelSection
-            .on("click", "[data-bower-config-action='delete']", _onDeleteClick)
-            .on("click", "[data-bower-config-action='create']", _onCreateClick)
-            .on("click", "[data-bower-config]", _onConfigListClick);
+            .on("click", "[data-bower-json-action='delete']", _onDeleteClick)
+            .on("click", "[data-bower-json-action='create']", _onCreateClick)
+            .on("click", "[data-bower-json]", _onConfigListClick);
     }
 
     function hide() {
@@ -102,6 +102,6 @@ define(function (require, exports) {
     }
 
     exports.render = render;
-    exports.show   = showConfiguration;
+    exports.show   = show;
     exports.hide   = hide;
 });

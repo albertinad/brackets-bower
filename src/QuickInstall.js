@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         lastFetchTime,
         status = StatusDisplay.create();
 
-    var MAX_TIME_FETCH = 1000 * 60 * 10; // 10 minutes
+    var MAX_TIME_FETCH = 600000; // 10 minutes
 
     function _installNext() {
         if (installPromise || queue.length === 0) {
@@ -114,7 +114,7 @@ define(function (require, exports, module) {
         }
     }
 
-    function _getSortedPackages (pkgs) {
+    function _getSortedPackages(pkgs) {
         pkgs.sort(function (pkg1, pkg2) {
             var name1 = pkg1.name.toLowerCase(),
                 name2 = pkg2.name.toLowerCase();
@@ -129,18 +129,16 @@ define(function (require, exports, module) {
         var result = new $.Deferred();
 
         Bower.listCache().then(function (pkgs) {
-            if(pkgs.length !== 0) {
+            if (pkgs.length !== 0) {
                 packages = _getSortedPackages(pkgs);
             }
 
             return Bower.search();
-        })
-        .done(function (pkgs) {
+        }).done(function (pkgs) {
             packages = _getSortedPackages(pkgs);
 
             result.resolve();
-        })
-        .fail(result.reject);
+        }).fail(result.reject);
 
         return result;
     }

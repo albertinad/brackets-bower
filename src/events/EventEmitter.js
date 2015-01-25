@@ -87,17 +87,17 @@ define(function (require, exports) {
             size,
             i;
 
-        if(handlers === undefined) {
+        if (handlers === undefined) {
             return;
         }
 
         args = Array.prototype.slice.call(arguments, 0);
         size = handlers.length;
 
-        for(i = 0; i < size; i++) {
+        for (i = 0; i < size; i++) {
             handler = handlers[i];
 
-            if(handler) {
+            if (handler) {
                 handler.apply(handler, args);
             }
         }

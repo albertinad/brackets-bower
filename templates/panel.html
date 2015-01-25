@@ -1,12 +1,22 @@
 <div id="brackets-bower-panel" class="bottom-panel vert-resizable top-resizer">
     <!-- header -->
-    <div class="toolbar simple-toolbar-layout">
+    <div class="toolbar simple-toolbar-layout bower-panel-header">
         <div class="title">{{ Strings.TITLE_BOWER }}</div>
         <!-- Install button -->
         <!-- Currently installed button -->
         <!-- Configuration button -->
         <!-- Update all button -->
         <div id="brackets-bower-button-bar">
+        </div>
+
+        <div class="panels">
+            <button data-bower-panel-btn="config" title="{{ Strings.TITLE_CONFIG }}" class="btn btn-small">
+                {{ Strings.TITLE_CONFIG }}
+            </button>
+
+            <button data-bower-panel-btn="dependencies" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn btn-small">
+                {{ Strings.TITLE_DEPENDENCIES }}
+            </button>
         </div>
 
         <a href="#" class="close">&times;</a>
@@ -17,6 +27,8 @@
 
         <div id="brackets-bower-config"></div>
         <div id="brackets-bower-installed"></div>
+
+        <div id="brackets-bower-dependencies"></div>
 
     </div>
 </div>
