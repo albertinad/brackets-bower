@@ -59,6 +59,7 @@ define(function (require, exports, module) {
     }
 
     function init() {
+        ExtensionUtils.loadStyleSheet(module, "assets/fonts/octicon.css");
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
         var configCmd = CommandManager.register(Strings.TITLE_BOWER, CMD_BOWER_CONFIG, PanelView.toggle),
