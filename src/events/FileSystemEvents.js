@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global define, brackets */
 
 define(function (require, exports) {
     "use strict";
@@ -34,7 +34,7 @@ define(function (require, exports) {
         Event          = require("src/events/Events"),
         EventEmitter   = require("src/events/EventEmitter");
 
-    function _isFileByPathInArray (filesArray, filePath) {
+    function _isFileByPathInArray(filesArray, filePath) {
         var result;
 
         filesArray.some(function (file, index) {
@@ -46,28 +46,28 @@ define(function (require, exports) {
         return result;
     }
 
-    function init () {
+    function init() {
         var projectPath = ProjectManager.getProjectRoot().fullPath,
             bowerConfigFile = projectPath + ".bowerrc",
             projectPathRegex = new RegExp(projectPath),
             bowerConfigRegex = new RegExp(bowerConfigFile);
 
         FileSystem.on("change.bower", function (event, entry, added, removed) {
-            if(!entry) {
+            if (!entry) {
                 return;
             }
 
-            if(entry.isFile && entry.fullPath.match(bowerConfigRegex)) {
+            if (entry.isFile && entry.fullPath.match(bowerConfigRegex)) {
 
                 EventEmitter.trigger(Event.BOWER_BOWERRC_CHANGE);
 
-            } else if(entry.isDirectory && entry.fullPath.match(projectPathRegex)) {
+            } else if (entry.isDirectory && entry.fullPath.match(projectPathRegex)) {
 
-                if(added && _isFileByPathInArray(added, bowerConfigFile)) {
+                if (added && _isFileByPathInArray(added, bowerConfigFile)) {
 
                     EventEmitter.trigger(Event.BOWER_BOWERRC_CREATE);
 
-                } else if(removed && _isFileByPathInArray(removed, bowerConfigFile)) {
+                } else if (removed && _isFileByPathInArray(removed, bowerConfigFile)) {
 
                     EventEmitter.trigger(Event.BOWER_BOWERRC_DELETE);
                 }

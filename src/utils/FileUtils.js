@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global $, define, brackets */
 
 define(function (require, exports) {
     "use strict";
@@ -93,10 +93,10 @@ define(function (require, exports) {
             file = FileSystem.getFileForPath(path);
 
         function onDeleted(error) {
-            if(error) {
+            if (error) {
                 promise.reject(error);
             } else {
-                promise.resolve();
+                promise.esolve();
             }
         }
 

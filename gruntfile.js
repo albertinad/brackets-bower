@@ -1,4 +1,4 @@
-/*global module */
+/*global module, require */
 
 module.exports = function (grunt) {
     "use strict";
@@ -14,7 +14,7 @@ module.exports = function (grunt) {
             all: {
                 src: [
                     "**/*.js",
-                    "!**/node_modules/**/*.js",
+                    "!**/node_modules/**/*.js"
                 ],
                 options: {
                     jshintrc: ".jshintrc"

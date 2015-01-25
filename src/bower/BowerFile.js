@@ -58,7 +58,7 @@ define(function (require, exports) {
      */
     BowerFile.prototype.create = function () {
         return FileUtils.createFile(this._absolutePath, this.content());
-    }
+    };
 
     /**
      * Delete the file.
@@ -66,14 +66,14 @@ define(function (require, exports) {
      */
     BowerFile.prototype.remove = function () {
         return FileUtils.deleteFile(this._absolutePath);
-    }
+    };
 
     /**
      * Open the file in the editor.
      */
     BowerFile.prototype.open = function () {
         FileUtils.openInEditor(this._absolutePath);
-    }
+    };
 
     /**
      * Subclasses should implement this.

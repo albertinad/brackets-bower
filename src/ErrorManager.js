@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
+/*global $, define, brackets, Mustache */
 
 define(function (require, exports, module) {
     "use strict";
@@ -37,7 +37,7 @@ define(function (require, exports, module) {
         WARNING: "warning"
     };
 
-    function showWarning (title, description) {
+    function showWarning(title, description) {
         var dialog,
             dialogTemplate = Mustache.render(dialogHTML, {
                 Strings: Strings,
@@ -49,7 +49,7 @@ define(function (require, exports, module) {
         dialog = Dialogs.showModalDialogUsingTemplate(dialogTemplate);
 
         dialog.done();
-    };
+    }
 
     exports.showWarning = showWarning;
 });

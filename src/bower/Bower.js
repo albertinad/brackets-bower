@@ -46,7 +46,7 @@ define(function (require, exports) {
         return bowerDomain.exec("installPackage", path, packageName, config);
     }
 
-    function search () {
+    function search() {
         var config = ConfigurationManager.getConfiguration();
 
         return bowerDomain.exec("getPackages", config);
@@ -71,11 +71,11 @@ define(function (require, exports) {
         return promise;
     }
 
-    function getConfiguration (path) {
+    function getConfiguration(path) {
         return bowerDomain.exec("getConfiguration", path);
     }
 
-    function executeCommand (cmd, args) {
+    function executeCommand(cmd, args) {
         return bowerDomain.exec("execCommand", cmd, args);
     }
 

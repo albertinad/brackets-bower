@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global $, define, brackets */
 
 define(function (require, exports) {
     "use strict";
@@ -53,7 +53,7 @@ define(function (require, exports) {
      */
     ConfigurationFile.prototype.getValue = function () {
         return this._cacheConfig;
-    }
+    };
 
     ConfigurationFile.prototype.content = function () {
         var defaultConfiguration = {
@@ -65,12 +65,16 @@ define(function (require, exports) {
     };
 
     ConfigurationFile.prototype.setDefaults = function (defaults) {
-        if(!this._cacheConfig) {
+        var configKey;
+
+        if (!this._cacheConfig) {
             this._cacheConfig = {};
         }
 
-        for(configKey in defaults) {
-            this._cacheConfig[configKey] = defaults[configKey];
+        for (configKey in defaults) {
+            if (defaults.hasOwnProperty(configKey)) {
+                this._cacheConfig[configKey] = defaults[configKey];
+            }
         }
     };
 

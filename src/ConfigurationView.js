@@ -24,6 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
+/*global $, define, Mustache */
 
 define(function (require, exports) {
     "use strict";
@@ -34,41 +35,7 @@ define(function (require, exports) {
 
     var $panelSection;
 
-    function render($container) {
-        $panelSection = $container;
-
-        // callbacks
-
-        function _onDeleteClick (event) {
-            event.stopPropagation();
-
-            ConfigurationManager.removeConfiguration()
-                .done(function () {
-                    _refreshUi();
-                });
-        }
-
-        function _onCreateClick() {
-            ConfigurationManager.createConfiguration()
-                .done(function (path) {
-                    if(path) {
-                        ConfigurationManager.open(path);
-                        _refreshUi();
-                    }
-                });
-        }
-
-        function _onConfigListClick () {
-            ConfigurationManager.open();
-        }
-
-        $panelSection
-            .on("click", "[data-bower-config-action='delete']", _onDeleteClick)
-            .on("click", "[data-bower-config-action='create']", _onCreateClick)
-            .on("click", "[data-bower-config]", _onConfigListClick);
-    }
-
-    function _getViewData () {
+    function _getViewData() {
         return {
             Strings: Strings,
             bowerrc: []
@@ -96,7 +63,41 @@ define(function (require, exports) {
         showConfiguration();
     }
 
-    function hide () {
+    function render($container) {
+        $panelSection = $container;
+
+        // callbacks
+
+        function _onDeleteClick(event) {
+            event.stopPropagation();
+
+            ConfigurationManager.removeConfiguration()
+                .done(function () {
+                    _refreshUi();
+                });
+        }
+
+        function _onCreateClick() {
+            ConfigurationManager.createConfiguration()
+                .done(function (path) {
+                    if (path) {
+                        ConfigurationManager.open(path);
+                        _refreshUi();
+                    }
+                });
+        }
+
+        function _onConfigListClick() {
+            ConfigurationManager.open();
+        }
+
+        $panelSection
+            .on("click", "[data-bower-config-action='delete']", _onDeleteClick)
+            .on("click", "[data-bower-config-action='create']", _onCreateClick)
+            .on("click", "[data-bower-config]", _onConfigListClick);
+    }
+
+    function hide() {
         $panelSection.empty();
     }
 

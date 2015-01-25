@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global $, define, brackets */
 
 define(function (require, exports) {
     "use strict";
@@ -126,7 +126,7 @@ define(function (require, exports) {
             var proxy = PreferencesManager.get("proxy");
 
             if (_defaultConfiguration.proxy !== proxy) {
-                _setUpDefaultConfiguration(cacheConfig);
+                _setUpDefaultConfiguration();
 
                 if (_configurationFile !== null) {
                     _configurationFile.setDefaults(_defaultConfiguration);
@@ -158,8 +158,8 @@ define(function (require, exports) {
             });
         });
 
-        EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, _onConfigurationChanged.bind(this));
-        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, _onConfigurationChanged.bind(this));
+        EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, _onConfigurationChanged);
+        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, _onConfigurationChanged);
 
         PreferencesManager.on("change", function (event, data) {
             _onPreferencesChange(data.ids);

@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
+/*global $, define, brackets, Mustache */
 
 define(function (require, exports, module) {
     "use strict";
@@ -48,6 +48,20 @@ define(function (require, exports, module) {
         },
         _currentStatusClass = bowerStatus.DEFAULT;
 
+    function _setBowerIconStatus(status) {
+        var statusArray = [],
+            availableStatus;
+
+        for (availableStatus in bowerStatus) {
+            if (bowerStatus.hasOwnProperty(availableStatus)) {
+                statusArray.push(bowerStatus[availableStatus]);
+            }
+        }
+
+        $bowerIcon.removeClass(statusArray.join(" "));
+        $bowerIcon.addClass(status);
+    }
+
     function toggle() {
         if (isVisible) {
             Resizer.hide($panel);
@@ -66,18 +80,7 @@ define(function (require, exports, module) {
         isVisible = !isVisible;
     }
 
-    function _setBowerIconStatus(status) {
-        var statusArray = [];
-
-        for (var availableStatus in bowerStatus) {
-            statusArray.push(bowerStatus[availableStatus]);
-        }
-
-        $bowerIcon.removeClass(statusArray.join(" "));
-        $bowerIcon.addClass(status);
-    }
-
-    function setStatus (status) {
+    function setStatus(status) {
         _currentStatusClass = status;
 
         _setBowerIconStatus(status);

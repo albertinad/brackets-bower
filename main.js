@@ -50,7 +50,7 @@ define(function (require, exports, module) {
         CMD_BOWER_CONFIG       = "com.adobe.brackets.commands.bower.toggleConfigView",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
-    function _checkRequirements () {
+    function _checkRequirements() {
         GitChecker.findGitOnSystem()
             .fail(function () {
                 PanelView.setStatus(PanelView.bowerStatus.WARNING);
