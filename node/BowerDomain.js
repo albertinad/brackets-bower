@@ -94,13 +94,18 @@ maxerr: 50, node: true */
      * Installs the package with the given name.
      * @param {string} path The path to the folder within which to install the package.
      * @param {string} name Name of package to install.
+     * @param {boolean} save Save the package into the bower.json if it exists.
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function(?string, ?string)} cb Callback for when the installation is finished.
      * First parameter is an error string, or null if no error, and second parameter is either
      * the full installation path or null if there was an error.
      */
-    function _cmdInstallPackage(path, name, config, cb) {
+    function _cmdInstallPackage(path, name, save, config, cb) {
         log.debug("Installing " + name + " into " + path);
+
+        var options = {
+            save: save
+        };
 
         if (!config) {
             config = {};
@@ -108,7 +113,7 @@ maxerr: 50, node: true */
 
         config.cwd = path;
 
-        bower.commands.install([name], {}, config)
+        bower.commands.install([name], options, config)
             .on("end", function (installedPackages) {
                 var installedPackage = installedPackages[name];
 

@@ -39,7 +39,7 @@ define(function (require, exports, module) {
 
     function _init() {
         preferences.definePreference(settings.RELOAD_REGISTRY_TIME, "number", 600000);
-        preferences.definePreference(settings.QUICK_INSTALL_SAVE, "boolean", true);
+        preferences.definePreference(settings.QUICK_INSTALL_SAVE, "boolean", false);
     }
 
     function get(key) {
