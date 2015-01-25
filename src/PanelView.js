@@ -36,6 +36,7 @@ define(function (require, exports, module) {
     var Strings           = require("../strings"),
         ConfigurationView = require("./ConfigurationView"),
         DependenciesView  = require("./DependenciesView"),
+        SettingsDialog    = require("./SettingsDialog"),
         panelTemplate     = require("text!../templates/panel.html");
 
     var $panel,
@@ -99,6 +100,10 @@ define(function (require, exports, module) {
         }
     }
 
+    function _showExtensionSettings() {
+        SettingsDialog.show();
+    }
+
     /**
      * @param {String} extensionName
      */
@@ -113,7 +118,8 @@ define(function (require, exports, module) {
 
         $header
             .on("click", ".close", toggle)
-            .on("click", "[data-bower-panel-btn]", _onPanelOptionSelected);
+            .on("click", "[data-bower-panel-btn]", _onPanelOptionSelected)
+            .on("click", "[data-bower-btn-id='settings']", _showExtensionSettings);
 
         // right panel button
         $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
