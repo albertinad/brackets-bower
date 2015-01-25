@@ -31,6 +31,7 @@ define({
     "TITLE_QUICK_OPEN": "Install from Bower",
     "CONFIG_TITLE": "Configuration",
     "BOWERRC_NOT_FOUND": ".bowerrc file not found!",
+    "BOWERJSON_NOT_FOUND": "Bower.json file not found!",
     "CREATE": "Create",
     "RELOAD": "Reload",
     "DELETE": "Delete",
@@ -47,5 +48,6 @@ define({
     "BUTTON_SHOW_INSTALLED": "Installed",
     "BUTTON_INSTALL_PACKAGE": "Install package",
     "BUTTON_UPDATE_ALL": "Update all",
-    "PANEL_INSTALLED_TITLE": "Already installed packages"
+    "PANEL_INSTALLED_TITLE": "Already installed packages",
+    "PANEL_INSTALLED_NO_FILES": "No installed packages yet"
 });

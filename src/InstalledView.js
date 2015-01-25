@@ -30,7 +30,7 @@ define(function (require, exports) {
 
     var installedTemplate  = require("text!../templates/installed.html"),
         Strings            = require("../strings"),
-        BowerConfiguration = require("src/bower/Configuration"),
+        BowerPackages      = require("src/bower/Packages"),
         Bower              = require("src/bower/Bower");
 
     var $panelSection;
@@ -52,11 +52,12 @@ define(function (require, exports) {
             var name = $(this).data("name");
             var row  = $( 'tr[data-bower-dependency=' + name + ']' );
 
-            var path = BowerConfiguration.getDirectory();
+            var path = BowerPackages.getDirectory();
 
             Bower.uninstall(path, name)
                 .done(function () {
-                    row.remove();
+                    console.log('uninstalled');
+                    _refreshUi();
                 })
                 .fail(function (error) {
                     // TODO warn the user
@@ -65,13 +66,25 @@ define(function (require, exports) {
                 });
         }
 
+        function _onCreateClick() {
+            BowerPackages.create()
+                .done(function (path) {
+                    if(path) {
+                        _refreshUi();
+                        BowerPackages.open(path);
+                    }
+                });
+        }
+
         $panelSection
-            .on("click", "[data-bower-installed-action='delete']", _onDeleteClick);
+            .on("click", "[data-bower-installed-action='delete']", _onDeleteClick)
+            .on("click", "[data-bower-installed-action='create']", _onCreateClick);
     }
 
     function _getViewData () {
         return {
             Strings: Strings,
+            has_json: false,
             dependencies: []
         };
     }
@@ -80,18 +93,21 @@ define(function (require, exports) {
         var data = _getViewData(),
             sectionHtml;
 
-        BowerConfiguration.loadBowerJson()
+        BowerPackages.getPackageList()
             .done(function( file ) {
-                var tmp = JSON.parse(file);
-
-                _.each( tmp.dependencies, function( val, key) {
-                    data.dependencies.push({name: key, version: val});
-                    }); 
+                data.has_json = true;
+                data.dependencies = file;
             })
             .always(function () {
                 sectionHtml = Mustache.render(installedTemplate, data);
                 $panelSection.append(sectionHtml);
             });
+    }
+
+    function _refreshUi() {
+        $panelSection.empty();
+
+        showInstalled();
     }
 
     function hide () {

@@ -49,15 +49,21 @@ define(function (require, exports) {
     function uninstall(path, packageName) {
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
+        var result = $.Deferred();
+
         console.log( 'bower.uninstall' );
-        var config  = Configuration.getDefaultConfiguration(),
-            promise = bowerDomain.exec("uninstallPackage", path, packageName, config);
+        var config  = Configuration.getDefaultConfiguration();
 
-        promise.then(function(pkg) {
-            return pkg;
-        });
+        bowerDomain.exec("uninstallPackage", path, packageName, config)
+            .done(function(pkg){
+                result.resolve(pkg);
+            })
+            .fail(function(){
+                var error = 'Error while uninstalling: ' + packageName;
+                result.reject(error);
+            });
 
-        return promise;
+        return result;
     }
 
     function search () {
