@@ -39,7 +39,7 @@ define(function (require, exports) {
      */
     function BowerJsonFile(path) {
         BowerFile.call(this, "bower.json", path);
-    };
+    }
 
     BowerJsonFile.prototype = Object.create(BowerFile.prototype);
     BowerJsonFile.prototype.constructor = BowerJsonFile;

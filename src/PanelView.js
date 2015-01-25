@@ -86,11 +86,11 @@ define(function (require, exports, module) {
         _setBowerIconStatus(status);
     }
 
-    function _onPanelOptionSelected () {
+    function _onPanelOptionSelected() {
         /*jshint validthis:true */
         var panel = $(this).data("bower-panel-btn");
 
-        if(panel === "config") {
+        if (panel === "config") {
             ConfigurationView.show();
             DependenciesView.hide();
         } else {

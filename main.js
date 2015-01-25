@@ -33,8 +33,7 @@ define(function (require, exports, module) {
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus             = brackets.getModule("command/Menus"),
-        AppInit           = brackets.getModule("utils/AppInit"),
-        StringUtils       = brackets.getModule("utils/StringUtils");
+        AppInit           = brackets.getModule("utils/AppInit");
 
     // local modules
     var Bower            = require("src/bower/Bower"),

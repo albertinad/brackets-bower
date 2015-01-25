@@ -52,7 +52,7 @@ maxerr: 50, node: true */
 
                 callback(null, result);
             }
-        };
+        }
 
         exec(command, onExecDone);
     }
