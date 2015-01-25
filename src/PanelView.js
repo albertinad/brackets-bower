@@ -33,19 +33,13 @@ define(function (require, exports, module) {
         WorkspaceManager   = brackets.getModule("view/WorkspaceManager"),
         CommandManager     = brackets.getModule("command/CommandManager");
 
-<<<<<<< HEAD
     var Strings            = require("../strings"),
         ConfigurationView  = require("./ConfigurationView"),
         InstalledView      = require("./InstalledView"),
         PanelButtonsView   = require("./PanelButtonsView"),
         panelTemplate      = require("text!../templates/panel.html"),
-        BowerConfiguration = require("src/bower/Configuration");
-=======
-    var Strings           = require("../strings"),
-        ConfigurationView = require("./ConfigurationView"),
         DependenciesView  = require("./DependenciesView"),
-        panelTemplate     = require("text!../templates/panel.html");
->>>>>>> 8ac163237b27834db7af96e29bd6439e4a48088f
+        BowerConfiguration = require("src/bower/Configuration");
 
     var $panel,
         $bowerIcon,
@@ -155,12 +149,9 @@ define(function (require, exports, module) {
         });
 
         ConfigurationView.render($("#brackets-bower-config"));
-<<<<<<< HEAD
         InstalledView.render($("#brackets-bower-installed"));
         PanelButtonsView.render($("#brackets-bower-button-bar"));
-=======
         DependenciesView.render($("#brackets-bower-dependencies"));
->>>>>>> 8ac163237b27834db7af96e29bd6439e4a48088f
     }
 
     exports.init        = init;

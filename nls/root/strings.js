@@ -32,11 +32,7 @@ define({
     "TITLE_CONFIG": "Configuration",
     "TITLE_DEPENDENCIES": "Dependencies",
     "BOWERRC_NOT_FOUND": ".bowerrc file not found!",
-<<<<<<< HEAD
     "BOWERJSON_NOT_FOUND": "Bower.json file not found!",
-=======
-    "BOWER_JSON_NOT_FOUND": "bower.json file not found!",
->>>>>>> 8ac163237b27834db7af96e29bd6439e4a48088f
     "CREATE": "Create",
     "RELOAD": "Reload",
     "DELETE": "Delete",

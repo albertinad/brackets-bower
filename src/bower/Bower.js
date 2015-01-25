@@ -46,7 +46,6 @@ define(function (require, exports) {
         return bowerDomain.exec("installPackage", path, packageName, config);
     }
 
-<<<<<<< .merge_file_vjJDLL
     function uninstall(path, packageName) {
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
@@ -67,12 +66,8 @@ define(function (require, exports) {
         return result;
     }
 
-    function search () {
-        var config = Configuration.getDefaultConfiguration();
-=======
     function search() {
         var config = ConfigurationManager.getConfiguration();
->>>>>>> .merge_file_dLQbwk
 
         return bowerDomain.exec("getPackages", config);
     }
