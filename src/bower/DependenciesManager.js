@@ -99,12 +99,15 @@ define(function (require, exports) {
 
         _bowerJsonFile.getContent()
             .done(function (data) {
-                var dependencies = [];
+                var dependencies = [],
+                    keys;
                 data = JSON.parse(data);
 
-                _.each( data.dependencies, function (version, name) {
-                    dependencies.push({name:name, version:version});
-                } );
+                keys = Object.keys(data.dependencies);
+
+                keys.forEach(function (_key) {
+                    dependencies.push({name:_key, version:data.dependencies[_key]});
+                });
 
                 deferred.resolve(dependencies);
             });

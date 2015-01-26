@@ -34,7 +34,7 @@ define({
     "TITLE_BOWER_JSON": "bower.json",
     "TITLE_SETTINGS": "Bower Settings",
     "BOWERRC_NOT_FOUND": ".bowerrc file not found!",
-    "BOWERJSON_NOT_FOUND": "Bower.json file not found!",
+    "BOWER_JSON_NOT_FOUND": "Bower.json file not found!",
     "CREATE": "Create",
     "RELOAD": "Reload",
     "DELETE": "Delete",
