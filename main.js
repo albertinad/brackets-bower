@@ -46,7 +46,7 @@ define(function (require, exports, module) {
 
     var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
         CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
-        CMD_BOWER_CONFIG       = "com.adobe.brackets.commands.bower.toggleConfigView",
+        CMD_BOWER_PANEL       = "com.adobe.brackets.commands.bower.togglePanel",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     function _checkRequirements() {
@@ -62,13 +62,14 @@ define(function (require, exports, module) {
         ExtensionUtils.loadStyleSheet(module, "assets/fonts/octicon.css");
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
-        var configCmd = CommandManager.register(Strings.TITLE_BOWER, CMD_BOWER_CONFIG, PanelView.toggle),
+        var bowerPanelCmd = CommandManager.register(Strings.TITLE_BOWER, CMD_BOWER_PANEL, PanelView.toggle),
             installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, QuickInstall.quickOpenBower),
-            fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
+            fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU),
+            viewMenu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
 
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(installCmd);
-        fileMenu.addMenuItem(configCmd);
+        viewMenu.addMenuItem(bowerPanelCmd);
 
         KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {
             key: KEY_INSTALL_FROM_BOWER
@@ -80,7 +81,7 @@ define(function (require, exports, module) {
 
         QuickInstall.init();
 
-        PanelView.init(EXTENSION_NAME, CMD_BOWER_CONFIG);
+        PanelView.init(EXTENSION_NAME, CMD_BOWER_PANEL);
 
         _checkRequirements();
     }
