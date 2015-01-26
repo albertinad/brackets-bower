@@ -80,7 +80,7 @@ define(function (require, exports) {
     /**
      * Get the dir of the dependencies
      * @param {string=} path
-     * @return {Promise}
+     * @return {string} directory of bower.json
      */
     function findBowerJsonLocation(path) {
         if (!path) {
