@@ -41,7 +41,7 @@ define(function (require, exports) {
         if (!path || path.trim() === "") {
             path = ProjectManager.getProjectRoot().fullPath;
         }
-
+        this._filePath     = path;
         this._absolutePath = path + fileName;
     }
 
@@ -73,6 +73,13 @@ define(function (require, exports) {
      */
     BowerFile.prototype.open = function () {
         FileUtils.openInEditor(this._absolutePath);
+    };
+
+    /**
+     * Get the directory name of the file
+     */
+    BowerFile.prototype.getFilePath = function () {
+        return this._filePath;
     };
 
     /**

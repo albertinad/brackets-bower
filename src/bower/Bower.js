@@ -30,6 +30,7 @@ define(function (require, exports) {
     "use strict";
 
     var NodeDomain           = brackets.getModule("utils/NodeDomain"),
+        Preferences          = require("src/Preferences"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;
@@ -41,9 +42,10 @@ define(function (require, exports) {
     function install(path, packageName) {
         // TODO: timeout if an install takes too long (maybe that should be in
         // BowerDomain?)
-        var config = ConfigurationManager.getConfiguration();
+        var config = ConfigurationManager.getConfiguration(),
+            save   = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
 
-        return bowerDomain.exec("installPackage", path, packageName, config);
+        return bowerDomain.exec("installPackage", path, packageName, save, config);
     }
 
     function uninstall(path, packageName) {

@@ -30,7 +30,7 @@ define(function (require, exports) {
 
     var installedTemplate  = require("text!../templates/installed-packages.html"),
         Strings            = require("../strings"),
-        BowerPackages      = require("src/bower/Packages"),
+        BowerFile          = require("src/bower/BowerJsonFile"),
         Bower              = require("src/bower/Bower");
 
     var $panelSection;
@@ -51,7 +51,7 @@ define(function (require, exports) {
             /*jshint validthis:true */
             var name = $(this).data("name");
 
-            var path = BowerPackages.getDirectory();
+            var path = BowerFile.getDirectory();
 
             Bower.uninstall(path, name)
                 .done(function () {
@@ -80,9 +80,8 @@ define(function (require, exports) {
         var data = _getViewData(),
             sectionHtml;
 
-        BowerPackages.getPackageList()
+        BowerFile.getPackageList()
             .done(function( file ) {
-                data.has_json = true;
                 data.dependencies = file;
             })
             .always(function () {

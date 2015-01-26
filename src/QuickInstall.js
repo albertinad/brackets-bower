@@ -37,6 +37,7 @@ define(function (require, exports, module) {
 
     var StatusDisplay = require("src/StatusDisplay"),
         Bower         = require("src/bower/Bower"),
+        Preferences   = require("src/Preferences"),
         Strings       = require("strings");
 
     var queue = [],
@@ -47,8 +48,6 @@ define(function (require, exports, module) {
         latestQuery,
         lastFetchTime,
         status = StatusDisplay.create();
-
-    var MAX_TIME_FETCH = 600000; // 10 minutes
 
     function _installNext() {
         if (installPromise || queue.length === 0) {
@@ -104,9 +103,10 @@ define(function (require, exports, module) {
     }
 
     function _resetFetchStatusIfNeeded() {
-        var curTime = Date.now();
+        var curTime = Date.now(),
+            maxTimeFetch = Preferences.get(Preferences.settings.RELOAD_REGISTRY_TIME);
 
-        if (lastFetchTime === undefined || (curTime - lastFetchTime > MAX_TIME_FETCH)) {
+        if (lastFetchTime === undefined || (curTime - lastFetchTime > maxTimeFetch)) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
             packages = null;
             packageListPromise = null;
