@@ -63,7 +63,7 @@ define(function (require, exports) {
         show();
     }
 
-    function render($container) {
+    function init($container) {
         $panelSection = $container;
 
         // callbacks
@@ -101,7 +101,7 @@ define(function (require, exports) {
         $panelSection.empty();
     }
 
-    exports.render = render;
-    exports.show   = show;
-    exports.hide   = hide;
+    exports.init = init;
+    exports.show = show;
+    exports.hide = hide;
 });

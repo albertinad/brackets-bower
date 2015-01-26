@@ -131,11 +131,13 @@ define(function (require, exports, module) {
      */
     function init(extensionName, command) {
         var panelHTML = Mustache.render(panelTemplate, { Strings: Strings }),
-            $header;
+            $header,
+            $panelSection;
 
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);
 
         $panel = $("#brackets-bower-panel");
+        $panelSection = $panel.find("#brackets-bower-active-panel");
         $header = $panel.find(".bower-panel-header");
 
         $header
@@ -152,8 +154,8 @@ define(function (require, exports, module) {
             CommandManager.execute(command);
         });
 
-        BowerJsonView.render($("#brackets-bower-dependencies"));
-        ConfigurationView.render($("#brackets-bower-config"));
+        BowerJsonView.init($panelSection);
+        ConfigurationView.init($panelSection);
 
         // set the BowerJsonView as the default/current panelView
         _currentPanelView = BowerJsonView;
