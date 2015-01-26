@@ -28,10 +28,10 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var installedTemplate  = require("text!../templates/dependencies.html"),
-        Strings            = require("../strings"),
+    var installedTemplate   = require("text!../templates/dependencies.html"),
+        Strings             = require("../strings"),
         DependenciesManager = require("src/bower/DependenciesManager"),
-        Bower              = require("src/bower/Bower");
+        Bower               = require("src/bower/Bower");
 
     var $panelSection;
 
