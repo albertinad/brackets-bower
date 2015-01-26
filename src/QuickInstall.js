@@ -47,6 +47,7 @@ define(function (require, exports, module) {
         installPromise,
         latestQuery,
         lastFetchTime,
+        _isFetching = false,
         status = StatusDisplay.create();
 
     function _installNext() {
@@ -106,7 +107,7 @@ define(function (require, exports, module) {
         var curTime = Date.now(),
             maxTimeFetch = Preferences.get(Preferences.settings.RELOAD_REGISTRY_TIME);
 
-        if (lastFetchTime === undefined || (curTime - lastFetchTime > maxTimeFetch)) {
+        if (!_isFetching && (lastFetchTime === undefined || (curTime - lastFetchTime > maxTimeFetch))) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
             packages = null;
             packageListPromise = null;
@@ -128,6 +129,8 @@ define(function (require, exports, module) {
     function _fetchPackageList() {
         var result = new $.Deferred();
 
+        _isFetching = true;
+
         Bower.listCache().then(function (pkgs) {
             if (pkgs.length !== 0) {
                 packages = _getSortedPackages(pkgs);
@@ -137,8 +140,14 @@ define(function (require, exports, module) {
         }).done(function (pkgs) {
             packages = _getSortedPackages(pkgs);
 
+            _isFetching = false;
+
             result.resolve();
-        }).fail(result.reject);
+        }).fail(function (error) {
+            _isFetching = false;
+
+            result.reject(error);
+        });
 
         return result;
     }

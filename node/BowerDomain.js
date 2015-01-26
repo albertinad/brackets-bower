@@ -60,7 +60,7 @@ maxerr: 50, node: true */
             .on("end", function (data) {
                 var packages = _getPackagesData(data);
 
-                log.debug("Packages: " + JSON.stringify(packages));
+                log.debug("Packages from registry loaded");
 
                 cb(null, packages);
             })
@@ -80,7 +80,7 @@ maxerr: 50, node: true */
             .on("end", function (data) {
                 var packages = _getPackagesData(data);
 
-                log.debug("Packages: " + JSON.stringify(packages));
+                log.debug("Packages from cache loaded");
 
                 cb(null, packages);
             })
