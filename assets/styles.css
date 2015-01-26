@@ -56,6 +56,11 @@
     color: #ffffff;
 }
 
+.bower-panel-header .tools {
+    position: absolute;
+    right: 44px;
+}
+
 /* panel */
 
 #bower-config-icon {

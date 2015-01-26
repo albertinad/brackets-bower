@@ -4,18 +4,22 @@
         <div class="title">{{ Strings.TITLE_BOWER }}</div>
 
         <div class="panels">
-            <button data-bower-panel-btn="config" title="{{ Strings.TITLE_CONFIG }}" class="btn btn-small">
-                <span class="octicon octicon-settings"></span>
-            </button>
+            <div class="btn-group">
+                <button data-bower-panel-btn="config" title="{{ Strings.TITLE_CONFIG }}" class="btn small">
+                    <span class="octicon octicon-settings"></span>
+                </button>
 
-            <button data-bower-panel-btn="bower-json" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn btn-small">
-                <span class="octicon octicon-package"></span>
-            </button>
+                <button data-bower-panel-btn="bower-json" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn small">
+                    <span class="octicon octicon-package"></span>
+                </button>
+            </div>
         </div>
 
-        <button data-bower-btn-id="settings" title="{{ Strings.TITLE_SETTINGS }}" class="btn btn-small">
-            {{ Strings.TITLE_SETTINGS }}
-        </button>
+        <div class="tools">
+            <button data-bower-btn-id="settings" title="{{ Strings.TITLE_SETTINGS }}" class="btn small">
+                {{ Strings.TITLE_SETTINGS }}
+            </button>
+        </div>
 
         <a href="#" class="close">&times;</a>
     </div>
