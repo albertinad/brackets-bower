@@ -1,0 +1,28 @@
+<div id="bower-settings-dialog" class="modal">
+    <div class="modal-header">
+        <h1 class="dialog-title">{{ Strings.TITLE_SETTINGS }}</h1>
+    </div>
+
+    <div class="modal-body table-striped tab-content settings">
+        {{#settings}}
+        <label>
+            <input data-bower-setting="save-packages" type="checkbox" {{#settings.quickInstallSave}} checked {{/settings.quickInstallSave}}></input>
+            {{ Strings.TEXT_SETTINGS_SAVE_PACKAGES }}
+        </label>
+
+        <label>
+            {{ Strings.TEXT_SETTINGS_RELOAD_TIME }}
+            <input data-bower-setting="quick-install-time" type="number" class="small" value="{{settings.reloadRegistryTime}}"></input>
+            {{ Strings.TEXT_SETTINGS_RELOAD_TIME_UNIT }}
+        </label>
+        {{/settings}}
+    </div>
+
+    <div class="modal-footer">
+        <!--
+        <button data-button-id="default" class="btn dialog-button left">{{ Strings.TEXT_RELOAD_DEFAULTS }}</button>
+        -->
+        <button data-button-id="cancel" class="btn dialog-button">{{ Strings.TEXT_CANCEL }}</button>
+        <button data-button-id="save" class="btn primary dialog-button">{{ Strings.TEXT_SAVE }}</button>
+    </div>
+</div>

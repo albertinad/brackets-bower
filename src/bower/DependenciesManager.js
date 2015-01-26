@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
+/*global $, define, brackets, _ */
 
 define(function (require, exports) {
     "use strict";
@@ -77,8 +77,39 @@ define(function (require, exports) {
         return FileUtils.exists(path);
     }
 
+    /**
+     * Get the dir of the dependencies
+     * @param {string=} path
+     * @return {Promise}
+     */
+    function findBowerJsonLocation(path) {
+        if (!path) {
+            path = ProjectManager.getProjectRoot().fullPath;
+        }
+
+        return path;
+    }
+
     function _loadBowerJson(path) {
         _bowerJsonFile = new BowerJsonFile(path);
+    }
+
+    function getDependencies() {
+        var deferred = new $.Deferred();
+
+        _bowerJsonFile.getContent()
+            .done(function (data) {
+                var dependencies = [];
+                data = JSON.parse(data);
+
+                _.each( data.dependencies, function (version, name) {
+                    dependencies.push({name:name, version:version});
+                } );
+
+                deferred.resolve(dependencies);
+            });
+
+        return deferred;
     }
 
     AppInit.appReady(function () {
@@ -90,8 +121,10 @@ define(function (require, exports) {
         });
     });
 
-    exports.createBowerJson = createBowerJson;
-    exports.removeBowerJson = removeBowerJson;
-    exports.findBowerJson   = findBowerJson;
-    exports.open            = open;
+    exports.createBowerJson       = createBowerJson;
+    exports.removeBowerJson       = removeBowerJson;
+    exports.findBowerJson         = findBowerJson;
+    exports.findBowerJsonLocation = findBowerJsonLocation;
+    exports.getDependencies       = getDependencies;
+    exports.open                  = open;
 });

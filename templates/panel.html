@@ -7,15 +7,23 @@
         </div>
 
         <div class="panels">
-            <button data-bower-panel-btn="config" title="{{ Strings.TITLE_CONFIG }}" class="btn btn-small">
-                <span class="octicon octicon-settings"></span>
+            <div class="btn-group">
+                <button data-bower-panel-key="bower-json" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn small">
+                    <span class="octicon octicon-package"></span>
+                </button>
+
+                <button data-bower-panel-key="config" title="{{ Strings.TITLE_CONFIG }}" class="btn small">
+                    <span class="octicon octicon-settings"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="tools">
+            <button data-bower-btn-id="settings" title="{{ Strings.TITLE_SETTINGS }}" class="btn small">
+                {{ Strings.TITLE_SETTINGS }}
             </button>
 
-            <button data-bower-panel-btn="dependencies" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn btn-small">
-                <span class="octicon octicon-package"></span>
-            </button>
-
-            <button data-bower-panel-btn="dependencies" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn btn-small">
+            <button data-bower-panel-key="dependencies" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn btn-small">
                 <span class="octicon octicon-list-unordered"></span>
             </button>
         </div>
@@ -26,10 +34,7 @@
     <!-- content -->
     <div class="brackets-container">
 
-        <div id="brackets-bower-config"></div>
-        <div id="brackets-bower-installed"></div>
-
-        <div id="brackets-bower-dependencies"></div>
+        <div id="brackets-bower-active-panel"></div>
 
     </div>
 </div>

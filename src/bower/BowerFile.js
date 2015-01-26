@@ -89,5 +89,12 @@ define(function (require, exports) {
         return "";
     };
 
+    /**
+     * Get the content of the file.
+     */
+    BowerFile.prototype.getContent = function () {
+        return FileUtils.readFile(this._absolutePath);
+    };    
+
     return BowerFile;
 });

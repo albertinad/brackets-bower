@@ -54,7 +54,7 @@ define(function (require, exports) {
         var result = $.Deferred();
 
         console.log( 'bower.uninstall' );
-        var config  = Configuration.getDefaultConfiguration();
+        var config  = ConfigurationManager.getConfiguration();
 
         bowerDomain.exec("uninstallPackage", path, packageName, config)
             .done(function(pkg){

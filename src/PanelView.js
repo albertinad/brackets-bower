@@ -29,21 +29,22 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var Resizer            = brackets.getModule("utils/Resizer"),
-        WorkspaceManager   = brackets.getModule("view/WorkspaceManager"),
-        CommandManager     = brackets.getModule("command/CommandManager");
+    var Resizer           = brackets.getModule("utils/Resizer"),
+        WorkspaceManager  = brackets.getModule("view/WorkspaceManager"),
+        CommandManager    = brackets.getModule("command/CommandManager");
 
-    var Strings            = require("../strings"),
-        ConfigurationView  = require("./ConfigurationView"),
-        PanelButtonsView   = require("./PanelButtonsView"),
-        panelTemplate      = require("text!../templates/panel.html"),
+    var Strings           = require("../strings"),
+        ConfigurationView = require("./ConfigurationView"),
+        BowerJsonView     = require("./BowerJsonView"),
         DependenciesView  = require("./DependenciesView"),
-        // InstalledView      = require("./InstalledView"),
-        BowerConfiguration = require("src/bower/Configuration");
+        SettingsDialog    = require("./SettingsDialog"),
+        panelTemplate     = require("text!../templates/panel.html");
 
     var $panel,
         $bowerIcon,
-        isVisible = false,
+        _isVisible = false,
+        _currentPanelView = null,
+        _currentPanelKey = null,
         bowerStatus = {
             DEFAULT: "default",
             ACTIVE: "active",
@@ -52,6 +53,10 @@ define(function (require, exports, module) {
         _currentStatusClass = bowerStatus.DEFAULT,
         _currentview;
 
+    /**
+     * Updates the bower icon class according to the status.
+     * @param {string} status The status css class to set.
+     */
     function _setBowerIconStatus(status) {
         var statusArray = [],
             availableStatus;
@@ -66,78 +71,83 @@ define(function (require, exports, module) {
         $bowerIcon.addClass(status);
     }
 
+    /**
+     * Toggle the main panel.
+     */
     function toggle() {
-        if (isVisible) {
+        if (_isVisible) {
             Resizer.hide($panel);
 
             _setBowerIconStatus(_currentStatusClass);
 
-            _currentview.hide();
+            _currentPanelView.hide();
         } else {
             Resizer.show($panel);
 
             _setBowerIconStatus(bowerStatus.ACTIVE);
 
-            showPanel();
+            _currentPanelView.show();
         }
 
-        isVisible = !isVisible;
+        _isVisible = !_isVisible;
     }
 
+    /**
+     * Set the current status.
+     * @param {string} status The new css status class to set.
+     */
     function setStatus(status) {
         _currentStatusClass = status;
 
         _setBowerIconStatus(status);
     }
 
-    // function _onPanelOptionSelected() {
-    //     /*jshint validthis:true */
-    //     var panel = $(this).data("bower-panel-btn");
+    function _onPanelOptionSelected() {
+        /*jshint validthis:true */
+        var panelKey = $(this).data("bower-panel-key");
 
-    //     if (panel === "config") {
-    //         ConfigurationView.show();
-    //         DependenciesView.hide();
-    //     } else {
-    //         DependenciesView.show();
-    //         ConfigurationView.hide();
-    //     }
-    // }
+        if(_currentPanelKey === panelKey) {
+            return;
+        }
 
-    /**
-     * Check if there is a config file. 
-     * If not show the panel to create one.
-     * Else show the list of already installed packages
-     *
-     * @return {void}
-     */
-    // function showPanel() {
-    //     BowerConfiguration.exists()
-    //         .done(function (path) {
-    //             InstalledView.show();
-    //             _currentview = InstalledView;
-    //         })
-    //         .fail(function() {
-    //             ConfigurationView.show();
-    //             _currentview = ConfigurationView;
-    //         });
+        _currentPanelKey = panelKey;
 
-    // }
+        _currentPanelView.hide();
+
+        if (panelKey === "config") {
+            _currentPanelView = ConfigurationView;
+        } else  if (panelKey === "dependencies") {
+            _currentPanelView = DependenciesView;
+        } else {
+            _currentPanelView = BowerJsonView;
+        }
+
+        _currentPanelView.show();
+    }
+
+    function _showExtensionSettings() {
+        SettingsDialog.show();
+    }
 
     /**
-     * @param {String} extensionName
+     * @param {string} extensionName The extension name.
+     * @param {string} command The command name to toggle the panel.
      */
-    function init(extensionName, commandToActive) {
+    function init(extensionName, command) {
         var panelHTML = Mustache.render(panelTemplate, { Strings: Strings }),
-            $header;
+            $header,
+            $panelSection;
 
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);
 
         $panel = $("#brackets-bower-panel");
-        // $header = $panel.find(".bower-panel-header");
+        $panelSection = $panel.find("#brackets-bower-active-panel");
+        $header = $panel.find(".bower-panel-header");
 
-        // $header
-        //     .on("click", ".close", toggle)
-        //     .on("click", "[data-bower-panel-btn]", _onPanelOptionSelected);
+        $header
+            .on("click", ".close", toggle)
+            .on("click", "[data-bower-panel-key]", _onPanelOptionSelected)
+            .on("click", "[data-bower-btn-id='settings']", _showExtensionSettings);
 
         // right panel button
         $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
@@ -145,13 +155,16 @@ define(function (require, exports, module) {
         $bowerIcon.appendTo("#main-toolbar .buttons");
 
         $bowerIcon.on("click", function () {
-            CommandManager.execute(commandToActive);
+            CommandManager.execute(command);
         });
 
-        ConfigurationView.render($("#brackets-bower-config"));
-        DependenciesView.render($("#brackets-bower-config"));
-        // InstalledView.render($("#brackets-bower-installed"));
-        PanelButtonsView.render($("#brackets-bower-button-bar"));
+        BowerJsonView.init($panelSection);
+        ConfigurationView.init($panelSection);
+        DependenciesView.init($panelSection);
+
+        // set the BowerJsonView as the default/current panelView
+        _currentPanelView = BowerJsonView;
+        _currentPanelKey = "bower-json";
     }
 
     exports.init        = init;

@@ -60,7 +60,7 @@ maxerr: 50, node: true */
             .on("end", function (data) {
                 var packages = _getPackagesData(data);
 
-                log.debug("Packages: " + JSON.stringify(packages));
+                log.debug("Packages from registry loaded");
 
                 cb(null, packages);
             })
@@ -80,7 +80,7 @@ maxerr: 50, node: true */
             .on("end", function (data) {
                 var packages = _getPackagesData(data);
 
-                log.debug("Packages: " + JSON.stringify(packages));
+                log.debug("Packages from cache loaded");
 
                 cb(null, packages);
             })
@@ -113,11 +113,7 @@ maxerr: 50, node: true */
 
         config.cwd = path;
 
-<<<<<<< HEAD
-        bower.commands.install([name], {save: true}, config)
-=======
         bower.commands.install([name], options, config)
->>>>>>> Issue28
             .on("end", function (installedPackages) {
                 var installedPackage = installedPackages[name];
 

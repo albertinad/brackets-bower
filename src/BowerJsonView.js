@@ -24,68 +24,35 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
+/*global define, Mustache */
 
 define(function (require, exports) {
     "use strict";
 
-    var installedTemplate  = require("text!../templates/installed-packages.html"),
-        Strings            = require("../strings"),
-        BowerFile          = require("src/bower/BowerJsonFile"),
-        Bower              = require("src/bower/Bower");
+    var template            = require("text!../templates/bower-json.html"),
+        Strings             = require("../strings"),
+        DependenciesManager = require("src/bower/DependenciesManager");
 
     var $panelSection;
 
-    function render($container) {
-        $panelSection = $container;
-
-        /**
-         * Eventhandling for the deletebutton of the package row.
-         *
-         * @param  {object} event 
-         *
-         * @return {void}
-         */
-        function _onDeleteClick (event) {
-            event.stopPropagation();
-
-            /*jshint validthis:true */
-            var name = $(this).data("name");
-
-            var path = BowerFile.getDirectory();
-
-            Bower.uninstall(path, name)
-                .done(function () {
-                    console.log('uninstalled');
-                    _refreshUi();
-                })
-                .fail(function (error) {
-                    // TODO warn the user
-                    console.log( 'error unistall' );
-                    console.log( arguments );
-                });
-        }
-
-        $panelSection
-            .on("click", "[data-bower-installed-action='delete']", _onDeleteClick);
-    }
-
-    function _getViewData () {
+    function _getViewData() {
         return {
             Strings: Strings,
-            dependencies: []
+            bowerJson: []
         };
     }
 
-    function showInstalled() {
+    function show() {
         var data = _getViewData(),
             sectionHtml;
 
-        BowerFile.getPackageList()
-            .done(function( file ) {
-                data.dependencies = file;
+        DependenciesManager.findBowerJson()
+            .done(function (path) {
+                data.bowerJson.push({ path: path });
             })
             .always(function () {
-                sectionHtml = Mustache.render(installedTemplate, data);
+                sectionHtml = Mustache.render(template, data);
+
                 $panelSection.append(sectionHtml);
             });
     }
@@ -93,14 +60,48 @@ define(function (require, exports) {
     function _refreshUi() {
         $panelSection.empty();
 
-        showInstalled();
+        show();
     }
 
-    function hide () {
+    function init($container) {
+        $panelSection = $container;
+
+        // callbacks
+
+        function _onDeleteClick(event) {
+            event.stopPropagation();
+
+            DependenciesManager.removeBowerJson()
+                .done(function () {
+                    _refreshUi();
+                });
+        }
+
+        function _onCreateClick() {
+            DependenciesManager.createBowerJson()
+                .done(function (path) {
+                    if (path) {
+                        DependenciesManager.open();
+                        _refreshUi();
+                    }
+                });
+        }
+
+        function _onBowerJsonListClick() {
+            DependenciesManager.open();
+        }
+
+        $panelSection
+            .on("click", "[data-bower-json-action='delete']", _onDeleteClick)
+            .on("click", "[data-bower-json-action='create']", _onCreateClick)
+            .on("click", "[data-bower-json]", _onBowerJsonListClick);
+    }
+
+    function hide() {
         $panelSection.empty();
     }
 
-    exports.render = render;
-    exports.show   = showInstalled;
-    exports.hide   = hide;
+    exports.init = init;
+    exports.show = show;
+    exports.hide = hide;
 });

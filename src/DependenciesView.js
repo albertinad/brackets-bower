@@ -24,21 +24,53 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, Mustache */
 
 define(function (require, exports) {
     "use strict";
 
-    var template            = require("text!../templates/dependencies.html"),
-        Strings             = require("../strings"),
-        DependenciesManager = require("src/bower/DependenciesManager");
+    var installedTemplate  = require("text!../templates/dependencies.html"),
+        Strings            = require("../strings"),
+        DependenciesManager = require("src/bower/DependenciesManager"),
+        Bower              = require("src/bower/Bower");
 
     var $panelSection;
 
-    function _getViewData() {
+    function init($container) {
+        $panelSection = $container;
+
+        /**
+         * Eventhandling for the deletebutton of the package row.
+         *
+         * @param  {object} event 
+         *
+         * @return {void}
+         */
+        function _onDeleteClick (event) {
+            event.stopPropagation();
+
+            /*jshint validthis:true */
+            var name = $(this).data("name"),
+                path = DependenciesManager.findBowerJsonLocation()
+
+            Bower.uninstall(path, name)
+                .done(function () {
+                    _refreshUi();
+                })
+                .fail(function (error) {
+                    // TODO warn the user
+                    console.log( 'error unistall' );
+                    console.log( arguments );
+                });
+        }
+
+        $panelSection
+            .on("click", "[data-bower-installed-action='delete']", _onDeleteClick);
+    }
+
+    function _getViewData () {
         return {
             Strings: Strings,
-            bowerJson: []
+            dependencies: []
         };
     }
 
@@ -46,13 +78,12 @@ define(function (require, exports) {
         var data = _getViewData(),
             sectionHtml;
 
-        DependenciesManager.findBowerJson()
-            .done(function (path) {
-                data.bowerJson.push({ path: path });
+        DependenciesManager.getDependencies()
+            .done(function( file ) {
+                data.dependencies = file;
             })
             .always(function () {
-                sectionHtml = Mustache.render(template, data);
-
+                sectionHtml = Mustache.render(installedTemplate, data);
                 $panelSection.append(sectionHtml);
             });
     }
@@ -63,45 +94,11 @@ define(function (require, exports) {
         show();
     }
 
-    function render($container) {
-        $panelSection = $container;
-
-        // callbacks
-
-        function _onDeleteClick(event) {
-            event.stopPropagation();
-
-            DependenciesManager.removeBowerJson()
-                .done(function () {
-                    _refreshUi();
-                });
-        }
-
-        function _onCreateClick() {
-            DependenciesManager.createBowerJson()
-                .done(function (path) {
-                    if (path) {
-                        DependenciesManager.open();
-                        _refreshUi();
-                    }
-                });
-        }
-
-        function _onConfigListClick() {
-            DependenciesManager.open();
-        }
-
-        $panelSection
-            .on("click", "[data-bower-json-action='delete']", _onDeleteClick)
-            .on("click", "[data-bower-json-action='create']", _onCreateClick)
-            .on("click", "[data-bower-json]", _onConfigListClick);
-    }
-
-    function hide() {
+    function hide () {
         $panelSection.empty();
     }
 
-    exports.render = render;
-    exports.show   = show;
-    exports.hide   = hide;
+    exports.init = init;
+    exports.show = show;
+    exports.hide = hide;
 });
