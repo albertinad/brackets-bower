@@ -48,6 +48,9 @@ define({
     "TEXT_CANCEL": "Cancel",
     "TEXT_SAVE": "Save",
     "TEXT_RELOAD_DEFAULTS": "Reload defaults",
+    "TEXT_SETTINGS_RELOAD_TIME": "Time to fetch and reload the Bower Registry",
+    "TEXT_SETTINGS_RELOAD_TIME_UNIT": "(ms)",
+    "TEXT_SETTINGS_SAVE_PACKAGES": "Save packages installed using QuickInstall to bower.json",
     "GIT_NOT_FOUND_TITLE": "Git wasn't found on your system",
     "GIT_NOT_FOUND_DESCRIPTION": "Brackets-bower extension searched for Git at the system PATH.\n\nBower requires Git installed, and configured in the system PATH variable, \nto download and install some packages.\nBrackets-bower extension may not work properly."
 });

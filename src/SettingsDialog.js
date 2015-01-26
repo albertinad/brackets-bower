@@ -29,19 +29,56 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var Dialogs    = brackets.getModule("widgets/Dialogs"),
-        Strings    = require("../strings"),
-        dialogHTML = require("text!../templates/settings-dialog.html");
+    var Dialogs     = brackets.getModule("widgets/Dialogs"),
+        Preferences = require("src/Preferences"),
+        Strings     = require("../strings"),
+        dialogHTML  = require("text!../templates/settings-dialog.html");
+
+    var _$dialog;
+
+    function _getViewData() {
+        return {
+            reloadRegistryTime: Preferences.get(Preferences.settings.RELOAD_REGISTRY_TIME),
+            quickInstallSave: Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE)
+        };
+    }
+
+    function _applyChanges() {
+        var reloadTime   = _$dialog.find("[data-bower-setting='quick-install-time']").val(),
+            savePackages = _$dialog.find("[data-bower-setting='save-packages']").prop("checked");
+
+        Preferences.set(Preferences.settings.RELOAD_REGISTRY_TIME, parseInt(reloadTime, 0));
+        Preferences.set(Preferences.settings.QUICK_INSTALL_SAVE, savePackages);
+    }
+
+    function _bindEvents() {
+        // TODO implement reloading default configuration
+        /*_$dialog.on("click", "[data-button-id='default']", function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        });*/
+    }
+
+    function _onCloseDialog(buttonId) {
+        if (buttonId === "save") {
+            _applyChanges();
+        }
+    }
 
     function show() {
         var dialog,
-            dialogTemplate = Mustache.render(dialogHTML, {
+            options = {
                 Strings: Strings,
-            });
+                settings: _getViewData()
+            },
+            dialogTemplate = Mustache.render(dialogHTML, options);
 
         dialog = Dialogs.showModalDialogUsingTemplate(dialogTemplate);
+        _$dialog = dialog.getElement();
 
-        dialog.done();
+        _bindEvents();
+
+        dialog.done(_onCloseDialog);
     }
 
     exports.show = show;

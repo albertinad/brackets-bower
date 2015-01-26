@@ -85,7 +85,7 @@
     background-color: #e3b551;
 }
 
-#bower-error-dialog[data-severity-type=warning] .dialog-title{
+#bower-error-dialog[data-severity-type=warning] .dialog-title {
     color: #fff;
 }
 
@@ -129,4 +129,19 @@
 
 .bower-config-file tr:hover {
     cursor: pointer;
+}
+
+/* settings dialog */
+
+#bower-settings-dialog .settings label {
+    padding: 3px 0 3px 0;
+}
+
+#bower-settings-dialog .settings input {
+    height: 14px;
+    margin-bottom: 0;
+}
+
+#bower-settings-dialog .settings input.small {
+    width: 8em;
 }
