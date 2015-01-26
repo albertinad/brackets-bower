@@ -87,14 +87,14 @@ define(function (require, exports) {
                 });
         }
 
-        function _onConfigListClick() {
+        function _onBowerJsonListClick() {
             DependenciesManager.open();
         }
 
         $panelSection
             .on("click", "[data-bower-json-action='delete']", _onDeleteClick)
             .on("click", "[data-bower-json-action='create']", _onCreateClick)
-            .on("click", "[data-bower-json]", _onConfigListClick);
+            .on("click", "[data-bower-json]", _onBowerJsonListClick);
     }
 
     function hide() {
