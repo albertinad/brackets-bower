@@ -32,7 +32,7 @@ define(function (require, exports) {
     var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
         ProjectManager     = brackets.getModule("project/ProjectManager"),
         AppInit            = brackets.getModule("utils/AppInit"),
-        ConfigurationFile  = require("src/bower/ConfigurationFile"),
+        BowerRc            = require("src/bower/BowerRc"),
         Event              = require("src/events/Events"),
         EventEmitter       = require("src/events/EventEmitter"),
         FileUtils          = require("src/utils/FileUtils");
@@ -41,7 +41,11 @@ define(function (require, exports) {
         _defaultConfiguration = {};
 
     function createConfiguration(path) {
-        _configurationFile = new ConfigurationFile(path, _defaultConfiguration);
+        if (!path || path.trim() === "") {
+            path = ProjectManager.getProjectRoot().fullPath;
+        }
+
+        _configurationFile = new BowerRc(path, _defaultConfiguration);
 
         return _configurationFile.create();
     }
@@ -69,7 +73,7 @@ define(function (require, exports) {
         var config;
 
         if (_configurationFile !== null) {
-            config = _configurationFile.getValue();
+            config = _configurationFile.Data;
         } else {
             config = _defaultConfiguration;
         }
@@ -94,7 +98,7 @@ define(function (require, exports) {
     }
 
     function _loadConfiguration(path) {
-        _configurationFile = new ConfigurationFile(path, _defaultConfiguration);
+        _configurationFile = new BowerRc(path, _defaultConfiguration);
     }
 
     /**
@@ -140,10 +144,9 @@ define(function (require, exports) {
             return;
         }
 
-        _configurationFile.reload()
-            .then(function () {
-                _configurationFile.setDefaults(_defaultConfiguration);
-            });
+        _configurationFile.reload().done(function () {
+            _configurationFile.setDefaults(_defaultConfiguration);
+        });
     }
 
     function _init() {
@@ -165,8 +168,6 @@ define(function (require, exports) {
             _onPreferencesChange(data.ids);
         });
     }
-
-
 
     _init();
 

@@ -63,33 +63,29 @@ define(function (require, exports) {
         show();
     }
 
+    function _onDeleteClick(event) {
+        event.stopPropagation();
+
+        DependenciesManager.removeBowerJson()
+            .done(_refreshUi);
+    }
+
+    function _onCreateClick() {
+        DependenciesManager.createBowerJson()
+            .done(function (path) {
+                if (path) {
+                    DependenciesManager.open();
+                    _refreshUi();
+                }
+            });
+    }
+
+    function _onBowerJsonListClick() {
+        DependenciesManager.open();
+    }
+
     function init($container) {
         $panelSection = $container;
-
-        // callbacks
-
-        function _onDeleteClick(event) {
-            event.stopPropagation();
-
-            DependenciesManager.removeBowerJson()
-                .done(function () {
-                    _refreshUi();
-                });
-        }
-
-        function _onCreateClick() {
-            DependenciesManager.createBowerJson()
-                .done(function (path) {
-                    if (path) {
-                        DependenciesManager.open();
-                        _refreshUi();
-                    }
-                });
-        }
-
-        function _onBowerJsonListClick() {
-            DependenciesManager.open();
-        }
 
         $panelSection
             .on("click", "[data-bower-json-action='delete']", _onDeleteClick)

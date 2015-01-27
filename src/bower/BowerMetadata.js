@@ -29,23 +29,18 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager = brackets.getModule("project/ProjectManager"),
-        FileUtils      = require("src/utils/FileUtils");
+    var FileUtils = require("src/utils/FileUtils");
 
     /**
      * Bower file constructor.
      * @param {string} fileName
-     * @param {path=} path
+     * @param {string} projectPath
      */
-    function BowerFile(fileName, path) {
-        if (!path || path.trim() === "") {
-            path = ProjectManager.getProjectRoot().fullPath;
-        }
-
-        this._absolutePath = path + fileName;
+    function BowerMetadata(fileName, projectPath) {
+        this._absolutePath = projectPath + fileName;
     }
 
-    Object.defineProperty(BowerFile.prototype, "AbsolutePath", {
+    Object.defineProperty(BowerMetadata.prototype, "AbsolutePath", {
         get: function () {
             return this._absolutePath;
         }
@@ -56,7 +51,7 @@ define(function (require, exports) {
      * take the current directory path as default.
      * @return {Promise}
      */
-    BowerFile.prototype.create = function () {
+    BowerMetadata.prototype.create = function () {
         return FileUtils.createFile(this._absolutePath, this.content());
     };
 
@@ -64,23 +59,23 @@ define(function (require, exports) {
      * Delete the file.
      * @return {Promise}
      */
-    BowerFile.prototype.remove = function () {
+    BowerMetadata.prototype.remove = function () {
         return FileUtils.deleteFile(this._absolutePath);
     };
 
     /**
      * Open the file in the editor.
      */
-    BowerFile.prototype.open = function () {
+    BowerMetadata.prototype.open = function () {
         FileUtils.openInEditor(this._absolutePath);
     };
 
     /**
      * Subclasses should implement this.
      */
-    BowerFile.prototype.content = function () {
+    BowerMetadata.prototype.content = function () {
         return "";
     };
 
-    return BowerFile;
+    return BowerMetadata;
 });

@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var BowerFile = require("src/bower/BowerFile"),
-        Bower     = require("src/bower/Bower");
+    var BowerMetadata = require("src/bower/BowerMetadata"),
+        Bower         = require("src/bower/Bower");
 
     /**
      * Configuration file constructor.
@@ -38,26 +38,26 @@ define(function (require, exports) {
      * @param {object=} defaultConfiguration
      * @constructor
      */
-    function ConfigurationFile(path, defaultConfiguration) {
-        BowerFile.call(this, ".bowerrc", path);
+    function BowerRc(path, defaultConfiguration) {
+        BowerMetadata.call(this, ".bowerrc", path);
 
         this._cacheConfig = defaultConfiguration || {};
     }
 
-    ConfigurationFile.prototype = Object.create(BowerFile.prototype);
-    ConfigurationFile.prototype.constructor = ConfigurationFile;
-    ConfigurationFile.prototype.parentClass = BowerFile.prototype;
+    BowerRc.prototype = Object.create(BowerMetadata.prototype);
+    BowerRc.prototype.constructor = BowerRc;
+    BowerRc.prototype.parentClass = BowerMetadata.prototype;
 
-    /**
-     * Gets the default configuration. If the configuration is not cached, it
-     * creates it and then return it.
-     * @returns {Object} Configuration object
-     */
-    ConfigurationFile.prototype.getValue = function () {
-        return this._cacheConfig;
-    };
+    Object.defineProperty(BowerRc.prototype, "Data", {
+        get: function () {
+            return this._cacheConfig;
+        },
+        set: function (data) {
+            this._cacheConfig = data;
+        }
+    });
 
-    ConfigurationFile.prototype.content = function () {
+    BowerRc.prototype.content = function () {
         var defaultConfiguration = {
             directory: "bower_components/",
             interactive: false
@@ -66,7 +66,7 @@ define(function (require, exports) {
         return JSON.stringify(defaultConfiguration, null, 4);
     };
 
-    ConfigurationFile.prototype.setDefaults = function (defaults) {
+    BowerRc.prototype.setDefaults = function (defaults) {
         var configKey;
 
         if (!this._cacheConfig) {
@@ -84,7 +84,7 @@ define(function (require, exports) {
      * Reload the configuration.
      * @param {string} configFilePath The absolute path root directory.
      */
-    ConfigurationFile.prototype.reload = function () {
+    BowerRc.prototype.reload = function () {
         var that = this,
             deferred = new $.Deferred();
 
@@ -98,5 +98,5 @@ define(function (require, exports) {
         return deferred;
     };
 
-    return ConfigurationFile;
+    return BowerRc;
 });

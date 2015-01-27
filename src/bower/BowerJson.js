@@ -30,31 +30,31 @@ define(function (require, exports) {
     "use strict";
 
     var ProjectManager = brackets.getModule("project/ProjectManager"),
-        BowerFile      = require("src/bower/BowerFile");
+        BowerMetadata  = require("src/bower/BowerMetadata");
 
     /**
      * Bower json file constructor.
      * @param {path} path
      * @constructor
      */
-    function BowerJsonFile(path) {
-        BowerFile.call(this, "bower.json", path);
+    function BowerJson(path) {
+        BowerMetadata.call(this, "bower.json", path);
     }
 
-    BowerJsonFile.prototype = Object.create(BowerFile.prototype);
-    BowerJsonFile.prototype.constructor = BowerJsonFile;
-    BowerJsonFile.prototype.parentClass = BowerFile.prototype;
+    BowerJson.prototype = Object.create(BowerMetadata.prototype);
+    BowerJson.prototype.constructor = BowerJson;
+    BowerJson.prototype.parentClass = BowerMetadata.prototype;
 
-    BowerJsonFile.prototype.content = function () {
+    BowerJson.prototype.content = function () {
         var projectName = ProjectManager.getProjectRoot().name,
-            defaultBowerJson = {
+            rawData = {
                 name: projectName,
                 dependencies: {},
                 devDependencies: {}
             };
 
-        return JSON.stringify(defaultBowerJson, null, 4);
+        return JSON.stringify(rawData, null, 4);
     };
 
-    return BowerJsonFile;
+    return BowerJson;
 });

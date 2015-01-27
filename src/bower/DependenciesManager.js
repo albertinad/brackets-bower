@@ -31,22 +31,22 @@ define(function (require, exports) {
 
     var ProjectManager = brackets.getModule("project/ProjectManager"),
         AppInit        = brackets.getModule("utils/AppInit"),
-        BowerJsonFile  = require("src/bower/BowerJsonFile"),
+        BowerJson      = require("src/bower/BowerJson"),
         FileUtils      = require("src/utils/FileUtils");
 
-    var _bowerJsonFile = null;
+    var _bowerJson = null;
 
     function createBowerJson(path) {
-        _bowerJsonFile = new BowerJsonFile(path);
+        _bowerJson = new BowerJson(path);
 
-        return _bowerJsonFile.create();
+        return _bowerJson.create();
     }
 
     function removeBowerJson() {
         var deferred = new $.Deferred();
 
-        if (_bowerJsonFile !== null) {
-            _bowerJsonFile.remove()
+        if (_bowerJson !== null) {
+            _bowerJson.remove()
                 .done(deferred.resolve);
         } else {
             deferred.resolve();
@@ -56,8 +56,8 @@ define(function (require, exports) {
     }
 
     function open() {
-        if (_bowerJsonFile !== null) {
-            _bowerJsonFile.open();
+        if (_bowerJson !== null) {
+            _bowerJson.open();
         }
     }
 
@@ -78,7 +78,7 @@ define(function (require, exports) {
     }
 
     function _loadBowerJson(path) {
-        _bowerJsonFile = new BowerJsonFile(path);
+        _bowerJson = new BowerJson(path);
     }
 
     AppInit.appReady(function () {

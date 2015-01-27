@@ -63,33 +63,29 @@ define(function (require, exports) {
         show();
     }
 
+    function _onDeleteClick(event) {
+        event.stopPropagation();
+
+        ConfigurationManager.removeConfiguration()
+            .done(_refreshUi);
+    }
+
+    function _onCreateClick() {
+        ConfigurationManager.createConfiguration()
+            .done(function (path) {
+                if (path) {
+                    ConfigurationManager.open(path);
+                    _refreshUi();
+                }
+        });
+    }
+
+    function _onConfigListClick() {
+        ConfigurationManager.open();
+    }
+
     function init($container) {
         $panelSection = $container;
-
-        // callbacks
-
-        function _onDeleteClick(event) {
-            event.stopPropagation();
-
-            ConfigurationManager.removeConfiguration()
-                .done(function () {
-                    _refreshUi();
-                });
-        }
-
-        function _onCreateClick() {
-            ConfigurationManager.createConfiguration()
-                .done(function (path) {
-                    if (path) {
-                        ConfigurationManager.open(path);
-                        _refreshUi();
-                    }
-                });
-        }
-
-        function _onConfigListClick() {
-            ConfigurationManager.open();
-        }
 
         $panelSection
             .on("click", "[data-bower-config-action='delete']", _onDeleteClick)

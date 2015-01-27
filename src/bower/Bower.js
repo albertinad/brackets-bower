@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var NodeDomain           = brackets.getModule("utils/NodeDomain"),
-        Preferences          = require("src/Preferences"),
+    var NodeDomain = brackets.getModule("utils/NodeDomain"),
+        Preferences = require("src/Preferences"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;
@@ -39,13 +39,24 @@ define(function (require, exports) {
         bowerDomain = new NodeDomain("bower", domainPath);
     }
 
-    function install(path, packageName) {
-        // TODO: timeout if an install takes too long (maybe that should be in
-        // BowerDomain?)
+    function installPackage(path, packageName) {
+        // TODO: timeout if an install takes too long (maybe that should be in BowerDomain?)
         var config = ConfigurationManager.getConfiguration(),
-            save   = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
+            save = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
 
-        return bowerDomain.exec("installPackage", path, packageName, save, config);
+        return bowerDomain.exec("install", path, [packageName], save, config);
+    }
+
+    function install(path) {
+        var config = ConfigurationManager.getConfiguration();
+
+        return bowerDomain.exec("install", path, null, null, config);
+    }
+
+    function prune(path) {
+        var config = ConfigurationManager.getConfiguration();
+
+        return bowerDomain.exec("prune", path, config);
     }
 
     function search() {
@@ -83,8 +94,10 @@ define(function (require, exports) {
 
     exports.init             = init;
     exports.install          = install;
+    exports.installPackage   = installPackage;
     exports.search           = search;
     exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;
     exports.executeCommand   = executeCommand;
+    // TODO exports.prune = prune;
 });
