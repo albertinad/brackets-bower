@@ -60,7 +60,7 @@ define(function (require, exports, module) {
 
         status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
 
-        installPromise = Bower.install(rootPath, pkgName);
+        installPromise = Bower.installPackage(rootPath, pkgName);
 
         installPromise.done(function (installationPath) {
             status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);

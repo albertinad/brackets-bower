@@ -40,8 +40,6 @@ maxerr: 50, node: true */
     log4js.addAppender(log4js.appenders.file("/tmp/BowerDomain.log"), "logfile");
     var log = log4js.getLogger("logfile");
 
-    log.debug("Started parent.");
-
     function _getPackagesData (data) {
         // For some reason the package list is an array inside an array.
         return _.flatten(data);
@@ -58,11 +56,9 @@ maxerr: 50, node: true */
     function _cmdGetPackages(config, cb) {
         bower.commands.search(null, config)
             .on("end", function (data) {
-                var packages = _getPackagesData(data);
-
                 log.debug("Packages from registry loaded");
 
-                cb(null, packages);
+                cb(null, _getPackagesData(data));
             })
             .on("error", function (error) {
                 cb(error.message, null);
@@ -78,11 +74,9 @@ maxerr: 50, node: true */
     function _cmdGetPackagesFromCache(config, cb) {
         bower.commands.cache.list(null, null, config)
             .on("end", function (data) {
-                var packages = _getPackagesData(data);
-
                 log.debug("Packages from cache loaded");
 
-                cb(null, packages);
+                cb(null, _getPackagesData(data));
             })
             .on("error", function (error) {
                 // returns as a result an empty array
@@ -93,19 +87,21 @@ maxerr: 50, node: true */
     /**
      * Installs the package with the given name.
      * @param {string} path The path to the folder within which to install the package.
-     * @param {string} name Name of package to install.
+     * @param {Array} names Array with package's names to install.
      * @param {boolean} save Save the package into the bower.json if it exists.
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function(?string, ?string)} cb Callback for when the installation is finished.
      * First parameter is an error string, or null if no error, and second parameter is either
      * the full installation path or null if there was an error.
      */
-    function _cmdInstallPackage(path, name, save, config, cb) {
-        log.debug("Installing " + name + " into " + path);
+    function _cmdInstall(path, names, save, config, cb) {
+        log.debug("Installing packages into " + path);
 
-        var options = {
-            save: save
-        };
+        var options = {};
+
+        if(save !== null || save !== undefined) {
+             options.save = save;
+        }
 
         if (!config) {
             config = {};
@@ -113,11 +109,18 @@ maxerr: 50, node: true */
 
         config.cwd = path;
 
-        bower.commands.install([name], options, config)
+        bower.commands.install(names, options, config)
             .on("end", function (installedPackages) {
-                var installedPackage = installedPackages[name];
+                var installationDir;
 
-                cb(null, installedPackage.canonicalDir);
+                if (Array.isArray(installedPackages)) {
+                    installationDir = path;
+                } else {
+                    var installedPackage = installedPackages[names[0]];
+                    installationDir = installedPackage.canonicalDir;
+                }
+
+                cb(null, installationDir);
             })
             .on("error", function (error) {
                 cb(error ? error.message : "Unknown error", null);
@@ -196,8 +199,8 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "installPackage",
-            _cmdInstallPackage,
+            "install",
+            _cmdInstall,
             true,
             "Installs a package into a given folder.",
             [{
@@ -205,9 +208,13 @@ maxerr: 50, node: true */
                 type: "string",
                 description: "Path to folder into which to install the package"
             }, {
-                name: "name",
-                type: "string",
-                description: "Name of package to install"
+                name: "names",
+                type: "array",
+                description: "Array with package's names to install. If null, it will look for the bower.json dependencies."
+            }, {
+                name: "save",
+                type: "boolean",
+                description: "Save the installed package to the bower.json file"
             }, {
                 name: "config",
                 type: "object",
@@ -266,6 +273,6 @@ maxerr: 50, node: true */
 
     // For local unit testing (outside Brackets)
     exports._cmdGetPackages      = _cmdGetPackages;
-    exports._cmdInstallPackage   = _cmdInstallPackage;
+    exports._cmdInstall          = _cmdInstall;
     exports._cmdGetConfiguration = _cmdGetConfiguration;
 }());
