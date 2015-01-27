@@ -42,6 +42,7 @@ define(function (require, exports, module) {
         QuickInstall     = require("src/QuickInstall"),
         PanelView        = require("src/PanelView"),
         FileSystemEvents = require("src/events/FileSystemEvents"),
+        Preferences      = require("src/Preferences"),
         Strings          = require("strings");
 
     var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
@@ -88,5 +89,11 @@ define(function (require, exports, module) {
 
     init();
 
-    AppInit.appReady(FileSystemEvents.init);
+    AppInit.appReady(function () {
+        FileSystemEvents.init();
+
+        if(Preferences.get(Preferences.settings.EXTENSION_VISIBLE)) {
+            PanelView.toggle();
+        }
+    });
 });

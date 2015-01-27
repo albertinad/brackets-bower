@@ -34,12 +34,14 @@ define(function (require, exports, module) {
 
     var settings = {
         RELOAD_REGISTRY_TIME: "reloadRegistryTime",
-        QUICK_INSTALL_SAVE: "quickInstallSavePackages"
+        QUICK_INSTALL_SAVE: "quickInstallSavePackages",
+        EXTENSION_VISIBLE: "show"
     };
 
     function _init() {
         preferences.definePreference(settings.RELOAD_REGISTRY_TIME, "number", 600000);
         preferences.definePreference(settings.QUICK_INSTALL_SAVE, "boolean", false);
+        preferences.definePreference(settings.EXTENSION_VISIBLE, "boolean", false);
     }
 
     function get(key) {

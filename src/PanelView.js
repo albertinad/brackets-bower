@@ -38,6 +38,7 @@ define(function (require, exports, module) {
         BowerJsonView       = require("./BowerJsonView"),
         SettingsDialog      = require("./SettingsDialog"),
         DependenciesManager = require("./bower/DependenciesManager"),
+        Preferences         = require("./Preferences"),
         panelTemplate       = require("text!../templates/panel.html");
 
     var $panel,
@@ -89,6 +90,8 @@ define(function (require, exports, module) {
         }
 
         _isVisible = !_isVisible;
+
+        Preferences.set(Preferences.settings.EXTENSION_VISIBLE, _isVisible);
     }
 
     /**
