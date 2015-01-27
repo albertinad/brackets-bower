@@ -58,7 +58,11 @@
 
 .bower-panel-header .tools {
     position: absolute;
-    right: 44px;
+    right: 35px;
+}
+
+.bower-panel-header .tools > div {
+    padding: 0 10px 0 5px;
 }
 
 /* panel */
@@ -115,6 +119,10 @@
 .bower-row .bower-row-item {
     display: inline-block;
     width: 50%;
+}
+
+.bower-btn {
+    cursor: pointer;
 }
 
 /* configuration files: .bowerrc and bower.json */
