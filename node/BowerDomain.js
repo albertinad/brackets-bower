@@ -40,7 +40,7 @@ maxerr: 50, node: true */
     log4js.addAppender(log4js.appenders.file("/tmp/BowerDomain.log"), "logfile");
     var log = log4js.getLogger("logfile");
 
-    function _getPackagesData (data) {
+    function _getPackagesData(data) {
         // For some reason the package list is an array inside an array.
         return _.flatten(data);
     }
@@ -99,8 +99,8 @@ maxerr: 50, node: true */
 
         var options = {};
 
-        if(save !== null || save !== undefined) {
-             options.save = save;
+        if (save !== null || save !== undefined) {
+            options.save = save;
         }
 
         if (!config) {
