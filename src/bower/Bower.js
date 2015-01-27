@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var NodeDomain = brackets.getModule("utils/NodeDomain"),
-        Preferences = require("src/Preferences"),
+    var NodeDomain           = brackets.getModule("utils/NodeDomain"),
+        Preferences          = require("src/Preferences"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;
@@ -54,10 +54,9 @@ define(function (require, exports) {
     }
 
     function prune(path) {
-        // TODO implement
-        /*var config = ConfigurationManager.getConfiguration();
+        var config = ConfigurationManager.getConfiguration();
 
-        return bowerDomain.exec("prune", path, config);*/
+        return bowerDomain.exec("prune", path, config);
     }
 
     function search() {
@@ -101,5 +100,4 @@ define(function (require, exports) {
     exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;
     exports.executeCommand   = executeCommand;
-    // TODO exports.prune = prune;
 });

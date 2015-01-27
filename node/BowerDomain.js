@@ -28,11 +28,11 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
 
-    var bower       = require("bower"),
+    var bower = require("bower"),
         bowerConfig = require("bower-config"),
-        log4js      = require("log4js"),
-        _           = require("lodash"),
-        Cli         = require("./Cli");
+        log4js = require("log4js"),
+        _ = require("lodash"),
+        Cli = require("./Cli");
 
     var DOMAIN_NAME = "bower";
 
@@ -85,7 +85,7 @@ maxerr: 50, node: true */
     }
 
     /**
-     * Installs the package with the given name.
+     * Installs packages.
      * @param {string} path The path to the folder within which to install the package.
      * @param {Array} names Array with package's names to install.
      * @param {boolean} save Save the package into the bower.json if it exists.
@@ -113,11 +113,11 @@ maxerr: 50, node: true */
             .on("end", function (installedPackages) {
                 var installationDir;
 
-                if (Array.isArray(installedPackages)) {
-                    installationDir = path;
-                } else {
+                if (names && names.length === 1) {
                     var installedPackage = installedPackages[names[0]];
                     installationDir = installedPackage.canonicalDir;
+                } else {
+                    installationDir = path;
                 }
 
                 cb(null, installationDir);
@@ -126,6 +126,30 @@ maxerr: 50, node: true */
                 cb(error ? error.message : "Unknown error", null);
             });
     }
+
+    /**
+     * @param {string} path The path to the folder within which to install the package.
+     * @param {object} config Key-value object to specify optional configuration.
+     * @param {function} cb
+     */
+    function _cmdPrune(path, config, cb) {
+        log.debug("Prune bower.json");
+
+        if (!config) {
+            config = {};
+        }
+
+        config.cwd = path;
+
+        bower.commands.prune(null, config)
+            .on("end", function () {
+                cb(null, true);
+            })
+            .on("error", function (error) {
+                cb(error ? error.message : "Unknown error", null);
+            });
+    }
+
 
     /**
      * Read and get the configuration from the ".bowerrc" file.
@@ -158,7 +182,10 @@ maxerr: 50, node: true */
      */
     function init(domainManager) {
         if (!domainManager.hasDomain(DOMAIN_NAME)) {
-            domainManager.registerDomain(DOMAIN_NAME, {major: 0, minor: 1});
+            domainManager.registerDomain(DOMAIN_NAME, {
+                major: 0,
+                minor: 1
+            });
         }
 
         domainManager.registerCommand(
@@ -166,13 +193,11 @@ maxerr: 50, node: true */
             "getPackages",
             _cmdGetPackages,
             true,
-            "Returns a list of all packages from the bower registry.",
-            [{
+            "Returns a list of all packages from the bower registry.", [{
                 name: "config",
                 type: "object",
                 description: "Configuration object."
-            }],
-            [{
+            }], [{
                 name: "packages",
                 type: "{Array.<{name: string, url: string}>}",
                 description: "List of all packages in the bower registry."
@@ -184,13 +209,11 @@ maxerr: 50, node: true */
             "getPackagesFromCache",
             _cmdGetPackagesFromCache,
             true,
-            "Returns a list of all packages from the bower cache.",
-            [{
+            "Returns a list of all packages from the bower cache.", [{
                 name: "config",
                 type: "object",
                 description: "Configuration object."
-            }],
-            [{
+            }], [{
                 name: "packages",
                 type: "{Array}",
                 description: "List of all packages in the bower cache."
@@ -202,8 +225,7 @@ maxerr: 50, node: true */
             "install",
             _cmdInstall,
             true,
-            "Installs a package into a given folder.",
-            [{
+            "Installs a package into a given folder.", [{
                 name: "path",
                 type: "string",
                 description: "Path to folder into which to install the package"
@@ -219,8 +241,7 @@ maxerr: 50, node: true */
                 name: "config",
                 type: "object",
                 description: "Configuration object."
-            }],
-            [{
+            }], [{
                 name: "installationPath",
                 type: "string",
                 description: "Path to the installed package."
@@ -229,16 +250,27 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
+            "prune",
+            _cmdPrune,
+            true,
+            "Uninstall packages removed from bower.json.", [{
+                name: "path",
+                type: "string",
+                description: "Path to folder where the bower.json file is located."
+            }],
+            []
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
             "getConfiguration",
             _cmdGetConfiguration,
             true,
-            "Get the configuration.",
-            [{
+            "Get the configuration.", [{
                 name: "path",
                 type: "string",
                 description: "Path to folder to read the configuration."
-            }],
-            [{
+            }], [{
                 name: "config",
                 type: "Object",
                 description: "Configuration object."
@@ -250,18 +282,15 @@ maxerr: 50, node: true */
             "execCommand",
             _cmdExecCommand,
             true,
-            "Utility to execute commands",
-            [{
+            "Utility to execute commands", [{
                 name: "cmd",
                 type: "string",
                 description: "System command to execute in a child process."
-            }],
-            [{
+            }], [{
                 name: "args",
                 type: "array",
                 description: "Sytem command's arguments."
-            }],
-            [{
+            }], [{
                 name: "result",
                 type: "string",
                 description: "Result of the command execution."
@@ -272,7 +301,7 @@ maxerr: 50, node: true */
     exports.init = init;
 
     // For local unit testing (outside Brackets)
-    exports._cmdGetPackages      = _cmdGetPackages;
-    exports._cmdInstall          = _cmdInstall;
+    exports._cmdGetPackages = _cmdGetPackages;
+    exports._cmdInstall = _cmdInstall;
     exports._cmdGetConfiguration = _cmdGetConfiguration;
 }());

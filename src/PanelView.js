@@ -33,11 +33,12 @@ define(function (require, exports, module) {
         WorkspaceManager  = brackets.getModule("view/WorkspaceManager"),
         CommandManager    = brackets.getModule("command/CommandManager");
 
-    var Strings           = require("../strings"),
-        ConfigurationView = require("./ConfigurationView"),
-        BowerJsonView     = require("./BowerJsonView"),
-        SettingsDialog    = require("./SettingsDialog"),
-        panelTemplate     = require("text!../templates/panel.html");
+    var Strings             = require("../strings"),
+        ConfigurationView   = require("./ConfigurationView"),
+        BowerJsonView       = require("./BowerJsonView"),
+        SettingsDialog      = require("./SettingsDialog"),
+        DependenciesManager = require("./bower/DependenciesManager"),
+        panelTemplate       = require("text!../templates/panel.html");
 
     var $panel,
         $bowerIcon,
@@ -104,7 +105,7 @@ define(function (require, exports, module) {
         /*jshint validthis:true */
         var panelKey = $(this).data("bower-panel-key");
 
-        if(_currentPanelKey === panelKey) {
+        if (_currentPanelKey === panelKey) {
             return;
         }
 
@@ -119,6 +120,17 @@ define(function (require, exports, module) {
         }
 
         _currentPanelView.show();
+    }
+
+    function _onCommandSelected() {
+        /*jshint validthis:true */
+        var cmdKey = $(this).data("bower-cmd-key");
+
+        if (cmdKey === "install") {
+            DependenciesManager.installFromBowerJson();
+        } else {
+            DependenciesManager.prune();
+        }
     }
 
     function _showExtensionSettings() {
@@ -143,7 +155,8 @@ define(function (require, exports, module) {
         $header
             .on("click", ".close", toggle)
             .on("click", "[data-bower-panel-key]", _onPanelOptionSelected)
-            .on("click", "[data-bower-btn-id='settings']", _showExtensionSettings);
+            .on("click", "[data-bower-btn-id='settings']", _showExtensionSettings)
+            .on("click", "[data-bower-cmd-key]", _onCommandSelected);
 
         // right panel button
         $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");

@@ -30,13 +30,19 @@ define(function (require, exports) {
     "use strict";
 
     var ProjectManager = brackets.getModule("project/ProjectManager"),
+        FileSystem     = brackets.getModule("filesystem/FileSystem"),
         AppInit        = brackets.getModule("utils/AppInit"),
+        FileUtils      = require("src/utils/FileUtils"),
         BowerJson      = require("src/bower/BowerJson"),
-        FileUtils      = require("src/utils/FileUtils");
+        Bower          = require("src/bower/Bower");
 
     var _bowerJson = null;
 
     function createBowerJson(path) {
+        if (!path || path.trim() === "") {
+            path = ProjectManager.getProjectRoot().fullPath;
+        }
+
         _bowerJson = new BowerJson(path);
 
         return _bowerJson.create();
@@ -46,8 +52,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (_bowerJson !== null) {
-            _bowerJson.remove()
-                .done(deferred.resolve);
+            _bowerJson.remove().done(deferred.resolve);
         } else {
             deferred.resolve();
         }
@@ -77,8 +82,48 @@ define(function (require, exports) {
         return FileUtils.exists(path);
     }
 
-    function _loadBowerJson(path) {
-        _bowerJson = new BowerJson(path);
+    function installFromBowerJson() {
+        if (_bowerJson === null) {
+            return;
+        }
+
+        var deferred = new $.Deferred();
+
+        Bower.install(_bowerJson.ProjectPath).then(function () {
+            // TODO improve this...
+            window.setTimeout(function () {
+                ProjectManager.showInTree(FileSystem.getDirectoryForPath(_bowerJson.ProjectPath));
+            }, 1000);
+
+            deferred.resolve();
+        }).fail(function () {
+            deferred.reject();
+        });
+
+        return deferred;
+    }
+
+    function prune() {
+        if (_bowerJson === null) {
+            return;
+        }
+
+        var deferred = new $.Deferred();
+
+        Bower.prune(_bowerJson.ProjectPath)
+            .then(function () {
+                // TODO improve this...
+                window.setTimeout(function () {
+                    ProjectManager.showInTree(FileSystem.getDirectoryForPath(_bowerJson.ProjectPath));
+                }, 1000);
+
+                deferred.resolve();
+            })
+            .fail(function () {
+                deferred.reject();
+            });
+
+        return deferred;
     }
 
     AppInit.appReady(function () {
@@ -86,12 +131,14 @@ define(function (require, exports) {
         var defaultPath = ProjectManager.getProjectRoot().fullPath;
 
         findBowerJson(defaultPath).then(function () {
-            _loadBowerJson(defaultPath);
+            _bowerJson = new BowerJson(defaultPath);
         });
     });
 
-    exports.createBowerJson = createBowerJson;
-    exports.removeBowerJson = removeBowerJson;
-    exports.findBowerJson   = findBowerJson;
-    exports.open            = open;
+    exports.createBowerJson      = createBowerJson;
+    exports.removeBowerJson      = removeBowerJson;
+    exports.findBowerJson        = findBowerJson;
+    exports.open                 = open;
+    exports.installFromBowerJson = installFromBowerJson;
+    exports.prune                = prune;
 });
