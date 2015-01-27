@@ -12,7 +12,7 @@
 
         <label>
             {{ Strings.TEXT_SETTINGS_RELOAD_TIME }}
-            <input data-bower-setting="quick-install-time" type="number" class="small" value="{{settings.reloadRegistryTime}}"></input>
+            <input data-bower-setting="quick-install-time" type="number" class="small" value="{{settings.reloadRegistryTime}}" min="60000"></input>
             {{ Strings.TEXT_SETTINGS_RELOAD_TIME_UNIT }}
         </label>
         {{/settings}}
