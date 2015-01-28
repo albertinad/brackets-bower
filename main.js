@@ -33,21 +33,22 @@ define(function (require, exports, module) {
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus             = brackets.getModule("command/Menus"),
+        ProjectManager    = brackets.getModule("project/ProjectManager"),
         AppInit           = brackets.getModule("utils/AppInit");
 
     // local modules
     var Bower            = require("src/bower/Bower"),
         GitChecker       = require("src/bower/GitChecker"),
-        ErrorManager     = require("src/ErrorManager"),
+        FileSystemEvents = require("src/events/FileSystemEvents"),
+        ErrorDialog      = require("src/dialogs/ErrorDialog"),
         QuickInstall     = require("src/QuickInstall"),
         PanelView        = require("src/PanelView"),
-        FileSystemEvents = require("src/events/FileSystemEvents"),
         Preferences      = require("src/Preferences"),
         Strings          = require("strings");
 
     var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
         CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
-        CMD_BOWER_PANEL       = "com.adobe.brackets.commands.bower.togglePanel",
+        CMD_BOWER_PANEL        = "com.adobe.brackets.commands.bower.togglePanel",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     function _checkRequirements() {
@@ -55,7 +56,7 @@ define(function (require, exports, module) {
             .fail(function () {
                 PanelView.setStatus(PanelView.bowerStatus.WARNING);
 
-                ErrorManager.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
+                ErrorDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
             });
     }
 
@@ -92,8 +93,14 @@ define(function (require, exports, module) {
     AppInit.appReady(function () {
         FileSystemEvents.init();
 
-        if(Preferences.get(Preferences.settings.EXTENSION_VISIBLE)) {
+        if (Preferences.get(Preferences.settings.EXTENSION_VISIBLE)) {
             PanelView.toggle();
         }
+
+        // TODO: update components to support reloading/resetting when projectOpen event is triggered
+        // PanelView
+        ProjectManager.on("projectOpen", function () {
+            console.log("### project reloaded!");
+        });
     });
 });

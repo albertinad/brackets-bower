@@ -30,8 +30,8 @@ define(function (require, exports, module) {
     "use strict";
 
     var Dialogs    = brackets.getModule("widgets/Dialogs"),
-        Strings    = require("../strings"),
-        dialogHTML = require("text!../templates/error-dialog.html");
+        Strings    = require("strings"),
+        dialogHTML = require("text!templates/error-dialog.html");
 
     var errorSeverity = {
         WARNING: "warning"

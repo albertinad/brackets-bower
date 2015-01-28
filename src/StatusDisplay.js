@@ -51,6 +51,7 @@ define(function (require, exports) {
     }
 
     StatusDisplay.prototype.initialize = function () {
+        // TODO define this in an html template
         this._templateShowInProject = [
             "<div class='bower-install-status hidden'>",
             "<div class='inner'>",

@@ -35,26 +35,14 @@ define(function (require, exports) {
 
     var $panelSection;
 
-    function _getViewData() {
-        return {
-            Strings: Strings,
-            bowerJson: []
-        };
-    }
-
     function show() {
-        var data = _getViewData(),
-            sectionHtml;
+        var viewModel = {
+                Strings: Strings,
+                bowerJson: DependenciesManager.getBowerJson()
+            },
+            sectionHtml = Mustache.render(template, viewModel);
 
-        DependenciesManager.findBowerJson()
-            .done(function (path) {
-                data.bowerJson.push({ path: path });
-            })
-            .always(function () {
-                sectionHtml = Mustache.render(template, data);
-
-                $panelSection.append(sectionHtml);
-            });
+        $panelSection.append(sectionHtml);
     }
 
     function _refreshUi() {

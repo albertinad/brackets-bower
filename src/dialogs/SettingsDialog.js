@@ -31,8 +31,8 @@ define(function (require, exports, module) {
 
     var Dialogs     = brackets.getModule("widgets/Dialogs"),
         Preferences = require("src/Preferences"),
-        Strings     = require("../strings"),
-        dialogHTML  = require("text!../templates/settings-dialog.html");
+        Strings     = require("strings"),
+        dialogHTML  = require("text!templates/settings-dialog.html");
 
     var _$dialog;
 

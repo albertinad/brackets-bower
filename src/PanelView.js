@@ -36,12 +36,13 @@ define(function (require, exports, module) {
     var Strings             = require("../strings"),
         ConfigurationView   = require("./ConfigurationView"),
         BowerJsonView       = require("./BowerJsonView"),
-        SettingsDialog      = require("./SettingsDialog"),
+        SettingsDialog      = require("./dialogs/SettingsDialog"),
         DependenciesManager = require("./bower/DependenciesManager"),
         Preferences         = require("./Preferences"),
         panelTemplate       = require("text!../templates/panel.html");
 
     var $panel,
+        $header,
         $bowerIcon,
         _isVisible = false,
         _currentPanelView = null,
@@ -106,11 +107,16 @@ define(function (require, exports, module) {
 
     function _onPanelOptionSelected() {
         /*jshint validthis:true */
-        var panelKey = $(this).data("bower-panel-key");
+        var $panelBtn = $(this),
+            $previousPanelBtn,
+            panelKey = $panelBtn.data("bower-panel-key");
 
         if (_currentPanelKey === panelKey) {
             return;
         }
+
+        $previousPanelBtn = $header.find("[data-bower-panel-key='" + _currentPanelKey + "']");
+        $previousPanelBtn.removeClass("active");
 
         _currentPanelKey = panelKey;
 
@@ -121,6 +127,8 @@ define(function (require, exports, module) {
         } else {
             _currentPanelView = BowerJsonView;
         }
+
+        $panelBtn.addClass("active");
 
         _currentPanelView.show();
     }
@@ -146,7 +154,6 @@ define(function (require, exports, module) {
      */
     function init(extensionName, command) {
         var panelHTML = Mustache.render(panelTemplate, { Strings: Strings }),
-            $header,
             $panelSection;
 
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);

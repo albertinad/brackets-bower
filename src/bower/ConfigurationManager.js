@@ -37,7 +37,7 @@ define(function (require, exports) {
         EventEmitter       = require("src/events/EventEmitter"),
         FileUtils          = require("src/utils/FileUtils");
 
-    var _configurationFile    = null,
+    var _bowerRc    = null,
         _defaultConfiguration = {};
 
     function createConfiguration(path) {
@@ -45,17 +45,20 @@ define(function (require, exports) {
             path = ProjectManager.getProjectRoot().fullPath;
         }
 
-        _configurationFile = new BowerRc(path, _defaultConfiguration);
+        _bowerRc = new BowerRc(path, _defaultConfiguration);
 
-        return _configurationFile.create();
+        return _bowerRc.create();
     }
 
     function removeConfiguration() {
         var deferred = new $.Deferred();
 
-        if (_configurationFile !== null) {
-            _configurationFile.remove()
-                .done(deferred.resolve);
+        if (_bowerRc !== null) {
+            _bowerRc.remove().done(function() {
+                _bowerRc = null;
+
+                deferred.resolve();
+            });
         } else {
             deferred.resolve();
         }
@@ -63,17 +66,21 @@ define(function (require, exports) {
         return deferred;
     }
 
+    function getBowerRc() {
+        return _bowerRc;
+    }
+
     function open() {
-        if (_configurationFile !== null) {
-            _configurationFile.open();
+        if (_bowerRc !== null) {
+            _bowerRc.open();
         }
     }
 
     function getConfiguration() {
         var config;
 
-        if (_configurationFile !== null) {
-            config = _configurationFile.Data;
+        if (_bowerRc !== null) {
+            config = _bowerRc.Data;
         } else {
             config = _defaultConfiguration;
         }
@@ -98,7 +105,7 @@ define(function (require, exports) {
     }
 
     function _loadConfiguration(path) {
-        _configurationFile = new BowerRc(path, _defaultConfiguration);
+        _bowerRc = new BowerRc(path, _defaultConfiguration);
     }
 
     /**
@@ -132,20 +139,22 @@ define(function (require, exports) {
             if (_defaultConfiguration.proxy !== proxy) {
                 _setUpDefaultConfiguration();
 
-                if (_configurationFile !== null) {
-                    _configurationFile.setDefaults(_defaultConfiguration);
+                if (_bowerRc !== null) {
+                    _bowerRc.setDefaults(_defaultConfiguration);
                 }
             }
         }
     }
 
     function _onConfigurationChanged() {
-        if (_configurationFile === null) {
+        if (_bowerRc === null) {
             return;
         }
 
-        _configurationFile.reload().done(function () {
-            _configurationFile.setDefaults(_defaultConfiguration);
+        console.log("### ConfigurationManager._onConfigurationChanged");
+
+        _bowerRc.reload().done(function () {
+            _bowerRc.setDefaults(_defaultConfiguration);
         });
     }
 
@@ -171,6 +180,7 @@ define(function (require, exports) {
 
     _init();
 
+    exports.getBowerRc          = getBowerRc;
     exports.createConfiguration = createConfiguration;
     exports.removeConfiguration = removeConfiguration;
     exports.getConfiguration    = getConfiguration;

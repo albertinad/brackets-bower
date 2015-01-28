@@ -7,9 +7,9 @@
     <table class="bottom-panel-table table table-striped table-condensed">
         <tbody>
             {{#bowerJson}}
-            <tr data-bower-json="{{ path }}">
+            <tr data-bower-json="{{ bowerJson.AbsolutePath }}">
                 <td>
-                    <div class="path bower-row-item">{{ path }}</div>
+                    <div class="path bower-row-item">{{ bowerJson.AbsolutePath }}</div>
                 </td>
 
                 <td>

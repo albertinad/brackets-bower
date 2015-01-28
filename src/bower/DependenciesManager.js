@@ -38,6 +38,11 @@ define(function (require, exports) {
 
     var _bowerJson = null;
 
+    /**
+     * Create the bower.json file at the given absolute path. If any path is provided,
+     * it use the current active project as the default absolute path.
+     * @param {string} path The absolute path where to create the bower.json file.
+     */
     function createBowerJson(path) {
         if (!path || path.trim() === "") {
             path = ProjectManager.getProjectRoot().fullPath;
@@ -48,11 +53,18 @@ define(function (require, exports) {
         return _bowerJson.create();
     }
 
+    /**
+     * Deletes the active bower.json file if it exists.
+     */
     function removeBowerJson() {
         var deferred = new $.Deferred();
 
         if (_bowerJson !== null) {
-            _bowerJson.remove().done(deferred.resolve);
+            _bowerJson.remove().done(function() {
+                _bowerJson = null;
+
+                deferred.resolve();
+            });
         } else {
             deferred.resolve();
         }
@@ -60,6 +72,18 @@ define(function (require, exports) {
         return deferred;
     }
 
+    /**
+     * Get the current active BowerJson object. Null means there's
+     * no BowerJson for the project.
+     * @returns {BowerJson} Current active BowerJson object.
+     */
+    function getBowerJson() {
+        return _bowerJson;
+    }
+
+    /**
+     * Open the bower.json in the editor, it it exists.
+     */
     function open() {
         if (_bowerJson !== null) {
             _bowerJson.open();
@@ -135,6 +159,7 @@ define(function (require, exports) {
         });
     });
 
+    exports.getBowerJson         = getBowerJson;
     exports.createBowerJson      = createBowerJson;
     exports.removeBowerJson      = removeBowerJson;
     exports.findBowerJson        = findBowerJson;

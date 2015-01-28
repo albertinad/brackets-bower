@@ -34,6 +34,10 @@ define(function (require, exports) {
         Event          = require("src/events/Events"),
         EventEmitter   = require("src/events/EventEmitter");
 
+    var _bowerConfigFile,
+        _projectPathRegex,
+        _bowerConfigRegex;
+
     function _isFileByPathInArray(filesArray, filePath) {
         var result;
 
@@ -46,33 +50,49 @@ define(function (require, exports) {
         return result;
     }
 
+    function _onFileSystemChange(event, entry, added, removed) {
+        if (!entry) {
+            return;
+        }
+
+        if (entry.isFile && entry.fullPath.match(_bowerConfigRegex)) {
+
+            EventEmitter.trigger(Event.BOWER_BOWERRC_CHANGE);
+
+        } else if (entry.isDirectory && entry.fullPath.match(_projectPathRegex)) {
+
+            if (added && _isFileByPathInArray(added, _bowerConfigFile)) {
+
+                EventEmitter.trigger(Event.BOWER_BOWERRC_CREATE);
+
+            } else if (removed && _isFileByPathInArray(removed, _bowerConfigFile)) {
+
+                EventEmitter.trigger(Event.BOWER_BOWERRC_DELETE);
+            }
+        }
+    }
+
+    function _setUpEventHandler() {
+        var projectPath = ProjectManager.getProjectRoot().fullPath;
+
+        _bowerConfigFile = projectPath + ".bowerrc";
+
+        _projectPathRegex = new RegExp(projectPath);
+        _bowerConfigRegex = new RegExp(_bowerConfigFile);
+
+        FileSystem.on("change.bower", _onFileSystemChange);
+    }
+
+    function _onProjectOpen() {
+        FileSystem.off("change.bower", _onFileSystemChange);
+
+        _setUpEventHandler();
+    }
+
     function init() {
-        var projectPath = ProjectManager.getProjectRoot().fullPath,
-            bowerConfigFile = projectPath + ".bowerrc",
-            projectPathRegex = new RegExp(projectPath),
-            bowerConfigRegex = new RegExp(bowerConfigFile);
+        _setUpEventHandler();
 
-        FileSystem.on("change.bower", function (event, entry, added, removed) {
-            if (!entry) {
-                return;
-            }
-
-            if (entry.isFile && entry.fullPath.match(bowerConfigRegex)) {
-
-                EventEmitter.trigger(Event.BOWER_BOWERRC_CHANGE);
-
-            } else if (entry.isDirectory && entry.fullPath.match(projectPathRegex)) {
-
-                if (added && _isFileByPathInArray(added, bowerConfigFile)) {
-
-                    EventEmitter.trigger(Event.BOWER_BOWERRC_CREATE);
-
-                } else if (removed && _isFileByPathInArray(removed, bowerConfigFile)) {
-
-                    EventEmitter.trigger(Event.BOWER_BOWERRC_DELETE);
-                }
-            }
-        });
+        ProjectManager.on("projectOpen", _onProjectOpen);
     }
 
     exports.init = init;

@@ -6,13 +6,13 @@
 
     <table class="bottom-panel-table table table-striped table-condensed">
         <tbody>
-            {{#bowerrc}}
-            <tr data-bower-config="{{ path }}">
+            {{#bowerRc}}
+            <tr data-bower-config="{{ bowerRc.AbsolutePath }}">
                 <td>
-                    <div class="path bower-row-item">{{ path }}</div>
+                    <div class="path bower-row-item">{{ bowerRc.AbsolutePath }}</div>
                 </td>
 
-                <td>
+                <td
                     <div class="controls bower-row-item">
                         <button class="btn small" data-bower-config-action="delete" title="{{Strings.DELETE}}">
                             <span>{{ Strings.DELETE }}</span>
@@ -20,9 +20,9 @@
                     </div>
                 </td>
             </tr>
-            {{/bowerrc}}
+            {{/bowerRc}}
 
-            {{^bowerrc}}
+            {{^bowerRc}}
             <tr>
                 <td>
                     <span class="bower-row-item">{{ Strings.BOWERRC_NOT_FOUND}}</span>
@@ -35,7 +35,7 @@
                     </div>
                 </td>
             </tr>
-            {{/bowerrc}}
+            {{/bowerRc}}
         </tbody>
     </table>
 </div>
