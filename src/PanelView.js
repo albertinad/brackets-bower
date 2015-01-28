@@ -148,6 +148,10 @@ define(function (require, exports, module) {
         SettingsDialog.show();
     }
 
+    function isPanelActive() {
+        return _isVisible;
+    }
+
     /**
      * @param {string} extensionName The extension name.
      * @param {string} command The command name to toggle the panel.
@@ -177,16 +181,18 @@ define(function (require, exports, module) {
             CommandManager.execute(command);
         });
 
-        BowerJsonView.init($panelSection);
-        ConfigurationView.init($panelSection);
+        // TODO update to an MVC implementation
+        BowerJsonView.init($panelSection, exports);
+        ConfigurationView.init($panelSection, exports);
 
         // set the BowerJsonView as the default/current panelView
         _currentPanelView = BowerJsonView;
         _currentPanelKey = "bower-json";
     }
 
-    exports.init        = init;
-    exports.toggle      = toggle;
-    exports.setStatus   = setStatus;
-    exports.bowerStatus = bowerStatus;
+    exports.init          = init;
+    exports.toggle        = toggle;
+    exports.setStatus     = setStatus;
+    exports.bowerStatus   = bowerStatus;
+    exports.isPanelActive = isPanelActive;
 });

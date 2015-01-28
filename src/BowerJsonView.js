@@ -33,9 +33,13 @@ define(function (require, exports) {
         Strings             = require("../strings"),
         DependenciesManager = require("src/bower/DependenciesManager");
 
-    var $panelSection;
+    var $panelSection,
+        _parentView,
+        _isVisible = false;
 
     function show() {
+        _isVisible = true;
+
         var viewModel = {
                 Strings: Strings,
                 bowerJson: DependenciesManager.getBowerJson()
@@ -72,16 +76,27 @@ define(function (require, exports) {
         DependenciesManager.open();
     }
 
-    function init($container) {
+    function _onBowerJsonReloadedCallback() {
+        if(_parentView.isPanelActive() && _isVisible) {
+            _refreshUi();
+        }
+    }
+
+    function init($container, parentView) {
         $panelSection = $container;
+        _parentView = parentView;
 
         $panelSection
             .on("click", "[data-bower-json-action='delete']", _onDeleteClick)
             .on("click", "[data-bower-json-action='create']", _onCreateClick)
             .on("click", "[data-bower-json]", _onBowerJsonListClick);
+
+        DependenciesManager.onBowerJsonReloaded(_onBowerJsonReloadedCallback);
     }
 
     function hide() {
+        _isVisible = false;
+
         $panelSection.empty();
     }
 

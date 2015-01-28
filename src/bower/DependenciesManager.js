@@ -38,7 +38,8 @@ define(function (require, exports) {
         BowerJson      = require("src/bower/BowerJson"),
         Bower          = require("src/bower/Bower");
 
-    var _bowerJson = null;
+    var _bowerJson = null,
+        _reloadedCallback;
 
     /**
      * Create the bower.json file at the given absolute path. If any path is provided,
@@ -152,6 +153,16 @@ define(function (require, exports) {
         return deferred;
     }
 
+    function onBowerJsonReloaded(callback) {
+        _reloadedCallback = callback;
+    }
+
+    function _notifyBowerJsonReloaded() {
+        if (typeof _reloadedCallback === "function") {
+            _reloadedCallback();
+        }
+    }
+
     function _loadBowerJsonAtCurrentProject() {
         // search for the bower.json file if it exists
         var defaultPath = ProjectManager.getProjectRoot().fullPath;
@@ -160,6 +171,8 @@ define(function (require, exports) {
             _bowerJson = new BowerJson(defaultPath);
         }).fail(function() {
             _bowerJson = null;
+        }).always(function () {
+            _notifyBowerJsonReloaded();
         });
     }
 
@@ -176,4 +189,5 @@ define(function (require, exports) {
     exports.open                 = open;
     exports.installFromBowerJson = installFromBowerJson;
     exports.prune                = prune;
+    exports.onBowerJsonReloaded  = onBowerJsonReloaded;
 });

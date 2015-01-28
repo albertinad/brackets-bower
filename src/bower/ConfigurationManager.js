@@ -38,7 +38,8 @@ define(function (require, exports) {
         FileUtils          = require("src/utils/FileUtils");
 
     var _bowerRc    = null,
-        _defaultConfiguration = {};
+        _defaultConfiguration = {},
+        _reloadedCallback;
 
     function createConfiguration(path) {
         if (!path || path.trim() === "") {
@@ -156,6 +157,16 @@ define(function (require, exports) {
         });
     }
 
+    function onBowerRcReloaded(callback) {
+        _reloadedCallback = callback;
+    }
+
+    function _notifyBowerRcReloaded() {
+        if (typeof _reloadedCallback === "function") {
+            _reloadedCallback();
+        }
+    }
+
     function _loadBowerRcAtCurrentProject() {
         // search for the configuration file if it exists
         var defaultPath = ProjectManager.getProjectRoot().fullPath;
@@ -164,6 +175,8 @@ define(function (require, exports) {
             _loadConfiguration(defaultPath);
         }).fail(function() {
             _bowerRc = null;
+        }).always(function () {
+            _notifyBowerRcReloaded();
         });
     }
 
@@ -191,4 +204,5 @@ define(function (require, exports) {
     exports.getConfiguration    = getConfiguration;
     exports.findConfiguration   = findConfiguration;
     exports.open                = open;
+    exports.onBowerRcReloaded   = onBowerRcReloaded;
 });

@@ -33,9 +33,13 @@ define(function (require, exports) {
         Strings               = require("../strings"),
         ConfigurationManager  = require("src/bower/ConfigurationManager");
 
-    var $panelSection;
+    var $panelSection,
+        _parentView,
+        _isVisible = false;
 
     function show() {
+        _isVisible = true;
+
         var viewModel = {
                 Strings: Strings,
                 bowerRc: ConfigurationManager.getBowerRc()
@@ -49,6 +53,12 @@ define(function (require, exports) {
         $panelSection.empty();
 
         show();
+    }
+
+    function _onBowerRcReloadedCallback() {
+        if(_parentView.isPanelActive() && _isVisible) {
+            _refreshUi();
+        }
     }
 
     function _onDeleteClick(event) {
@@ -72,16 +82,21 @@ define(function (require, exports) {
         ConfigurationManager.open();
     }
 
-    function init($container) {
+    function init($container, parentView) {
         $panelSection = $container;
+        _parentView = parentView;
 
         $panelSection
             .on("click", "[data-bower-config-action='delete']", _onDeleteClick)
             .on("click", "[data-bower-config-action='create']", _onCreateClick)
             .on("click", "[data-bower-config]", _onConfigListClick);
+
+        ConfigurationManager.onBowerRcReloaded(_onBowerRcReloadedCallback);
     }
 
     function hide() {
+        _isVisible = false;
+
         $panelSection.empty();
     }
 
