@@ -99,7 +99,7 @@ maxerr: 50, node: true */
 
         var options = {};
 
-        if (save !== null || save !== undefined) {
+        if (save !== null && save !== undefined) {
             options.save = save;
         }
 

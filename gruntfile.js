@@ -25,6 +25,7 @@ module.exports = function (grunt) {
         zip: {
             extension: {
                 src: [
+                    "assets/**",
                     "nls/**",
                     "node/**",
                     "src/**",
@@ -34,7 +35,8 @@ module.exports = function (grunt) {
                     "*.css",
                     "*.md"
                 ],
-                dest: "brackets-bower.zip"
+                dest: "brackets-bower.zip",
+                compression: 'DEFLATE'
             }
         }
     });
