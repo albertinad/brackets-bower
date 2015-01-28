@@ -36,8 +36,8 @@ define(function (require, exports, module) {
     var Strings             = require("../strings"),
         ConfigurationView   = require("./ConfigurationView"),
         BowerJsonView       = require("./BowerJsonView"),
+        CommandsView        = require("./CommandsView"),
         SettingsDialog      = require("./dialogs/SettingsDialog"),
-        DependenciesManager = require("./bower/DependenciesManager"),
         Preferences         = require("./Preferences"),
         panelTemplate       = require("text!../templates/panel.html");
 
@@ -133,17 +133,6 @@ define(function (require, exports, module) {
         _currentPanelView.show();
     }
 
-    function _onCommandSelected() {
-        /*jshint validthis:true */
-        var cmdKey = $(this).data("bower-cmd-key");
-
-        if (cmdKey === "install") {
-            DependenciesManager.installFromBowerJson();
-        } else {
-            DependenciesManager.prune();
-        }
-    }
-
     function _showExtensionSettings() {
         SettingsDialog.show();
     }
@@ -169,8 +158,7 @@ define(function (require, exports, module) {
         $header
             .on("click", ".close", toggle)
             .on("click", "[data-bower-panel-key]", _onPanelOptionSelected)
-            .on("click", "[data-bower-btn-id='settings']", _showExtensionSettings)
-            .on("click", "[data-bower-cmd-key]", _onCommandSelected);
+            .on("click", "[data-bower-btn-id='settings']", _showExtensionSettings);
 
         // right panel button
         $bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
@@ -184,6 +172,7 @@ define(function (require, exports, module) {
         // TODO update to an MVC implementation
         BowerJsonView.init($panelSection, exports);
         ConfigurationView.init($panelSection, exports);
+        CommandsView.init($("#bower-commands"));
 
         // set the BowerJsonView as the default/current panelView
         _currentPanelView = BowerJsonView;

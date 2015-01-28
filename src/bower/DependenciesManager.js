@@ -110,11 +110,13 @@ define(function (require, exports) {
     }
 
     function installFromBowerJson() {
-        if (_bowerJson === null) {
-            return;
-        }
-
         var deferred = new $.Deferred();
+
+        if (_bowerJson === null) {
+            deferred.reject();
+
+            return deferred;
+        }
 
         Bower.install(_bowerJson.ProjectPath).then(function () {
             // TODO improve this...
@@ -131,11 +133,13 @@ define(function (require, exports) {
     }
 
     function prune() {
-        if (_bowerJson === null) {
-            return;
-        }
-
         var deferred = new $.Deferred();
+
+        if (_bowerJson === null) {
+            deferred.reject();
+
+            return deferred;
+        }
 
         Bower.prune(_bowerJson.ProjectPath)
             .then(function () {
