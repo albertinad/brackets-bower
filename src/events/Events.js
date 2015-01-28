@@ -38,4 +38,5 @@ define(function (require, exports) {
     exports.BOWER_BOWERRC_CREATE = extensionPrefix + "bowerrc.create";
     exports.BOWER_BOWERRC_CHANGE = extensionPrefix + "bowerrc.change";
     exports.BOWER_BOWERRC_DELETE = extensionPrefix + "bowerrc.delete";
+    exports.PROJECT_CHANGE       = extensionPrefix + "project.change";
 });

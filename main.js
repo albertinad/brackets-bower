@@ -44,6 +44,8 @@ define(function (require, exports, module) {
         QuickInstall     = require("src/QuickInstall"),
         PanelView        = require("src/PanelView"),
         Preferences      = require("src/Preferences"),
+        EventEmitter     = require("src/events/EventEmitter"),
+        Event            = require("src/events/Events"),
         Strings          = require("strings");
 
     var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
@@ -97,10 +99,8 @@ define(function (require, exports, module) {
             PanelView.toggle();
         }
 
-        // TODO: update components to support reloading/resetting when projectOpen event is triggered
-        // PanelView
         ProjectManager.on("projectOpen", function () {
-            console.log("### project reloaded!");
+            EventEmitter.trigger(Event.PROJECT_CHANGE);
         });
     });
 });

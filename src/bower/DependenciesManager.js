@@ -32,6 +32,8 @@ define(function (require, exports) {
     var ProjectManager = brackets.getModule("project/ProjectManager"),
         FileSystem     = brackets.getModule("filesystem/FileSystem"),
         AppInit        = brackets.getModule("utils/AppInit"),
+        EventEmitter   = require("src/events/EventEmitter"),
+        Event          = require("src/events/Events"),
         FileUtils      = require("src/utils/FileUtils"),
         BowerJson      = require("src/bower/BowerJson"),
         Bower          = require("src/bower/Bower");
@@ -150,13 +152,21 @@ define(function (require, exports) {
         return deferred;
     }
 
-    AppInit.appReady(function () {
+    function _loadBowerJsonAtCurrentProject() {
         // search for the bower.json file if it exists
         var defaultPath = ProjectManager.getProjectRoot().fullPath;
 
         findBowerJson(defaultPath).then(function () {
             _bowerJson = new BowerJson(defaultPath);
+        }).fail(function() {
+            _bowerJson = null;
         });
+    }
+
+    AppInit.appReady(function () {
+        _loadBowerJsonAtCurrentProject();
+
+        EventEmitter.on(Event.PROJECT_CHANGE, _loadBowerJsonAtCurrentProject);
     });
 
     exports.getBowerJson         = getBowerJson;

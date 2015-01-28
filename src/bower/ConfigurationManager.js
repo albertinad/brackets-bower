@@ -151,10 +151,19 @@ define(function (require, exports) {
             return;
         }
 
-        console.log("### ConfigurationManager._onConfigurationChanged");
-
         _bowerRc.reload().done(function () {
             _bowerRc.setDefaults(_defaultConfiguration);
+        });
+    }
+
+    function _loadBowerRcAtCurrentProject() {
+        // search for the configuration file if it exists
+        var defaultPath = ProjectManager.getProjectRoot().fullPath;
+
+        findConfiguration(defaultPath).then(function () {
+            _loadConfiguration(defaultPath);
+        }).fail(function() {
+            _bowerRc = null;
         });
     }
 
@@ -162,16 +171,12 @@ define(function (require, exports) {
         _setUpDefaultConfiguration();
 
         AppInit.appReady(function () {
-            // search for the configuration file if it exists
-            var defaultPath = ProjectManager.getProjectRoot().fullPath;
-
-            findConfiguration(defaultPath).then(function () {
-                _loadConfiguration(defaultPath);
-            });
+            _loadBowerRcAtCurrentProject();
         });
 
         EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, _onConfigurationChanged);
         EventEmitter.on(Event.BOWER_BOWERRC_DELETE, _onConfigurationChanged);
+        EventEmitter.on(Event.PROJECT_CHANGE, _loadBowerRcAtCurrentProject);
 
         PreferencesManager.on("change", function (event, data) {
             _onPreferencesChange(data.ids);
