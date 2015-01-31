@@ -50,6 +50,12 @@ define(function (require, exports) {
         return result;
     }
 
+    /**
+     * When file system changes, check if the files changes belongs
+     * to the current project and check if those changes were related
+     * to the bower files. If that is the case, trigger an event
+     * according to the modification: "change", "create" and "delete".
+     */
     function _onFileSystemChange(event, entry, added, removed) {
         if (!entry) {
             return;
@@ -73,25 +79,36 @@ define(function (require, exports) {
     }
 
     function _setUpEventHandler() {
-        var projectPath = ProjectManager.getProjectRoot().fullPath;
+        var currentProject = ProjectManager.getProjectRoot();
 
-        _bowerConfigFile = projectPath + ".bowerrc";
+        if (currentProject) {
+            var projectPath = currentProject.fullPath;
 
-        _projectPathRegex = new RegExp(projectPath);
-        _bowerConfigRegex = new RegExp(_bowerConfigFile);
+            _bowerConfigFile = projectPath + ".bowerrc";
 
-        FileSystem.on("change.bower", _onFileSystemChange);
+            _projectPathRegex = new RegExp(projectPath);
+            _bowerConfigRegex = new RegExp(_bowerConfigFile);
+
+            FileSystem.on("change.bower", _onFileSystemChange);
+        }
+    }
+
+    function _onProjectClose() {
+        FileSystem.off("change.bower", _onFileSystemChange);
+
+        _bowerConfigFile = null;
+        _projectPathRegex = null;
+        _bowerConfigRegex = null;
     }
 
     function _onProjectOpen() {
-        FileSystem.off("change.bower", _onFileSystemChange);
-
         _setUpEventHandler();
     }
 
     function init() {
         _setUpEventHandler();
 
+        ProjectManager.on("projectClose", _onProjectClose);
         ProjectManager.on("projectOpen", _onProjectOpen);
     }
 

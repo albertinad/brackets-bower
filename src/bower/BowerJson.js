@@ -24,21 +24,22 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global define */
 
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager = brackets.getModule("project/ProjectManager"),
-        BowerMetadata  = require("src/bower/BowerMetadata");
+    var BowerMetadata  = require("src/bower/BowerMetadata");
 
     /**
      * Bower json file constructor.
      * @param {path} path
      * @constructor
      */
-    function BowerJson(path) {
+    function BowerJson(path, appName) {
         BowerMetadata.call(this, "bower.json", path);
+
+        this._appName = appName;
     }
 
     BowerJson.prototype = Object.create(BowerMetadata.prototype);
@@ -46,7 +47,7 @@ define(function (require, exports) {
     BowerJson.prototype.parentClass = BowerMetadata.prototype;
 
     BowerJson.prototype.content = function () {
-        var projectName = ProjectManager.getProjectRoot().name,
+        var projectName = this._appName || "your-app-name",
             rawData = {
                 name: projectName,
                 dependencies: {},

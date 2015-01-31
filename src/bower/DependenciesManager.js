@@ -47,11 +47,23 @@ define(function (require, exports) {
      * @param {string} path The absolute path where to create the bower.json file.
      */
     function createBowerJson(path) {
+        var appName;
+
         if (!path || path.trim() === "") {
-            path = ProjectManager.getProjectRoot().fullPath;
+            var currentProject = ProjectManager.getProjectRoot();
+
+            if (currentProject) {
+                path = currentProject.fullPath;
+                appName = currentProject.name;
+            } else {
+                var promise = new $.Deferred();
+                promise.reject();
+
+                return promise;
+            }
         }
 
-        _bowerJson = new BowerJson(path);
+        _bowerJson = new BowerJson(path, appName);
 
         return _bowerJson.create();
     }
@@ -63,7 +75,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (_bowerJson !== null) {
-            _bowerJson.remove().done(function() {
+            _bowerJson.remove().done(function () {
                 _bowerJson = null;
 
                 deferred.resolve();
@@ -96,12 +108,15 @@ define(function (require, exports) {
     /**
      * Checks if the file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
-     * @param {string=} path
+     * @param {string= path
      * @return {Promise}
      */
     function findBowerJson(path) {
         if (!path) {
-            path = ProjectManager.getProjectRoot().fullPath;
+            var promise = new $.Deferred();
+            promise.reject();
+
+            return promise;
         }
 
         path += "bower.json";
@@ -169,11 +184,18 @@ define(function (require, exports) {
 
     function _loadBowerJsonAtCurrentProject() {
         // search for the bower.json file if it exists
-        var defaultPath = ProjectManager.getProjectRoot().fullPath;
+        var project = ProjectManager.getProjectRoot(),
+            path,
+            name;
 
-        findBowerJson(defaultPath).then(function () {
-            _bowerJson = new BowerJson(defaultPath);
-        }).fail(function() {
+        if (project) {
+            path = project.fullPath;
+            name = project.name;
+        }
+
+        findBowerJson(path).then(function () {
+            _bowerJson = new BowerJson(path, name);
+        }).fail(function () {
             _bowerJson = null;
         }).always(function () {
             _notifyBowerJsonReloaded();

@@ -43,7 +43,16 @@ define(function (require, exports) {
 
     function createConfiguration(path) {
         if (!path || path.trim() === "") {
-            path = ProjectManager.getProjectRoot().fullPath;
+            var currentProject =  ProjectManager.getProjectRoot();
+
+            if (currentProject) {
+                path = currentProject.fullPath;
+            } else {
+                var promise = new $.Deferred();
+                promise.reject();
+
+                return promise;
+            }
         }
 
         _bowerRc = new BowerRc(path, _defaultConfiguration);
@@ -55,7 +64,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (_bowerRc !== null) {
-            _bowerRc.remove().done(function() {
+            _bowerRc.remove().done(function () {
                 _bowerRc = null;
 
                 deferred.resolve();
@@ -92,12 +101,15 @@ define(function (require, exports) {
     /**
      * Checks if the file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
-     * @param {string=} path
+     * @param {string} path
      * @return {Promise}
      */
     function findConfiguration(path) {
         if (!path) {
-            path = ProjectManager.getProjectRoot().fullPath;
+            var promise = new $.Deferred();
+            promise.reject();
+
+            return promise;
         }
 
         path += ".bowerrc";
@@ -169,11 +181,12 @@ define(function (require, exports) {
 
     function _loadBowerRcAtCurrentProject() {
         // search for the configuration file if it exists
-        var defaultPath = ProjectManager.getProjectRoot().fullPath;
+        var currentProject = ProjectManager.getProjectRoot(),
+            defaultPath = (currentProject) ? currentProject.fullPath : null;
 
         findConfiguration(defaultPath).then(function () {
             _loadConfiguration(defaultPath);
-        }).fail(function() {
+        }).fail(function () {
             _bowerRc = null;
         }).always(function () {
             _notifyBowerRcReloaded();

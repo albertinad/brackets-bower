@@ -28,11 +28,11 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
 
-    var bower = require("bower"),
+    var bower       = require("bower"),
         bowerConfig = require("bower-config"),
-        log4js = require("log4js"),
-        _ = require("lodash"),
-        Cli = require("./Cli");
+        log4js      = require("log4js"),
+        _           = require("lodash"),
+        Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
 
