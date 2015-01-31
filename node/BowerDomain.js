@@ -28,11 +28,11 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
 
-    var bower       = require("bower"),
+    var bower = require("bower"),
         bowerConfig = require("bower-config"),
-        log4js      = require("log4js"),
-        _           = require("lodash"),
-        Cli         = require("./Cli");
+        log4js = require("log4js"),
+        _ = require("lodash"),
+        Cli = require("./Cli");
 
     var DOMAIN_NAME = "bower";
 
@@ -193,11 +193,13 @@ maxerr: 50, node: true */
             "getPackages",
             _cmdGetPackages,
             true,
-            "Returns a list of all packages from the bower registry.", [{
+            "Returns a list of all packages from the bower registry.",
+            [{
                 name: "config",
                 type: "object",
                 description: "Configuration object."
-            }], [{
+            }],
+            [{
                 name: "packages",
                 type: "{Array.<{name: string, url: string}>}",
                 description: "List of all packages in the bower registry."
@@ -209,11 +211,13 @@ maxerr: 50, node: true */
             "getPackagesFromCache",
             _cmdGetPackagesFromCache,
             true,
-            "Returns a list of all packages from the bower cache.", [{
+            "Returns a list of all packages from the bower cache.",
+            [{
                 name: "config",
                 type: "object",
                 description: "Configuration object."
-            }], [{
+            }],
+            [{
                 name: "packages",
                 type: "{Array}",
                 description: "List of all packages in the bower cache."
@@ -225,7 +229,8 @@ maxerr: 50, node: true */
             "install",
             _cmdInstall,
             true,
-            "Installs a package into a given folder.", [{
+            "Installs a package into a given folder.",
+            [{
                 name: "path",
                 type: "string",
                 description: "Path to folder into which to install the package"
@@ -241,7 +246,8 @@ maxerr: 50, node: true */
                 name: "config",
                 type: "object",
                 description: "Configuration object."
-            }], [{
+            }],
+            [{
                 name: "installationPath",
                 type: "string",
                 description: "Path to the installed package."
@@ -253,7 +259,8 @@ maxerr: 50, node: true */
             "prune",
             _cmdPrune,
             true,
-            "Uninstall packages removed from bower.json.", [{
+            "Uninstall packages removed from bower.json.",
+            [{
                 name: "path",
                 type: "string",
                 description: "Path to folder where the bower.json file is located."
@@ -266,11 +273,13 @@ maxerr: 50, node: true */
             "getConfiguration",
             _cmdGetConfiguration,
             true,
-            "Get the configuration.", [{
+            "Get the configuration.",
+            [{
                 name: "path",
                 type: "string",
                 description: "Path to folder to read the configuration."
-            }], [{
+            }],
+            [{
                 name: "config",
                 type: "Object",
                 description: "Configuration object."
@@ -282,15 +291,18 @@ maxerr: 50, node: true */
             "execCommand",
             _cmdExecCommand,
             true,
-            "Utility to execute commands", [{
+            "Utility to execute commands",
+            [{
                 name: "cmd",
                 type: "string",
                 description: "System command to execute in a child process."
-            }], [{
+            }],
+            [{
                 name: "args",
                 type: "array",
                 description: "Sytem command's arguments."
-            }], [{
+            }],
+            [{
                 name: "result",
                 type: "string",
                 description: "Result of the command execution."
