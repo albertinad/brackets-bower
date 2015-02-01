@@ -149,3 +149,11 @@
 #bower-settings-dialog .settings input.small {
     width: 8em;
 }
+
+#bower-settings-dialog .settings .error {
+    color: #ff0000;
+}
+
+#bower-settings-dialog .hide {
+    display: none;
+}

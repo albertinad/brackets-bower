@@ -59,5 +59,6 @@ define({
     "STATUS_ERROR_EXECUTING_COMMAND": "Error executing command \"{0}\"",
     "STATUS_SUCCESS_INSTALLING": "Packages installed",
     "STATUS_SUCCESS_EXECUTING_COMMAND": "Command \"{0}\" executed",
-    "STATUS_NO_PACKAGES_INSTALLED": "There isn't any package to install"
+    "STATUS_NO_PACKAGES_INSTALLED": "There isn't any package to install",
+    "ERROR_RELOAD_TIME_VALUE": "* The time must be greater than {0} ms"
 });

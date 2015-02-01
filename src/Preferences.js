@@ -38,10 +38,16 @@ define(function (require, exports, module) {
         EXTENSION_VISIBLE: "show"
     };
 
+    var defaults = {
+        reloadRegistryTime: 600000,
+        quickInstallSavePackages: false,
+        show: false
+    };
+
     function _init() {
-        preferences.definePreference(settings.RELOAD_REGISTRY_TIME, "number", 600000);
-        preferences.definePreference(settings.QUICK_INSTALL_SAVE, "boolean", false);
-        preferences.definePreference(settings.EXTENSION_VISIBLE, "boolean", false);
+        preferences.definePreference(settings.RELOAD_REGISTRY_TIME, "number", defaults.reloadRegistryTime);
+        preferences.definePreference(settings.QUICK_INSTALL_SAVE, "boolean", defaults.quickInstallSavePackages);
+        preferences.definePreference(settings.EXTENSION_VISIBLE, "boolean", defaults.show);
     }
 
     function get(key) {
@@ -53,9 +59,19 @@ define(function (require, exports, module) {
         preferences.save();
     }
 
+    function getDefaults() {
+        return defaults;
+    }
+
+    function getDefaultBySetting(setting) {
+        return defaults[setting];
+    }
+
     _init();
 
-    exports.set      = set;
-    exports.get      = get;
-    exports.settings = settings;
+    exports.set                 = set;
+    exports.get                 = get;
+    exports.settings            = settings;
+    exports.getDefaults         = getDefaults;
+    exports.getDefaultBySetting = getDefaultBySetting;
 });

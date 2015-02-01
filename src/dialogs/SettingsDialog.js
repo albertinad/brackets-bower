@@ -24,23 +24,32 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets, Mustache */
+/*global $, define, brackets, Mustache */
 
 define(function (require, exports, module) {
     "use strict";
 
     var Dialogs     = brackets.getModule("widgets/Dialogs"),
+        StringUtils = brackets.getModule("utils/StringUtils"),
         Preferences = require("src/Preferences"),
         Strings     = require("strings"),
         dialogHTML  = require("text!templates/settings-dialog.html");
 
-    var _$dialog;
+    var _$dialog,
+        _settings,
+        _isError = false;
 
-    function _getViewData() {
-        return {
+    function _prepareSettings() {
+        _settings = {
             reloadRegistryTime: Preferences.get(Preferences.settings.RELOAD_REGISTRY_TIME),
             quickInstallSave: Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE)
         };
+    }
+
+    function _clear() {
+        _$dialog = null;
+        _settings = null;
+        _isError = false;
     }
 
     function _applyChanges() {
@@ -49,34 +58,82 @@ define(function (require, exports, module) {
 
         Preferences.set(Preferences.settings.RELOAD_REGISTRY_TIME, parseInt(reloadTime, 0));
         Preferences.set(Preferences.settings.QUICK_INSTALL_SAVE, savePackages);
+
+        _clear();
     }
 
-    function _bindEvents() {
-        // TODO implement reloading default configuration
-        /*_$dialog.on("click", "[data-button-id='default']", function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-        });*/
+    function _reloadDefaults() {
+        var $installTime = _$dialog.find("[data-bower-setting='quick-install-time']"),
+            $savePackages = _$dialog.find("[data-bower-setting='save-packages']");
+
+        $installTime.val(Preferences.getDefaultBySetting(Preferences.settings.RELOAD_REGISTRY_TIME));
+        $savePackages.prop("checked", Preferences.getDefaultBySetting(Preferences.settings.QUICK_INSTALL_SAVE));
     }
 
     function _onCloseDialog(buttonId) {
         if (buttonId === "save") {
             _applyChanges();
+        } else if (buttonId === "cancel") {
+            _clear();
         }
     }
 
-    function show() {
-        var dialog,
-            options = {
-                Strings: Strings,
-                settings: _getViewData()
-            },
-            dialogTemplate = Mustache.render(dialogHTML, options);
+    function bindEvents() {
+        var $error = _$dialog.find("[data-bower-setting-error='quick-install-time']");
 
-        dialog = Dialogs.showModalDialogUsingTemplate(dialogTemplate);
+        // validate input value
+        $("input[data-bower-setting='quick-install-time']", _$dialog).on("input", function () {
+            var value = $(this).val(),
+                hasClass;
+
+            value = parseInt(value, 0);
+            hasClass = $error.hasClass("hide");
+
+            if ((value < 6000) || isNaN(value)) {
+                $error.text(StringUtils.format(Strings.ERROR_RELOAD_TIME_VALUE, 6000));
+
+                if (hasClass) {
+                    $error.removeClass("hide");
+                    _isError = true;
+                }
+
+            } else if (!hasClass) {
+                $error.addClass("hide");
+                _isError = false;
+            }
+        });
+
+        // check for errors before apply
+        $("button[data-button-id='save']", _$dialog).on("click", function (event) {
+            if (_isError) {
+                event.stopPropagation();
+            }
+        });
+
+        // reload defaults
+        $("button[data-button-id='default']", _$dialog).on("click", function (event) {
+            event.stopPropagation();
+
+            _reloadDefaults();
+        });
+    }
+
+    function _getTemplateData() {
+        return {
+            Strings: Strings,
+            settings: _settings
+        };
+    }
+
+    function show() {
+        _prepareSettings();
+
+        var dialogTemplate = Mustache.render(dialogHTML, _getTemplateData()),
+            dialog = Dialogs.showModalDialogUsingTemplate(dialogTemplate);
+
         _$dialog = dialog.getElement();
 
-        _bindEvents();
+        bindEvents();
 
         dialog.done(_onCloseDialog);
     }
