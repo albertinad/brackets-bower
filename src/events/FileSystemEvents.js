@@ -34,9 +34,11 @@ define(function (require, exports) {
         Event          = require("src/events/Events"),
         EventEmitter   = require("src/events/EventEmitter");
 
-    var _bowerConfigFile,
+    var _bowerRcFile,
+        _bowerJsonFile,
         _projectPathRegex,
-        _bowerConfigRegex;
+        _bowerConfigRegex,
+        _bowerJsonRegex;
 
     function _isFileByPathInArray(filesArray, filePath) {
         var result;
@@ -61,19 +63,44 @@ define(function (require, exports) {
             return;
         }
 
-        if (entry.isFile && entry.fullPath.match(_bowerConfigRegex)) {
+        if (entry.isFile) {
 
-            EventEmitter.trigger(Event.BOWER_BOWERRC_CHANGE);
+            if (entry.fullPath.match(_bowerConfigRegex)) {
 
+                EventEmitter.trigger(Event.BOWER_BOWERRC_CHANGE);
+
+            } else if (entry.fullPath.match(_bowerJsonRegex)) {
+
+                EventEmitter.trigger(Event.BOWER_JSON_CHANGE);
+            }
         } else if (entry.isDirectory && entry.fullPath.match(_projectPathRegex)) {
 
-            if (added && _isFileByPathInArray(added, _bowerConfigFile)) {
+            // added files
+            if (added && added.length !== 0) {
 
-                EventEmitter.trigger(Event.BOWER_BOWERRC_CREATE);
+                if (_isFileByPathInArray(added, _bowerRcFile)) {
 
-            } else if (removed && _isFileByPathInArray(removed, _bowerConfigFile)) {
+                    EventEmitter.trigger(Event.BOWER_BOWERRC_CREATE);
+                }
 
-                EventEmitter.trigger(Event.BOWER_BOWERRC_DELETE);
+                if (_isFileByPathInArray(added, _bowerJsonFile)) {
+
+                    EventEmitter.trigger(Event.BOWER_JSON_CREATE);
+                }
+            }
+
+            // removed files
+            if (removed && removed.length !== 0) {
+
+                if (_isFileByPathInArray(removed, _bowerRcFile)) {
+
+                    EventEmitter.trigger(Event.BOWER_BOWERRC_DELETE);
+                }
+
+                if (_isFileByPathInArray(removed, _bowerJsonFile)) {
+
+                    EventEmitter.trigger(Event.BOWER_JSON_DELETE);
+                }
             }
         }
     }
@@ -84,10 +111,12 @@ define(function (require, exports) {
         if (currentProject) {
             var projectPath = currentProject.fullPath;
 
-            _bowerConfigFile = projectPath + ".bowerrc";
+            _bowerRcFile = projectPath + ".bowerrc";
+            _bowerJsonFile = projectPath + "bower.json";
 
             _projectPathRegex = new RegExp(projectPath);
-            _bowerConfigRegex = new RegExp(_bowerConfigFile);
+            _bowerConfigRegex = new RegExp(_bowerRcFile);
+            _bowerJsonRegex = new RegExp(_bowerJsonFile);
 
             FileSystem.on("change.bower", _onFileSystemChange);
         }
@@ -96,9 +125,11 @@ define(function (require, exports) {
     function _onProjectClose() {
         FileSystem.off("change.bower", _onFileSystemChange);
 
-        _bowerConfigFile = null;
+        _bowerRcFile = null;
+        _bowerJsonFile = null;
         _projectPathRegex = null;
         _bowerConfigRegex = null;
+        _bowerJsonRegex = null;
     }
 
     function _onProjectOpen() {

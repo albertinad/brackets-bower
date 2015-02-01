@@ -134,6 +134,27 @@ define(function (require, exports) {
         }
     }
 
+    function _notifyBowerRcReloaded() {
+        if (typeof _reloadedCallback === "function") {
+            _reloadedCallback();
+        }
+    }
+
+    function _loadBowerRcAtCurrentProject() {
+        // search for the configuration file if it exists
+        var currentProject = ProjectManager.getProjectRoot(),
+            defaultPath = (currentProject) ? currentProject.fullPath : null;
+
+        findConfiguration(defaultPath).then(function () {
+            _loadConfiguration(defaultPath);
+        }).fail(function () {
+            _bowerRc = null;
+        }).always(function () {
+            _notifyBowerRcReloaded();
+        });
+    }
+
+
     /**
      * Callback when the default preferences change. If the "proxy" preference has changed,
      * create the default configuration with the new value.
@@ -159,6 +180,14 @@ define(function (require, exports) {
         }
     }
 
+    function _onConfigurationCreated() {
+        if (_bowerRc !== null) {
+            return;
+        }
+
+        _loadBowerRcAtCurrentProject();
+    }
+
     function _onConfigurationChanged() {
         if (_bowerRc === null) {
             return;
@@ -169,28 +198,13 @@ define(function (require, exports) {
         });
     }
 
+    function _onBowerRcDeleted() {
+        _bowerRc = null;
+        _notifyBowerRcReloaded();
+    }
+
     function onBowerRcReloaded(callback) {
         _reloadedCallback = callback;
-    }
-
-    function _notifyBowerRcReloaded() {
-        if (typeof _reloadedCallback === "function") {
-            _reloadedCallback();
-        }
-    }
-
-    function _loadBowerRcAtCurrentProject() {
-        // search for the configuration file if it exists
-        var currentProject = ProjectManager.getProjectRoot(),
-            defaultPath = (currentProject) ? currentProject.fullPath : null;
-
-        findConfiguration(defaultPath).then(function () {
-            _loadConfiguration(defaultPath);
-        }).fail(function () {
-            _bowerRc = null;
-        }).always(function () {
-            _notifyBowerRcReloaded();
-        });
     }
 
     function _init() {
@@ -200,8 +214,9 @@ define(function (require, exports) {
             _loadBowerRcAtCurrentProject();
         });
 
+        EventEmitter.on(Event.BOWER_BOWERRC_CREATE, _onConfigurationCreated);
         EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, _onConfigurationChanged);
-        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, _onConfigurationChanged);
+        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, _onBowerRcDeleted);
         EventEmitter.on(Event.PROJECT_CHANGE, _loadBowerRcAtCurrentProject);
 
         PreferencesManager.on("change", function (event, data) {

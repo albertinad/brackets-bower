@@ -38,5 +38,8 @@ define(function (require, exports) {
     exports.BOWER_BOWERRC_CREATE = extensionPrefix + "bowerrc.create";
     exports.BOWER_BOWERRC_CHANGE = extensionPrefix + "bowerrc.change";
     exports.BOWER_BOWERRC_DELETE = extensionPrefix + "bowerrc.delete";
+    exports.BOWER_JSON_CREATE    = extensionPrefix + "bowerjson.create";
+    exports.BOWER_JSON_CHANGE    = extensionPrefix + "bowerjson.change";
+    exports.BOWER_JSON_DELETE    = extensionPrefix + "bowerjson.delete";
     exports.PROJECT_CHANGE       = extensionPrefix + "project.change";
 });

@@ -172,9 +172,7 @@ define(function (require, exports) {
         return deferred;
     }
 
-    function onBowerJsonReloaded(callback) {
-        _reloadedCallback = callback;
-    }
+
 
     function _notifyBowerJsonReloaded() {
         if (typeof _reloadedCallback === "function") {
@@ -202,9 +200,28 @@ define(function (require, exports) {
         });
     }
 
+    function _onBowerJsonCreated() {
+        if (_bowerJson !== null) {
+            return;
+        }
+
+        _loadBowerJsonAtCurrentProject();
+    }
+
+    function onBowerJsonReloaded(callback) {
+        _reloadedCallback = callback;
+    }
+
+    function _onBowerJsonDeleted() {
+        _bowerJson = null;
+        _notifyBowerJsonReloaded();
+    }
+
     AppInit.appReady(function () {
         _loadBowerJsonAtCurrentProject();
 
+        EventEmitter.on(Event.BOWER_JSON_CREATE, _onBowerJsonCreated);
+        EventEmitter.on(Event.BOWER_JSON_DELETE, _onBowerJsonDeleted);
         EventEmitter.on(Event.PROJECT_CHANGE, _loadBowerJsonAtCurrentProject);
     });
 
