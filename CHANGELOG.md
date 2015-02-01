@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.0.0
+## v0.2.0
 * Basic support of bower.json to handle dependencies for production and development.
     - Create the file with the existent dependencies if any, open it in the editor and remove it.
     - Check if there are some packages installed and added them to the recently created bower.json file.
