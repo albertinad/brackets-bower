@@ -13,7 +13,7 @@ packages catalog.
 * New icons for panels by [navelpluisje](https://github.com/navelpluisje)
 * Bug fixing and improvements.
 
-## v.0.1.7
+## v0.1.7
 * Use bower cache list while loading the Bower packages from the registry.
 
 ## v0.1.6
