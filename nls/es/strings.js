@@ -49,5 +49,9 @@ define({
     "TEXT_SAVE": "Guardar",
     "TEXT_RELOAD_DEFAULTS": "Recargar defaults",
     "GIT_NOT_FOUND_TITLE": "No se encontró Git en su sistema",
-    "GIT_NOT_FOUND_DESCRIPTION": "La extensión Brackets-bower buscó a Git en el PATH del sistema.\n\nBower require tener instalado Git y configurado en la variable PATH del sistema, \npara descargar e instalar algunos paquetes.\nBrackets-bower puede no funcionar correctamente."
+    "GIT_NOT_FOUND_DESCRIPTION": "La extensión Brackets-bower buscó a Git en el PATH del sistema.\n\nBower require tener instalado Git y configurado en la variable PATH del sistema, \npara descargar e instalar algunos paquetes.\nBrackets-bower puede no funcionar correctamente.",
+    "STATUS_EXECUTING_COMMAND": "Ejectuando comando \"{0}\"",
+    "STATUS_ERROR_EXECUTING_COMMAND": "Error al ejecutar el comando \"{0}\"",
+    "STATUS_SUCCESS_INSTALLING": "Paquetes instalados",
+    "STATUS_SUCCESS_UNINSTALLING": "Paquetes desinstalados"
 });

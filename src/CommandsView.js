@@ -29,7 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var template            = require("text!../templates/commands.html"),
+    var StringUtils         = brackets.getModule("utils/StringUtils"),
+        template            = require("text!../templates/commands.html"),
         Strings             = require("strings"),
         DependenciesManager = require("src/bower/DependenciesManager"),
         StatusBarController = require("src/status/StatusBarController").Controller;
@@ -41,29 +42,27 @@ define(function (require, exports) {
         /*jshint validthis:true */
         var cmdKey = $(this).data("bower-cmd-key"),
             commandFn,
-            message;
+            resultMessage;
 
         if (cmdKey === "install") {
             commandFn = DependenciesManager.installFromBowerJson;
-            message = "Installing from bower.json";
+            resultMessage = StringUtils.format(Strings.STATUS_SUCCESS_INSTALLING, cmdKey);
         } else {
             commandFn = DependenciesManager.prune;
-            message = "Pruning dependencies";
+            resultMessage = StringUtils.format(Strings.STATUS_SUCCESS_UNINSTALLING, cmdKey);
         }
 
         $commandsToolbar.find(".bower-btn").prop("disabled", true);
 
-        _statusId = StatusBarController.post(message, true);
+        _statusId = StatusBarController.post(StringUtils.format(Strings.STATUS_EXECUTING_COMMAND, cmdKey), true);
 
-        commandFn().then(function () {
+        commandFn().fail(function () {
 
-            StatusBarController.update(_statusId, "Packages installed", false);
-
-        }).fail(function () {
-
-            StatusBarController.update(_statusId, "Error executing command \"" + cmdKey + "\"", false);
+           resultMessage = StringUtils.format(Strings.STATUS_ERROR_EXECUTING_COMMAND, cmdKey);
 
         }).always(function () {
+
+            StatusBarController.update(_statusId, resultMessage, false);
             StatusBarController.remove(_statusId);
 
             $commandsToolbar.find(".bower-btn").prop("disabled", false);
