@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global $, define */
 
 define(function (require, exports) {
     "use strict";
@@ -61,7 +61,17 @@ define(function (require, exports) {
      * @return {Promise}
      */
     BowerMetadata.prototype.create = function () {
-        return FileUtils.createFile(this._absolutePath, this.content());
+        var that = this,
+            deferred = new $.Deferred();
+
+        this.content()
+            .then(function (content) {
+                return FileUtils.createFile(that._absolutePath, content);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
+        return deferred;
     };
 
     /**
@@ -80,10 +90,11 @@ define(function (require, exports) {
     };
 
     /**
-     * Subclasses should implement this.
+     * The file content to write to disk must be placed here. The result must
+     * be returned as a promise. Subclasses should implement this function.
      */
     BowerMetadata.prototype.content = function () {
-        return "";
+        throw "Function 'content' not implemented yet.";
     };
 
     return BowerMetadata;

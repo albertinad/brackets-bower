@@ -58,12 +58,14 @@ define(function (require, exports) {
     });
 
     BowerRc.prototype.content = function () {
-        var defaultConfiguration = {
-            directory: "bower_components/",
-            interactive: false
-        };
+        var deferred = new $.Deferred(),
+            defaultConfiguration = {
+                directory: "bower_components/",
+                interactive: false
+            },
+            content = JSON.stringify(defaultConfiguration, null, 4);
 
-        return JSON.stringify(defaultConfiguration, null, 4);
+        return deferred.resolve(content);
     };
 
     BowerRc.prototype.setDefaults = function (defaults) {

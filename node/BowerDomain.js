@@ -154,6 +154,29 @@ maxerr: 50, node: true */
     }
 
     /**
+     * @param {string} path The path to the folder where execute command.
+     * @param {object} config Key-value object to specify optional configuration.
+     * @param {function} cb
+     */
+    function _cmdList(path, config, cb) {
+        log.debug("List packages");
+
+        if (!config) {
+            config = {};
+        }
+
+        config.cwd = path;
+
+        bower.commands.list(null, config)
+            .on("end", function (result) {
+                cb(null, result);
+            })
+            .on("error", function (error) {
+                cb(error ? error.message : "Unknown error", null);
+            });
+    }
+
+    /**
      * Read and get the configuration from the ".bowerrc" file.
      * @param {string} path The path to the folder to read the configuration.
      * @param {function(?string, ?string)} cb Callback for when the configuration is ready.
@@ -266,6 +289,20 @@ maxerr: 50, node: true */
                 name: "path",
                 type: "string",
                 description: "Path to folder where the bower.json file is located."
+            }],
+            []
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "list",
+            _cmdList,
+            true,
+            "List installed packages.",
+            [{
+                name: "path",
+                type: "string",
+                description: "Path to current project folder."
             }],
             []
         );

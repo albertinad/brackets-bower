@@ -59,6 +59,12 @@ define(function (require, exports) {
         return bowerDomain.exec("prune", path, config);
     }
 
+    function list(path) {
+        var config = ConfigurationManager.getConfiguration();
+
+        return bowerDomain.exec("list", path, config);
+    }
+
     function search() {
         var config = ConfigurationManager.getConfiguration();
 
@@ -96,6 +102,7 @@ define(function (require, exports) {
     exports.install          = install;
     exports.installPackage   = installPackage;
     exports.prune            = prune;
+    exports.list             = list;
     exports.search           = search;
     exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;

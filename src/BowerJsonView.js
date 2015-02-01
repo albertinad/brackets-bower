@@ -63,10 +63,17 @@ define(function (require, exports) {
     }
 
     function _onCreateClick() {
+        var $btnCreate = $panelSection.find("[data-bower-json-action='create']");
+
+        $btnCreate.prop("disabled", true);
+
         DependenciesManager.createBowerJson()
             .done(function (path) {
                 if (path) {
                     DependenciesManager.open();
+
+                    $btnCreate.prop("disabled", false);
+
                     _refreshUi();
                 }
             });

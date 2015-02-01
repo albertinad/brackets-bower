@@ -24,12 +24,13 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global $, define */
 
 define(function (require, exports) {
     "use strict";
 
-    var BowerMetadata  = require("src/bower/BowerMetadata");
+    var BowerMetadata  = require("src/bower/BowerMetadata"),
+        Bower          = require("src/bower/Bower");
 
     /**
      * Bower json file constructor.
@@ -47,14 +48,26 @@ define(function (require, exports) {
     BowerJson.prototype.parentClass = BowerMetadata.prototype;
 
     BowerJson.prototype.content = function () {
-        var projectName = this._appName || "your-app-name",
-            rawData = {
-                name: projectName,
+        var that = this,
+            deferred  = new $.Deferred(),
+            packageMetadata,
+            content;
+
+        Bower.list(this.ProjectPath).then(function (result) {
+            packageMetadata = result.pkgMeta;
+        }).fail(function() {
+            packageMetadata = {
+                name: that._appName || "your-app-name",
                 dependencies: {},
                 devDependencies: {}
             };
+        }).always(function() {
+            content = JSON.stringify(packageMetadata, null, 4);
 
-        return JSON.stringify(rawData, null, 4);
+            deferred.resolve(content);
+        });
+
+        return deferred;
     };
 
     return BowerJson;
