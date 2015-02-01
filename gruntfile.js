@@ -36,7 +36,7 @@ module.exports = function (grunt) {
                     "*.css",
                     "*.md"
                 ],
-                dest: "brackets-bower.zip",
+                dest: "<%= pkg.name %>-<%= pkg.version %>.zip",
                 compression: 'DEFLATE'
             }
         }

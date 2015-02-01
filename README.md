@@ -1,7 +1,8 @@
 ## Bower extension for [Brackets](http://brackets.io)
 
-This Brackets extension lets you quickly install a package from [Bower](http://bower.io)
-into your current project using a Quick Open-style interface.
+This Brackets extension lets you manage your application's front-end dependencies using the bower.json file,
+and quickly install a package from [Bower](http://bower.io) into your current project using a
+Quick Open-style interface (Quick Install). You can also configure bower using the .bowerrc configuration file.
 
 ### Installing into Brackets
 
@@ -43,12 +44,27 @@ to configure http and https proxy from your global git configuration in your sys
 git config --global --set http.proxy proxyValue
 git config --global --set https.proxy proxyValue
 
+### bower.json
+
+You can create, edit and delete the bower.json file, install and prune dependencies. Quick Install (Install from Bower...) supports
+configuration to automatically save the installed pacakage to the existent bower.json.
+The bower.json file is always created with default data or with current dependencies if any. This also works when you create the
+file outside the extension using the file system.
+
+* Known issue: when creating the file without using the Bower Panel, you need to close the recently created file in the working set and
+re-open it to see the default file content. This issue will be fixed for the next version.
+
 ### .bowerrc
 
 The extension automatically detects if the .bowerrc file exists at the root project.
 It allows to create a default one and to delete it later. All the changes made to
 the configurable properties are automatically propagated to bower once the file is
 saved.
+
+### Extension Settings
+
+Configure the brackets-bower extension by choosing the time to reload the packages catalog when searching using Quick Install,
+and select to save or not the packages to the bower.json when installing using Quick Install.
 
 ### Problems? Suggestions?
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.0.0
+* Basic support of bower.json to handle dependencies for production and development.
+    - Create the file with the existent dependencies if any, open it in the editor and remove it.
+    - Check if there are some packages installed and added them to the recently created bower.json file.
+* Bower commands: install and prune. Now it is possible to install and prune the dependencies from
+the bower.json file.
+* Configure the extension using brackets settings: select to save the packages installed through
+Quick Install (Install from Bower) to the package.json and select the time for reloading the
+packages catalog.
+* Check if Git exists on the system and warn the user if it isn't available.
+* New icons for panels by [navelpluisje](https://github.com/navelpluisje)
+* Bug fixing and improvements.
+
 ## v.0.1.7
 * Use bower cache list while loading the Bower packages from the registry.
 

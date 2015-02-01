@@ -56,7 +56,7 @@ define(function (require, exports) {
     }
 
     function _onBowerRcReloadedCallback() {
-        if(_parentView.isPanelActive() && _isVisible) {
+        if (_parentView.isPanelActive() && _isVisible) {
             _refreshUi();
         }
     }
@@ -75,7 +75,7 @@ define(function (require, exports) {
                     ConfigurationManager.open(path);
                     _refreshUi();
                 }
-        });
+            });
     }
 
     function _onConfigListClick() {
