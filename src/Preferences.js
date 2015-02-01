@@ -40,7 +40,7 @@ define(function (require, exports, module) {
 
     var defaults = {
         reloadRegistryTime: 600000,
-        quickInstallSavePackages: false,
+        quickInstallSavePackages: true,
         show: false
     };
 
