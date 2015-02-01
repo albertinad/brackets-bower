@@ -64,11 +64,11 @@ define(function (require, exports, module) {
 
         installPromise = Bower.installPackage(rootPath, pkgName);
 
-        installPromise.done(function (installationPath) {
+        installPromise.done(function (result) {
             StatusBarController.update(_statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
             window.setTimeout(function () {
-                ProjectManager.showInTree(FileSystem.getDirectoryForPath(installationPath));
+                ProjectManager.showInTree(FileSystem.getDirectoryForPath(result.installationDir));
             }, 1000);
 
         }).fail(function (error) {
@@ -80,7 +80,7 @@ define(function (require, exports, module) {
             if (queue.length === 0) {
                 if (failed.length > 0) {
                     var errorMessage = StringUtils.format(Strings.STATUS_ERROR_INSTALLING, failed.join(", "));
-                    status.showStatusInfo(errorMessage, false);
+                    StatusBarController.update(_statusId, errorMessage, false);
                     failed = [];
                 }
                 StatusBarController.remove(_statusId);

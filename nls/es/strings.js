@@ -53,5 +53,6 @@ define({
     "STATUS_EXECUTING_COMMAND": "Ejectuando comando \"{0}\"",
     "STATUS_ERROR_EXECUTING_COMMAND": "Error al ejecutar el comando \"{0}\"",
     "STATUS_SUCCESS_INSTALLING": "Paquetes instalados",
-    "STATUS_SUCCESS_UNINSTALLING": "Paquetes desinstalados"
+    "STATUS_SUCCESS_EXECUTING_COMMAND": "Comando \"{0}\" ejecutado",
+    "STATUS_NO_PACKAGES_INSTALLED": "No hay ningún paquete para instalar"
 });

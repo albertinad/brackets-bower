@@ -133,13 +133,13 @@ define(function (require, exports) {
             return deferred;
         }
 
-        Bower.install(_bowerJson.ProjectPath).then(function () {
+        Bower.install(_bowerJson.ProjectPath).then(function (result) {
             // TODO improve this...
             window.setTimeout(function () {
                 ProjectManager.showInTree(FileSystem.getDirectoryForPath(_bowerJson.ProjectPath));
             }, 1000);
 
-            deferred.resolve();
+            deferred.resolve(result);
         }).fail(function () {
             deferred.reject();
         });

@@ -28,11 +28,11 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
 
-    var bower = require("bower"),
+    var bower       = require("bower"),
         bowerConfig = require("bower-config"),
-        log4js = require("log4js"),
-        _ = require("lodash"),
-        Cli = require("./Cli");
+        log4js      = require("log4js"),
+        _           = require("lodash"),
+        Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
 
@@ -111,16 +111,19 @@ maxerr: 50, node: true */
 
         bower.commands.install(names, options, config)
             .on("end", function (installedPackages) {
-                var installationDir;
+                var result = {};
 
                 if (names && names.length === 1) {
                     var installedPackage = installedPackages[names[0]];
-                    installationDir = installedPackage.canonicalDir;
+
+                    result.installationDir = installedPackage.canonicalDir;
+                    result.count = 1;
                 } else {
-                    installationDir = path;
+                    result.installationDir = path;
+                    result.count = Object.keys(installedPackages).length;
                 }
 
-                cb(null, installationDir);
+                cb(null, result);
             })
             .on("error", function (error) {
                 cb(error ? error.message : "Unknown error", null);
@@ -149,7 +152,6 @@ maxerr: 50, node: true */
                 cb(error ? error.message : "Unknown error", null);
             });
     }
-
 
     /**
      * Read and get the configuration from the ".bowerrc" file.

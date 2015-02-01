@@ -46,17 +46,23 @@ define(function (require, exports) {
 
         if (cmdKey === "install") {
             commandFn = DependenciesManager.installFromBowerJson;
-            resultMessage = StringUtils.format(Strings.STATUS_SUCCESS_INSTALLING, cmdKey);
+            resultMessage = Strings.STATUS_SUCCESS_INSTALLING;
         } else {
             commandFn = DependenciesManager.prune;
-            resultMessage = StringUtils.format(Strings.STATUS_SUCCESS_UNINSTALLING, cmdKey);
+            resultMessage = StringUtils.format(Strings.STATUS_SUCCESS_EXECUTING_COMMAND, cmdKey);
         }
 
         $commandsToolbar.find(".bower-btn").prop("disabled", true);
 
         _statusId = StatusBarController.post(StringUtils.format(Strings.STATUS_EXECUTING_COMMAND, cmdKey), true);
 
-        commandFn().fail(function () {
+        commandFn().then(function (result) {
+
+            if (result && result.count === 0) {
+                resultMessage = Strings.STATUS_NO_PACKAGES_INSTALLED;
+            }
+
+        }).fail(function () {
 
            resultMessage = StringUtils.format(Strings.STATUS_ERROR_EXECUTING_COMMAND, cmdKey);
 
