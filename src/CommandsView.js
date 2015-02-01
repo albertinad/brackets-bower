@@ -32,10 +32,10 @@ define(function (require, exports) {
     var template            = require("text!../templates/commands.html"),
         Strings             = require("strings"),
         DependenciesManager = require("src/bower/DependenciesManager"),
-        StatusDisplay       = require("src/StatusDisplay");
+        StatusBarController = require("src/status/StatusBarController").Controller;
 
     var $commandsToolbar,
-        _statusDisplay;
+        _statusId;
 
     function _onCommandSelected() {
         /*jshint validthis:true */
@@ -53,18 +53,18 @@ define(function (require, exports) {
 
         $commandsToolbar.find(".bower-btn").prop("disabled", true);
 
-        _statusDisplay.showStatusInfo(message, true);
+        _statusId = StatusBarController.post(message, true);
 
         commandFn().then(function () {
 
-            _statusDisplay.showStatusInfo("Packages installed", false);
+            StatusBarController.update(_statusId, "Packages installed", false);
 
         }).fail(function () {
 
-            _statusDisplay.showStatusInfo("Error executing command \"" + cmdKey + "\"", false);
+            StatusBarController.update(_statusId, "Error executing command \"" + cmdKey + "\"", false);
 
         }).always(function () {
-            _statusDisplay.hideStatusInfo();
+            StatusBarController.remove(_statusId);
 
             $commandsToolbar.find(".bower-btn").prop("disabled", false);
         });
@@ -72,7 +72,6 @@ define(function (require, exports) {
 
     function init($container) {
         $commandsToolbar = $container;
-        _statusDisplay = StatusDisplay.create();
 
         var viewModel = {
                 Strings: Strings

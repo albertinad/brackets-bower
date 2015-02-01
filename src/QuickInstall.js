@@ -35,10 +35,11 @@ define(function (require, exports, module) {
         ProjectManager = brackets.getModule("project/ProjectManager"),
         FileSystem     = brackets.getModule("filesystem/FileSystem");
 
-    var StatusDisplay = require("src/StatusDisplay"),
-        Bower         = require("src/bower/Bower"),
-        Preferences   = require("src/Preferences"),
-        Strings       = require("strings");
+    var StatusBarController = require("src/status/StatusBarController").Controller,
+        QuickSearchSpinner  = require("src/QuickSearchSpinner").create(),
+        Bower               = require("src/bower/Bower"),
+        Preferences         = require("src/Preferences"),
+        Strings             = require("strings");
 
     var queue = [],
         failed = [],
@@ -48,22 +49,23 @@ define(function (require, exports, module) {
         latestQuery,
         lastFetchTime,
         _isFetching = false,
-        status = StatusDisplay.create();
+        _statusId;
 
     function _installNext() {
         if (installPromise || queue.length === 0) {
             return;
         }
 
-        var rootPath = ProjectManager.getProjectRoot().fullPath,
-            pkgName = queue.shift();
+        var rootPath      = ProjectManager.getProjectRoot().fullPath,
+            pkgName       = queue.shift(),
+            installingMsg = StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName);
 
-        status.showStatusInfo(StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName), true);
+        _statusId = StatusBarController.post(installingMsg, true);
 
         installPromise = Bower.installPackage(rootPath, pkgName);
 
         installPromise.done(function (installationPath) {
-            status.showStatusInfo(StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
+            StatusBarController.update(_statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
             window.setTimeout(function () {
                 ProjectManager.showInTree(FileSystem.getDirectoryForPath(installationPath));
@@ -81,7 +83,7 @@ define(function (require, exports, module) {
                     status.showStatusInfo(errorMessage, false);
                     failed = [];
                 }
-                status.hideStatusInfo();
+                StatusBarController.remove(_statusId);
             } else {
                 _installNext();
             }
@@ -163,28 +165,29 @@ define(function (require, exports, module) {
         if (!packages) {
             // Packages haven't yet been fetched. If we haven't started fetching them yet, go ahead and do so.
             if (!packageListPromise) {
-                var displayMessage = Strings.STATUS_BOWER_LOADING;
+                var message = Strings.STATUS_BOWER_LOADING;
 
                 packageListPromise = new $.Deferred();
 
-                status.showQuickSearchSpinner();
-                status.showStatusInfo(displayMessage, true);
+                QuickSearchSpinner.show();
+
+                _statusId = StatusBarController.post(message, true);
 
                 _fetchPackageList()
                     .done(function () {
-                        displayMessage = Strings.STATUS_BOWER_READY;
+                        message = Strings.STATUS_BOWER_READY;
 
                         packageListPromise.resolve();
                     })
                     .fail(function () {
-                        displayMessage = Strings.STATUS_BOWER_NOT_LOADED;
+                        message = Strings.STATUS_BOWER_NOT_LOADED;
 
                         packageListPromise.reject();
                     })
                     .always(function () {
-                        status.hideQuickSearchSpinner();
-                        status.showStatusInfo(displayMessage, false);
-                        status.hideStatusInfo();
+                        QuickSearchSpinner.hide();
+                        StatusBarController.update(_statusId, message, false);
+                        StatusBarController.remove(_statusId);
 
                         packageListPromise = null;
                     });
