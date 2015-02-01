@@ -50,24 +50,75 @@ define(function (require, exports) {
     BowerJson.prototype.content = function () {
         var that = this,
             deferred  = new $.Deferred(),
-            packageMetadata,
-            content;
+            packageMetadata;
 
         Bower.list(this.ProjectPath).then(function (result) {
             packageMetadata = result.pkgMeta;
-        }).fail(function() {
-            packageMetadata = {
-                name: that._appName || "your-app-name",
-                dependencies: {},
-                devDependencies: {}
-            };
-        }).always(function() {
-            content = JSON.stringify(packageMetadata, null, 4);
+        }).fail(function () {
+            packageMetadata = that._getDefaultData();
+        }).always(function () {
+            var content = JSON.stringify(packageMetadata, null, 4);
 
             deferred.resolve(content);
         });
 
         return deferred;
+    };
+
+    BowerJson.prototype.createWithCurrentData = function () {
+        var that = this,
+            deferred = new $.Deferred(),
+            defaultData = this._getDefaultData(),
+            content = JSON.stringify(defaultData, null, 4);
+
+        this.saveContent(content).then(function () {
+
+            return Bower.list(that.ProjectPath);
+        }).then(function (result) {
+
+            var pkgMeta = that._createPackageMetadata(result);
+            content = JSON.stringify(pkgMeta, null, 4);
+
+            return that.saveContent(content);
+        }).then(function () {
+
+            deferred.resolve(content);
+        }).fail(function () {
+
+            deferred.reject();
+        });
+
+        return deferred;
+    };
+
+    BowerJson.prototype._createPackageMetadata = function (result) {
+        var pkg = {
+            name: result.pkgMeta.name,
+            dependencies: {},
+            devDependencies: {}
+        };
+
+        var dependencies = result.dependencies,
+            dependencyName,
+            dependency;
+
+        for (dependencyName in dependencies) {
+            if (dependencies.hasOwnProperty(dependencyName)) {
+                dependency = dependencies[dependencyName];
+
+                pkg.dependencies[dependencyName] = dependency.update.target;
+            }
+        }
+
+        return pkg;
+    };
+
+    BowerJson.prototype._getDefaultData = function () {
+        return {
+            name: this._appName || "your-app-name",
+            dependencies: {},
+            devDependencies: {}
+        };
     };
 
     return BowerJson;

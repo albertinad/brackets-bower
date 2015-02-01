@@ -185,7 +185,16 @@ define(function (require, exports) {
             return;
         }
 
-        _loadBowerRcAtCurrentProject();
+        var currentProject = ProjectManager.getProjectRoot(),
+            defaultPath = (currentProject) ? currentProject.fullPath : null;
+
+        _bowerRc = new BowerRc(defaultPath, _defaultConfiguration);
+
+        _bowerRc.create().fail(function () {
+            _bowerRc = null;
+        }).always(function () {
+            _notifyBowerRcReloaded();
+        });
     }
 
     function _onConfigurationChanged() {

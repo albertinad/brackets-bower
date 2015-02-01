@@ -32,7 +32,7 @@ define(function (require, exports) {
     var FileUtils = require("src/utils/FileUtils");
 
     /**
-     * Bower file constructor.
+     * Bower metadata  file constructor.
      * @param {string} fileName
      * @param {string} projectPath
      */
@@ -56,8 +56,7 @@ define(function (require, exports) {
     });
 
     /**
-     * Create the file for the given path. If the path is not provided, it will
-     * take the current directory path as default.
+     * Create the file with the content taken from 'content' function.
      * @return {Promise}
      */
     BowerMetadata.prototype.create = function () {
@@ -66,12 +65,16 @@ define(function (require, exports) {
 
         this.content()
             .then(function (content) {
-                return FileUtils.createFile(that._absolutePath, content);
+                return FileUtils.writeContent(that._absolutePath, content);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
 
         return deferred;
+    };
+
+    BowerMetadata.prototype.saveContent = function (content) {
+        return FileUtils.writeContent(this._absolutePath, content);
     };
 
     /**

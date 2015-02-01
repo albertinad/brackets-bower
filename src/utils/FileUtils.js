@@ -63,25 +63,25 @@ define(function (require, exports) {
      * @param {string} content Content to write to the file.
      * @return {Promise}
      */
-    function createFile(path, content) {
-        var promise = new $.Deferred(),
+    function writeContent(path, content) {
+        var deferred = new $.Deferred(),
             file;
 
         file = FileSystem.getFileForPath(path);
 
         if (!file) {
-            promise.reject();
+            deferred.reject();
         }
 
         file.write(content, function (error, result) {
             if (error) {
-                promise.reject(error);
+                deferred.reject(error);
             } else {
-                promise.resolve(path);
+                deferred.resolve(path);
             }
         });
 
-        return promise;
+        return deferred;
     }
 
     /**
@@ -89,20 +89,20 @@ define(function (require, exports) {
      * @param {string} path The absolute path of the file to remove.
      */
     function deleteFile(path) {
-        var promise = new $.Deferred(),
+        var deferred = new $.Deferred(),
             file = FileSystem.getFileForPath(path);
 
         function onDeleted(error) {
             if (error) {
-                promise.reject(error);
+                deferred.reject(error);
             } else {
-                promise.resolve();
+                deferred.resolve();
             }
         }
 
         file.unlink(onDeleted);
 
-        return promise;
+        return deferred;
     }
 
     /**
@@ -121,7 +121,7 @@ define(function (require, exports) {
     }
 
     exports.exists       = exists;
-    exports.createFile   = createFile;
+    exports.writeContent = writeContent;
     exports.deleteFile   = deleteFile;
     exports.openInEditor = openInEditor;
 });

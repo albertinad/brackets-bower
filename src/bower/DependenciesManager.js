@@ -65,7 +65,7 @@ define(function (require, exports) {
 
         _bowerJson = new BowerJson(path, appName);
 
-        return _bowerJson.create();
+        return _bowerJson.createWithCurrentData();
     }
 
     /**
@@ -172,8 +172,6 @@ define(function (require, exports) {
         return deferred;
     }
 
-
-
     function _notifyBowerJsonReloaded() {
         if (typeof _reloadedCallback === "function") {
             _reloadedCallback();
@@ -205,7 +203,22 @@ define(function (require, exports) {
             return;
         }
 
-        _loadBowerJsonAtCurrentProject();
+        var project = ProjectManager.getProjectRoot(),
+            path,
+            name;
+
+        if (project) {
+            path = project.fullPath;
+            name = project.name;
+        }
+
+        _bowerJson = new BowerJson(path, name);
+
+        _bowerJson.createWithCurrentData().fail(function () {
+            _bowerJson = null;
+        }).always(function () {
+            _notifyBowerJsonReloaded();
+        });
     }
 
     function onBowerJsonReloaded(callback) {
