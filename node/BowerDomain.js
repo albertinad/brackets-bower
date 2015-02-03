@@ -30,20 +30,9 @@ maxerr: 50, node: true */
 
     var bower       = require("bower"),
         bowerConfig = require("bower-config"),
-        log4js      = require("log4js"),
-        _           = require("lodash"),
         Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
-
-    log4js.loadAppender("file");
-    log4js.addAppender(log4js.appenders.file("/tmp/BowerDomain.log"), "logfile");
-    var log = log4js.getLogger("logfile");
-
-    function _getPackagesData(data) {
-        // For some reason the package list is an array inside an array.
-        return _.flatten(data);
-    }
 
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
@@ -56,9 +45,7 @@ maxerr: 50, node: true */
     function _cmdGetPackages(config, cb) {
         bower.commands.search(null, config)
             .on("end", function (data) {
-                log.debug("Packages from registry loaded");
-
-                cb(null, _getPackagesData(data));
+                cb(null, data);
             })
             .on("error", function (error) {
                 cb(error.message, null);
@@ -74,9 +61,7 @@ maxerr: 50, node: true */
     function _cmdGetPackagesFromCache(config, cb) {
         bower.commands.cache.list(null, null, config)
             .on("end", function (data) {
-                log.debug("Packages from cache loaded");
-
-                cb(null, _getPackagesData(data));
+                cb(null, data);
             })
             .on("error", function (error) {
                 // returns as a result an empty array
@@ -95,8 +80,6 @@ maxerr: 50, node: true */
      * the full installation path or null if there was an error.
      */
     function _cmdInstall(path, names, save, config, cb) {
-        log.debug("Installing packages into " + path);
-
         var options = {};
 
         if (save !== null && save !== undefined) {
@@ -136,8 +119,6 @@ maxerr: 50, node: true */
      * @param {function} cb
      */
     function _cmdPrune(path, config, cb) {
-        log.debug("Prune bower.json");
-
         if (!config) {
             config = {};
         }
@@ -159,8 +140,6 @@ maxerr: 50, node: true */
      * @param {function} cb
      */
     function _cmdList(path, config, cb) {
-        log.debug("List packages");
-
         if (!config) {
             config = {};
         }
@@ -182,8 +161,6 @@ maxerr: 50, node: true */
      * @param {function(?string, ?string)} cb Callback for when the configuration is ready.
      */
     function _cmdGetConfiguration(path, cb) {
-        log.debug("Loading configuration");
-
         var config = bowerConfig.read(path);
 
         cb(null, config);
@@ -196,8 +173,6 @@ maxerr: 50, node: true */
      * @param {function(?string, ?string)} cb Callback for when the program has executed.
      */
     function _cmdExecCommand(cmd, args, cb) {
-        log.debug("Executing command");
-
         Cli.execCommand(cmd, args, cb);
     }
 

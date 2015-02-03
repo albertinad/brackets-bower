@@ -106,7 +106,7 @@ define(function (require, exports) {
             if (dependencies.hasOwnProperty(dependencyName)) {
                 dependency = dependencies[dependencyName];
 
-                pkg.dependencies[dependencyName] = dependency.update.target;
+                pkg.dependencies[dependencyName] = dependency.pkgMeta._target;
             }
         }
 
