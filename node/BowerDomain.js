@@ -29,7 +29,9 @@ maxerr: 50, node: true */
     "use strict";
 
     var bower       = require("bower"),
-        bowerConfig = require("bower-config"),
+        // hack to avoid more node dependencies and to be able to upload the zip file
+        // TODO remove this and use bower-config once it is fixed
+        bowerConfig = require("./node_modules/bower/node_modules/bower-config/lib/Config"),
         Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
