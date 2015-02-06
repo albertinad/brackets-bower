@@ -37,70 +37,92 @@ define(function (require, exports, module) {
         AppInit           = brackets.getModule("utils/AppInit");
 
     // local modules
-    var Bower            = require("src/bower/Bower"),
-        GitChecker       = require("src/bower/GitChecker"),
-        FileSystemEvents = require("src/events/FileSystemEvents"),
-        ErrorDialog      = require("src/dialogs/ErrorDialog"),
-        QuickInstall     = require("src/QuickInstall"),
-        PanelView        = require("src/PanelView"),
-        Preferences      = require("src/Preferences"),
-        EventEmitter     = require("src/events/EventEmitter"),
-        Event            = require("src/events/Events"),
-        Strings          = require("strings");
+    var Bower             = require("src/bower/Bower"),
+        GitChecker        = require("src/bower/GitChecker"),
+        FileSystemEvents  = require("src/events/FileSystemEvents"),
+        QuickInstall      = require("src/QuickInstall"),
+        ErrorDialog       = require("src/dialogs/ErrorDialog"),
+        EventEmitter      = require("src/events/EventEmitter"),
+        Event             = require("src/events/Events"),
+        Strings           = require("strings"),
+
+    // controllers
+        PanelController         = require("src/PanelController"),
+        ConfigurationController = require("src/ConfigurationController"),
+        BowerJsonController     = require("src/BowerJsonController");
 
     var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
-        CMD_INSTALL_FROM_BOWER = "com.adobe.brackets.commands.bower.installFromBower",
-        CMD_BOWER_PANEL        = "com.adobe.brackets.commands.bower.togglePanel",
+        CMD_QUICK_INSTALL      = "com.adobe.brackets.commands.bower.installFromBower",
+        CMD_PANEL              = "com.adobe.brackets.commands.bower.togglePanel",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
-    function _checkRequirements() {
-        GitChecker.findGitOnSystem()
-            .fail(function () {
-                PanelView.setStatus(PanelView.bowerStatus.WARNING);
+    var panelController;
 
-                ErrorDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
-            });
+    /**
+     * Show or hide the bower panel.
+     */
+    function _togglePanel() {
+        panelController.toggle();
+    }
+
+    /**
+     * Show QuickSearch for Bower searching.
+     */
+    function _showQuickInstall() {
+        QuickInstall.quickOpenBower();
+    }
+
+    function _initializeControllers() {
+        // initialize controllers
+        panelController = new PanelController();
+
+        var bowerJsonController = new BowerJsonController(panelController),
+            configController = new ConfigurationController(panelController);
+
+        panelController.registerController("bower-json", bowerJsonController, true);
+        panelController.registerController("config", configController);
+
+        panelController.initialize(EXTENSION_NAME);
     }
 
     function init() {
+        var bowerDomainPath = ExtensionUtils.getModulePath(module, "/node/BowerDomain");
+
         ExtensionUtils.loadStyleSheet(module, "assets/fonts/octicon.css");
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
-        var bowerPanelCmd = CommandManager.register(Strings.TITLE_BOWER, CMD_BOWER_PANEL, PanelView.toggle),
-            installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_INSTALL_FROM_BOWER, QuickInstall.quickOpenBower),
-            fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU),
-            viewMenu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
+        Bower.init(bowerDomainPath);
+        QuickInstall.init();
+
+        _initializeControllers();
+
+        var panelCmd   = CommandManager.register(Strings.TITLE_BOWER, CMD_PANEL, _togglePanel),
+            installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_QUICK_INSTALL, _showQuickInstall),
+            fileMenu   = Menus.getMenu(Menus.AppMenuBar.FILE_MENU),
+            viewMenu   = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
 
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(installCmd);
-        viewMenu.addMenuItem(bowerPanelCmd);
+        viewMenu.addMenuItem(panelCmd);
 
-        KeyBindingManager.addBinding(CMD_INSTALL_FROM_BOWER, {
+        KeyBindingManager.addBinding(CMD_QUICK_INSTALL, {
             key: KEY_INSTALL_FROM_BOWER
         });
 
-        var bowerDomainPath = ExtensionUtils.getModulePath(module, "/node/BowerDomain");
+        AppInit.appReady(function () {
+            GitChecker.findGitOnSystem().fail(function () {
+                panelController.updateStatus(PanelController.WARNING);
 
-        Bower.init(bowerDomainPath);
+                ErrorDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
+            });
 
-        QuickInstall.init();
+            FileSystemEvents.init();
 
-        PanelView.init(EXTENSION_NAME, CMD_BOWER_PANEL);
-
-        _checkRequirements();
+            ProjectManager.on("projectOpen", function () {
+                EventEmitter.trigger(Event.PROJECT_CHANGE);
+            });
+        });
     }
 
     init();
-
-    AppInit.appReady(function () {
-        FileSystemEvents.init();
-
-        if (Preferences.get(Preferences.settings.EXTENSION_VISIBLE)) {
-            PanelView.toggle();
-        }
-
-        ProjectManager.on("projectOpen", function () {
-            EventEmitter.trigger(Event.PROJECT_CHANGE);
-        });
-    });
 });
