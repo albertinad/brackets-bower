@@ -81,7 +81,7 @@
     display: none;
 }
 
-#status-bower span.status {
+#status-bower .status {
     margin-right: 5px;
 }
 
@@ -146,7 +146,7 @@
     margin-bottom: 0;
 }
 
-#bower-settings-dialog .settings input.small {
+#bower-settings-dialog .settings .small {
     width: 8em;
 }
 

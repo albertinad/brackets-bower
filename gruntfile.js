@@ -22,6 +22,21 @@ module.exports = function (grunt) {
             }
         },
 
+        csslint: {
+            options: {
+                csslintrc: ".csslintrc"
+            },
+            strict: {
+                options: {
+                    import: 2
+                },
+                src: [
+                    "assets/**/*.css",
+                    "!assets/fonts/**/*.css"
+                ]
+            }
+        },
+
         zip: {
             extension: {
                 src: [
@@ -42,6 +57,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask("package", ["jshint", "zip"]);
+    grunt.registerTask("package", ["jshint", "csslint", "zip"]);
     grunt.registerTask("default", ["jshint"]);
 };
