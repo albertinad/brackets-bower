@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets, Mustache */
+/*global $, define */
 
 define(function (require, exports, module) {
     "use strict";
@@ -59,10 +59,13 @@ define(function (require, exports, module) {
 
         this._view.initialize(extensionName);
 
-        var $section = this._view.getPanelSection();
+        var $section = this._view.getPanelSection(),
+            controller;
 
-        for (var controller in this._controllersMap) {
-            this._controllersMap[controller].initialize($section);
+        for (controller in this._controllersMap) {
+            if (this._controllersMap.hasOwnProperty(controller)) {
+                this._controllersMap[controller].initialize($section);
+            }
         }
 
         CommandsView.init($("#bower-commands"));
