@@ -32,7 +32,7 @@ define(function (require, exports) {
     var StringUtils         = brackets.getModule("utils/StringUtils"),
         CommandsView        = require("src/views/CommandsView"),
         DependenciesManager = require("src/bower/DependenciesManager"),
-        StatusBarController = require("src/status/StatusBarController").Controller,
+        StatusBarController = require("src/StatusBarController").Controller,
         Strings             = require("strings");
 
     /**

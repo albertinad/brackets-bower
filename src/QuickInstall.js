@@ -35,7 +35,7 @@ define(function (require, exports, module) {
         ProjectManager = brackets.getModule("project/ProjectManager"),
         FileSystem     = brackets.getModule("filesystem/FileSystem");
 
-    var StatusBarController = require("src/status/StatusBarController").Controller,
+    var StatusBarController = require("src/StatusBarController").Controller,
         QuickSearchSpinner  = require("src/QuickSearchSpinner").create(),
         Bower               = require("src/bower/Bower"),
         Preferences         = require("src/Preferences"),
@@ -48,8 +48,7 @@ define(function (require, exports, module) {
         installPromise,
         latestQuery,
         lastFetchTime,
-        _isFetching = false,
-        _statusId;
+        _isFetching = false;
 
     function _installNext() {
         if (installPromise || queue.length === 0) {
@@ -60,12 +59,12 @@ define(function (require, exports, module) {
             pkgName       = queue.shift(),
             installingMsg = StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName);
 
-        _statusId = StatusBarController.post(installingMsg, true);
+        var statusId = StatusBarController.post(installingMsg, true);
 
         installPromise = Bower.installPackage(rootPath, pkgName);
 
         installPromise.done(function (result) {
-            StatusBarController.update(_statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
+            StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
 
             window.setTimeout(function () {
                 ProjectManager.showInTree(FileSystem.getDirectoryForPath(result.installationDir));
@@ -80,10 +79,10 @@ define(function (require, exports, module) {
             if (queue.length === 0) {
                 if (failed.length > 0) {
                     var errorMessage = StringUtils.format(Strings.STATUS_ERROR_INSTALLING, failed.join(", "));
-                    StatusBarController.update(_statusId, errorMessage, false);
+                    StatusBarController.update(statusId, errorMessage, false);
                     failed = [];
                 }
-                StatusBarController.remove(_statusId);
+                StatusBarController.remove(statusId);
             } else {
                 _installNext();
             }
@@ -142,13 +141,13 @@ define(function (require, exports, module) {
         }).done(function (pkgs) {
             packages = _getSortedPackages(pkgs);
 
-            _isFetching = false;
-
             result.resolve();
         }).fail(function (error) {
-            _isFetching = false;
 
             result.reject(error);
+        }).always(function () {
+
+            _isFetching = false;
         });
 
         return result;
@@ -171,7 +170,7 @@ define(function (require, exports, module) {
 
                 QuickSearchSpinner.show();
 
-                _statusId = StatusBarController.post(message, true);
+                var statusId = StatusBarController.post(message, true);
 
                 _fetchPackageList()
                     .done(function () {
@@ -186,10 +185,8 @@ define(function (require, exports, module) {
                     })
                     .always(function () {
                         QuickSearchSpinner.hide();
-                        StatusBarController.update(_statusId, message, false);
-                        StatusBarController.remove(_statusId);
-
-                        packageListPromise = null;
+                        StatusBarController.update(statusId, message, false);
+                        StatusBarController.remove(statusId);
                     });
             }
 
@@ -200,14 +197,22 @@ define(function (require, exports, module) {
             packageListPromise.done(function () {
                 // validate for an empty string avoids an exception in smart autocomplete
                 if (query === latestQuery && query.trim() !== "") {
-                    result.resolve(_search(latestQuery, matcher));
+                    try {
+                        result.resolve(_search(latestQuery, matcher));
+                    } catch (exception) {
+                        console.log(exception);
+                        result.reject();
+                    }
                 } else {
                     result.reject();
                 }
+
+                packageListPromise = null;
             });
 
             return result.promise();
         }
+
 
         // Filter and rank how good each match is
         var filteredList = $.map(packages, function (pkg) {
