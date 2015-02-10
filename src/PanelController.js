@@ -24,15 +24,15 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define */
+/*global define */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var PanelView      = require("src/views/PanelView"),
-        CommandsView   = require("src/CommandsView"),
-        SettingsDialog = require("src/dialogs/SettingsDialog"),
-        Preferences    = require("src/Preferences");
+    var PanelView          = require("src/views/PanelView"),
+        CommandsController = require("src/CommandsController"),
+        SettingsDialog     = require("src/dialogs/SettingsDialog"),
+        Preferences        = require("src/Preferences");
 
     /**
      * PanelController constructor. Main controller for the bower extension view.
@@ -45,7 +45,9 @@ define(function (require, exports, module) {
         this._isActive = false;
 
         /** @private */
-        this._controllersMap = {};
+        this._commandsController = null;
+        /** @private */
+        this._panelsControllersMap = {};
         /** @private */
         this._activePanelController = null;
         /** @private */
@@ -60,21 +62,30 @@ define(function (require, exports, module) {
      * if it was opened before closing brackets, it will be displayed.
      * @param {string} extensionName Name of the extension.
      */
-    PanelController.prototype.initialize = function (extensionName) {
+    PanelController.prototype.initialize = function (extensionName, controllers) {
         this._view = new PanelView(this);
 
         this._view.initialize(extensionName);
 
-        var $section = this._view.getPanelSection(),
-            controller;
+        // initialize the commands controller
+        this._commandsController = new CommandsController(this);
+        this._commandsController.initialize(this._view.getCommandsSection());
 
-        for (controller in this._controllersMap) {
-            if (this._controllersMap.hasOwnProperty(controller)) {
-                this._controllersMap[controller].initialize($section);
+        var $section = this._view.getPanelSection(),
+            key, controllerData, ConstructorFn, controllerInstance;
+
+        // initializes and register the sub panels controllers
+        for (key in controllers) {
+            if (controllers.hasOwnProperty(key)) {
+                controllerData = controllers[key];
+                ConstructorFn = controllerData.constructor;
+
+                controllerInstance = new ConstructorFn(this);
+                controllerInstance.initialize($section);
+
+                this.registerController(key, controllerInstance, controllerData.isActive);
             }
         }
-
-        CommandsView.init($("#bower-commands"));
 
         if (Preferences.get(Preferences.settings.EXTENSION_VISIBLE)) {
             this.toggle();
@@ -150,12 +161,12 @@ define(function (require, exports, module) {
      * Register the controller for the sub panel view in a key-value map.
      * The main panel controller manages all the controllers for the sub panels.
      * @param{string} key The unique identifier for the controller to register.
-     * @param{Object} controller The instance of the controller to register.
+     * @param{Function} controller The constructor function of the controller to register.
      * @param{boolean=} isDefault Boolean to indicate if the current sub panel controller
      * to register is the default active panel.
      */
     PanelController.prototype.registerController = function (key, controller, isDefault) {
-        this._controllersMap[key] = controller;
+        this._panelsControllersMap[key] = controller;
 
         if (isDefault) {
             this._activePanelkey = key;
@@ -169,7 +180,7 @@ define(function (require, exports, module) {
      * @private
      */
     PanelController.prototype._getPanelControllerByKey = function (key) {
-        var controller = this._controllersMap[key];
+        var controller = this._panelsControllersMap[key];
 
         if (!controller) {
             throw "Controller with the key '" + key + "' is not registered.";

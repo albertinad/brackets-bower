@@ -74,15 +74,18 @@ define(function (require, exports, module) {
 
     function _initializeControllers() {
         // initialize controllers
+        var controllersMap = {
+            "bower-json": {
+                constructor: BowerJsonController,
+                isActive: true
+            },
+            "config": {
+                constructor: ConfigurationController
+            }
+        };
+
         panelController = new PanelController();
-
-        var bowerJsonController = new BowerJsonController(panelController),
-            configController = new ConfigurationController(panelController);
-
-        panelController.registerController("bower-json", bowerJsonController, true);
-        panelController.registerController("config", configController);
-
-        panelController.initialize(EXTENSION_NAME);
+        panelController.initialize(EXTENSION_NAME, controllersMap);
     }
 
     function init() {

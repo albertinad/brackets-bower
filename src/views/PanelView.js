@@ -115,6 +115,10 @@ define(function (require, exports, module) {
         return this._$panel.find("#brackets-bower-active-panel");
     };
 
+    PanelView.prototype.getCommandsSection = function () {
+        return $("#bower-commands");
+    };
+
     /**
      * Updates the bower icon class according to the status.
      * @param {string} status The status css class to set.
