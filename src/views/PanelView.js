@@ -40,6 +40,11 @@ define(function (require, exports, module) {
         WARNING: "warning"
     };
 
+    /**
+     * PanelView constructor function. It represents the main view for the extension panel.
+     * @param {PanelController} controller The instance of the panel controller.
+     * @constructor
+     */
     function PanelView(controller) {
         /** @private */
         this._controller = controller;
@@ -54,6 +59,11 @@ define(function (require, exports, module) {
         this._currentStatusClass = "default";
     }
 
+    /**
+     * Initializes the panel view. It creates a bottom panel, set up the bower icon for the
+     * extensions panel and binds the events handlers for the supported events.
+     * @param {string} extensionName The name of the extension.
+     */
     PanelView.prototype.initialize = function (extensionName) {
         var that = this,
             panelHTML = Mustache.render(panelTemplate, { Strings: Strings });
@@ -79,18 +89,28 @@ define(function (require, exports, module) {
         this._$bowerIcon.on("click", this._onClose.bind(this));
     };
 
+    /**
+     * Show the panel view.
+     */
     PanelView.prototype.show = function () {
         Resizer.show(this._$panel);
 
         this.updateIconStatus(statusStyles.ACTIVE);
     };
 
+    /**
+     * Hide the panel view. Update the bower icon from the extension panel with the current status.
+     */
     PanelView.prototype.hide = function () {
         Resizer.hide(this._$panel);
 
         this.updateIconStatus(this._currentStatusClass);
     };
 
+    /**
+     * Get the panel section where the sub panels can be rendered.
+     * @return {jQuery} jQuery object encapsulating the panel section HTML Element for the sub panels.
+     */
     PanelView.prototype.getPanelSection = function () {
         return this._$panel.find("#brackets-bower-active-panel");
     };
@@ -113,6 +133,11 @@ define(function (require, exports, module) {
         this._$bowerIcon.addClass(status);
     };
 
+    /**
+     * Update the status selection of the panels buttons toolbar.
+     * @param {string} panelKey
+     * @param {string} previousPanelKey
+     */
     PanelView.prototype.selectPanelButton = function (panelKey, previousPanelkey) {
         var $previousPanelBtn = this._$header.find("[data-bower-panel-key='" + previousPanelkey + "']"),
             $panelBtn = this._$header.find("[data-bower-panel-key='" + panelKey + "']");
@@ -121,14 +146,27 @@ define(function (require, exports, module) {
         $panelBtn.addClass("active");
     };
 
+    /**
+     * Callback for when a sub panel has been selected.
+     * @param {string} key The key of the selected panel.
+     * @private
+     */
     PanelView.prototype._onPanelSelected = function (key) {
         this._controller.panelSelected(key);
     };
 
+    /**
+     * Callback for when the settings dialog is displayed.
+     * @private
+     */
     PanelView.prototype._onSettingsSelected = function () {
         this._controller.showExtensionSettings();
     };
 
+    /**
+     * Callback for when the extension panel is closed.
+     * @private
+     */
     PanelView.prototype._onClose = function () {
         this._controller.toggle();
     };

@@ -26,6 +26,11 @@
 maxerr: 50, browser: true */
 /*global define, brackets */
 
+/**
+ * Preferences handles all the settings and defaults values for the extension. All modules
+ * and components that needs to interact with the underline PreferenceManager and brackets
+ * preferences for the extension, should require this module.
+ */
 define(function (require, exports, module) {
     "use strict";
 

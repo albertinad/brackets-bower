@@ -26,12 +26,14 @@
 maxerr: 50, browser: true */
 /*global $, define */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var templateHtml = require("text!../../templates/status-bar.html");
 
     /**
+     * StatusBar view constructor function.
+     * @param {StatusBarController} controller StatusBarController instance.
      * @constructor
      */
     function StatusBarView(controller) {
@@ -51,6 +53,9 @@ define(function (require, exports) {
         this._progressCount = 0;
     }
 
+    /**
+     * Initializes the status bar view.
+     */
     StatusBarView.prototype.initialize = function () {
         this._$statusInfo = $("#status-info");
         this._$statusBar = $(templateHtml);
@@ -61,6 +66,13 @@ define(function (require, exports) {
         this._$progressInfo = this._$progressSection.find(".info");
     };
 
+    /**
+     * Add a new status to the status bar view. The status is inserted into the DOM in the section
+     * according to the status type: progress or information.
+     * @param {number} id Id of the status to add.
+     * @param {Status} status The recently created status to display in the status bar view.
+     * @private
+     */
     StatusBarView.prototype._addStatus = function (id, status) {
         var statusHtml = "<span class='status' data-bower-status-id='" + id + "'>" + status.Text + "</span>",
             statusType = this._controller.statusTypes();
@@ -74,6 +86,13 @@ define(function (require, exports) {
         }
     };
 
+    /**
+     * Update the status being displayed.
+     * @param {number} id Id of the status that was updated.
+     * @param {Status} newStatus The updated status instance.
+     * @param {Status} oldStatus The status instance previous to be modified.
+     * @private
+     */
     StatusBarView.prototype._updateStatus = function (id, newStatus, oldStatus) {
         var $statusEntry = this._$statusBar.find("[data-bower-status-id='" + id + "']"),
             statusTypes;
@@ -93,7 +112,12 @@ define(function (require, exports) {
         }
     };
 
-    StatusBarView.prototype._removeStatus = function (id, status) {
+    /**
+     * Delete the status from the DOM.
+     * @param {number} id The id of the status to remove.
+     * @private
+     */
+    StatusBarView.prototype._removeStatus = function (id) {
         var $statusEntry = this._$statusBar.find("[data-bower-status-id='" + id + "']");
 
         function remove() {
@@ -108,6 +132,11 @@ define(function (require, exports) {
         }
     };
 
+    /**
+     * Show or hide the status bar progress section when it has status for the PROGRESS type
+     * to be displayed or it doesn't have status to display.
+     * @private
+     */
     StatusBarView.prototype._toggleProgressSectionIfNeeded = function () {
         var hideClass = "hide",
             hasClass = this._$progressSection.hasClass(hideClass);
@@ -125,14 +154,29 @@ define(function (require, exports) {
 
     // controller interface
 
+    /**
+     * Controller interface: the view is notified when a new status is posted.
+     * @param {number} id The id of the status to add.
+     * @param {Status} status The status instance.
+     */
     StatusBarView.prototype.onStatusAdded = function (id, status) {
         this._addStatus(id, status);
     };
 
+    /**
+     * Controller interface: the view is notified when a status is updated.
+     * @param {number} id The id of the status updated.
+     * @param {Status} newStatus The updated status instance.
+     * @param {Status} oldStatus The status intsance previous to be modified.
+     */
     StatusBarView.prototype.onStatusUpdated = function (id, newStatus, oldStatus) {
         this._updateStatus(id, newStatus, oldStatus);
     };
 
+    /**
+     * Controller interface: the view is notified when a status is deleted.
+     * @param {number} id The id of the status that was deleted.
+     */
     StatusBarView.prototype.onStatusRemoved = function (id) {
         this._removeStatus(id);
     };

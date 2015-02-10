@@ -35,7 +35,7 @@ define(function (require, exports, module) {
         Preferences    = require("src/Preferences");
 
     /**
-     * PanelController constructor.
+     * PanelController constructor. Main controller for the bower extension view.
      * @constructor
      */
     function PanelController() {
@@ -54,6 +54,12 @@ define(function (require, exports, module) {
 
     PanelController.STATUS_WARNING = "warning";
 
+    /**
+     * Initialize the main controller. Instantiate the panel view and initializes the
+     * registered controllers for the panels section. Check the saved state for the extension,
+     * if it was opened before closing brackets, it will be displayed.
+     * @param {string} extensionName Name of the extension.
+     */
     PanelController.prototype.initialize = function (extensionName) {
         this._view = new PanelView(this);
 
@@ -75,6 +81,10 @@ define(function (require, exports, module) {
         }
     };
 
+    /**
+     * Show or hide the main panel. Keep track of the active state and updates
+     * the extension visibility key in the preferences.
+     */
     PanelController.prototype.toggle = function () {
         if (this._isActive) {
             this._view.hide();
@@ -90,7 +100,10 @@ define(function (require, exports, module) {
     };
 
     /**
-     * @param{string} key
+     * Callback for when a sub panel is selected. If the panel selected is not the current active
+     * panel, hides the current active panel, select the new one and updates the view.
+     * It store the current active panel in a variable to keep track of the current active sub panel.
+     * @param{string} key The selected panel key.
      */
     PanelController.prototype.panelSelected = function (key) {
         // validate if the panel to show is the current active one
@@ -109,24 +122,37 @@ define(function (require, exports, module) {
         this._activePanelController.show();
     };
 
+    /**
+     * Check the current state of the main panel. It returns "true" if the panel is active,
+     * otherwise, it returns "false".
+     * @return {boolean} isActive
+     */
     PanelController.prototype.isPanelActive = function () {
         return this._isActive;
     };
 
+    /**
+     * Display the settings dialog.
+     */
     PanelController.prototype.showExtensionSettings = function () {
         SettingsDialog.show();
     };
 
     /**
-     * Set the status to warning.
+     * Set the status to warning status type.
+     * @param {string} status
      */
     PanelController.prototype.updateStatus = function (status) {
         this._view.updateIconStatus(status);
     };
 
     /**
-     * @param{string} key
-     * @param{Object} controller
+     * Register the controller for the sub panel view in a key-value map.
+     * The main panel controller manages all the controllers for the sub panels.
+     * @param{string} key The unique identifier for the controller to register.
+     * @param{Object} controller The instance of the controller to register.
+     * @param{boolean=} isDefault Boolean to indicate if the current sub panel controller
+     * to register is the default active panel.
      */
     PanelController.prototype.registerController = function (key, controller, isDefault) {
         this._controllersMap[key] = controller;
@@ -138,7 +164,9 @@ define(function (require, exports, module) {
     };
 
     /**
-     * @param{string} key
+     * Get the panel controller by the given key.
+     * @param{string} key The key of the sub panel controller registered.
+     * @private
      */
     PanelController.prototype._getPanelControllerByKey = function (key) {
         var controller = this._controllersMap[key];

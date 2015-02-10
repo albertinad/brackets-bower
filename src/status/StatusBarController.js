@@ -34,9 +34,11 @@ define(function (require, exports) {
 
     /**
      * Status model.
-     * @param{number} id
-     * @param{string} text
-     * @param{number} type
+     * @param{number} id Id of the status.
+     * @param{string} text Message of the status.
+     * @param{number} type Type of the status, it can be one of the following values:
+     * Status.type.INFO for information type of status and Status.type.PROGRESS for
+     * progress type of status.
      * @constructor
      */
     function Status(id, text, type) {
@@ -78,7 +80,8 @@ define(function (require, exports) {
     });
 
     /**
-     * StatusBar controller.
+     * StatusBar controller. Enables the panels and components to display status on the status bar
+     * defined for bower.
      * @constructor
      */
     function StatusBarController() {
@@ -92,11 +95,22 @@ define(function (require, exports) {
         this._id = 0;
     }
 
+    /**
+     * Initialize the status bar controller, creates the view and also initializes it.
+     */
     StatusBarController.prototype.initialize = function () {
         this._view = new StatusBarView(this);
         this._view.initialize();
     };
 
+    /**
+     * Post a new status on the status bar. A status instance is created with the given
+     * text and progress type, after the creation, it is displayed on the status bar.
+     * @param {string} text Message to show as the status text.
+     * @param {number} progress Status progress type. Can be one of the following values:
+     *                 Status.type.PROGRESS or Status.type.INFO.
+     * @return {number} id Id for the new status created that is being displayed on the status bar.
+     */
     StatusBarController.prototype.post = function (text, progress) {
         var id = this._nextId(),
             type = (progress) ? Status.type.PROGRESS : Status.type.INFO,
@@ -110,6 +124,14 @@ define(function (require, exports) {
         return id;
     };
 
+    /**
+     * Update the text and/or progress for the current status displayed that has the id passed through
+     * parameters.
+     * @param {number} statusId The id of the status to modify.
+     * @param {string} text The new message to update to the status.
+     * @param {number} progress progress Status progress type. Can be one of the following values:
+     *                 Status.type.PROGRESS or Status.type.INFO.
+     */
     StatusBarController.prototype.update = function (statusId, text, progress) {
         var status = this._statusMap[statusId],
             oldStatus;
@@ -124,6 +146,10 @@ define(function (require, exports) {
         }
     };
 
+    /**
+     * Delete the status from the status bar by the id passed through paremeters.
+     * @param {number} statusId The id of the status to remove.
+     */
     StatusBarController.prototype.remove = function (statusId) {
         var status = this._statusMap[statusId];
 
@@ -135,22 +161,49 @@ define(function (require, exports) {
         }
     };
 
+    /**
+     * Get the available status type.
+     * @return {Object}
+     */
     StatusBarController.prototype.statusTypes = function () {
         return Status.type;
     };
 
+    /**
+     * Notify to the view that a new status is added.
+     * @param {id} id The id of the recently created status.
+     * @param {Status} status The Status instance created.
+     * @private
+     */
     StatusBarController.prototype._notifyStatusAdded = function (id, status) {
         this._view.onStatusAdded(id, status);
     };
 
+    /**
+     * Notify to the view that a status has changed.
+     * @param {id} id The id of the status that has been updated.
+     * @param {Status} newStatus Updated status.
+     * @param {Status} oldStatus Status before being updated.
+     * @private
+     */
     StatusBarController.prototype._notifyStatusUpdated = function (id, newStatus, oldStatus) {
         this._view.onStatusUpdated(id, newStatus, oldStatus);
     };
 
+    /**
+     * Notify to the view that a status has being deleted.
+     * @param {id} id The id of the status that has been deleted.
+     * @private
+     */
     StatusBarController.prototype._notifyStatusRemoved = function (id) {
         this._view.onStatusRemoved(id);
     };
 
+    /**
+     * Get the next id for the status.
+     * @return {number} id The next available id.
+     * @private
+     */
     StatusBarController.prototype._nextId = function () {
         if (this._statusCount === 0) {
             this._id = 0;
