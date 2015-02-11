@@ -123,10 +123,13 @@ define(function (require, exports, module) {
         function remove() {
             $statusEntry.remove();
 
+            /*jshint validthis:true */
             var statusTypes = this._controller.statusTypes();
 
             if (status.Type === statusTypes.PROGRESS) {
+                /*jshint validthis:true */
                 this._progressCount -= 1;
+                /*jshint validthis:true */
                 this._toggleProgressSectionIfNeeded();
             }
         }
