@@ -37,7 +37,7 @@ define(function (require, exports) {
      * @param{number} id Id of the status.
      * @param{string} text Message of the status.
      * @param{number} type Type of the status, it can be one of the following values:
-     * Status.type.INFO for information type of status and Status.type.PROGRESS for
+     * Status.types.INFO for information type of status and Status.types.PROGRESS for
      * progress type of status.
      * @constructor
      */
@@ -50,7 +50,7 @@ define(function (require, exports) {
         this._type = type;
     }
 
-    Status.type = {
+    Status.types = {
         INFO: 0,
         PROGRESS: 1
     };
@@ -108,12 +108,12 @@ define(function (require, exports) {
      * text and progress type, after the creation, it is displayed on the status bar.
      * @param {string} text Message to show as the status text.
      * @param {number} progress Status progress type. Can be one of the following values:
-     *                 Status.type.PROGRESS or Status.type.INFO.
+     *                 Status.types.PROGRESS or Status.types.INFO.
      * @return {number} id Id for the new status created that is being displayed on the status bar.
      */
     StatusBarController.prototype.post = function (text, progress) {
         var id = this._nextId(),
-            type = (progress) ? Status.type.PROGRESS : Status.type.INFO,
+            type = (progress) ? Status.types.PROGRESS : Status.types.INFO,
             status = new Status(id, text, type);
 
         this._statusMap[id] = status;
@@ -130,17 +130,17 @@ define(function (require, exports) {
      * @param {number} statusId The id of the status to modify.
      * @param {string} text The new message to update to the status.
      * @param {number} progress progress Status progress type. Can be one of the following values:
-     *                 Status.type.PROGRESS or Status.type.INFO.
+     *                 Status.types.PROGRESS or Status.types.INFO.
      */
     StatusBarController.prototype.update = function (statusId, text, progress) {
         var status = this._statusMap[statusId],
             oldStatus;
 
         if (status) {
-            oldStatus = new Status(status.Id, status.Text, status.Type);
+            oldStatus = new Status(status.Id, status.Text, Status.types);
 
             status.Text = text;
-            status.Type = (progress) ? Status.type.PROGRESS : Status.type.INFO;
+            status.Type = (progress) ? Status.types.PROGRESS : Status.types.INFO;
 
             this._notifyStatusUpdated(statusId, status, oldStatus);
         }
@@ -157,7 +157,7 @@ define(function (require, exports) {
             delete this._statusMap[statusId];
             this._statusCount -= 1;
 
-            this._notifyStatusRemoved(statusId);
+            this._notifyStatusRemoved(statusId, status);
         }
     };
 
@@ -166,7 +166,19 @@ define(function (require, exports) {
      * @return {Object}
      */
     StatusBarController.prototype.statusTypes = function () {
-        return Status.type;
+        return Status.types;
+    };
+
+    /**
+     * @param {number} statusId
+     * @return {Status} status
+     */
+    StatusBarController.prototype.getById = function (statusId) {
+        return this._statusMap[statusId];
+    };
+
+    StatusBarController.prototype.activeStatusCount = function () {
+        return Object.keys(this._statusMap).length;
     };
 
     /**
@@ -193,10 +205,11 @@ define(function (require, exports) {
     /**
      * Notify to the view that a status has being deleted.
      * @param {id} id The id of the status that has been deleted.
+     * @param {Status} status The status instance that has been deleted.
      * @private
      */
-    StatusBarController.prototype._notifyStatusRemoved = function (id) {
-        this._view.onStatusRemoved(id);
+    StatusBarController.prototype._notifyStatusRemoved = function (id, status) {
+        this._view.onStatusRemoved(id, status);
     };
 
     /**
@@ -223,4 +236,8 @@ define(function (require, exports) {
     // public API
 
     exports.Controller = statusBarController;
+
+    // test API
+    exports._StatusBarController = StatusBarController;
+    exports._Status = Status;
 });

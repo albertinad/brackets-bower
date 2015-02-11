@@ -28,19 +28,22 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var NodeDomain       = brackets.getModule("utils/NodeDomain"),
-        FileUtils        = brackets.getModule("file/FileUtils"),
-        FileSystem       = brackets.getModule("filesystem/FileSystem"),
-        ExtensionUtils   = brackets.getModule("utils/ExtensionUtils"),
-        SpecRunnerUtils  = brackets.getModule("spec/SpecRunnerUtils");
+    var NodeDomain          = brackets.getModule("utils/NodeDomain"),
+        FileUtils           = brackets.getModule("file/FileUtils"),
+        FileSystem          = brackets.getModule("filesystem/FileSystem"),
+        ExtensionUtils      = brackets.getModule("utils/ExtensionUtils"),
+        SpecRunnerUtils     = brackets.getModule("spec/SpecRunnerUtils"),
+        StatusBarView       = require("src/views/StatusBarView"),
+        StatusBarController = require("src/StatusBarController")._StatusBarController,
+        Status              = require("src/StatusBarController")._Status;
 
     // TODO: should put in system temp folder, but we don't have a generic way to get that
     var testFolder      = FileUtils.getNativeModuleDirectoryPath(module) + "/tmp-test";
 
-    describe("bower-install", function () {
+    describe("Brackets Bower", function () {
 
         // Unit tests for the underlying node server.
-        describe("BowerDomain", function () {
+        xdescribe("BowerDomain", function () {
             var bowerDomain,
                 fileUtilsDomain,
                 testBrackets,
@@ -113,9 +116,9 @@ define(function (require, exports, module) {
                 });
             });
 
-            it("should install jquery", function () {
+            xit("should install jquery", function () {
                 runs(function () {
-                    waitsForDone(bowerDomain.exec("installPackage", testFolder, "jquery", emptyConfig),
+                    waitsForDone(bowerDomain.exec("install", testFolder, "jquery", false, emptyConfig),
                                  "installing jquery", 10000);
                 });
                 runs(function () {
@@ -123,6 +126,362 @@ define(function (require, exports, module) {
 
                     waitsForDone(FileUtils.readAsText(file), "reading installed jquery");
                 });
+            });
+        });
+
+
+        // tests suite for StatusBar
+
+        describe("Bower Status Bar Controller", function () {
+            var statusBarController,
+                StatusTypes;
+
+            beforeEach(function () {
+                statusBarController = new StatusBarController();
+                statusBarController.initialize();
+                StatusTypes = statusBarController.statusTypes();
+            });
+
+            it("should post an 'INFO' status and the active status must be 1, when removing it, must be 0", function () {
+                var id;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+
+                id = statusBarController.post("Status text", StatusTypes.INFO);
+
+                expect(statusBarController.activeStatusCount()).toBe(1);
+
+                statusBarController.remove(id);
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+            });
+
+            it("should post 3 'INFO' status and the active status must be 3, when removing all of them, the active status must be 0", function () {
+                var id1, id2, id3;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+
+                id1 = statusBarController.post("Status text 1", StatusTypes.INFO);
+                id2 = statusBarController.post("Status text 2", StatusTypes.INFO);
+                id3 = statusBarController.post("Status text 3", StatusTypes.INFO);
+
+                expect(statusBarController.activeStatusCount()).toBe(3);
+
+                statusBarController.remove(id1);
+                statusBarController.remove(id2);
+                statusBarController.remove(id3);
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+            });
+
+            it("should post 50 'INFO' status and the active status must be 50, when removing all of them, the active status must be 0", function () {
+                var idArray = [],
+                    i;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+
+                for (i = 0; i < 50; i++) {
+                    idArray.push(statusBarController.post("Status text " + i, StatusTypes.INFO));
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(50);
+
+                for (i = 0; i < 50; i++) {
+                    statusBarController.remove(idArray[i]);
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+            });
+
+            it("should post 50 'PROGRESS' status and the active status must be 50, when removing all of them, the active status must be 0", function () {
+                var idArray = [],
+                    i;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+
+                for (i = 0; i < 50; i++) {
+                    idArray.push(statusBarController.post("Status text " + i, StatusTypes.PROGRESS));
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(50);
+
+                for (i = 0; i < 50; i++) {
+                    statusBarController.remove(idArray[i]);
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+            });
+
+            it("should post 50 'INFO' status and the active status must be 50, when removing 30 of them, the active status must be 20", function () {
+                var idArray = [],
+                    i;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+
+                for (i = 0; i < 50; i++) {
+                    idArray.push(statusBarController.post("Status text " + i, StatusTypes.INFO));
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(50);
+
+                for (i = 0; i < 30; i++) {
+                    statusBarController.remove(idArray[i]);
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(20);
+            });
+
+            it("should post 10000 'INFO' status and the active status must be 10000, when removing all of them, the active status must be 0", function () {
+                var idArray = [],
+                    i;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+
+                for (i = 0; i < 10000; i++) {
+                    idArray.push(statusBarController.post("Status text " + i, StatusTypes.INFO));
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(10000);
+
+                for (i = 0; i < 10000; i++) {
+                    statusBarController.remove(idArray[i]);
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+            });
+
+            it("should post an 'INFO' status, updated and then remove it", function () {
+                var status, id;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+
+                id = statusBarController.post("Status text", StatusTypes.INFO);
+                status = statusBarController.getById(id);
+
+                expect(statusBarController.activeStatusCount()).toBe(1);
+                expect(status.Text).toEqual("Status text");
+                expect(status.Type).toEqual(StatusTypes.INFO);
+
+                statusBarController.update(id, "Status text updated", StatusTypes.PROGRESS);
+                status = statusBarController.getById(id);
+
+                expect(statusBarController.activeStatusCount()).toBe(1);
+                expect(status.Text).toEqual("Status text updated");
+                expect(status.Type).toEqual(StatusTypes.PROGRESS);
+
+                statusBarController.remove(id);
+                status = statusBarController.getById(id);
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(status).not.toBeDefined();
+            });
+        });
+
+        describe("Bower Status Bar View", function () {
+            var statusBarView,
+                StatusTypes,
+                dummyController = {
+                    statusTypes: function () {
+                        return Status.types;
+                    }
+                };
+
+            beforeEach(function () {
+                statusBarView = new StatusBarView(dummyController);
+                statusBarView.initialize();
+                StatusTypes = Status.types;
+            });
+
+            it("should display only 1 'INFO' status when a single 'INFO' status is added", function () {
+                var statusInstance = new Status(1, "Text 1", StatusTypes.INFO);
+
+                statusBarView.onStatusAdded(1, statusInstance);
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+            });
+
+            it("should display 0 'INFO' status when a single 'INFO' status was added and then removed", function () {
+                var statusInstance = new Status(1, "Text 1", StatusTypes.INFO);
+
+                statusBarView.onStatusAdded(1, statusInstance);
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+
+                statusBarView.onStatusRemoved(1, statusInstance);
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveInfoStatus() === false);
+                }, "Info progress section has no more elements");
+            });
+
+            it("should display only 1 'PROGRESS' status when a single 'PROGRESS' status is added", function () {
+                var statusInstance = new Status(1, "Text 1", StatusTypes.INFO);
+
+                statusBarView.onStatusAdded(1, statusInstance);
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+            });
+
+            it("should display 0 'PROGRESS' status when a single 'PROGRESS' status was added and then removed", function () {
+                var statusInstance = new Status(1, "Text 1", StatusTypes.INFO);
+
+                statusBarView.onStatusAdded(1, statusInstance);
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+
+                statusBarView.onStatusRemoved(1, statusInstance);
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveInfoStatus() === false);
+                }, "Info progress section has no more elements");
+            });
+
+            it("should display 1 'INFO' status when a single 'PROGRESS' status was added and then updated its status", function () {
+                var statusInstance = new Status(1, "Text 1", StatusTypes.PROGRESS),
+                    statusInstanceUpdated = new Status(1, "Text 1", StatusTypes.INFO);
+
+                statusBarView.onStatusAdded(1, statusInstance);
+
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+
+                statusBarView.onStatusUpdated(1, statusInstanceUpdated, statusInstance);
+
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+            });
+
+            it("should display 0 status when a single 'PROGRESS' status was added, updated and removed", function () {
+                var statusInstance = new Status(1, "Text 1", StatusTypes.PROGRESS),
+                    statusInstanceUpdated = new Status(1, "Text 1", StatusTypes.INFO);
+
+                statusBarView.onStatusAdded(1, statusInstance);
+
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+
+                statusBarView.onStatusUpdated(1, statusInstanceUpdated, statusInstance);
+
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+
+                statusBarView.onStatusRemoved(1, statusInstanceUpdated);
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveInfoStatus() === false);
+                });
+
+                runs(function () {
+                    expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                    expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                });
+            });
+
+            it("should display 10 'INFO' status when 10 are posted, then 0 status when all of them where removed", function () {
+                var statusArray = [],
+                    status,
+                    i;
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(0);
+
+                for (i = 0; i < 10; i++) {
+                    status = new Status(i, "Text " + i, StatusTypes.INFO);
+                    statusArray.push(status);
+                    statusBarView.onStatusAdded(status.Id, status);
+                }
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(0);
+
+                statusArray.forEach(function (status) {
+                    statusBarView.onStatusRemoved(status.Id, status);
+                });
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveInfoStatus() === false);
+                }, 100000);
+
+                runs(function () {
+                    expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                    expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                    expect(statusBarView.progressStatusCount()).toBe(0);
+                });
+
+            });
+
+            it("should display 10 'PROGRESS' status when 10 are posted, then 0 status when all of them where removed", function () {
+                var statusArray = [],
+                    status,
+                    i;
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(0);
+
+                for (i = 0; i < 10; i++) {
+                    status = new Status(i, "Text " + i, StatusTypes.PROGRESS);
+                    statusArray.push(status);
+                    statusBarView.onStatusAdded(status.Id, status);
+                }
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.progressStatusCount()).toBe(10);
+
+                statusArray.forEach(function (status) {
+                    statusBarView.onStatusRemoved(status.Id, status);
+                });
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveProgressStatus() === false);
+                }, 100000);
+
+                runs(function () {
+                    expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                    expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                    expect(statusBarView.progressStatusCount()).toBe(0);
+                });
+
+            });
+
+            it("should display 10 mixed 'PROGRESS' and 'INFO' status when 10 are posted, then 0 status when all of them where removed", function () {
+                var statusArray = [],
+                    status,
+                    type,
+                    i;
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(0);
+
+                for (i = 0; i < 10; i++) {
+                    type = ((i % 2) === 0) ? StatusTypes.INFO : StatusTypes.PROGRESS;
+                    status = new Status(i, "Text " + i, type);
+                    statusArray.push(status);
+                    statusBarView.onStatusAdded(status.Id, status);
+                }
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.progressStatusCount()).toBe(5);
+
+                statusArray.forEach(function (status) {
+                    statusBarView.onStatusRemoved(status.Id, status);
+                });
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveProgressStatus() === false && statusBarView.hasActiveInfoStatus() === false);
+                }, 100000);
+
+                runs(function () {
+                    expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                    expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                    expect(statusBarView.progressStatusCount()).toBe(0);
+                });
+
             });
         });
     });

@@ -117,18 +117,22 @@ define(function (require, exports, module) {
      * @param {number} id The id of the status to remove.
      * @private
      */
-    StatusBarView.prototype._removeStatus = function (id) {
+    StatusBarView.prototype._removeStatus = function (id, status) {
         var $statusEntry = this._$statusBar.find("[data-bower-status-id='" + id + "']");
 
         function remove() {
             $statusEntry.remove();
+
+            var statusTypes = this._controller.statusTypes();
+
+            if (status.Type === statusTypes.PROGRESS) {
+                this._progressCount -= 1;
+                this._toggleProgressSectionIfNeeded();
+            }
         }
 
         if ($statusEntry) {
-            this._progressCount -= 1;
-            this._toggleProgressSectionIfNeeded();
-
-            window.setTimeout(remove.bind(this), 3000);
+            window.setTimeout(remove.bind(this), 2000);
         }
     };
 
@@ -177,8 +181,26 @@ define(function (require, exports, module) {
      * Controller interface: the view is notified when a status is deleted.
      * @param {number} id The id of the status that was deleted.
      */
-    StatusBarView.prototype.onStatusRemoved = function (id) {
-        this._removeStatus(id);
+    StatusBarView.prototype.onStatusRemoved = function (id, status) {
+        this._removeStatus(id, status);
+    };
+
+    // tests API
+
+    StatusBarView.prototype.progressStatusCount = function () {
+        return this._progressCount;
+    };
+
+    StatusBarView.prototype.hasActiveProgressStatus = function () {
+        return this._$progressInfo[0].hasChildNodes();
+    };
+
+    StatusBarView.prototype.infoStatusCount = function () {
+        return this._infoCount;
+    };
+
+    StatusBarView.prototype.hasActiveInfoStatus = function () {
+        return this._$infoSection[0].hasChildNodes();
     };
 
     return StatusBarView;
