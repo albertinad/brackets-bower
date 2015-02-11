@@ -23,7 +23,7 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, xdescribe, xit, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, $, brackets, waitsForDone */
+/*global define, describe, it, xdescribe, xit, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, jasmine, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
     "use strict";
@@ -135,12 +135,17 @@ define(function (require, exports, module) {
 
         describe("Bower Status Bar Controller", function () {
             var statusBarController,
-                StatusTypes;
+                StatusTypes,
+                mockView;
 
             beforeEach(function () {
+                mockView = jasmine.createSpyObj("mockView", ["initialize", "onStatusAdded", "onStatusUpdated", "onStatusRemoved"]);
+
                 statusBarController = new StatusBarController();
-                statusBarController.initialize();
-                StatusTypes = statusBarController.statusTypes();
+                statusBarController.initialize(mockView);
+                StatusTypes = Status.types;
+
+                expect(mockView.initialize).toHaveBeenCalled();
             });
 
             it("should post an 'INFO' status and the active status must be 1, when removing it, must be 0", function () {
@@ -151,10 +156,12 @@ define(function (require, exports, module) {
                 id = statusBarController.post("Status text", StatusTypes.INFO);
 
                 expect(statusBarController.activeStatusCount()).toBe(1);
+                expect(mockView.onStatusAdded).toHaveBeenCalled();
 
                 statusBarController.remove(id);
 
                 expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(mockView.onStatusRemoved).toHaveBeenCalled();
             });
 
             it("should post 3 'INFO' status and the active status must be 3, when removing all of them, the active status must be 0", function () {
@@ -167,12 +174,14 @@ define(function (require, exports, module) {
                 id3 = statusBarController.post("Status text 3", StatusTypes.INFO);
 
                 expect(statusBarController.activeStatusCount()).toBe(3);
+                expect(mockView.onStatusAdded.callCount).toBe(3);
 
                 statusBarController.remove(id1);
                 statusBarController.remove(id2);
                 statusBarController.remove(id3);
 
                 expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(mockView.onStatusRemoved.callCount).toBe(3);
             });
 
             it("should post 50 'INFO' status and the active status must be 50, when removing all of them, the active status must be 0", function () {
@@ -186,12 +195,14 @@ define(function (require, exports, module) {
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(50);
+                expect(mockView.onStatusAdded.callCount).toBe(50);
 
                 for (i = 0; i < 50; i++) {
                     statusBarController.remove(idArray[i]);
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(mockView.onStatusRemoved.callCount).toBe(50);
             });
 
             it("should post 50 'PROGRESS' status and the active status must be 50, when removing all of them, the active status must be 0", function () {
@@ -205,12 +216,14 @@ define(function (require, exports, module) {
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(50);
+                expect(mockView.onStatusAdded.callCount).toBe(50);
 
                 for (i = 0; i < 50; i++) {
                     statusBarController.remove(idArray[i]);
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(mockView.onStatusRemoved.callCount).toBe(50);
             });
 
             it("should post 50 'INFO' status and the active status must be 50, when removing 30 of them, the active status must be 20", function () {
@@ -224,12 +237,14 @@ define(function (require, exports, module) {
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(50);
+                expect(mockView.onStatusAdded.callCount).toBe(50);
 
                 for (i = 0; i < 30; i++) {
                     statusBarController.remove(idArray[i]);
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(20);
+                expect(mockView.onStatusRemoved.callCount).toBe(30);
             });
 
             it("should post 10000 'INFO' status and the active status must be 10000, when removing all of them, the active status must be 0", function () {
@@ -243,12 +258,14 @@ define(function (require, exports, module) {
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(10000);
+                expect(mockView.onStatusAdded.callCount).toBe(10000);
 
                 for (i = 0; i < 10000; i++) {
                     statusBarController.remove(idArray[i]);
                 }
 
                 expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(mockView.onStatusRemoved.callCount).toBe(10000);
             });
 
             it("should post an 'INFO' status, updated and then remove it", function () {
@@ -262,6 +279,7 @@ define(function (require, exports, module) {
                 expect(statusBarController.activeStatusCount()).toBe(1);
                 expect(status.Text).toEqual("Status text");
                 expect(status.Type).toEqual(StatusTypes.INFO);
+                expect(mockView.onStatusAdded).toHaveBeenCalled();
 
                 statusBarController.update(id, "Status text updated", StatusTypes.PROGRESS);
                 status = statusBarController.getById(id);
@@ -269,12 +287,14 @@ define(function (require, exports, module) {
                 expect(statusBarController.activeStatusCount()).toBe(1);
                 expect(status.Text).toEqual("Status text updated");
                 expect(status.Type).toEqual(StatusTypes.PROGRESS);
+                expect(mockView.onStatusUpdated).toHaveBeenCalled();
 
                 statusBarController.remove(id);
                 status = statusBarController.getById(id);
 
                 expect(statusBarController.activeStatusCount()).toBe(0);
                 expect(status).not.toBeDefined();
+                expect(mockView.onStatusRemoved).toHaveBeenCalled();
             });
         });
 

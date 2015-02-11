@@ -198,10 +198,6 @@ define(function (require, exports, module) {
         return this._$progressInfo[0].hasChildNodes();
     };
 
-    StatusBarView.prototype.infoStatusCount = function () {
-        return this._infoCount;
-    };
-
     StatusBarView.prototype.hasActiveInfoStatus = function () {
         return this._$infoSection[0].hasChildNodes();
     };

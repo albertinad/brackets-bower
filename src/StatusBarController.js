@@ -97,9 +97,10 @@ define(function (require, exports) {
 
     /**
      * Initialize the status bar controller, creates the view and also initializes it.
+     * @param {StatusBarView=} view
      */
-    StatusBarController.prototype.initialize = function () {
-        this._view = new StatusBarView(this);
+    StatusBarController.prototype.initialize = function (view) {
+        this._view = view || new StatusBarView(this);
         this._view.initialize();
     };
 
