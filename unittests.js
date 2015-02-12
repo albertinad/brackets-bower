@@ -693,6 +693,24 @@ define(function (require, exports, module) {
                 expect(Preferences.get(key)).toBe(defaults.reloadRegistryTime);
             });
 
+            it("should validate and change the preference 'RELOAD_REGISTRY_TIME' with a number value less than the minimum value, like '2' minutes, to the default number value for the preference", function () {
+                var key = Preferences.settings.RELOAD_REGISTRY_TIME,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, 2);
+
+                expect(Preferences.get(key)).toBe(defaults.reloadRegistryTime);
+            });
+
+            it("should validate and change the preference 'RELOAD_REGISTRY_TIME' with a number value less than the minimum value, like '-10' minutes, to the default number value for the preference", function () {
+                var key = Preferences.settings.RELOAD_REGISTRY_TIME,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, -10);
+
+                expect(Preferences.get(key)).toBe(defaults.reloadRegistryTime);
+            });
+
             it("should validate and not change the preference 'RELOAD_REGISTRY_TIME' with a number value of '6000'", function () {
                 var key = Preferences.settings.RELOAD_REGISTRY_TIME;
 

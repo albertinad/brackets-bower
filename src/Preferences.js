@@ -44,10 +44,13 @@ define(function (require, exports, module) {
     };
 
     var defaults = {
-        reloadRegistryTime: 600000,
+        reloadRegistryTime: 10,
         quickInstallSavePackages: true,
         show: false
     };
+
+    // TODO this will be part of ReloadRegistryTimeSetting model
+    var RELOAD_REGISTRY_MIN_TIME = 3;
 
     function get(key) {
         return preferences.get(key);
@@ -79,6 +82,8 @@ define(function (require, exports, module) {
             }
 
             set(settings.RELOAD_REGISTRY_TIME, value);
+        } else if (value < RELOAD_REGISTRY_MIN_TIME) {
+            set(settings.RELOAD_REGISTRY_TIME, defaults.reloadRegistryTime);
         }
     }
 
@@ -101,8 +106,7 @@ define(function (require, exports, module) {
     };
 
     function _validatePrefValue(preferenceKey) {
-        var validatorFn = preferencesValidators[preferenceKey],
-            newValue;
+        var validatorFn = preferencesValidators[preferenceKey];
 
         if (validatorFn) {
             validatorFn(preferences.get(preferenceKey));

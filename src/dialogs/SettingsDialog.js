@@ -89,8 +89,8 @@ define(function (require, exports, module) {
             value = parseInt(value, 0);
             hasClass = $error.hasClass("hide");
 
-            if ((value < 6000) || isNaN(value)) {
-                $error.text(StringUtils.format(Strings.ERROR_RELOAD_TIME_VALUE, 6000));
+            if ((value < 3) || isNaN(value)) {
+                $error.text(StringUtils.format(Strings.ERROR_RELOAD_TIME_VALUE, 3));
 
                 if (hasClass) {
                     $error.removeClass("hide");

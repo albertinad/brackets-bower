@@ -55,5 +55,5 @@ define({
     "STATUS_SUCCESS_INSTALLING": "Paquetes instalados",
     "STATUS_SUCCESS_EXECUTING_COMMAND": "Comando \"{0}\" ejecutado",
     "STATUS_NO_PACKAGES_INSTALLED": "No hay ningún paquete para instalar",
-    "ERROR_RELOAD_TIME_VALUE": "* El tiempo debe ser mayor a {0} ms"
+    "ERROR_RELOAD_TIME_VALUE": "* El tiempo debe ser mayor a {0} minutos"
 });

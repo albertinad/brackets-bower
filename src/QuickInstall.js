@@ -107,7 +107,7 @@ define(function (require, exports, module) {
 
     function _resetFetchStatusIfNeeded() {
         var curTime = Date.now(),
-            maxTimeFetch = Preferences.get(Preferences.settings.RELOAD_REGISTRY_TIME);
+            maxTimeFetch = Preferences.get(Preferences.settings.RELOAD_REGISTRY_TIME) * 60000; // minutes to milliseconds
 
         if (!_isFetching && (lastFetchTime === undefined || (curTime - lastFetchTime > maxTimeFetch))) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
