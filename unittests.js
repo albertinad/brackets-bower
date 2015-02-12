@@ -652,5 +652,158 @@ define(function (require, exports, module) {
                 });
             });
         });
+
+        // test suite for Preferences
+
+        describe("Bower Preferences", function () {
+            var Preferences = require("src/Preferences");
+
+            it("should validate and change the preference 'RELOAD_REGISTRY_TIME' with a string value of '60000' to a number value", function () {
+                var key = Preferences.settings.RELOAD_REGISTRY_TIME;
+
+                Preferences.set(key, "6000");
+
+                expect(Preferences.get(key)).toBe(6000);
+            });
+
+            it("should validate and change the preference 'RELOAD_REGISTRY_TIME' with a string value of 'abc' to the default number value for the preference", function () {
+                var key = Preferences.settings.RELOAD_REGISTRY_TIME,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, "abc");
+
+                expect(Preferences.get(key)).toBe(defaults.reloadRegistryTime);
+            });
+
+            it("should validate and change the preference 'RELOAD_REGISTRY_TIME' with a 'null' value to the default number value for the preference", function () {
+                var key = Preferences.settings.RELOAD_REGISTRY_TIME,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, null);
+
+                expect(Preferences.get(key)).toBe(defaults.reloadRegistryTime);
+            });
+
+            it("should validate and change the preference 'RELOAD_REGISTRY_TIME' with an 'undefined' value to the default number value for the preference", function () {
+                var key = Preferences.settings.RELOAD_REGISTRY_TIME,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, undefined);
+
+                expect(Preferences.get(key)).toBe(defaults.reloadRegistryTime);
+            });
+
+            it("should validate and not change the preference 'RELOAD_REGISTRY_TIME' with a number value of '6000'", function () {
+                var key = Preferences.settings.RELOAD_REGISTRY_TIME;
+
+                Preferences.set(key, 100000);
+
+                expect(Preferences.get(key)).toBe(100000);
+            });
+
+            it("should validate and change the preference 'QUICK_INSTALL_SAVE' with a string value of 'abc' to the default boolean value", function () {
+                var key = Preferences.settings.QUICK_INSTALL_SAVE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, "abc");
+
+                expect(Preferences.get(key)).toBe(defaults.quickInstallSavePackages);
+            });
+
+            it("should validate and change the preference 'QUICK_INSTALL_SAVE' with a number value of '60000' to the default boolean value", function () {
+                var key = Preferences.settings.QUICK_INSTALL_SAVE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, 60000);
+
+                expect(Preferences.get(key)).toBe(defaults.quickInstallSavePackages);
+            });
+
+            it("should validate and change the preference 'QUICK_INSTALL_SAVE' with a 'null' value to the default boolean value", function () {
+                var key = Preferences.settings.QUICK_INSTALL_SAVE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, null);
+
+                expect(Preferences.get(key)).toBe(defaults.quickInstallSavePackages);
+            });
+
+            it("should validate and change the preference 'QUICK_INSTALL_SAVE' with an 'undefined' value to the default boolean value", function () {
+                var key = Preferences.settings.QUICK_INSTALL_SAVE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, undefined);
+
+                expect(Preferences.get(key)).toBe(defaults.quickInstallSavePackages);
+            });
+
+            it("should validate and not change the preference 'QUICK_INSTALL_SAVE' with a boolean value of 'true'", function () {
+                var key = Preferences.settings.QUICK_INSTALL_SAVE;
+
+                Preferences.set(key, true);
+
+                expect(Preferences.get(key)).toBe(true);
+            });
+
+            it("should validate and not change the preference 'QUICK_INSTALL_SAVE' with a boolean value of 'false'", function () {
+                var key = Preferences.settings.QUICK_INSTALL_SAVE;
+
+                Preferences.set(key, false);
+
+                expect(Preferences.get(key)).toBe(false);
+            });
+
+            it("should validate and change the preference 'EXTENSION_VISIBLE' with a string value of 'abc' to the default boolean value", function () {
+                var key = Preferences.settings.EXTENSION_VISIBLE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, "abc");
+
+                expect(Preferences.get(key)).toBe(defaults.show);
+            });
+
+            it("should validate and change the preference 'EXTENSION_VISIBLE' with a number value of '60000' to the default boolean value", function () {
+                var key = Preferences.settings.EXTENSION_VISIBLE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, 60000);
+
+                expect(Preferences.get(key)).toBe(defaults.show);
+            });
+
+            it("should validate and change the preference 'EXTENSION_VISIBLE' with a null value to the default boolean value", function () {
+                var key = Preferences.settings.EXTENSION_VISIBLE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, null);
+
+                expect(Preferences.get(key)).toBe(defaults.show);
+            });
+
+            it("should validate and change the preference 'EXTENSION_VISIBLE' with an undefined value to the default boolean value", function () {
+                var key = Preferences.settings.EXTENSION_VISIBLE,
+                    defaults = Preferences.getDefaults();
+
+                Preferences.set(key, undefined);
+
+                expect(Preferences.get(key)).toBe(defaults.show);
+            });
+
+            it("should validate and not change the preference 'EXTENSION_VISIBLE' with a boolean value of 'true'", function () {
+                var key = Preferences.settings.EXTENSION_VISIBLE;
+
+                Preferences.set(key, true);
+
+                expect(Preferences.get(key)).toBe(true);
+            });
+
+            it("should validate and not change the preference 'EXTENSION_VISIBLE' with a boolean value of 'false'", function () {
+                var key = Preferences.settings.EXTENSION_VISIBLE;
+
+                Preferences.set(key, false);
+
+                expect(Preferences.get(key)).toBe(false);
+            });
+        });
     });
 });

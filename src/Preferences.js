@@ -49,12 +49,6 @@ define(function (require, exports, module) {
         show: false
     };
 
-    function _init() {
-        preferences.definePreference(settings.RELOAD_REGISTRY_TIME, "number", defaults.reloadRegistryTime);
-        preferences.definePreference(settings.QUICK_INSTALL_SAVE, "boolean", defaults.quickInstallSavePackages);
-        preferences.definePreference(settings.EXTENSION_VISIBLE, "boolean", defaults.show);
-    }
-
     function get(key) {
         return preferences.get(key);
     }
@@ -70,6 +64,65 @@ define(function (require, exports, module) {
 
     function getDefaultBySetting(setting) {
         return defaults[setting];
+    }
+
+    function _reloadRegistryTimeValidator(value) {
+        if (typeof value !== "number") {
+            if (value === undefined || value === null) {
+                value = defaults.reloadRegistryTime;
+            } else {
+                value = parseInt(value, 0);
+
+                if (isNaN(value)) {
+                    value = defaults.reloadRegistryTime;
+                }
+            }
+
+            set(settings.RELOAD_REGISTRY_TIME, value);
+        }
+    }
+
+    function _quickInstallValidator(value) {
+        if (typeof value !== "boolean") {
+            set(settings.QUICK_INSTALL_SAVE, defaults.quickInstallSavePackages);
+        }
+    }
+
+    function _extensionVisibleValidator(value) {
+        if (typeof value !== "boolean") {
+            set(settings.EXTENSION_VISIBLE, defaults.show);
+        }
+    }
+
+    var preferencesValidators = {
+        reloadRegistryTime: _reloadRegistryTimeValidator,
+        quickInstallSavePackages: _quickInstallValidator,
+        show: _extensionVisibleValidator
+    };
+
+    function _validatePrefValue(preferenceKey) {
+        var validatorFn = preferencesValidators[preferenceKey],
+            newValue;
+
+        if (validatorFn) {
+            validatorFn(preferences.get(preferenceKey));
+        }
+    }
+
+    function _onPreferencesChange(event, data) {
+        var prefs = data.ids;
+
+        prefs.forEach(function (preferenceKey) {
+            _validatePrefValue(preferenceKey);
+        });
+    }
+
+    function _init() {
+        preferences.definePreference(settings.RELOAD_REGISTRY_TIME, "number", defaults.reloadRegistryTime);
+        preferences.definePreference(settings.QUICK_INSTALL_SAVE, "boolean", defaults.quickInstallSavePackages);
+        preferences.definePreference(settings.EXTENSION_VISIBLE, "boolean", defaults.show);
+
+        preferences.on("change", _onPreferencesChange);
     }
 
     _init();
