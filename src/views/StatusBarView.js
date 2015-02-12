@@ -104,11 +104,13 @@ define(function (require, exports, module) {
 
             if (newStatus.Type === statusTypes.INFO) {
                 this._$infoSection.append($statusEntry);
+                this._progressCount -= 1;
             } else {
                 this._$progressInfo.append($statusEntry);
                 this._progressCount += 1;
-                this._toggleProgressSectionIfNeeded();
             }
+
+            this._toggleProgressSectionIfNeeded();
         }
     };
 

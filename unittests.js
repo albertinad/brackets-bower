@@ -130,8 +130,7 @@ define(function (require, exports, module) {
             });
         });
 
-
-        // tests suite for StatusBar
+        // unit tests suite for StatusBar
 
         describe("Bower Status Bar Controller", function () {
             var statusBarController,
@@ -301,14 +300,14 @@ define(function (require, exports, module) {
         describe("Bower Status Bar View", function () {
             var statusBarView,
                 StatusTypes,
-                dummyController = {
+                mockController = {
                     statusTypes: function () {
                         return Status.types;
                     }
                 };
 
             beforeEach(function () {
-                statusBarView = new StatusBarView(dummyController);
+                statusBarView = new StatusBarView(mockController);
                 statusBarView.initialize();
                 StatusTypes = Status.types;
             });
@@ -503,6 +502,154 @@ define(function (require, exports, module) {
                     expect(statusBarView.progressStatusCount()).toBe(0);
                 });
 
+            });
+
+            it("should display 2 'PROGRESS' status, update them to 'INFO' type, they should be displayed on information section and 'progressCount' should be 0", function () {
+                var status1,
+                    status2,
+                    statusUpdated1,
+                    statusUpdated2;
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(0);
+
+                status1 = new Status(1, "Text 1", StatusTypes.PROGRESS);
+                status2 = new Status(2, "Text 2", StatusTypes.PROGRESS);
+                statusUpdated1 = new Status(1, "Text 1", StatusTypes.INFO);
+                statusUpdated2 = new Status(2, "Text 2", StatusTypes.INFO);
+
+                statusBarView.onStatusAdded(status1.Id, status1);
+                statusBarView.onStatusAdded(status2.Id, status2);
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.progressStatusCount()).toBe(2);
+
+                statusBarView.onStatusUpdated(1, statusUpdated1, status1);
+                statusBarView.onStatusUpdated(2, statusUpdated2, status2);
+
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(0);
+            });
+        });
+
+        // component tests suite for StatusBar
+
+        describe("Bower Status Bar", function () {
+            var statusBarController,
+                statusBarView,
+                StatusTypes;
+
+            beforeEach(function () {
+
+                runs(function () {
+                    SpecRunnerUtils.createTestWindowAndRun(this, function (testWindow) {
+                        statusBarController = new StatusBarController();
+                        statusBarView = new StatusBarView(statusBarController);
+                        statusBarController.initialize(statusBarView);
+
+                        StatusTypes = statusBarController.statusTypes();
+                    });
+                });
+            });
+
+            afterEach(function () {
+
+                runs(function () {
+                    SpecRunnerUtils.closeTestWindow();
+                });
+
+                runs(function () {
+                    statusBarController = null;
+                    statusBarView = null;
+                    StatusTypes = null;
+                });
+            });
+
+            it("should display 5 status in progress section for status type 'PROGRESS', and shouldn't display any when all of them are removed", function () {
+                var ids = [],
+                    id,
+                    i;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+
+                for (i = 0; i < 5; i++) {
+                    id = statusBarController.post("Status text " + i, StatusTypes.PROGRESS);
+                    ids.push(id);
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(5);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+
+                ids.forEach(function (statusId) {
+                    statusBarController.remove(statusId);
+                });
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveProgressStatus() === false && statusBarView.hasActiveInfoStatus() === false);
+                });
+
+                runs(function () {
+                    expect(statusBarController.activeStatusCount()).toBe(0);
+                    expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                    expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                });
+            });
+
+            it("should display 5 status in progress section for status type 'PROGRESS', update some of them, delete some of them and, add new status, then remove all of them and the status bar should be empty", function () {
+                var ids = [],
+                    id,
+                    i;
+
+                expect(statusBarController.activeStatusCount()).toBe(0);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(0);
+
+                for (i = 0; i < 5; i++) {
+                    id = statusBarController.post("Status text " + i, StatusTypes.PROGRESS);
+                    ids.push(id);
+                }
+
+                expect(statusBarController.activeStatusCount()).toBe(5);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(false);
+                expect(statusBarView.progressStatusCount()).toBe(5);
+
+                statusBarController.update(1, "Status text", StatusTypes.INFO);
+                statusBarController.update(2, "Status text", StatusTypes.INFO);
+                statusBarController.update(3, "Status text", StatusTypes.INFO);
+
+                expect(statusBarController.activeStatusCount()).toBe(5);
+                expect(statusBarView.hasActiveProgressStatus()).toBe(true);
+                expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+                expect(statusBarView.progressStatusCount()).toBe(2);
+
+                ids.forEach(function (id) {
+                    statusBarController.remove(id);
+                });
+
+                ids = [];
+
+                for (i = 0; i < 5; i++) {
+                    id = statusBarController.post("Status text " + i, StatusTypes.INFO);
+                    ids.push(id);
+                }
+
+                waitsFor(function () {
+                    return (statusBarView.hasActiveProgressStatus() === false);
+                });
+
+                runs(function () {
+                    expect(statusBarController.activeStatusCount()).toBe(5);
+                    expect(statusBarView.hasActiveProgressStatus()).toBe(false);
+                    expect(statusBarView.hasActiveInfoStatus()).toBe(true);
+                });
             });
         });
     });

@@ -138,7 +138,7 @@ define(function (require, exports) {
             oldStatus;
 
         if (status) {
-            oldStatus = new Status(status.Id, status.Text, Status.types);
+            oldStatus = new Status(status.Id, status.Text, status.Type);
 
             status.Text = text;
             status.Type = (progress) ? Status.types.PROGRESS : Status.types.INFO;
@@ -219,10 +219,6 @@ define(function (require, exports) {
      * @private
      */
     StatusBarController.prototype._nextId = function () {
-        if (this._statusCount === 0) {
-            this._id = 0;
-        }
-
         this._id++;
 
         return this._id;
