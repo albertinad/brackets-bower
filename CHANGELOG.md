@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1
+* Improve Bower Status Bar implementation and fixing bugs: status elements were not removed.
+* Fixing bugs in QuickInstall.
+* Update time unit from milliseconds to minutes for reload catalog time in bower Preferences.
+* Improvements and tests suites added.
+
 ## v0.2.0
 * Basic support of bower.json to handle dependencies for production and development.
     - Create the file with the existent dependencies if any, open it in the editor and remove it.

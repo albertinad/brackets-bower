@@ -23,7 +23,7 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, xdescribe, xit, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, jasmine, $, brackets, waitsForDone */
+/*global define, describe, it, xit, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, jasmine, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
     "use strict";
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
 
         // Unit tests for the underlying node server.
         // TODO update this to actually be unit test
-        xdescribe("BowerDomain", function () {
+        describe("BowerDomain", function () {
             var bowerDomain,
                 fileUtilsDomain,
                 testBrackets,
