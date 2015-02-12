@@ -65,6 +65,7 @@ define(function (require, exports, module) {
 
         installPromise.done(function (result) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
+            StatusBarController.remove(statusId);
 
             window.setTimeout(function () {
                 ProjectManager.showInTree(FileSystem.getDirectoryForPath(result.installationDir));
@@ -80,9 +81,9 @@ define(function (require, exports, module) {
                 if (failed.length > 0) {
                     var errorMessage = StringUtils.format(Strings.STATUS_ERROR_INSTALLING, failed.join(", "));
                     StatusBarController.update(statusId, errorMessage, false);
+                    StatusBarController.remove(statusId);
                     failed = [];
                 }
-                StatusBarController.remove(statusId);
             } else {
                 _installNext();
             }
