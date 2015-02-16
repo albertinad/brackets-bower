@@ -30,7 +30,7 @@ define(function (require, exports) {
     "use strict";
 
     var NodeDomain           = brackets.getModule("utils/NodeDomain"),
-        Preferences          = require("src/Preferences"),
+        Preferences          = require("src/preferences/Preferences"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;

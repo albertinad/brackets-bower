@@ -38,7 +38,7 @@ define(function (require, exports, module) {
     var StatusBarController = require("src/StatusBarController").Controller,
         QuickSearchSpinner  = require("src/QuickSearchSpinner").create(),
         Bower               = require("src/bower/Bower"),
-        Preferences         = require("src/Preferences"),
+        Preferences         = require("src/preferences/Preferences"),
         Strings             = require("strings");
 
     var queue = [],

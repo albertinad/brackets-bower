@@ -31,7 +31,7 @@ define(function (require, exports, module) {
 
     var Dialogs     = brackets.getModule("widgets/Dialogs"),
         StringUtils = brackets.getModule("utils/StringUtils"),
-        Preferences = require("src/Preferences"),
+        Preferences = require("src/preferences/Preferences"),
         Strings     = require("strings"),
         dialogHTML  = require("text!templates/settings-dialog.html");
 
@@ -83,13 +83,11 @@ define(function (require, exports, module) {
 
         // validate input value
         $("input[data-bower-setting='quick-install-time']", _$dialog).on("input", function () {
-            var value = $(this).val(),
-                hasClass;
+            var value = parseInt($(this).val(), 0),
+                minValue = Preferences.getMinValueForSetting(Preferences.settings.RELOAD_REGISTRY_TIME),
+                hasClass = $error.hasClass("hide");
 
-            value = parseInt(value, 0);
-            hasClass = $error.hasClass("hide");
-
-            if ((value < 3) || isNaN(value)) {
+            if ((value < minValue) || isNaN(value)) {
                 $error.text(StringUtils.format(Strings.ERROR_RELOAD_TIME_VALUE, 3));
 
                 if (hasClass) {

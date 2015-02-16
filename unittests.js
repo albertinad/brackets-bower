@@ -656,7 +656,47 @@ define(function (require, exports, module) {
         // test suite for Preferences
 
         describe("Bower Preferences", function () {
-            var Preferences = require("src/Preferences");
+            var Preferences = require("src/preferences/Preferences");
+
+            it("should get as default value '10' for 'RELOAD_REGISTRY_TIME'", function () {
+                var value = Preferences.getDefaultBySetting(Preferences.settings.RELOAD_REGISTRY_TIME);
+
+                expect(value).toBe(10);
+            });
+
+            it("should get as default value 'true' for 'QUICK_INSTALL_SAVE'", function () {
+                var value = Preferences.getDefaultBySetting(Preferences.settings.QUICK_INSTALL_SAVE);
+
+                expect(value).toBe(true);
+            });
+
+            it("should get as default value 'false' for 'EXTENSION_VISIBLE'", function () {
+                var value = Preferences.getDefaultBySetting(Preferences.settings.EXTENSION_VISIBLE);
+
+                expect(value).toBe(false);
+            });
+
+            it("should get as minimum value '3' for 'RELOAD_REGISTRY_TIME'", function () {
+                var value = Preferences.getMinValueForSetting(Preferences.settings.RELOAD_REGISTRY_TIME);
+
+                expect(value).toBe(3);
+            });
+
+            it("should throw an exception when trying to get the minimum value for 'QUICK_INSTALL_SAVE'", function () {
+                var fn = function () {
+                    Preferences.getMinValueForSetting(Preferences.settings.QUICK_INSTALL_SAVE);
+                };
+
+                expect(fn).toThrow();
+            });
+
+            it("should throw an exception when trying to get the minimum value for 'EXTENSION_VISIBLE'", function () {
+                var fn = function () {
+                    Preferences.getMinValueForSetting(Preferences.settings.EXTENSION_VISIBLE);
+                };
+
+                expect(fn).toThrow();
+            });
 
             it("should validate and change the preference 'RELOAD_REGISTRY_TIME' with a string value of '60000' to a number value", function () {
                 var key = Preferences.settings.RELOAD_REGISTRY_TIME;

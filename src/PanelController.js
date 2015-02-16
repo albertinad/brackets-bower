@@ -32,7 +32,7 @@ define(function (require, exports, module) {
     var PanelView          = require("src/views/PanelView"),
         CommandsController = require("src/CommandsController"),
         SettingsDialog     = require("src/dialogs/SettingsDialog"),
-        Preferences        = require("src/Preferences");
+        Preferences        = require("src/preferences/Preferences");
 
     /**
      * PanelController constructor. Main controller for the bower extension view.
