@@ -23,7 +23,7 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, xit, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, jasmine, $, brackets, waitsForDone */
+/*global define, describe, it, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, jasmine, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
     "use strict";
@@ -38,17 +38,15 @@ define(function (require, exports, module) {
         Status              = require("src/StatusBarController")._Status;
 
     // TODO: should put in system temp folder, but we don't have a generic way to get that
-    var testFolder      = FileUtils.getNativeModuleDirectoryPath(module) + "/tmp-test";
+    var testFolder = FileUtils.getNativeModuleDirectoryPath(module) + "/tmp-test";
 
     describe("Brackets Bower", function () {
 
-        // Unit tests for the underlying node server.
-        // TODO update this to actually be unit test
-        describe("BowerDomain", function () {
+        // test for the underlying node domain
+
+        describe("Bower Domain Integration", function () {
             var bowerDomain,
                 fileUtilsDomain,
-                testBrackets,
-                ProjectManager,
                 emptyConfig = {};
 
             beforeEach(function () {
@@ -62,9 +60,10 @@ define(function (require, exports, module) {
 
                 runs(function () {
                     var folderPromise = new $.Deferred();
+
                     SpecRunnerUtils.createTestWindowAndRun(this, function (testWindow) {
-                        testBrackets = testWindow.brackets;
-                        ProjectManager = testBrackets.test.ProjectManager;
+                        var testBrackets = testWindow.brackets,
+                            ProjectManager = testBrackets.test.ProjectManager;
 
                         testBrackets.fs.makedir(testFolder, 0, function (err) {
                             if (err === testBrackets.fs.NO_ERROR) {
@@ -74,8 +73,10 @@ define(function (require, exports, module) {
                                 folderPromise.reject();
                             }
                         });
+
                         folderPromise.resolve();
                     });
+
                     waitsForDone(folderPromise, "waiting for test folder to be created");
                 });
             });
@@ -104,7 +105,9 @@ define(function (require, exports, module) {
                         });
                 });
 
-                waitsFor(function () { return packages; }, "waiting for bower package list", 100000);
+                waitsFor(function () {
+                    return packages;
+                }, "waiting for bower package list", 100000);
 
                 runs(function () {
                     expect(Array.isArray(packages)).toBe(true);
@@ -117,11 +120,12 @@ define(function (require, exports, module) {
                 });
             });
 
-            xit("should install jquery", function () {
+            it("should install jquery", function () {
                 runs(function () {
-                    waitsForDone(bowerDomain.exec("install", testFolder, "jquery", false, emptyConfig),
-                                 "installing jquery", 10000);
+                    waitsForDone(bowerDomain.exec("install", testFolder, ["jquery"], false, emptyConfig),
+                        "installing jquery", 10000);
                 });
+
                 runs(function () {
                     var file = FileSystem.getFileForPath(testFolder + "/bower_components/jquery/dist/jquery.min.js");
 

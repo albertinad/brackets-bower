@@ -327,9 +327,4 @@ maxerr: 50, node: true */
     }
 
     exports.init = init;
-
-    // For local unit testing (outside Brackets)
-    exports._cmdGetPackages = _cmdGetPackages;
-    exports._cmdInstall = _cmdInstall;
-    exports._cmdGetConfiguration = _cmdGetConfiguration;
 }());
