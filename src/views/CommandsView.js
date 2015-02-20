@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global define, Mustache */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var template = require("text!templates/commands.html"),
@@ -83,5 +83,5 @@ define(function (require, exports) {
         this._$container.find(".bower-btn").prop("disabled", false);
     };
 
-    return CommandsView;
+    module.exports = CommandsView;
 });

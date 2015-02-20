@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global $, define */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var FileUtils = require("src/utils/FileUtils");
@@ -100,5 +100,5 @@ define(function (require, exports) {
         throw "Function 'content' not implemented yet.";
     };
 
-    return BowerMetadata;
+    module.exports = BowerMetadata;
 });

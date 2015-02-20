@@ -175,5 +175,5 @@ define(function (require, exports, module) {
         this._controller.toggle();
     };
 
-    return PanelView;
+    module.exports = PanelView;
 });

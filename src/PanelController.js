@@ -189,5 +189,5 @@ define(function (require, exports, module) {
         return controller;
     };
 
-    return PanelController;
+    module.exports = PanelController;
 });

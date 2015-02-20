@@ -204,5 +204,5 @@ define(function (require, exports, module) {
         return this._$infoSection[0].hasChildNodes();
     };
 
-    return StatusBarView;
+    module.exports = StatusBarView;
 });

@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global define */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var StringUtils         = brackets.getModule("utils/StringUtils"),
@@ -122,5 +122,5 @@ define(function (require, exports) {
         });
     };
 
-    return CommandsController;
+    module.exports = CommandsController;
 });

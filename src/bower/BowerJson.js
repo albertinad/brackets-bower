@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global $, define */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var BowerMetadata  = require("src/bower/BowerMetadata"),
@@ -121,5 +121,5 @@ define(function (require, exports) {
         };
     };
 
-    return BowerJson;
+    module.exports = BowerJson;
 });

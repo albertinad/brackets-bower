@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global define, Mustache */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var template = require("text!templates/configuration.html"),
@@ -92,5 +92,5 @@ define(function (require, exports) {
         this._controller.onSelected();
     };
 
-    return ConfigurationView;
+    module.exports = ConfigurationView;
 });

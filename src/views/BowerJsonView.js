@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global $, define, Mustache */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var template = require("text!templates/bower-json.html"),
@@ -123,5 +123,5 @@ define(function (require, exports) {
         $btn.prop("disabled", true);
     };
 
-    return BowerJsonView;
+    module.exports = BowerJsonView;
 });

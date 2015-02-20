@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global define */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var ConfigurationView    = require("src/views/ConfigurationView"),
@@ -100,5 +100,5 @@ define(function (require, exports) {
         ConfigurationManager.open();
     };
 
-    return ConfigurationController;
+    module.exports = ConfigurationController;
 });

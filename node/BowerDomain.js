@@ -108,6 +108,8 @@ maxerr: 50, node: true */
                     result.count = Object.keys(installedPackages).length;
                 }
 
+                result.packages = installedPackages;
+
                 cb(null, result);
             })
             .on("error", function (error) {

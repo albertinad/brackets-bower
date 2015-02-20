@@ -103,7 +103,7 @@ define(function (require, exports) {
         }
     }
 
-    exports.on = on;
-    exports.off = off;
+    exports.on      = on;
+    exports.off     = off;
     exports.trigger = trigger;
 });

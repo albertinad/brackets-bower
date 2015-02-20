@@ -53,6 +53,13 @@ define(function (require, exports) {
         return bowerDomain.exec("install", path, null, null, config);
     }
 
+    function uninstall(packageName) {
+        // TODO
+        var config = ConfigurationManager.getConfiguration();
+
+        return bowerDomain.exec("uninstall", packageName, config);
+    }
+
     function prune(path) {
         var config = ConfigurationManager.getConfiguration();
 
@@ -71,6 +78,9 @@ define(function (require, exports) {
         return bowerDomain.exec("getPackages", config);
     }
 
+    /**
+     * Get the packages information from the bower cache.
+     */
     function listCache() {
         var config = ConfigurationManager.getConfiguration(),
             promise = bowerDomain.exec("getPackagesFromCache", config);
@@ -98,6 +108,13 @@ define(function (require, exports) {
         return bowerDomain.exec("execCommand", cmd, args);
     }
 
+    /**
+     * Use this function only in tests.
+     */
+    function _setBower(bowerDomain) {
+        bowerDomain = bowerDomain;
+    }
+
     exports.init             = init;
     exports.install          = install;
     exports.installPackage   = installPackage;
@@ -107,4 +124,8 @@ define(function (require, exports) {
     exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;
     exports.executeCommand   = executeCommand;
+
+    // API for testing
+
+    exports._setBower        = _setBower;
 });

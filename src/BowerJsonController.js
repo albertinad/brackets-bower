@@ -26,7 +26,7 @@
 maxerr: 50, browser: true */
 /*global define */
 
-define(function (require, exports) {
+define(function (require, exports, module) {
     "use strict";
 
     var BowerJsonView       = require("src/views/BowerJsonView"),
@@ -102,5 +102,5 @@ define(function (require, exports) {
         DependenciesManager.open();
     };
 
-    return BowerJsonController;
+    module.exports = BowerJsonController;
 });
