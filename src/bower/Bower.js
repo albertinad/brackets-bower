@@ -111,8 +111,8 @@ define(function (require, exports) {
     /**
      * Use this function only in tests.
      */
-    function _setBower(bowerDomain) {
-        bowerDomain = bowerDomain;
+    function _setBower(nodeDomain) {
+        bowerDomain = nodeDomain;
     }
 
     exports.init             = init;

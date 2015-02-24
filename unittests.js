@@ -42,6 +42,133 @@ define(function (require, exports, module) {
 
     describe("Brackets Bower", function () {
 
+        // bower commands
+
+        describe("Bower Commands", function () {
+            var bower = require("src/bower/Bower"),
+                bowerDomain,
+                fileUtilsDomain,
+                testWindow;
+
+            beforeEach(function () {
+                runs(function () {
+                    var bowerDomainPath = ExtensionUtils.getModulePath(module, "/tests/BowerTestDomain"),
+                        fileUtilsDomainPath = ExtensionUtils.getModulePath(module, "/tests/FileUtilsDomain");
+
+                    bowerDomain = new NodeDomain("bower-test", bowerDomainPath);
+                    fileUtilsDomain = new NodeDomain("bower-test-file-utils", fileUtilsDomainPath);
+
+                    bowerDomain.exec("resetTestData");
+
+                    bower._setBower(bowerDomain);
+                });
+
+                runs(function () {
+                    var folderPromise = new $.Deferred();
+                    SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
+                        testWindow = w;
+
+                        var testBrackets = testWindow.brackets,
+                            ProjectManager = testBrackets.test.ProjectManager;
+
+                        testBrackets.fs.makedir(testFolder, 0, function (err) {
+                            if (err === testBrackets.fs.NO_ERROR) {
+                                ProjectManager.openProject(testFolder)
+                                    .then(folderPromise.resolve, folderPromise.reject);
+                            } else {
+                                folderPromise.reject();
+                            }
+                        });
+
+                        folderPromise.resolve();
+                    });
+
+                    waitsForDone(folderPromise, "waiting for test folder to be created");
+                });
+            });
+
+            afterEach(function () {
+                runs(function () {
+                    SpecRunnerUtils.closeTestWindow();
+
+                    fileUtilsDomain.exec("deleteRecursive", testFolder);
+                });
+
+                runs(function () {
+                    bowerDomain = null;
+                    fileUtilsDomain = null;
+                });
+            });
+
+            xit("should execute 'search'", function () {});
+
+            xit("should execute 'install' to install a given package", function () {});
+
+            xit("should execute 'install' to install from a bower.json file", function () {});
+
+            xit("should execute 'uninstall' to uninstall a given package", function () {});
+
+            it("should execute 'prune' to uninstall dependencies removed from a bower.json file when the bower.json file exists", function () {
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                var resultPromise = new testWindow.$.Deferred(),
+                    commandResult;
+
+                runs(function () {
+                    bower.prune(testFolder).then(function (result) {
+                        commandResult = result;
+                        resultPromise.resolve();
+                    }).fail(function () {
+                        resultPromise.reject();
+                    });
+
+                    waitsForDone(resultPromise, "prune command was successfully executed");
+                });
+
+                runs(function () {
+                    expect(commandResult).toEqual(true);
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("prune", testFolder, {});
+                    expect(resultPromise.state()).toEqual("resolved");
+                });
+            });
+
+            xit("should execute 'list' to get the current installed dependencies and updates", function () {});
+
+            xit("should reject the promise when executing 'install' from a bower.json when no bower.json file is available", function () {});
+
+            it("should reject the promise when executing 'prune' without a bower.json file at the current project", function () {
+                var resultPromise = new testWindow.$.Deferred(),
+                    commandResult;
+
+                bowerDomain.exec("setTestData", {
+                    prune: {
+                        bowerJsonExists: false
+                    }
+                });
+
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                bower.prune(testFolder).then(function () {
+                    resultPromise.resolve();
+                }).fail(function (error) {
+                    commandResult = error;
+                    resultPromise.reject();
+                });
+
+                waitsFor(function () {
+                    return resultPromise.state() === "rejected";
+                }, "prune command was executed with failure");
+
+                runs(function () {
+                    expect(commandResult).toEqual("BowerTestDomain error message");
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("prune", testFolder, {});
+                    expect(resultPromise.state()).toEqual("rejected");
+                });
+            });
+        });
+
         // test for the underlying node domain
 
         describe("Bower Domain Integration", function () {
@@ -52,10 +179,10 @@ define(function (require, exports, module) {
             beforeEach(function () {
                 runs(function () {
                     var bowerDomainPath = ExtensionUtils.getModulePath(module, "/node/BowerDomain"),
-                        fileUtilsDomainPath = ExtensionUtils.getModulePath(module, "/node/FileUtilsDomain");
+                        fileUtilsDomainPath = ExtensionUtils.getModulePath(module, "/tests/FileUtilsDomain");
 
                     bowerDomain = new NodeDomain("bower", bowerDomainPath);
-                    fileUtilsDomain = new NodeDomain("fileUtils", fileUtilsDomainPath);
+                    fileUtilsDomain = new NodeDomain("bower-test-file-utils", fileUtilsDomainPath);
                 });
 
                 runs(function () {

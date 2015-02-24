@@ -55,11 +55,11 @@ maxerr: 50, node: true */
      * @param {DomainManager} domainmanager The DomainManager for the server
      */
     function init(domainManager) {
-        if (!domainManager.hasDomain("bower_test_fileutils")) {
-            domainManager.registerDomain("bower_test_fileutils", {major: 0, minor: 1});
+        if (!domainManager.hasDomain("bower-test-file-utils")) {
+            domainManager.registerDomain("bower-test-file-utils", {major: 0, minor: 1});
         }
         domainManager.registerCommand(
-            "bower_test_fileutils",
+            "bower-test-file-utils",
             "deleteRecursive",
             _cmdDeleteRecursive,
             false,
