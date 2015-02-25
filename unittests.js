@@ -238,7 +238,7 @@ define(function (require, exports, module) {
             it("should install jquery", function () {
                 runs(function () {
                     waitsForDone(bowerDomain.exec("install", testFolder, ["jquery"], false, emptyConfig),
-                        "installing jquery", 10000);
+                        "installing jquery", 100000);
                 });
 
                 runs(function () {

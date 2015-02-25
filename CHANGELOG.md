@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2
+* Bug fixing.
+* Test suite improvement.
+
 ## v0.2.1
 * Improve Bower Status Bar implementation and fixing bugs: status elements were not removed.
 * Fixing bugs in QuickInstall.
