@@ -100,14 +100,6 @@ define(function (require, exports, module) {
                 });
             });
 
-            xit("should execute 'search'", function () {});
-
-            xit("should execute 'install' to install a given package", function () {});
-
-            xit("should execute 'install' to install from a bower.json file", function () {});
-
-            xit("should execute 'uninstall' to uninstall a given package", function () {});
-
             it("should execute 'prune' to uninstall dependencies removed from a bower.json file when the bower.json file exists", function () {
                 spyOn(bowerDomain, "exec").andCallThrough();
 
@@ -132,10 +124,6 @@ define(function (require, exports, module) {
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
-
-            xit("should execute 'list' to get the current installed dependencies and updates", function () {});
-
-            xit("should reject the promise when executing 'install' from a bower.json when no bower.json file is available", function () {});
 
             it("should reject the promise when executing 'prune' without a bower.json file at the current project", function () {
                 var resultPromise = new testWindow.$.Deferred(),

@@ -53,13 +53,6 @@ define(function (require, exports) {
         return bowerDomain.exec("install", path, null, null, config);
     }
 
-    function uninstall(packageName) {
-        // TODO
-        var config = ConfigurationManager.getConfiguration();
-
-        return bowerDomain.exec("uninstall", packageName, config);
-    }
-
     function prune(path) {
         var config = ConfigurationManager.getConfiguration();
 
