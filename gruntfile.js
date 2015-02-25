@@ -44,6 +44,7 @@ module.exports = function (grunt) {
                     "nls/**",
                     "node/**",
                     "src/**",
+                    "tests/**",
                     "templates/**",
                     "LICENSE",
                     "*.js",

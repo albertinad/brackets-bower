@@ -23,7 +23,6 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, node: true */
-/*global require */
 
 (function () {
     "use strict";
@@ -48,55 +47,11 @@ maxerr: 50, node: true */
         commandExecution = undefined;
     }
 
-    function _cmdGetPackages(config, cb) {
-        if (resultType === "success") {
-            cb(null, data);
-        } else {
-            cb(errorMessage, null);
-        }
-    }
+    function _cmdGetPackages(config, cb) {}
 
-    function _cmdGetPackagesFromCache(config, cb) {
-        if (resultType === "success") {
-            cb(null, data);
-        } else {
-            cb(null, []);
-        }
-    }
+    function _cmdGetPackagesFromCache(config, cb) {}
 
-    function _cmdInstall(path, names, save, config, cb) {
-        var options = {};
-
-        if (save !== null && save !== undefined) {
-            options.save = save;
-        }
-
-        if (!config) {
-            config = {};
-        }
-
-        config.cwd = path;
-
-        bower.commands.install(names, options, config)
-            .on("end", function (installedPackages) {
-                var result = {};
-
-                if (names && names.length === 1) {
-                    var installedPackage = installedPackages[names[0]];
-
-                    result.installationDir = installedPackage.canonicalDir;
-                    result.count = 1;
-                } else {
-                    result.installationDir = path;
-                    result.count = Object.keys(installedPackages).length;
-                }
-
-                cb(null, result);
-            })
-            .on("error", function (error) {
-                cb(error ? error.message : "Unknown error", null);
-            });
-    }
+    function _cmdInstall(path, names, save, config, cb) {}
 
     function _cmdPrune(path, config, cb) {
         var resultType,
@@ -122,13 +77,7 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdList(path, config, cb) {
-        if (resultType === "success") {
-            cb(null, data);
-        } else {
-            cb(errorMessage, null);
-        }
-    }
+    function _cmdList(path, config, cb) {}
 
     function init(domainManager) {
         if (!domainManager.hasDomain(DOMAIN_NAME)) {
