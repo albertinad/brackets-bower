@@ -235,6 +235,101 @@ define(function (require, exports, module) {
                 });
             });
 
+            it("should execute 'install' to install a given package", function () {
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                var resultPromise = new testWindow.$.Deferred(),
+                    path = "/bowertestuser/bower_components/",
+                    data;
+
+                runs(function () {
+                    bower.installPackage(path, "jQuery").then(function (result) {
+                        data = result;
+                        resultPromise.resolve();
+                    }).fail(function () {
+                        resultPromise.reject();
+                    });
+
+                    waitsForDone(resultPromise, "install command was successfully executed");
+                });
+
+                runs(function () {
+                    expect(data).not.toBeNull();
+                    expect(data).toBeDefined();
+                    expect(data.count).toEqual(1);
+                    expect(typeof data.installationDir).toBe("string");
+
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", path, ["jQuery"], true, {});
+                    expect(resultPromise.state()).toEqual("resolved");
+                });
+            });
+
+            it("should execute 'install' to install from a bower.json file", function () {
+                var resultPromise = new testWindow.$.Deferred(),
+                    path = "/bowertestuser/bower_components/",
+                    data;
+
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                runs(function () {
+                    bower.install(path).then(function (result) {
+                        data = result;
+                        resultPromise.resolve();
+                    }).fail(function () {
+                        resultPromise.reject();
+                    });
+
+                    waitsForDone(resultPromise, "install command was successfully executed");
+                });
+
+                runs(function () {
+                    expect(data).not.toBeNull();
+                    expect(data).toBeDefined();
+                    expect(data.count).toBeGreaterThan(1);
+                    expect(data.installationDir).toEqual(path);
+
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", path, null, null, {});
+                    expect(resultPromise.state()).toEqual("resolved");
+                });
+            });
+
+            it("should execute 'install' to install from a bower.json file and when it doesn't exists reject the promise", function () {
+                var resultPromise = new testWindow.$.Deferred(),
+                    path = "/bowertestuser/bower_components/",
+                    error;
+
+                bowerDomain.exec("setTestData", {
+                    install: {
+                        bowerJsonExists: false
+                    }
+                });
+
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                runs(function () {
+                    bower.install(path).then(function (result) {
+                        resultPromise.resolve();
+                    }).fail(function (err) {
+                        error = err;
+                        resultPromise.reject();
+                    });
+
+                    waitsFor(function () {
+                        return resultPromise.state() === "rejected";
+                    }, "install command was executed with failure");
+                });
+
+                runs(function () {
+                    expect(error).toEqual("BowerTestDomain error message");
+
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", path, null, null, {});
+                    expect(resultPromise.state()).toEqual("rejected");
+                });
+            });
+
             it("should execute 'prune' to uninstall dependencies removed from a bower.json file when the bower.json file exists", function () {
                 spyOn(bowerDomain, "exec").andCallThrough();
 

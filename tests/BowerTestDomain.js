@@ -59,7 +59,7 @@ maxerr: 50, node: true */
         } else {
             resultType = defaultCommandExecution.resultType;
             // let node to cache the value, since this file must not change on runtime
-            result = require('./data/search.json');
+            result = require("./data/search.json");
         }
 
         if (resultType === "success") {
@@ -81,7 +81,7 @@ maxerr: 50, node: true */
         } else {
             resultType = defaultCommandExecution.resultType;
             // let node to cache the value, since this file must not change on runtime
-            result = require('./data/cache.list.json');
+            result = require("./data/cache.list.json");
         }
 
         if (resultType === "success") {
@@ -91,7 +91,44 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdInstall(path, names, save, config, cb) {}
+    function _cmdInstall(path, names, save, config, cb) {
+        var resultType,
+            result,
+            bowerJsonExists,
+            data = {};
+
+        if (commandExecution && commandExecution.install) {
+            var install = commandExecution.install;
+
+            resultType = install.resultType;
+            bowerJsonExists = install.bowerJsonExists;
+        } else {
+            resultType = defaultCommandExecution.resultType;
+            bowerJsonExists = defaultCommandExecution.bowerJsonExists;
+        }
+
+        if (resultType === "success") {
+            if (names && names.length === 1) {
+                result = require("./data/install.package.json");
+
+                var installedPackage = result[names[0]];
+
+                data.installationDir = installedPackage.canonicalDir;
+                data.count = 1;
+            } else {
+                result = require("./data/install.packages.json");
+
+                data.installationDir = path;
+                data.count = Object.keys(result).length;
+            }
+
+            data.packages = result;
+
+            cb(null, data);
+        } else {
+            cb(errorMessage, null);
+        }
+    }
 
     function _cmdPrune(path, config, cb) {
         var resultType,
