@@ -100,6 +100,141 @@ define(function (require, exports, module) {
                 });
             });
 
+            it("should execute 'search' and get a list of packages", function () {
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                var resultPromise = new testWindow.$.Deferred(),
+                    data;
+
+                runs(function () {
+                    bower.search().then(function (result) {
+                        data = result;
+                        resultPromise.resolve();
+                    }).fail(function () {
+                        resultPromise.reject();
+                    });
+
+                    waitsForDone(resultPromise, "search command was successfully executed");
+                });
+
+                runs(function () {
+                    expect(data).not.toBeNull();
+                    expect(data).toBeDefined();
+                    expect(data.length).toBeGreaterThan(0);
+
+                    data.forEach(function (pkg) {
+                        expect(typeof pkg.name).toBe("string");
+                        expect(typeof pkg.url).toBe("string");
+                    });
+
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("getPackages", {});
+                    expect(resultPromise.state()).toEqual("resolved");
+                });
+            });
+
+            it("should execute 'search' and reject the promise with an error when it fails to search the registry", function () {
+                var resultPromise = new testWindow.$.Deferred(),
+                    error;
+
+                bowerDomain.exec("setTestData", {
+                    search: {
+                        resultType: "failure"
+                    }
+                });
+
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                runs(function () {
+                    bower.search().then(function () {
+                        resultPromise.resolve();
+                    }).fail(function (err) {
+                        error = err;
+                        resultPromise.reject();
+                    });
+
+                    waitsFor(function () {
+                        return resultPromise.state() === "rejected";
+                    }, "search command was executed with failure");
+                });
+
+                runs(function () {
+                    expect(error).not.toBeNull();
+                    expect(error).toBeDefined();
+                    expect(typeof error).toBe("string");
+                    expect(error).toEqual("BowerTestDomain error message");
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("getPackages", {});
+                    expect(resultPromise.state()).toEqual("rejected");
+                });
+            });
+
+            it("should execute 'cache list' and get a list of available packages at the bower cache", function () {
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                var resultPromise = new testWindow.$.Deferred(),
+                    data;
+
+                runs(function () {
+                    bower.listCache().then(function (result) {
+                        data = result;
+                        resultPromise.resolve();
+                    }).fail(function () {
+                        resultPromise.reject();
+                    });
+
+                    waitsForDone(resultPromise, "list cache command was successfully executed");
+                });
+
+                runs(function () {
+                    expect(data).not.toBeNull();
+                    expect(data).toBeDefined();
+                    expect(data.length).toBeGreaterThan(0);
+
+                    data.forEach(function (pkg) {
+                        expect(typeof pkg.pkgMeta.name).toBe("string");
+                        expect(typeof pkg.name).toBe("string");
+                    });
+
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("getPackagesFromCache", {});
+                    expect(resultPromise.state()).toEqual("resolved");
+                });
+            });
+
+            it("should execute 'cache list' and get an empty list when any package is available at the bower cache", function () {
+                var resultPromise = new testWindow.$.Deferred(),
+                    data;
+
+                bowerDomain.exec("setTestData", {
+                    cacheList: {
+                        resultType: "failure"
+                    }
+                });
+
+                spyOn(bowerDomain, "exec").andCallThrough();
+
+                runs(function () {
+                    bower.listCache().then(function (result) {
+                        data = result;
+                        resultPromise.resolve();
+                    }).fail(function () {
+                        resultPromise.reject();
+                    });
+
+                    waitsForDone(resultPromise, "list cache command was successfully executed");
+                });
+
+                runs(function () {
+                    expect(data).not.toBeNull();
+                    expect(data).toBeDefined();
+                    expect(data.length).toEqual(0);
+                    expect(bowerDomain.exec.calls.length).toEqual(1);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("getPackagesFromCache", {});
+                    expect(resultPromise.state()).toEqual("resolved");
+                });
+            });
+
             it("should execute 'prune' to uninstall dependencies removed from a bower.json file when the bower.json file exists", function () {
                 spyOn(bowerDomain, "exec").andCallThrough();
 

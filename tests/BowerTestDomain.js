@@ -47,9 +47,49 @@ maxerr: 50, node: true */
         commandExecution = undefined;
     }
 
-    function _cmdGetPackages(config, cb) {}
+    function _cmdGetPackages(config, cb) {
+        var resultType,
+            result;
 
-    function _cmdGetPackagesFromCache(config, cb) {}
+        if (commandExecution && commandExecution.search) {
+            var search = commandExecution.search;
+
+            resultType = search.resultType;
+            result = search.result;
+        } else {
+            resultType = defaultCommandExecution.resultType;
+            // let node to cache the value, since this file must not change on runtime
+            result = require('./data/search.json');
+        }
+
+        if (resultType === "success") {
+            cb(null, result);
+        } else {
+            cb(errorMessage, null);
+        }
+    }
+
+    function _cmdGetPackagesFromCache(config, cb) {
+        var resultType,
+            result;
+
+        if (commandExecution && commandExecution.cacheList) {
+            var cacheList = commandExecution.cacheList;
+
+            resultType = cacheList.resultType;
+            result = cacheList.result;
+        } else {
+            resultType = defaultCommandExecution.resultType;
+            // let node to cache the value, since this file must not change on runtime
+            result = require('./data/cache.list.json');
+        }
+
+        if (resultType === "success") {
+            cb(null, result);
+        } else {
+            cb(null, []);
+        }
+    }
 
     function _cmdInstall(path, names, save, config, cb) {}
 

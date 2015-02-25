@@ -1,0 +1,63 @@
+[
+    {
+        "canonicalDir": "/home/bowertestuser/.cache/bower/packages/ed6c873a401d6c3594977398246cfd83/1.1.2",
+        "pkgMeta": {
+            "name": "backbone",
+            "version": "1.1.2",
+            "main": "backbone.js",
+            "dependencies": {
+                "underscore": ">=1.5.0"
+            },
+            "ignore": ["backbone-min.js", "docs", "examples", "test", "*.yml", "*.map", ".html", "*.ico"],
+            "homepage": "https://github.com/jashkenas/backbone",
+            "_release": "1.1.2",
+            "_resolution": {
+                "type": "version",
+                "tag": "1.1.2",
+                "commit": "53f77901a4ea9c7cf75d3db93ddddf491998d90f"
+            },
+            "_source": "git://github.com/jashkenas/backbone.git",
+            "_target": "*"
+        }
+    }, {
+        "canonicalDir": "/home/bowertestuser/.cache/bower/packages/4b3248bac6c187112723518244e6fe5a/0.2.4",
+        "pkgMeta": {
+            "name": "polymer",
+            "private": true,
+            "dependencies": {
+                "platform": "Polymer/platform#0.2.4",
+                "core-component-page": "Polymer/core-component-page#0.2.4"
+            },
+            "version": "0.2.4",
+            "homepage": "https://github.com/Polymer/polymer",
+            "_release": "0.2.4",
+            "_resolution": {
+                "type": "version",
+                "tag": "0.2.4",
+                "commit": "8564d0e7ce8d426e2492e7b69478d9feb62e20ef"
+            },
+            "_source": "git://github.com/Polymer/polymer.git",
+            "_target": "~0.2.3"
+        }
+    }, {
+        "canonicalDir": "/home/bowertestuser/.cache/bower/packages/739322394f0eb4982a8473e741e0cad8/2.1.12",
+        "pkgMeta": {
+            "name": "requirejs",
+            "version": "2.1.12",
+            "homepage": "http://requirejs.org",
+            "authors": ["jrburke.com"],
+            "description": "A file and module loader for JavaScript",
+            "main": "require.js",
+            "keywords": ["AMD"],
+            "license": "new BSD, and MIT",
+            "_release": "2.1.12",
+            "_resolution": {
+                "type": "version",
+                "tag": "2.1.12",
+                "commit": "f3406bd98e4e0cb81576953a387d1140ff1aea14"
+            },
+            "_source": "https://github.com/jrburke/requirejs-bower.git",
+            "_target": "2.1.12"
+        }
+    }
+]

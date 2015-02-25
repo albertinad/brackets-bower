@@ -1,0 +1,478 @@
+[
+    {
+        "name": "polymer",
+        "url": "git://github.com/Polymer/polymer.git"
+    },
+    {
+        "name": "webcomponentsjs",
+        "url": "git://github.com/Polymer/webcomponentsjs.git"
+    },
+    {
+        "name": "observe-js",
+        "url": "git://github.com/Polymer/observe-js.git"
+    },
+    {
+        "name": "polymer-elements",
+        "url": "git://github.com/Polymer/polymer-elements.git"
+    },
+    {
+        "name": "polymer-platform",
+        "url": "git://github.com/Polymer/platform.git"
+    },
+    {
+        "name": "polymer-ui-elements",
+        "url": "git://github.com/Polymer/polymer-ui-elements.git"
+},
+    {
+        "name": "ng-polymer-elements",
+        "url": "git://github.com/GabiAxel/ng-polymer-elements.git"
+},
+    {
+        "name": "polymer-polymer",
+        "url": "git://github.com/Polymer/polymer.git"
+},
+    {
+        "name": "angular-bind-polymer",
+        "url": "git://github.com/eee-c/angular-bind-polymer.git"
+},
+    {
+        "name": "polymer-date-picker",
+        "url": "git://github.com/christopheclc/polymer-date-picker.git"
+},
+    {
+        "name": "polymer-filters",
+        "url": "git://github.com/addyosmani/polymer-filters.git"
+},
+    {
+        "name": "web-component-tester",
+        "url": "git://github.com/Polymer/web-component-tester.git"
+},
+    {
+        "name": "polymer-boilerplate",
+        "url": "git://github.com/addyosmani/polymer-boilerplate"
+},
+    {
+        "name": "polymer-ui-carousel",
+        "url": "git://github.com/addyosmani/polymer-ui-carousel"
+},
+    {
+        "name": "hello-world-polymer",
+        "url": "git://github.com/webcomponents/hello-world-polymer.git"
+},
+    {
+        "name": "select-box",
+        "url": "git://github.com/ionelmc/polymer-select-box.git"
+},
+    {
+        "name": "polymer-simple-router",
+        "url": "git://github.com/poying/polymer-simple-router.git"
+},
+    {
+        "name": "webcomponents.js",
+        "url": "git://github.com/Polymer/webcomponents.js.git"
+},
+    {
+        "name": "polymer-selector",
+        "url": "git://github.com/addyosmani/polymer-selector.git"
+},
+    {
+        "name": "polymer-selection",
+        "url": "git://github.com/addyosmani/polymer-selection.git"
+},
+    {
+        "name": "polymer-localstorage",
+        "url": "git://github.com/addyosmani/polymer-localstorage.git"
+},
+    {
+        "name": "polymer-fontawesome",
+        "url": "git://github.com/rtbenfield/polymer-fontawesome.git"
+},
+    {
+        "name": "polymer-tfl-status",
+        "url": "git://github.com/beldar/polymer-tfl-status.git"
+},
+    {
+        "name": "polymer-eventemitter",
+        "url": "git://github.com/addyosmani/polymer-eventemitter.git"
+},
+    {
+        "name": "polymer-localforage",
+        "url": "git://github.com/addyosmani/polymer-localforage"
+},
+    {
+        "name": "polymer-themes",
+        "url": "git://github.com/PolymerThemes/polymer-themes.git"
+},
+    {
+        "name": "mdv",
+        "url": "git://github.com/Polymer/mdv.git"
+},
+    {
+        "name": "polymerlabs-youtube",
+        "url": "git://github.com/PolymerLabs/youtube"
+},
+    {
+        "name": "polymer-simple-slider",
+        "url": "git://github.com/ruyadorno/polymer-simple-slider.git"
+},
+    {
+        "name": "polymer-paper-dropdown",
+        "url": "git://github.com/Yobretaw/Polymer-paper-dropdown.git"
+},
+    {
+        "name": "polymer-paginator",
+        "url": "git://github.com/addyosmani/polymer-paginator"
+},
+    {
+        "name": "piwik-polymer",
+        "url": "git://github.com/linsolas/piwik-polymer.git"
+},
+    {
+        "name": "polymer-youtube",
+        "url": "git://github.com:PolymerLabs/youtube.git"
+},
+    {
+        "name": "polymer-testing-element",
+        "url": "git://github.com/s-tyler-smith/polymerTestingElements"
+},
+    {
+        "name": "polymer-nooo-button",
+        "url": "git://github.com/PascalPrecht/polymer-nooo-button.git"
+},
+    {
+        "name": "polymerlabs-yt-video",
+        "url": "git://github.com:PolymerLabs/yt-video.git"
+},
+    {
+        "name": "polymer-speedread",
+        "url": "git://github.com/Yojimb0/polymer-speedread.git"
+},
+    {
+        "name": "polymer-ipsum",
+        "url": "git://github.com/jordifebrer/polymer-ipsum.git"
+},
+    {
+        "name": "simple-router",
+        "url": "git://github.com/polymerjs-tw/polymer-simple-router.git"
+},
+    {
+        "name": "rijks-polymer-elements",
+        "url": "git://github.com/yeehaa123/rijks-polymer-elements.git"
+},
+    {
+        "name": "polymer-github-card",
+        "url": "git://github.com/iamolivinius/polymer-github-card.git"
+},
+    {
+        "name": "polymer-keydown",
+        "url": "git://github.com/dmytroyarmak/polymer-keydown.git"
+},
+    {
+        "name": "polymer-rss",
+        "url": "git://github.com/kristenmills/polymer-rss.git"
+},
+    {
+        "name": "ripple-qr-pos",
+        "url": "git://github.com/tradespoke/ripple-pos-polymer.git"
+},
+    {
+        "name": "polymer-country-region-selector",
+        "url": "git://github.com/benkeen/polymer-country-region-selector.git"
+},
+    {
+        "name": "polymer-blog-post",
+        "url": "git://github.com/mahesmohan/blog-post.git"
+},
+    {
+        "name": "slider-polymer",
+        "url": "git://github.com/rcsole/slider-polymer.git"
+},
+    {
+        "name": "polymer-slidenav",
+        "url": "git://github.com/nobitagit/polymer-slidenav.git"
+},
+    {
+        "name": "polymerangular",
+        "url": "git://github.com/uttesh/polymerangular.git"
+},
+    {
+        "name": "open-street-map",
+        "url": "git://github.com/emersion/polymer-openstreetmap.git"
+},
+    {
+        "name": "polymer-cat-paw",
+        "url": "git://github.com/mattdsteele/polymer-cat-paw.git"
+},
+    {
+        "name": "polymer-exercise",
+        "url": "git://github.com/DartGo/polymer-exercise.git"
+},
+    {
+        "name": "polymer-viewpager",
+        "url": "git://github.com/vivekmarakana/polymer-viewpager.git"
+},
+    {
+        "name": "pubnub-polymer",
+        "url": "git://github.com/pubnub/pubnub-polymer.git"
+},
+    {
+        "name": "json-box",
+        "url": "git://github.com/ionelmc/polymer-json-box.git"
+},
+    {
+        "name": "polymer-star-rating",
+        "url": "git://github.com/manoelneto/star-rating.git"
+},
+    {
+        "name": "polymer-feedback",
+        "url": "git://github.com/RameshRM/polymer-feedback.git"
+},
+    {
+        "name": "purr-polymer",
+        "url": "git://github.com/Sprottenwels/purr-polymer.git"
+},
+    {
+        "name": "fd-polymer-rest-service",
+        "url": "git://github.com/freedomotic/fd-polymer-rest-service.git"
+},
+    {
+        "name": "fd-polymer-api-settings",
+        "url": "git://github.com/freedomotic/fd-polymer-api-settings.git"
+},
+    {
+        "name": "polymer-kilo-player",
+        "url": "git://github.com/degliwe/polymer-kilo-player.git"
+},
+    {
+        "name": "font-awesome-polymer-icons",
+        "url": "git://github.com/philya/font-awesome-polymer-icons.git"
+},
+    {
+        "name": "polymer-droplet",
+        "url": "git://github.com/Wildhoney/PolymerDroplet.git"
+},
+    {
+        "name": "query-box",
+        "url": "git://github.com/ionelmc/polymer-query-box.git"
+},
+    {
+        "name": "fd-polymer-ws-service",
+        "url": "git://github.com/freedomotic/fd-polymer-ws-service.git"
+},
+    {
+        "name": "fd-polymer-i18next-translate",
+        "url": "git://github.com/freedomotic/fd-polymer-i18next-translate.git"
+},
+    {
+        "name": "baasic-ajax",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-core-ajax.git"
+},
+    {
+        "name": "re-markable",
+        "url": "git://github.com/aktowns/polymer-re-markable.git"
+},
+    {
+        "name": "polymer-gesture-scroll",
+        "url": "git://github.com/f0ysal/Polymer-Gesture-Scroll.git"
+},
+    {
+        "name": "fd-polymer-card",
+        "url": "git://github.com/freedomotic/fd-polymer-card.git"
+},
+    {
+        "name": "polymer-demo",
+        "url": "git://github.com/kysonic/x-va-button.git"
+},
+    {
+        "name": "polymer-starter",
+        "url": "git://github.com/utpal-kumar/polymer-starter.git"
+},
+    {
+        "name": "world-flag-polymer",
+        "url": "git://github.com/krosti/world-flag-polymer.git"
+},
+    {
+        "name": "chuck-polymer",
+        "url": "git://github.com/damnit/chuck-polymer"
+},
+    {
+        "name": "baasic-login",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-membership-login.git"
+},
+    {
+        "name": "polymer-zxcvbn",
+        "url": "git://github.com/ghostbar/polymer-zxcvbn.git"
+},
+    {
+        "name": "bindtopolymer",
+        "url": "git://github.com/johnhenry/bindtopolymer.git"
+},
+    {
+        "name": "polymer-lorem-ipsum",
+        "url": "git://github.com/ppscvalentin/lorem-ipsum.git"
+},
+    {
+        "name": "famous-polymer",
+        "url": "git://github.com/panarch/famous-polymer.git"
+},
+    {
+        "name": "fd-polymer-generics",
+        "url": "git://github.com/freedomotic/fd-polymer-generics.git"
+},
+    {
+        "name": "polymer-temptable",
+        "url": "git://github.com/jordifebrer/polymer-temptable.git"
+},
+    {
+        "name": "baasic-sessioncontrol",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-core-sessioncontrol.git"
+},
+    {
+        "name": "gravatar-polymer-profile",
+        "url": "git://github.com/vanxrice/gravatar-polymer-profile.git"
+},
+    {
+        "name": "fd-polymer-environments",
+        "url": "git://github.com/freedomotic/fd-polymer-environments.git"
+},
+    {
+        "name": "fd-polymer-elements",
+        "url": "git://github.com/freedomotic/fd-polymer-elements.git"
+},
+    {
+        "name": "futurama-quotes",
+        "url": "git://github.com/WillsonSmith/polymer-futurama-quotes.git"
+},
+    {
+        "name": "baasic-crud",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-core-crud.git"
+},
+    {
+        "name": "aaa-polymercrud-application",
+        "url": "git://github.com/Will-in-BC/aaa-polymercrud-application.git"
+},
+    {
+        "name": "polymer-ymaps",
+        "url": "git://github.com/just-boris/polymer-ymaps.git"
+},
+    {
+        "name": "polymer-lorem-img",
+        "url": "git://github.com/chevdor/lorem-img.git"
+},
+    {
+        "name": "polymer-element-slider",
+        "url": "git://github.com/pex/polymer-element-slider.git"
+},
+    {
+        "name": "baasic-markdowneditor",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-core-markdowneditor.git"
+},
+    {
+        "name": "baasic-article",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-article-module.git"
+},
+    {
+        "name": "polymer-theme",
+        "url": "git://github.com/StartPolymer/polymer-theme.git"
+},
+    {
+        "name": "polymer-code-highlighter",
+        "url": "git://github.com/dev-priya/polymer-code-highlighter.git"
+},
+    {
+        "name": "baasic-globals",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-core-globals.git"
+},
+    {
+        "name": "my-polymer-scaffolding",
+        "url": "git://github.com/wasipo09/my-polymer-scaffolding.git"
+},
+    {
+        "name": "baasic-articleeditor",
+        "url": "git://github.com/Baasic/baasic-sdk-polymer-article-editor.git"
+},
+    {
+        "name": "polymer-thram-elements",
+        "url": "git://github.com/Thram/polymer-thram-elements.git"
+},
+    {
+        "name": "polymer-dropbox-datastore",
+        "url": "git://github.com/kashiro/dropbox-datastore.git"
+},
+    {
+        "name": "fd-polymer-ispermitted",
+        "url": "git://github.com/freedomotic/fd-polymer-ispermitted.git"
+},
+    {
+        "name": "polymer-lander",
+        "url": "git://github.com/johannest/polymer-lander.git"
+},
+    {
+        "name": "polymer-stop-watch",
+        "url": "git://github.com/stonelasley/stop-watch.git"
+},
+    {
+        "name": "polymer-component-animated-selector",
+        "url": "git://github.com/ShubanTech/polymer-component-animated-selector.git"
+},
+    {
+        "name": "polymer-fork-me-on-github",
+        "url": "git://github.com/tcyrus/fork-me-on-github.git"
+},
+    {
+        "name": "polymer-daterange",
+        "url": "git://github.com/INSPIRATIONlabs/polymer-daterange.git"
+},
+    {
+        "name": "polymeria-uml",
+        "url": "git://github.com/bdulac/polymeria.git"
+},
+    {
+        "name": "ph-polymer-mixins",
+        "url": "git://github.com/silentHoo/ph-polymer-mixins.git"
+},
+    {
+        "name": "polymer-liquidmetal",
+        "url": "git://github.com/paradox41/polymer-liquidmetal.git"
+},
+    {
+        "name": "lonelydatum-polymer",
+        "url": "git://github.com/lonelydatum/polymer.git"
+},
+    {
+        "name": "polymer-spa-seed",
+        "url": "git://github.com/DonaldSupertramp/spa-seed.git"
+},
+    {
+        "name": "polymer-mutationobserver",
+        "url": "git://github.com/ericz/polymer-mutationobserver.git"
+},
+    {
+        "name": "font-kune-polymer-icons",
+        "url": "git://github.com/vjrj/font-kune-polymer-icons.git"
+},
+    {
+        "name": "polymer-input-creditcard",
+        "url": "git://github.com/mutebg/polymer-input-creditcard.git"
+},
+    {
+        "name": "angular-polymerize",
+        "url": "git://github.com/rochdev/angular-polymerize.git"
+},
+    {
+        "name": "polymer-il-charts",
+        "url": "git://github.com/INSPIRATIONlabs/polymer-il-charts.git"
+},
+    {
+        "name": "here-map-polymer",
+        "url": "git://github.com/keinkonzept/here-map-polymer.git"
+},
+    {
+        "name": "polymer-memory-stats",
+        "url": "git://github.com/ragingwind/polymer-memory-stats.git"
+},
+    {
+        "name": "login-form",
+        "url": "git://github.com/youssef06/polymer-login-form.git"
+}
+]
