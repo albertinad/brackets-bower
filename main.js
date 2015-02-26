@@ -51,9 +51,9 @@ define(function (require, exports, module) {
         ConfigurationController = require("src/ConfigurationController"),
         BowerJsonController     = require("src/BowerJsonController");
 
-    var EXTENSION_NAME         = "com.adobe.brackets.extension.bower",
-        CMD_QUICK_INSTALL      = "com.adobe.brackets.commands.bower.installFromBower",
-        CMD_PANEL              = "com.adobe.brackets.commands.bower.togglePanel",
+    var EXTENSION_NAME         = "albertinad.brackets-bower",
+        CMD_QUICK_INSTALL      = EXTENSION_NAME + ".installFromBower",
+        CMD_PANEL              = EXTENSION_NAME + ".togglePanel",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     var panelController;

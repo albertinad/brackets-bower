@@ -33,7 +33,7 @@ define(function (require, exports) {
      * Events definition for the extension.
      */
 
-    var extensionPrefix = "com.adobe.brackets.extension.bower.events.";
+    var extensionPrefix = "albertinad.brackets-bower.events.";
 
     exports.BOWER_BOWERRC_CREATE = extensionPrefix + "bowerrc.create";
     exports.BOWER_BOWERRC_CHANGE = extensionPrefix + "bowerrc.change";
