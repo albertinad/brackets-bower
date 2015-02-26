@@ -23,80 +23,66 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, expect, beforeEach, afterEach, waitsFor, waitsForDone, runs, spyOn, jasmine, $, brackets, waitsForDone */
+/*global define, describe, it, expect, beforeEach, afterEach, beforeFirst, afterLast, waitsFor, waitsForDone, waitsForFail,
+runs, spyOn, jasmine, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var NodeDomain          = brackets.getModule("utils/NodeDomain"),
-        FileUtils           = brackets.getModule("file/FileUtils"),
-        FileSystem          = brackets.getModule("filesystem/FileSystem"),
-        ExtensionUtils      = brackets.getModule("utils/ExtensionUtils"),
-        SpecRunnerUtils     = brackets.getModule("spec/SpecRunnerUtils"),
-        StatusBarView       = require("src/views/StatusBarView"),
-        StatusBarController = require("src/StatusBarController")._StatusBarController,
-        Status              = require("src/StatusBarController")._Status;
+    var NodeDomain      = brackets.getModule("utils/NodeDomain"),
+        SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
 
-    // TODO: should put in system temp folder, but we don't have a generic way to get that
-    var testFolder = FileUtils.getNativeModuleDirectoryPath(module) + "/tmp-test";
-
-    describe("Brackets Bower", function () {
-
-        // bower commands
+    describe("BracketsBower", function () {
 
         describe("Bower Commands", function () {
-            var bower = require("src/bower/Bower"),
+            var tempDir = SpecRunnerUtils.getTempDirectory(),
+                bower = require("src/bower/Bower"),
+                ExtensionUtils,
                 bowerDomain,
-                fileUtilsDomain,
                 testWindow;
 
-            beforeEach(function () {
-                runs(function () {
-                    var bowerDomainPath = ExtensionUtils.getModulePath(module, "/tests/BowerTestDomain"),
-                        fileUtilsDomainPath = ExtensionUtils.getModulePath(module, "/tests/FileUtilsDomain");
-
-                    bowerDomain = new NodeDomain("bower-test", bowerDomainPath);
-                    fileUtilsDomain = new NodeDomain("bower-test-file-utils", fileUtilsDomainPath);
-
-                    bowerDomain.exec("resetTestData");
-
-                    bower._setBower(bowerDomain);
-                });
+            beforeFirst(function () {
+                SpecRunnerUtils.createTempDirectory();
 
                 runs(function () {
                     var folderPromise = new $.Deferred();
+
                     SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
                         testWindow = w;
 
-                        var testBrackets = testWindow.brackets,
-                            ProjectManager = testBrackets.test.ProjectManager;
+                        ExtensionUtils = testWindow.brackets.test.ExtensionUtils;
 
-                        testBrackets.fs.makedir(testFolder, 0, function (err) {
-                            if (err === testBrackets.fs.NO_ERROR) {
-                                ProjectManager.openProject(testFolder)
-                                    .then(folderPromise.resolve, folderPromise.reject);
-                            } else {
-                                folderPromise.reject();
-                            }
-                        });
+                        SpecRunnerUtils.loadProjectInTestWindow(tempDir);
 
                         folderPromise.resolve();
                     });
 
-                    waitsForDone(folderPromise, "waiting for test folder to be created");
+                    waitsForDone(folderPromise, "waiting for test project to be opened");
+                });
+
+                runs(function () {
+                    var bowerDomainPath = ExtensionUtils.getModulePath(module, "/tests/BowerTestDomain");
+
+                    bowerDomain = new NodeDomain("bower-test", bowerDomainPath);
+
+                    bower._setBower(bowerDomain);
                 });
             });
 
             afterEach(function () {
                 runs(function () {
-                    SpecRunnerUtils.closeTestWindow();
+                    bowerDomain.exec("resetTestData");
+                });
+            });
 
-                    fileUtilsDomain.exec("deleteRecursive", testFolder);
+            afterLast(function () {
+                runs(function () {
+                    SpecRunnerUtils.closeTestWindow();
+                    SpecRunnerUtils.removeTempDirectory();
                 });
 
                 runs(function () {
                     bowerDomain = null;
-                    fileUtilsDomain = null;
                 });
             });
 
@@ -153,9 +139,7 @@ define(function (require, exports, module) {
                         resultPromise.reject();
                     });
 
-                    waitsFor(function () {
-                        return resultPromise.state() === "rejected";
-                    }, "search command was executed with failure");
+                    waitsForFail(resultPromise, "search command was executed with failure");
                 });
 
                 runs(function () {
@@ -239,11 +223,10 @@ define(function (require, exports, module) {
                 spyOn(bowerDomain, "exec").andCallThrough();
 
                 var resultPromise = new testWindow.$.Deferred(),
-                    path = "/bowertestuser/bower_components/",
                     data;
 
                 runs(function () {
-                    bower.installPackage(path, "jQuery").then(function (result) {
+                    bower.installPackage(tempDir, "jQuery").then(function (result) {
                         data = result;
                         resultPromise.resolve();
                     }).fail(function () {
@@ -260,20 +243,19 @@ define(function (require, exports, module) {
                     expect(typeof data.installationDir).toBe("string");
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", path, ["jQuery"], true, {});
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", tempDir, ["jQuery"], true, {});
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
 
             it("should execute 'install' to install from a bower.json file", function () {
                 var resultPromise = new testWindow.$.Deferred(),
-                    path = "/bowertestuser/bower_components/",
                     data;
 
                 spyOn(bowerDomain, "exec").andCallThrough();
 
                 runs(function () {
-                    bower.install(path).then(function (result) {
+                    bower.install(tempDir).then(function (result) {
                         data = result;
                         resultPromise.resolve();
                     }).fail(function () {
@@ -287,17 +269,16 @@ define(function (require, exports, module) {
                     expect(data).not.toBeNull();
                     expect(data).toBeDefined();
                     expect(data.count).toBeGreaterThan(1);
-                    expect(data.installationDir).toEqual(path);
+                    expect(data.installationDir).toEqual(tempDir);
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", path, null, null, {});
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", tempDir, null, null, {});
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
 
             it("should execute 'install' to install from a bower.json file and when it doesn't exists reject the promise", function () {
                 var resultPromise = new testWindow.$.Deferred(),
-                    path = "/bowertestuser/bower_components/",
                     error;
 
                 bowerDomain.exec("setTestData", {
@@ -309,23 +290,21 @@ define(function (require, exports, module) {
                 spyOn(bowerDomain, "exec").andCallThrough();
 
                 runs(function () {
-                    bower.install(path).then(function (result) {
+                    bower.install(tempDir).then(function (result) {
                         resultPromise.resolve();
                     }).fail(function (err) {
                         error = err;
                         resultPromise.reject();
                     });
 
-                    waitsFor(function () {
-                        return resultPromise.state() === "rejected";
-                    }, "install command was executed with failure");
+                    waitsForFail(resultPromise, "install command was executed with failure");
                 });
 
                 runs(function () {
                     expect(error).toEqual("BowerTestDomain error message");
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", path, null, null, {});
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", tempDir, null, null, {});
                     expect(resultPromise.state()).toEqual("rejected");
                 });
             });
@@ -337,7 +316,7 @@ define(function (require, exports, module) {
                     commandResult;
 
                 runs(function () {
-                    bower.prune(testFolder).then(function (result) {
+                    bower.prune(tempDir).then(function (result) {
                         commandResult = result;
                         resultPromise.resolve();
                     }).fail(function () {
@@ -350,7 +329,7 @@ define(function (require, exports, module) {
                 runs(function () {
                     expect(commandResult).toEqual(true);
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("prune", testFolder, {});
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("prune", tempDir, {});
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
@@ -367,122 +346,28 @@ define(function (require, exports, module) {
 
                 spyOn(bowerDomain, "exec").andCallThrough();
 
-                bower.prune(testFolder).then(function () {
+                bower.prune(tempDir).then(function () {
                     resultPromise.resolve();
                 }).fail(function (error) {
                     commandResult = error;
                     resultPromise.reject();
                 });
 
-                waitsFor(function () {
-                    return resultPromise.state() === "rejected";
-                }, "prune command was executed with failure");
+                waitsForFail(resultPromise, "prune command was executed with failure");
 
                 runs(function () {
                     expect(commandResult).toEqual("BowerTestDomain error message");
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("prune", testFolder, {});
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("prune", tempDir, {});
                     expect(resultPromise.state()).toEqual("rejected");
                 });
             });
         });
 
-        // test for the underlying node domain
-
-        describe("Bower Domain Integration", function () {
-            var bowerDomain,
-                fileUtilsDomain,
-                emptyConfig = {};
-
-            beforeEach(function () {
-                runs(function () {
-                    var bowerDomainPath = ExtensionUtils.getModulePath(module, "/node/BowerDomain"),
-                        fileUtilsDomainPath = ExtensionUtils.getModulePath(module, "/tests/FileUtilsDomain");
-
-                    bowerDomain = new NodeDomain("bower", bowerDomainPath);
-                    fileUtilsDomain = new NodeDomain("bower-test-file-utils", fileUtilsDomainPath);
-                });
-
-                runs(function () {
-                    var folderPromise = new $.Deferred();
-
-                    SpecRunnerUtils.createTestWindowAndRun(this, function (testWindow) {
-                        var testBrackets = testWindow.brackets,
-                            ProjectManager = testBrackets.test.ProjectManager;
-
-                        testBrackets.fs.makedir(testFolder, 0, function (err) {
-                            if (err === testBrackets.fs.NO_ERROR) {
-                                ProjectManager.openProject(testFolder)
-                                    .then(folderPromise.resolve, folderPromise.reject);
-                            } else {
-                                folderPromise.reject();
-                            }
-                        });
-
-                        folderPromise.resolve();
-                    });
-
-                    waitsForDone(folderPromise, "waiting for test folder to be created");
-                });
-            });
-
-            afterEach(function () {
-                runs(function () {
-                    SpecRunnerUtils.closeTestWindow();
-
-                    fileUtilsDomain.exec("deleteRecursive", testFolder);
-                });
-
-                runs(function () {
-                    bowerDomain = null;
-                    fileUtilsDomain = null;
-                });
-            });
-
-            it("should return a list of package names", function () {
-                var packages,
-                    i;
-
-                runs(function () {
-                    bowerDomain.exec("getPackages", emptyConfig)
-                        .done(function (data) {
-                            packages = data;
-                        });
-                });
-
-                waitsFor(function () {
-                    return packages;
-                }, "waiting for bower package list", 100000);
-
-                runs(function () {
-                    expect(Array.isArray(packages)).toBe(true);
-                    expect(packages.length).toBeGreaterThan(0);
-
-                    for (i = 0; i < packages.length; i++) {
-                        expect(typeof packages[i].name).toBe("string");
-                        expect(typeof packages[i].url).toBe("string");
-                    }
-                });
-            });
-
-            it("should install jquery", function () {
-                runs(function () {
-                    waitsForDone(bowerDomain.exec("install", testFolder, ["jquery"], false, emptyConfig),
-                        "installing jquery", 100000);
-                });
-
-                runs(function () {
-                    var file = FileSystem.getFileForPath(testFolder + "/bower_components/jquery/dist/jquery.min.js");
-
-                    waitsForDone(FileUtils.readAsText(file), "reading installed jquery");
-                });
-            });
-        });
-
-        // unit tests suite for StatusBar
-
         describe("Bower Status Bar Controller", function () {
-            var statusBarController,
+            var StatusBarController = require("src/StatusBarController")._StatusBarController,
+                Status              = require("src/StatusBarController")._Status,
+                statusBarController,
                 StatusTypes,
                 mockView;
 
@@ -647,7 +532,9 @@ define(function (require, exports, module) {
         });
 
         describe("Bower Status Bar View", function () {
-            var statusBarView,
+            var StatusBarView = require("src/views/StatusBarView"),
+                Status        = require("src/StatusBarController")._Status,
+                statusBarView,
                 StatusTypes,
                 mockController = {
                     statusTypes: function () {
@@ -884,10 +771,10 @@ define(function (require, exports, module) {
             });
         });
 
-        // component tests suite for StatusBar
-
         describe("Bower Status Bar", function () {
-            var statusBarController,
+            var StatusBarController = require("src/StatusBarController")._StatusBarController,
+                StatusBarView = require("src/views/StatusBarView"),
+                statusBarController,
                 statusBarView,
                 StatusTypes;
 
@@ -1001,8 +888,6 @@ define(function (require, exports, module) {
                 });
             });
         });
-
-        // test suite for Preferences
 
         describe("Bower Preferences", function () {
             var Preferences = require("src/preferences/Preferences");
@@ -1210,6 +1095,93 @@ define(function (require, exports, module) {
                 Preferences.set(key, false);
 
                 expect(Preferences.get(key)).toBe(false);
+            });
+        });
+
+        // test for the underlying node domain
+
+        describe("Bower Domain Integration", function () {
+            var tempDir = SpecRunnerUtils.getTempDirectory(),
+                emptyConfig = {},
+                FileSystem,
+                FileUtils,
+                ExtensionUtils,
+                bowerDomain;
+
+            beforeFirst(function () {
+                SpecRunnerUtils.createTempDirectory();
+
+                runs(function () {
+                    var folderPromise = new $.Deferred();
+
+                    SpecRunnerUtils.createTestWindowAndRun(this, function (testWindow) {
+                        FileSystem = testWindow.brackets.test.FileSystem;
+                        FileUtils = testWindow.brackets.test.FileUtils;
+                        ExtensionUtils = testWindow.brackets.test.ExtensionUtils;
+
+                        SpecRunnerUtils.loadProjectInTestWindow(tempDir);
+
+                        folderPromise.resolve();
+                    });
+
+                    waitsForDone(folderPromise, "waiting for test folder to be created");
+                });
+
+                runs(function () {
+                    var bowerDomainPath = ExtensionUtils.getModulePath(module, "/node/BowerDomain");
+
+                    bowerDomain = new NodeDomain("bower", bowerDomainPath);
+                });
+            });
+
+            afterLast(function () {
+                runs(function () {
+                    SpecRunnerUtils.closeTestWindow();
+                    SpecRunnerUtils.removeTempDirectory();
+                });
+
+                runs(function () {
+                    bowerDomain = null;
+                });
+            });
+
+            it("should return a list of package names", function () {
+                var packages,
+                    i;
+
+                runs(function () {
+                    bowerDomain.exec("getPackages", emptyConfig)
+                        .done(function (data) {
+                            packages = data;
+                        });
+                });
+
+                waitsFor(function () {
+                    return packages;
+                }, "waiting for bower package list", 100000);
+
+                runs(function () {
+                    expect(Array.isArray(packages)).toBe(true);
+                    expect(packages.length).toBeGreaterThan(0);
+
+                    for (i = 0; i < packages.length; i++) {
+                        expect(typeof packages[i].name).toBe("string");
+                        expect(typeof packages[i].url).toBe("string");
+                    }
+                });
+            });
+
+            it("should install jquery", function () {
+                runs(function () {
+                    waitsForDone(bowerDomain.exec("install", tempDir, ["jquery"], false, emptyConfig),
+                        "installing jquery", 100000);
+                });
+
+                runs(function () {
+                    var file = FileSystem.getFileForPath(tempDir + "/bower_components/jquery/dist/jquery.min.js");
+
+                    waitsForDone(FileUtils.readAsText(file), "reading installed jquery");
+                });
             });
         });
     });

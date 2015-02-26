@@ -96,7 +96,7 @@ maxerr: 50, node: true */
 
         bower.commands.install(names, options, config)
             .on("end", function (installedPackages) {
-                cb(null, result);
+                cb(null, installedPackages);
             })
             .on("error", function (error) {
                 cb(error ? error.message : "Unknown error", null);
