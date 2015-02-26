@@ -94,8 +94,7 @@ maxerr: 50, node: true */
     function _cmdInstall(path, names, save, config, cb) {
         var resultType,
             result,
-            bowerJsonExists,
-            data = {};
+            bowerJsonExists;
 
         if (commandExecution && commandExecution.install) {
             var install = commandExecution.install;
@@ -110,21 +109,11 @@ maxerr: 50, node: true */
         if (resultType === "success") {
             if (names && names.length === 1) {
                 result = require("./data/install.package.json");
-
-                var installedPackage = result[names[0]];
-
-                data.installationDir = installedPackage.canonicalDir;
-                data.count = 1;
             } else {
                 result = require("./data/install.packages.json");
-
-                data.installationDir = path;
-                data.count = Object.keys(result).length;
             }
 
-            data.packages = result;
-
-            cb(null, data);
+            cb(null, result);
         } else {
             cb(errorMessage, null);
         }

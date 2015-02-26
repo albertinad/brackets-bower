@@ -40,17 +40,43 @@ define(function (require, exports) {
     }
 
     function installPackage(path, packageName) {
-        // TODO: timeout if an install takes too long (maybe that should be in BowerDomain?)
-        var config = ConfigurationManager.getConfiguration(),
+        var deferred = new $.Deferred(),
+            config = ConfigurationManager.getConfiguration(),
             save = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
 
-        return bowerDomain.exec("install", path, [packageName], save, config);
+        bowerDomain.exec("install", path, [packageName], save, config).then(function (installedPackages) {
+            var installedPackage = installedPackages[packageName],
+                result = {
+                    installationDir: installedPackage.canonicalDir,
+                    count: 1,
+                    packages: installedPackages
+                };
+
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     function install(path) {
-        var config = ConfigurationManager.getConfiguration();
+        var deferred = new $.Deferred(),
+            config = ConfigurationManager.getConfiguration();
 
-        return bowerDomain.exec("install", path, null, null, config);
+        bowerDomain.exec("install", path, null, null, config).then(function (installedPackages) {
+            var result = {
+                installationDir: path,
+                count: Object.keys(installedPackages).length,
+                packages: installedPackages
+            };
+
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     function prune(path) {

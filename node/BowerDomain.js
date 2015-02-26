@@ -96,20 +96,6 @@ maxerr: 50, node: true */
 
         bower.commands.install(names, options, config)
             .on("end", function (installedPackages) {
-                var result = {};
-
-                if (names && names.length === 1) {
-                    var installedPackage = installedPackages[names[0]];
-
-                    result.installationDir = installedPackage.canonicalDir;
-                    result.count = 1;
-                } else {
-                    result.installationDir = path;
-                    result.count = Object.keys(installedPackages).length;
-                }
-
-                result.packages = installedPackages;
-
                 cb(null, result);
             })
             .on("error", function (error) {
