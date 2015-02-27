@@ -34,7 +34,7 @@ define({
     "TITLE_BOWER_JSON": "bower.json",
     "TITLE_SETTINGS": "Bower Settings",
     "BOWERRC_NOT_FOUND": ".bowerrc file not found!",
-    "BOWER_JSON_NOT_FOUND": "bower.json file not found!",
+    "BOWER_JSON_NOT_FOUND": "Bower.json file not found!",
     "CREATE": "Create",
     "RELOAD": "Reload",
     "DELETE": "Delete",
@@ -60,5 +60,11 @@ define({
     "STATUS_SUCCESS_INSTALLING": "Packages installed",
     "STATUS_SUCCESS_EXECUTING_COMMAND": "Command \"{0}\" executed",
     "STATUS_NO_PACKAGES_INSTALLED": "There isn't any package to install",
-    "ERROR_RELOAD_TIME_VALUE": "* The time must be greater than {0} minutes"
+    "ERROR_RELOAD_TIME_VALUE": "* The time must be greater than {0} minutes",
+
+    "BUTTON_SHOW_INSTALLED": "Installed",
+    "BUTTON_INSTALL_PACKAGE": "Install package",
+    "BUTTON_UPDATE_ALL": "Update all",
+    "PANEL_INSTALLED_TITLE": "Already installed packages",
+    "PANEL_INSTALLED_NO_FILES": "No installed packages yet"
 });

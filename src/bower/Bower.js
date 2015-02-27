@@ -91,6 +91,22 @@ define(function (require, exports) {
         return bowerDomain.exec("list", path, config);
     }
 
+    function uninstall(path, packageName) {
+        var result = $.Deferred(),
+            config = ConfigurationManager.getConfiguration();
+
+        bowerDomain.exec("uninstall", path, packageName, config)
+            .done(function (pkg){
+                result.resolve(pkg);
+            })
+            .fail(function (error) {
+                var error = "Error while uninstalling: " + packageName;
+                result.reject(error);
+            });
+
+        return result;
+    }
+
     function search() {
         var config = ConfigurationManager.getConfiguration();
 
@@ -139,6 +155,7 @@ define(function (require, exports) {
     exports.installPackage   = installPackage;
     exports.prune            = prune;
     exports.list             = list;
+    exports.uninstall        = uninstall;
     exports.search           = search;
     exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;

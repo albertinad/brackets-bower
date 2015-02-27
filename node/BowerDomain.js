@@ -103,6 +103,25 @@ maxerr: 50, node: true */
             });
     }
 
+    function _cmdUninstallPackage(path, name, config, cb) {
+        if (!config) {
+            config = {};
+        }
+
+        config.cwd = path;
+
+        // TODO update
+        bower.commands.uninstall([name], { save: true }, config)
+            .on("end", function (uninstalledPackages) {
+                var uninstalledPackage = uninstalledPackages[name];
+
+                cb(null, uninstalledPackage.canonicalDir);
+            })
+            .on("error", function (error) {
+                cb(error ? error.message : "Unknown error", null);
+            });
+    }
+
     /**
      * @param {string} path The path to the folder within which to install the package.
      * @param {object} config Key-value object to specify optional configuration.
@@ -242,6 +261,16 @@ maxerr: 50, node: true */
                 type: "string",
                 description: "Path to the installed package."
             }]
+        );
+
+        domainManager.registerCommand(
+            "uninstallPackage",
+            _cmdUninstallPackage,
+            true,
+            "Uninstalls a package.",
+            // TODO complete
+            [],
+            []
         );
 
         domainManager.registerCommand(

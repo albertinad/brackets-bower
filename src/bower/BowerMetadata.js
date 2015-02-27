@@ -93,6 +93,13 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Get the content of the file.
+     */
+    BowerMetadata.prototype.getContent = function () {
+        return FileUtils.readFile(this._absolutePath);
+    };
+
+    /**
      * The file content to write to disk must be placed here. The result must
      * be returned as a promise. Subclasses should implement this function.
      */

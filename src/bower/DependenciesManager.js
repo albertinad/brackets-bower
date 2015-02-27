@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
+/*global $, define, brackets, _ */
 
 define(function (require, exports) {
     "use strict";
@@ -172,6 +172,42 @@ define(function (require, exports) {
         return deferred;
     }
 
+    // TODO update this
+    /**
+     * Get the dir of the dependencies
+     * @param {string=} path
+     * @return {string} directory of bower.json
+     */
+    function findBowerJsonLocation(path) {
+        if (!path) {
+            path = ProjectManager.getProjectRoot().fullPath;
+        }
+
+        return path;
+    }
+
+    // TODO update this
+    function getDependencies() {
+        var deferred = new $.Deferred();
+
+        _bowerJsonFile.getContent()
+            .done(function (data) {
+                var dependencies = [],
+                    keys;
+                data = JSON.parse(data);
+
+                keys = Object.keys(data.dependencies);
+
+                keys.forEach(function (_key) {
+                    dependencies.push({name:_key, version:data.dependencies[_key]});
+                });
+
+                deferred.resolve(dependencies);
+            });
+
+        return deferred;
+    }
+
     function _notifyBowerJsonReloaded() {
         if (typeof _reloadedCallback === "function") {
             _reloadedCallback();
@@ -246,4 +282,8 @@ define(function (require, exports) {
     exports.installFromBowerJson = installFromBowerJson;
     exports.prune                = prune;
     exports.onBowerJsonReloaded  = onBowerJsonReloaded;
+
+    // TODO add this
+    exports.findBowerJsonLocation = findBowerJsonLocation;
+    exports.getDependencies       = getDependencies;
 });
