@@ -68,11 +68,12 @@ define(function (require, exports, module) {
     };
 
     DependenciesController.prototype.onLoad = function () {
-        var data = {};
+        var that = this,
+            data = null;
 
-        DependenciesManager.getDependencies()
-            .done(function (file) {
-                data.dependencies = file;
+        DependenciesManager.getInstalledDependencies()
+            .done(function (dependencies) {
+                data = dependencies;
             })
             .always(function () {
                 that._refreshUi(data);
@@ -80,17 +81,12 @@ define(function (require, exports, module) {
     };
 
     DependenciesController.prototype.onUninstall = function (name) {
-        // TODO encapsulate in depsmanager
-        var path = DependenciesManager.findBowerJsonLocation(),
-            that = this;
+        var that = this;
 
-        Bower.uninstall(path, name).then(function () {
-            return DependenciesManager.getDependencies()
-        }).done(function (file) {
-            that._refreshUi({ dependencies: file });
+        DependenciesController.uninstall(name).then(function () {
+            that._view.onDependecyRemoved(name);
         }).fail(function (error) {
             // TODO warn the user
-            console.log('error unistall');
             console.log(error);
         });
     };

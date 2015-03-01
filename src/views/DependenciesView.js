@@ -80,5 +80,9 @@ define(function (require, exports, module) {
         this.show();
     };
 
+    DependenciesView.prototype.onDependecyRemoved = function (name) {
+        // TODO remove li element that contains some sort of key related to "name"
+    };
+
     module.exports = DependenciesView;
 });

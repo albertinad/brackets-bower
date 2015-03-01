@@ -172,38 +172,27 @@ define(function (require, exports) {
         return deferred;
     }
 
-    // TODO update this
-    /**
-     * Get the dir of the dependencies
-     * @param {string=} path
-     * @return {string} directory of bower.json
-     */
-    function findBowerJsonLocation(path) {
-        if (!path) {
-            path = ProjectManager.getProjectRoot().fullPath;
-        }
+    function uninstall(name) {
+        var path = _bowerJson.ProjectPath;
 
-        return path;
+        return Bower.uninstall(path, name);
     }
 
-    // TODO update this
-    function getDependencies() {
+    function getInstalledDependencies() {
         var deferred = new $.Deferred();
 
-        _bowerJsonFile.getContent()
-            .done(function (data) {
-                var dependencies = [],
-                    keys;
-                data = JSON.parse(data);
+        _bowerJson.getContent().done(function (result) {
+            var data = JSON.parse(data),
+                deps = result.dependencies,
+                names = Object.keys(deps),
+                dependencies = [];
 
-                keys = Object.keys(data.dependencies);
-
-                keys.forEach(function (_key) {
-                    dependencies.push({name:_key, version:data.dependencies[_key]});
-                });
-
-                deferred.resolve(dependencies);
+            names.forEach(function (name) {
+                dependencies.push({ name: name, version: deps[name] });
             });
+
+            deferred.resolve(dependencies);
+        });
 
         return deferred;
     }
@@ -280,10 +269,8 @@ define(function (require, exports) {
     exports.findBowerJson        = findBowerJson;
     exports.open                 = open;
     exports.installFromBowerJson = installFromBowerJson;
+    exports.uninstall            = uninstall;
     exports.prune                = prune;
+    exports.getInstalledDependencies = getInstalledDependencies;
     exports.onBowerJsonReloaded  = onBowerJsonReloaded;
-
-    // TODO add this
-    exports.findBowerJsonLocation = findBowerJsonLocation;
-    exports.getDependencies       = getDependencies;
 });
