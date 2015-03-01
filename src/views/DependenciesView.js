@@ -24,6 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
+/*globals define, $, Mustache */
 
 define(function (require, exports, module) {
     "use strict";
