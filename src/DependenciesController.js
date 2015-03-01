@@ -53,8 +53,17 @@ define(function (require, exports, module) {
 
     DependenciesController.prototype.show = function () {
         this._isVisible = true;
+        var data = null;
+        var that = this;
 
-        this._view.show();
+        DependenciesManager.getInstalledDependencies()
+            .done(function (dependencies) {
+                data = dependencies;
+            })
+            .always(function () {
+                 that._view.show(data);
+            });
+
     };
 
     DependenciesController.prototype.hide = function () {
@@ -83,7 +92,7 @@ define(function (require, exports, module) {
     DependenciesController.prototype.onUninstall = function (name) {
         var that = this;
 
-        DependenciesController.uninstall(name).then(function () {
+        DependenciesManager.uninstall(name).then(function () {
             that._view.onDependecyRemoved(name);
         }).fail(function (error) {
             // TODO warn the user

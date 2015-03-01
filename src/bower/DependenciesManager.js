@@ -182,8 +182,8 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         _bowerJson.getContent().done(function (result) {
-            var data = JSON.parse(data),
-                deps = result.dependencies,
+            var data = JSON.parse(result),
+                deps = data.dependencies,
                 names = Object.keys(deps),
                 dependencies = [];
 

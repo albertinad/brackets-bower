@@ -91,20 +91,15 @@ define(function (require, exports) {
         return bowerDomain.exec("list", path, config);
     }
 
-    function uninstall(path, packageName) {
-        var result = $.Deferred(),
-            config = ConfigurationManager.getConfiguration();
+    function uninstall(path, names) {
+        var config = ConfigurationManager.getConfiguration();
 
-        bowerDomain.exec("uninstall", path, packageName, config)
-            .done(function (pkg){
-                result.resolve(pkg);
-            })
-            .fail(function (error) {
-                var error = "Error while uninstalling: " + packageName;
-                result.reject(error);
-            });
+        if (!Array.isArray(names)) {
+            names = [names];
+        }
 
-        return result;
+        // TODO save should be stored in Preferences
+        return bowerDomain.exec("uninstall", path, names, true, config);
     }
 
     function search() {
