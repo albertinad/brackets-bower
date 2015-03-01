@@ -3,10 +3,11 @@
     "title": "Brackets Bower",
     "version": "0.2.2",
     "description": "Manage your application's front-end dependencies using Bower. You can install and prune dependencies using the bower.json file and configure Bower throubh .bowerrc. Also, quickly install front-end packages by hitting Ctrl/Cmd-Alt-B, then start typing the name of a package. Once you see the package you want, hit Enter and the package will be installed into your project folder. NOTE: To install some packages, you must have git installed.",
-    "homepage": "https://github.com/njx/brackets-bower",
+    "author": "Albertina Durante (https://github.com/albertinad)",
+    "homepage": "https://github.com/albertinad/brackets-bower",
     "repository": {
         "type": "git",
-        "url": "https://github.com/njx/brackets-bower.git"
+        "url": "https://github.com/albertinad/brackets-bower.git"
     },
     "engines": {
         "brackets": ">=0.34.0"
