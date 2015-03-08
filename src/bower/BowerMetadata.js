@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Narciso Jaramillo. All rights reserved.
+ * Copyright (c) 2014-2015 Narciso Jaramillo. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -90,13 +90,6 @@ define(function (require, exports, module) {
      */
     BowerMetadata.prototype.open = function () {
         FileUtils.openInEditor(this._absolutePath);
-    };
-
-    /**
-     * Get the content of the file.
-     */
-    BowerMetadata.prototype.getContent = function () {
-        return FileUtils.readFile(this._absolutePath);
     };
 
     /**

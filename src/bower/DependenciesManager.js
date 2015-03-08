@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets, _ */
+/*global $, define, brackets */
 
 define(function (require, exports) {
     "use strict";
@@ -56,10 +56,7 @@ define(function (require, exports) {
                 path = currentProject.fullPath;
                 appName = currentProject.name;
             } else {
-                var promise = new $.Deferred();
-                promise.reject();
-
-                return promise;
+                return $.Deferred().reject();
             }
         }
 
@@ -113,10 +110,7 @@ define(function (require, exports) {
      */
     function findBowerJson(path) {
         if (!path) {
-            var promise = new $.Deferred();
-            promise.reject();
-
-            return promise;
+            return new $.Deferred().reject();
         }
 
         path += "bower.json";
@@ -128,9 +122,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (_bowerJson === null) {
-            deferred.reject();
-
-            return deferred;
+            return deferred.reject();
         }
 
         Bower.install(_bowerJson.ProjectPath).then(function (result) {
@@ -151,9 +143,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (_bowerJson === null) {
-            deferred.reject();
-
-            return deferred;
+            return deferred.reject();
         }
 
         Bower.prune(_bowerJson.ProjectPath)
@@ -173,25 +163,33 @@ define(function (require, exports) {
     }
 
     function uninstall(name) {
+        var deferred = new $.Deferred();
+
+        if (_bowerJson === null) {
+            return deferred.reject();
+        }
+
         var path = _bowerJson.ProjectPath;
 
         return Bower.uninstall(path, name);
     }
 
     function getInstalledDependencies() {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            path = ProjectManager.getProjectRoot().fullPath;
 
-        _bowerJson.getContent().done(function (result) {
-            var data = JSON.parse(result),
-                deps = data.dependencies,
-                names = Object.keys(deps),
+        Bower.list(path).then(function (result) {
+            var pkgs = result.dependencies,
+                pkgsName = Object.keys(pkgs),
                 dependencies = [];
 
-            names.forEach(function (name) {
-                dependencies.push({ name: name, version: deps[name] });
+            pkgsName.forEach(function (name) {
+                dependencies.push({ name: name, version: pkgs[name].pkgMeta.version });
             });
 
             deferred.resolve(dependencies);
+        }).fail(function (err) {
+            deferred.reject(err);
         });
 
         return deferred;
