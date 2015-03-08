@@ -10,8 +10,6 @@ Quick Open-style interface (Quick Install). You can also configure bower using t
 2. Search for "Install from Bower"
 3. Click the Install button
 
-Note that this will only work with Brackets Sprint 34 or later.
-
 **Note:** For some packages to install properly, you'll need to have git installed as well.
 
 ### Using
@@ -24,8 +22,7 @@ Note that this will only work with Brackets Sprint 34 or later.
 The package will be installed into a "bower_components" folder in your current project.
 
 You can also access this from normal Quick Open (Cmd/Ctrl-Shift-O) by typing a "+"
-before the package name. (I'm not totally convinced Quick Open is the right UI for
-this--would love to get feedback.)
+before the package name.
 
 ### Proxy Support
 
@@ -33,21 +30,23 @@ The extension takes the proxy configuration from the Brackets default [Preferenc
 the "proxy" preference. In order to make it work behind a proxy, you need to setup the proxy value
 through the default Preferences.
 
-1. Choose **Debug > Open Preferences File
-2. Add a new entry "proxy": "proxyValue"
+1. Choose **Debug > Open Preferences File**
+2. Add a new entry `"proxy": "proxyValue"`
 
-Some bower commands like "install", relies on Git configuration. To support proxy, you need
-to configure http and https proxy from your global git configuration in your system.
+Some bower commands like "install" rely on the git configuration. To support a proxy, you need
+to configure the http and https proxy from your global git configuration on your system.
 
 1. Open a console/terminal
-2. Setup the global proxy,
+2. Set up the global proxy:
+```
 git config --global --set http.proxy proxyValue
 git config --global --set https.proxy proxyValue
+```
 
 ### bower.json
 
 You can create, edit and delete the bower.json file, install and prune dependencies. Quick Install (Install from Bower...) supports
-configuration to automatically save the installed pacakage to the existent bower.json.
+configuration to automatically save the installed package to the existing bower.json.
 The bower.json file is always created with default data or with current dependencies if any. This also works when you create the
 file outside the extension using the file system.
 
@@ -56,8 +55,8 @@ re-open it to see the default file content. This issue will be fixed for the nex
 
 ### .bowerrc
 
-The extension automatically detects if the .bowerrc file exists at the root project.
-It allows to create a default one and to delete it later. All the changes made to
+The extension automatically detects if the .bowerrc file exists in the root project.
+It allows you to create a default one and to delete it later. All the changes made to
 the configurable properties are automatically propagated to bower once the file is
 saved.
 
@@ -68,4 +67,4 @@ and select to save or not the packages to the bower.json when installing using Q
 
 ### Problems? Suggestions?
 
-[File an issue!](https://github.com/njx/brackets-bower/issues)
+[File an issue!](https://github.com/albertinad/brackets-bower/issues)
