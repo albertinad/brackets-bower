@@ -36,7 +36,8 @@ define(function (require, exports) {
         Event          = require("src/events/Events"),
         FileUtils      = require("src/utils/FileUtils"),
         BowerJson      = require("src/bower/BowerJson"),
-        Bower          = require("src/bower/Bower");
+        Bower          = require("src/bower/Bower"),
+        PackageFactory = require("src/bower/PackageFactory");
 
     var _bowerJson = null,
         _reloadedCallback;
@@ -179,15 +180,7 @@ define(function (require, exports) {
             path = ProjectManager.getProjectRoot().fullPath;
 
         Bower.list(path).then(function (result) {
-            var pkgs = result.dependencies,
-                pkgsName = Object.keys(pkgs),
-                dependencies = [];
-
-            pkgsName.forEach(function (name) {
-                dependencies.push({ name: name, version: pkgs[name].pkgMeta.version });
-            });
-
-            deferred.resolve(dependencies);
+            deferred.resolve(PackageFactory.create(result.dependencies));
         }).fail(function (err) {
             deferred.reject(err);
         });

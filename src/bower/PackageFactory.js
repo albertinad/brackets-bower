@@ -30,15 +30,18 @@ define(function (require, exports, module) {
     "use strict";
 
     /**
+     * @param {string} name
+     * @param {string} version
+     * @param {string} latestVersion
      * @constructor
      */
-    function Package() {
+    function Package(name, version, latestVersion) {
         /** @private */
-        this._name = null;
+        this._name = name;
         /** @private */
-        this._version = null;
+        this._version = version;
         /** @private */
-        this._latestVersion = null;
+        this._latestVersion = latestVersion;
     }
 
     Object.defineProperty(Package.prototype, "name", {
@@ -59,11 +62,43 @@ define(function (require, exports, module) {
         }
     });
 
-    Package.prototype.fromRawData = function () {};
+    Package.prototype.fromRawData = function (data) {
 
-    Package.prototype.isLatest = function () {};
+    };
 
-    function create() {}
+    /**
+     * Check if the current package version is the latest one.
+     * @return {boolean} isLatest True if it's the latest version, otherwhise, false.
+     */
+    Package.prototype.isLatest = function () {
+        var current = this._version.split("."),
+            latest = this._latestVersion.split("."),
+            isLatest = false;
+
+        current.some(function (value, index) {
+            var numberValue = parseInt(value, 0),
+                numberLatest = parseInt(latest[index], 0),
+                isLatest = (numberValue > numberLatest);
+
+            return isLatest;
+        });
+
+        return isLatest;
+    };
+
+    function create(pkgsData) {
+        var pkgsName = Object.keys(pkgsData),
+            pkgs = [];
+
+        pkgsName.forEach(function (name) {
+            var version = pkgsData[name].pkgMeta.version,
+                latestVersion = pkgsData[name].update.latest;
+
+            pkgs.push(new Package(name, version, latestVersion));
+        });
+
+        return pkgs;
+    }
 
     exports.create = create;
 });
