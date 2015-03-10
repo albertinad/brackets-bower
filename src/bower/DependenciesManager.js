@@ -164,13 +164,14 @@ define(function (require, exports) {
     }
 
     function uninstall(name) {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            path;
 
-        if (_bowerJson === null) {
-            return deferred.reject();
+        if (_bowerJson !== null) {
+            path = _bowerJson.ProjectPath;
+        } else {
+            path = ProjectManager.getProjectRoot().fullPath;
         }
-
-        var path = _bowerJson.ProjectPath;
 
         return Bower.uninstall(path, name);
     }
