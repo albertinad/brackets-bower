@@ -44,7 +44,7 @@ maxerr: 50, node: true */
      *     error; second parameter is either the array of name/url objects or null if there was
      *     an error.
      */
-    function _cmdGetPackages(config, cb) {
+    function _cmdSearch(config, cb) {
         bower.commands.search(null, config)
             .on("end", function (data) {
                 cb(null, data);
@@ -60,7 +60,7 @@ maxerr: 50, node: true */
      * @param {function(?Array)} cb Callback o receive
      *      the list of packages names that are on the bower cache.
      */
-    function _cmdGetPackagesFromCache(config, cb) {
+    function _cmdListCache(config, cb) {
         bower.commands.cache.list(null, null, config)
             .on("end", function (data) {
                 cb(null, data);
@@ -73,7 +73,6 @@ maxerr: 50, node: true */
 
     /**
      * Installs packages.
-     * @param {string} path The path to the folder within which to install the package.
      * @param {Array} names Array with package's names to install.
      * @param {boolean} save Save the package into the bower.json if it exists.
      * @param {object} config Key-value object to specify optional configuration.
@@ -81,18 +80,12 @@ maxerr: 50, node: true */
      * First parameter is an error string, or null if no error, and second parameter is either
      * the full installation path or null if there was an error.
      */
-    function _cmdInstall(path, names, save, config, cb) {
+    function _cmdInstall(names, save, config, cb) {
         var options = {};
 
         if (save !== null && save !== undefined) {
             options.save = save;
         }
-
-        if (!config) {
-            config = {};
-        }
-
-        config.cwd = path;
 
         bower.commands.install(names, options, config)
             .on("end", function (installedPackages) {
@@ -103,18 +96,12 @@ maxerr: 50, node: true */
             });
     }
 
-    function _cmdUninstall(path, names, save, config, cb) {
+    function _cmdUninstall(names, save, config, cb) {
         var options = {};
 
         if (save !== null && save !== undefined) {
             options.save = save;
         }
-
-        if (!config) {
-            config = {};
-        }
-
-        config.cwd = path;
 
         bower.commands.uninstall(names, options, config)
             .on("end", function (uninstalledPackages) {
@@ -126,17 +113,10 @@ maxerr: 50, node: true */
     }
 
     /**
-     * @param {string} path The path to the folder within which to install the package.
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function} cb
      */
     function _cmdPrune(path, config, cb) {
-        if (!config) {
-            config = {};
-        }
-
-        config.cwd = path;
-
         bower.commands.prune(null, config)
             .on("end", function () {
                 cb(null, true);
@@ -147,17 +127,10 @@ maxerr: 50, node: true */
     }
 
     /**
-     * @param {string} path The path to the folder where execute command.
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function} cb
      */
     function _cmdList(path, config, cb) {
-        if (!config) {
-            config = {};
-        }
-
-        config.cwd = path;
-
         bower.commands.list(null, config)
             .on("end", function (result) {
                 cb(null, result);
@@ -202,8 +175,8 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "getPackages",
-            _cmdGetPackages,
+            "search",
+            _cmdSearch,
             true,
             "Returns a list of all packages from the bower registry.",
             [{
@@ -220,8 +193,8 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "getPackagesFromCache",
-            _cmdGetPackagesFromCache,
+            "listCache",
+            _cmdListCache,
             true,
             "Returns a list of all packages from the bower cache.",
             [{
@@ -243,10 +216,6 @@ maxerr: 50, node: true */
             true,
             "Installs a package into a given folder.",
             [{
-                name: "path",
-                type: "string",
-                description: "Path to folder into which to install the package"
-            }, {
                 name: "names",
                 type: "array",
                 description: "Array with package's names to install. If null, it will look for the bower.json dependencies."
@@ -284,9 +253,9 @@ maxerr: 50, node: true */
             true,
             "Uninstall packages removed from bower.json.",
             [{
-                name: "path",
-                type: "string",
-                description: "Path to folder where the bower.json file is located."
+                name: "config",
+                type: "object",
+                description: "Configuration object."
             }],
             []
         );
@@ -298,9 +267,9 @@ maxerr: 50, node: true */
             true,
             "List installed packages.",
             [{
-                name: "path",
-                type: "string",
-                description: "Path to current project folder."
+                name: "config",
+                type: "object",
+                description: "Configuration object."
             }],
             []
         );

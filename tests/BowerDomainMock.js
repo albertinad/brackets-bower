@@ -29,7 +29,7 @@ maxerr: 50, node: true */
 
     var DOMAIN_NAME = "bower-test";
 
-    var errorMessage = "BowerTestDomain error message";
+    var errorMessage = "BowerDomainMock error message";
 
     var defaultCommandExecution = {
         resultType: "success",
@@ -47,7 +47,7 @@ maxerr: 50, node: true */
         commandExecution = undefined;
     }
 
-    function _cmdGetPackages(config, cb) {
+    function _cmdSearch(config, cb) {
         var resultType,
             result;
 
@@ -69,7 +69,7 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdGetPackagesFromCache(config, cb) {
+    function _cmdCacheList(config, cb) {
         var resultType,
             result;
 
@@ -91,7 +91,7 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdInstall(path, names, save, config, cb) {
+    function _cmdInstall(names, save, config, cb) {
         var resultType,
             result,
             bowerJsonExists;
@@ -119,7 +119,33 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdPrune(path, config, cb) {
+    function _cmdUninstall(names, save, config, cb) {
+        var resultType,
+            packagesExists,
+            result = {};
+
+        if (commandExecution && commandExecution.uninstall) {
+            var uninstall = commandExecution.uninstall;
+
+            resultType = uninstall.resultType;
+            packagesExists = uninstall.packagesExists;
+        } else {
+            resultType = defaultCommandExecution.resultType;
+            packagesExists = true;
+        }
+
+        if (resultType === "success" && packagesExists) {
+            names.forEach(function (name) {
+                result[name] = "/bowertestuser/bower_components/" + name;
+            });
+
+            cb(null, result);
+        } else {
+            cb(errorMessage, null);
+        }
+    }
+
+    function _cmdPrune(config, cb) {
         var resultType,
             result,
             bowerJsonExists;
@@ -143,8 +169,6 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdList(path, config, cb) {}
-
     function init(domainManager) {
         if (!domainManager.hasDomain(DOMAIN_NAME)) {
             domainManager.registerDomain(DOMAIN_NAME, {
@@ -155,15 +179,15 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "getPackages",
-            _cmdGetPackages,
+            "search",
+            _cmdSearch,
             true
         );
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "getPackagesFromCache",
-            _cmdGetPackagesFromCache,
+            "cacheList",
+            _cmdCacheList,
             true
         );
 
@@ -176,15 +200,15 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "prune",
-            _cmdPrune,
+            "uninstall",
+            _cmdUninstall,
             true
         );
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "list",
-            _cmdList,
+            "prune",
+            _cmdPrune,
             true
         );
 

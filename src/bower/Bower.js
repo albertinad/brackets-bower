@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var NodeDomain           = brackets.getModule("utils/NodeDomain"),
-        Preferences          = require("src/preferences/Preferences"),
+    var NodeDomain = brackets.getModule("utils/NodeDomain"),
+        Preferences = require("src/preferences/Preferences"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;
@@ -39,12 +39,24 @@ define(function (require, exports) {
         bowerDomain = new NodeDomain("bower", domainPath);
     }
 
+    /**
+     * @param {string} path
+     * @private
+     */
+    function _getConfiguration(path) {
+        var config = ConfigurationManager.getConfiguration();
+
+        config.cwd = path;
+
+        return config;
+    }
+
     function installPackage(path, packageName) {
         var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration(),
+            config = _getConfiguration(path),
             save = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
 
-        bowerDomain.exec("install", path, [packageName], save, config).then(function (installedPackages) {
+        bowerDomain.exec("install", [packageName], save, config).then(function (installedPackages) {
             var installedPackage = installedPackages[packageName],
                 result = {
                     installationDir: installedPackage.canonicalDir,
@@ -62,9 +74,9 @@ define(function (require, exports) {
 
     function install(path) {
         var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration();
+            config = _getConfiguration(path);
 
-        bowerDomain.exec("install", path, null, null, config).then(function (installedPackages) {
+        bowerDomain.exec("install", null, null, config).then(function (installedPackages) {
             var result = {
                 installationDir: path,
                 count: Object.keys(installedPackages).length,
@@ -80,32 +92,32 @@ define(function (require, exports) {
     }
 
     function prune(path) {
-        var config = ConfigurationManager.getConfiguration();
+        var config = _getConfiguration(path);
 
-        return bowerDomain.exec("prune", path, config);
+        return bowerDomain.exec("prune", config);
     }
 
     function list(path) {
-        var config = ConfigurationManager.getConfiguration();
+        var config = _getConfiguration(path);
 
-        return bowerDomain.exec("list", path, config);
+        return bowerDomain.exec("list", config);
     }
 
     function uninstall(path, names) {
-        var config = ConfigurationManager.getConfiguration();
+        var config = _getConfiguration(path);
 
         if (!Array.isArray(names)) {
             names = [names];
         }
 
         // TODO save should be stored in Preferences
-        return bowerDomain.exec("uninstall", path, names, true, config);
+        return bowerDomain.exec("uninstall", names, true, config);
     }
 
     function search() {
         var config = ConfigurationManager.getConfiguration();
 
-        return bowerDomain.exec("getPackages", config);
+        return bowerDomain.exec("search", config);
     }
 
     /**
@@ -113,7 +125,7 @@ define(function (require, exports) {
      */
     function listCache() {
         var config = ConfigurationManager.getConfiguration(),
-            promise = bowerDomain.exec("getPackagesFromCache", config);
+            promise = bowerDomain.exec("cacheList", config);
 
         // the packages returned from "bower cache list" doesn't have
         // the "name" property, so we added it
@@ -145,18 +157,18 @@ define(function (require, exports) {
         bowerDomain = nodeDomain;
     }
 
-    exports.init             = init;
-    exports.install          = install;
-    exports.installPackage   = installPackage;
-    exports.prune            = prune;
-    exports.list             = list;
-    exports.uninstall        = uninstall;
-    exports.search           = search;
-    exports.listCache        = listCache;
+    exports.init = init;
+    exports.install = install;
+    exports.installPackage = installPackage;
+    exports.prune = prune;
+    exports.list = list;
+    exports.uninstall = uninstall;
+    exports.search = search;
+    exports.listCache = listCache;
     exports.getConfiguration = getConfiguration;
-    exports.executeCommand   = executeCommand;
+    exports.executeCommand = executeCommand;
 
     // API for testing
 
-    exports._setBower        = _setBower;
+    exports._setBower = _setBower;
 });
