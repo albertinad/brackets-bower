@@ -29,7 +29,6 @@ define(function (require, exports, module) {
     "use strict";
 
     var DependenciesManager = require("src/bower/DependenciesManager"),
-        Bower               = require("src/bower/Bower"),
         DependenciesView    = require("src/views/DependenciesView");
 
     /**
