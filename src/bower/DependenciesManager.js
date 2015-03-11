@@ -40,6 +40,7 @@ define(function (require, exports) {
         PackageFactory = require("src/bower/PackageFactory");
 
     var _bowerJson = null,
+        _packages = [],
         _reloadedCallback;
 
     /**
@@ -173,7 +174,13 @@ define(function (require, exports) {
             path = ProjectManager.getProjectRoot().fullPath;
         }
 
-        return Bower.uninstall(path, name);
+        Bower.uninstall(path, name).then(function () {
+            deferred.resolve();
+        }).fail(function (err) {
+            deferred.reject(err);
+        });
+
+        return deferred;
     }
 
     function getInstalledDependencies() {
@@ -181,8 +188,12 @@ define(function (require, exports) {
             path = ProjectManager.getProjectRoot().fullPath;
 
         Bower.list(path).then(function (result) {
-            deferred.resolve(PackageFactory.create(result.dependencies));
+            _packages = PackageFactory.create(result.dependencies);
+
+            deferred.resolve(_packages);
         }).fail(function (err) {
+            _packages = [];
+
             deferred.reject(err);
         });
 

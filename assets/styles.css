@@ -46,6 +46,11 @@
     background-position: 0 -97px;
 }
 
+.bower-update {
+    color: #3b9b3b;
+    font-weight: bold;
+}
+
 /* error dialog */
 
 #bower-error-dialog[data-severity-type=warning] .modal-header {

@@ -57,6 +57,8 @@ define({
     "GIT_NOT_FOUND_DESCRIPTION": "Brackets-bower extension searched for Git at the system PATH.\n\nBower requires Git installed, and configured in the system PATH variable, \nto download and install some packages.\nBrackets-bower extension may not work properly.",
     "COMMAND_INSTALL": "install",
     "COMMAND_PRUNE": "prune",
+    "COMMAND_UNINSTALL": "uninstall",
+    "COMMAND_UPDATE": "update",
     "STATUS_EXECUTING_COMMAND": "Executing command \"{0}\"",
     "STATUS_ERROR_EXECUTING_COMMAND": "Error executing command \"{0}\"",
     "STATUS_SUCCESS_INSTALLING": "Packages installed",

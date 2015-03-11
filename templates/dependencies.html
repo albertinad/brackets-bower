@@ -9,22 +9,26 @@
             {{#dependencies}}
             <tr data-bower-dependency="{{ name }}">
                 <td>
-                    <div class="name bower-row-item">{{ name }}</div>
+                    <div class="bower-row-item">{{ name }}</div>
                 </td>
                 <td>
-                    <div class="version bower-row-item">({{ version }})</div>
+                    <div class="bower-row-item">{{ version }}</div>
                 </td>
-
+                <td>
+                    <div class="bower-row-item {{ #hasUpdates }}bower-update{{ /hasUpdates }}">{{ latestVersion }}</div>
+                </td>
                 <td>
                     <div class="controls bower-row-item">
-                        <button class="btn btn-mini" data-bower-installed-action="delete" data-name="{{ name }}" title="{{Strings.DELETE}}">
-                            <span class="octicon octicon-x"></span>
+                        <button class="btn btn-mini" data-bower-installed-action="delete" data-name="{{ name }}" title="{{Strings.COMMAND_UNINSTALL}}">
+                            {{ Strings.COMMAND_UNINSTALL }}
+                        </button>
+                        <button class="btn btn-mini" data-bower-installed-action="update" data-name="{{ name }}" title="{{Strings.COMMAND_UPDATE}}" {{ ^hasUpdates }}disabled{{ /hasUpdates }}>
+                            {{ Strings.COMMAND_UPDATE }}
                         </button>
                     </div>
                 </td>
             </tr>
             {{/dependencies}}
-
             {{^dependencies}}
             <tr>
                 <td>

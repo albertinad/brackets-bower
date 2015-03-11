@@ -81,7 +81,9 @@ define(function (require, exports, module) {
     };
 
     DependenciesView.prototype.onDependecyRemoved = function (name) {
-        // TODO remove li element that contains some sort of key related to "name"
+        var $uninstalledDependency = this._$panel.find("[data-bower-dependency='" + name + "']");
+
+        $uninstalledDependency.remove();
     };
 
     module.exports = DependenciesView;

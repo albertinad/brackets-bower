@@ -67,23 +67,24 @@ define(function (require, exports, module) {
     };
 
     /**
-     * Check if the current package version is the latest one.
-     * @return {boolean} isLatest True if it's the latest version, otherwhise, false.
+     * Check if the current package version has latest versions.
+     * @return {boolean} isLatest True if it has latest version, otherwhise, false.
      */
-    Package.prototype.isLatest = function () {
+    Package.prototype.hasUpdates = function () {
         var current = this._version.split("."),
             latest = this._latestVersion.split("."),
-            isLatest = false;
+            hasLatest = false;
 
         current.some(function (value, index) {
             var numberValue = parseInt(value, 0),
-                numberLatest = parseInt(latest[index], 0),
-                isLatest = (numberValue > numberLatest);
+                numberLatest = parseInt(latest[index], 0);
 
-            return isLatest;
+            hasLatest = (numberLatest > numberValue);
+
+            return hasLatest;
         });
 
-        return isLatest;
+        return hasLatest;
     };
 
     function create(pkgsData) {
