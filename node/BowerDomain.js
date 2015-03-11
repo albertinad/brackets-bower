@@ -116,7 +116,7 @@ maxerr: 50, node: true */
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function} cb
      */
-    function _cmdPrune(path, config, cb) {
+    function _cmdPrune(config, cb) {
         bower.commands.prune(null, config)
             .on("end", function () {
                 cb(null, true);
@@ -130,7 +130,7 @@ maxerr: 50, node: true */
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function} cb
      */
-    function _cmdList(path, config, cb) {
+    function _cmdList(config, cb) {
         bower.commands.list(null, config)
             .on("end", function (result) {
                 cb(null, result);
