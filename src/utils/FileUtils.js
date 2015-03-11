@@ -120,8 +120,32 @@ define(function (require, exports) {
         });
     }
 
+    /**
+     * Read and get the content of the file with the give name.
+     * @param {string} filePath The absolute path of the file to open in the editor.
+     */
+    function readFile(path) {
+        var promise = new $.Deferred(),
+            file = FileSystem.getFileForPath(path);
+
+        if (!file) {
+            promise.reject();
+        }
+
+        file.read(function (error, result) {
+            if (error) {
+                promise.reject(error);
+            } else {
+                promise.resolve(result);
+            }
+        });
+
+        return promise;
+    }
+
     exports.exists       = exists;
     exports.writeContent = writeContent;
     exports.deleteFile   = deleteFile;
+    exports.readFile     = readFile;
     exports.openInEditor = openInEditor;
 });

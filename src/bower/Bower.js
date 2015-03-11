@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global $, define, brackets */
 
 define(function (require, exports) {
     "use strict";
@@ -91,6 +91,17 @@ define(function (require, exports) {
         return bowerDomain.exec("list", path, config);
     }
 
+    function uninstall(path, names) {
+        var config = ConfigurationManager.getConfiguration();
+
+        if (!Array.isArray(names)) {
+            names = [names];
+        }
+
+        // TODO save should be stored in Preferences
+        return bowerDomain.exec("uninstall", path, names, true, config);
+    }
+
     function search() {
         var config = ConfigurationManager.getConfiguration();
 
@@ -139,6 +150,7 @@ define(function (require, exports) {
     exports.installPackage   = installPackage;
     exports.prune            = prune;
     exports.list             = list;
+    exports.uninstall        = uninstall;
     exports.search           = search;
     exports.listCache        = listCache;
     exports.getConfiguration = getConfiguration;

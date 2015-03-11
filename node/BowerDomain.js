@@ -34,6 +34,8 @@ maxerr: 50, node: true */
 
     var DOMAIN_NAME = "bower";
 
+    var UNKNOWN_ERROR = "Unknown error";
+
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
      * @param {object} config Key-value object to specify optional configuration.
@@ -97,7 +99,29 @@ maxerr: 50, node: true */
                 cb(null, installedPackages);
             })
             .on("error", function (error) {
-                cb(error ? error.message : "Unknown error", null);
+                cb(error ? error.message : UNKNOWN_ERROR, null);
+            });
+    }
+
+    function _cmdUninstall(path, names, save, config, cb) {
+        var options = {};
+
+        if (save !== null && save !== undefined) {
+            options.save = save;
+        }
+
+        if (!config) {
+            config = {};
+        }
+
+        config.cwd = path;
+
+        bower.commands.uninstall(names, options, config)
+            .on("end", function (uninstalledPackages) {
+                cb(null, uninstalledPackages);
+            })
+            .on("error", function (error) {
+                cb(error ? error.message : UNKNOWN_ERROR, null);
             });
     }
 
@@ -118,7 +142,7 @@ maxerr: 50, node: true */
                 cb(null, true);
             })
             .on("error", function (error) {
-                cb(error ? error.message : "Unknown error", null);
+                cb(error ? error.message : UNKNOWN_ERROR, null);
             });
     }
 
@@ -139,7 +163,7 @@ maxerr: 50, node: true */
                 cb(null, result);
             })
             .on("error", function (error) {
-                cb(error ? error.message : "Unknown error", null);
+                cb(error ? error.message : UNKNOWN_ERROR, null);
             });
     }
 
@@ -240,6 +264,17 @@ maxerr: 50, node: true */
                 type: "string",
                 description: "Path to the installed package."
             }]
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "uninstall",
+            _cmdUninstall,
+            true,
+            "Uninstalls a package.",
+            // TODO complete
+            [],
+            []
         );
 
         domainManager.registerCommand(

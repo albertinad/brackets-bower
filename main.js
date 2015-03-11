@@ -49,7 +49,8 @@ define(function (require, exports, module) {
     // controllers
         PanelController         = require("src/PanelController"),
         ConfigurationController = require("src/ConfigurationController"),
-        BowerJsonController     = require("src/BowerJsonController");
+        BowerJsonController     = require("src/BowerJsonController"),
+        DependenciesController  = require("src/DependenciesController");
 
     var EXTENSION_NAME         = "albertinad.bracketsbower",
         CMD_QUICK_INSTALL      = EXTENSION_NAME + ".installFromBower",
@@ -81,6 +82,9 @@ define(function (require, exports, module) {
             },
             "config": {
                 constructor: ConfigurationController
+            },
+            "dependencies": {
+                constructor: DependenciesController
             }
         };
 

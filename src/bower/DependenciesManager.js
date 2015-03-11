@@ -36,9 +36,11 @@ define(function (require, exports) {
         Event          = require("src/events/Events"),
         FileUtils      = require("src/utils/FileUtils"),
         BowerJson      = require("src/bower/BowerJson"),
-        Bower          = require("src/bower/Bower");
+        Bower          = require("src/bower/Bower"),
+        PackageFactory = require("src/bower/PackageFactory");
 
     var _bowerJson = null,
+        _packages = [],
         _reloadedCallback;
 
     /**
@@ -56,10 +58,7 @@ define(function (require, exports) {
                 path = currentProject.fullPath;
                 appName = currentProject.name;
             } else {
-                var promise = new $.Deferred();
-                promise.reject();
-
-                return promise;
+                return $.Deferred().reject();
             }
         }
 
@@ -113,10 +112,7 @@ define(function (require, exports) {
      */
     function findBowerJson(path) {
         if (!path) {
-            var promise = new $.Deferred();
-            promise.reject();
-
-            return promise;
+            return new $.Deferred().reject();
         }
 
         path += "bower.json";
@@ -128,9 +124,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (_bowerJson === null) {
-            deferred.reject();
-
-            return deferred;
+            return deferred.reject();
         }
 
         Bower.install(_bowerJson.ProjectPath).then(function (result) {
@@ -151,9 +145,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (_bowerJson === null) {
-            deferred.reject();
-
-            return deferred;
+            return deferred.reject();
         }
 
         Bower.prune(_bowerJson.ProjectPath)
@@ -168,6 +160,42 @@ define(function (require, exports) {
             .fail(function () {
                 deferred.reject();
             });
+
+        return deferred;
+    }
+
+    function uninstall(name) {
+        var deferred = new $.Deferred(),
+            path;
+
+        if (_bowerJson !== null) {
+            path = _bowerJson.ProjectPath;
+        } else {
+            path = ProjectManager.getProjectRoot().fullPath;
+        }
+
+        Bower.uninstall(path, name).then(function () {
+            deferred.resolve();
+        }).fail(function (err) {
+            deferred.reject(err);
+        });
+
+        return deferred;
+    }
+
+    function getInstalledDependencies() {
+        var deferred = new $.Deferred(),
+            path = ProjectManager.getProjectRoot().fullPath;
+
+        Bower.list(path).then(function (result) {
+            _packages = PackageFactory.create(result.dependencies);
+
+            deferred.resolve(_packages);
+        }).fail(function (err) {
+            _packages = [];
+
+            deferred.reject(err);
+        });
 
         return deferred;
     }
@@ -244,6 +272,8 @@ define(function (require, exports) {
     exports.findBowerJson        = findBowerJson;
     exports.open                 = open;
     exports.installFromBowerJson = installFromBowerJson;
+    exports.uninstall            = uninstall;
     exports.prune                = prune;
+    exports.getInstalledDependencies = getInstalledDependencies;
     exports.onBowerJsonReloaded  = onBowerJsonReloaded;
 });
