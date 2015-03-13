@@ -33,11 +33,10 @@ define(function (require, exports) {
         ProjectManager     = brackets.getModule("project/ProjectManager"),
         AppInit            = brackets.getModule("utils/AppInit"),
         BowerRc            = require("src/bower/BowerRc"),
-        Event              = require("src/events/Events"),
-        EventEmitter       = require("src/events/EventEmitter"),
+        FileSystemEvents   = require("src/events/FileSystemEvents"),
         FileUtils          = require("src/utils/FileUtils");
 
-    var _bowerRc    = null,
+    var _bowerRc  = null,
         _defaultConfiguration = {},
         _reloadedCallback;
 
@@ -140,7 +139,7 @@ define(function (require, exports) {
         }
     }
 
-    function _loadBowerRcAtCurrentProject() {
+    function loadBowerRcAtCurrentProject() {
         // search for the configuration file if it exists
         var currentProject = ProjectManager.getProjectRoot(),
             defaultPath = (currentProject) ? currentProject.fullPath : null;
@@ -217,16 +216,17 @@ define(function (require, exports) {
     }
 
     function _init() {
+        var Events = FileSystemEvents.Events;
+
         _setUpDefaultConfiguration();
 
         AppInit.appReady(function () {
-            _loadBowerRcAtCurrentProject();
+            loadBowerRcAtCurrentProject();
         });
 
-        EventEmitter.on(Event.BOWER_BOWERRC_CREATE, _onConfigurationCreated);
-        EventEmitter.on(Event.BOWER_BOWERRC_CHANGE, _onConfigurationChanged);
-        EventEmitter.on(Event.BOWER_BOWERRC_DELETE, _onBowerRcDeleted);
-        EventEmitter.on(Event.PROJECT_CHANGE, _loadBowerRcAtCurrentProject);
+        FileSystemEvents.on(Events.BOWER_BOWERRC_CREATE, _onConfigurationCreated);
+        FileSystemEvents.on(Events.BOWER_BOWERRC_CHANGE, _onConfigurationChanged);
+        FileSystemEvents.on(Events.BOWER_BOWERRC_DELETE, _onBowerRcDeleted);
 
         PreferencesManager.on("change", function (event, data) {
             _onPreferencesChange(data.ids);

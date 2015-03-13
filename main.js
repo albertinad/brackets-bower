@@ -38,14 +38,14 @@ define(function (require, exports, module) {
         AppInit           = brackets.getModule("utils/AppInit");
 
     // local modules
-    var Bower             = require("src/bower/Bower"),
-        GitChecker        = require("src/bower/GitChecker"),
-        FileSystemEvents  = require("src/events/FileSystemEvents"),
-        QuickInstall      = require("src/QuickInstall"),
-        ErrorDialog       = require("src/dialogs/ErrorDialog"),
-        EventEmitter      = require("src/events/EventEmitter"),
-        Event             = require("src/events/Events"),
-        Strings           = require("strings"),
+    var Bower                = require("src/bower/Bower"),
+        GitChecker           = require("src/bower/GitChecker"),
+        ConfigurationManager = require("src/bower/ConfigurationManager"),
+        DependenciesManager  = require("src/bower/DependenciesManager"),
+        FileSystemEvents     = require("src/events/FileSystemEvents"),
+        QuickInstall         = require("src/QuickInstall"),
+        ErrorDialog          = require("src/dialogs/ErrorDialog"),
+        Strings              = require("strings"),
 
     // controllers
         PanelController         = require("src/PanelController"),
@@ -130,7 +130,8 @@ define(function (require, exports, module) {
             FileSystemEvents.init();
 
             ProjectManager.on("projectOpen", function () {
-                EventEmitter.trigger(Event.PROJECT_CHANGE);
+                ConfigurationManager.loadBowerRcAtCurrentProject();
+                DependenciesManager.loadBowerJsonAtCurrentProject();
             });
         });
     }

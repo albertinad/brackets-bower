@@ -29,16 +29,38 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var FileSystem     = brackets.getModule("filesystem/FileSystem"),
-        ProjectManager = brackets.getModule("project/ProjectManager"),
-        Event          = require("src/events/Events"),
-        EventEmitter   = require("src/events/EventEmitter");
+    var FileSystem      = brackets.getModule("filesystem/FileSystem"),
+        ProjectManager  = brackets.getModule("project/ProjectManager"),
+        EventDispatcher = brackets.getModule("utils/EventDispatcher");
 
     var _bowerRcFile,
         _bowerJsonFile,
         _projectPathRegex,
         _bowerConfigRegex,
         _bowerJsonRegex;
+
+    /**
+     * Events definition for the extension.
+     */
+    var BOWERRC_CREATED    = "bowerrcCreated",
+        BOWERRC_CHANGED    = "bowerrcChanged",
+        BOWERRC_DELETED    = "bowerrcDeleted",
+        BOWER_JSON_CREATED = "bowerjsonCreated",
+        BOWER_JSON_CHANGED = "bowerjsonChanged",
+        BOWER_JSON_DELETED ="bowerjsonDeleted";
+
+    var namespace = ".albertinad.bracketsbower";
+
+    var Events = {
+        BOWER_BOWERRC_CREATE: BOWERRC_CREATED + namespace,
+        BOWER_BOWERRC_CHANGE: BOWERRC_CHANGED + namespace,
+        BOWER_BOWERRC_DELETE: BOWERRC_DELETED + namespace,
+        BOWER_JSON_CREATE: BOWER_JSON_CREATED + namespace,
+        BOWER_JSON_CHANGE: BOWER_JSON_CHANGED + namespace,
+        BOWER_JSON_DELETE: BOWER_JSON_DELETED + namespace
+    };
+
+    EventDispatcher.makeEventDispatcher(exports);
 
     function _isFileByPathInArray(filesArray, filePath) {
         var result;
@@ -67,11 +89,11 @@ define(function (require, exports) {
 
             if (entry.fullPath.match(_bowerConfigRegex)) {
 
-                EventEmitter.trigger(Event.BOWER_BOWERRC_CHANGE);
+                exports.trigger(BOWERRC_CHANGED);
 
             } else if (entry.fullPath.match(_bowerJsonRegex)) {
 
-                EventEmitter.trigger(Event.BOWER_JSON_CHANGE);
+                exports.trigger(BOWER_JSON_CHANGED);
             }
         } else if (entry.isDirectory && entry.fullPath.match(_projectPathRegex)) {
 
@@ -80,12 +102,12 @@ define(function (require, exports) {
 
                 if (_isFileByPathInArray(added, _bowerRcFile)) {
 
-                    EventEmitter.trigger(Event.BOWER_BOWERRC_CREATE);
+                    exports.trigger(BOWERRC_CREATED);
                 }
 
                 if (_isFileByPathInArray(added, _bowerJsonFile)) {
 
-                    EventEmitter.trigger(Event.BOWER_JSON_CREATE);
+                    exports.trigger(BOWER_JSON_CREATED);
                 }
             }
 
@@ -94,12 +116,12 @@ define(function (require, exports) {
 
                 if (_isFileByPathInArray(removed, _bowerRcFile)) {
 
-                    EventEmitter.trigger(Event.BOWER_BOWERRC_DELETE);
+                    exports.trigger(BOWERRC_DELETED);
                 }
 
                 if (_isFileByPathInArray(removed, _bowerJsonFile)) {
 
-                    EventEmitter.trigger(Event.BOWER_JSON_DELETE);
+                    exports.trigger(BOWER_JSON_DELETED);
                 }
             }
         }
@@ -143,5 +165,6 @@ define(function (require, exports) {
         ProjectManager.on("projectOpen", _onProjectOpen);
     }
 
-    exports.init = init;
+    exports.init   = init;
+    exports.Events = Events;
 });

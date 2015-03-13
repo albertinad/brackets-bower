@@ -29,18 +29,17 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager = brackets.getModule("project/ProjectManager"),
-        FileSystem     = brackets.getModule("filesystem/FileSystem"),
-        AppInit        = brackets.getModule("utils/AppInit"),
-        EventEmitter   = require("src/events/EventEmitter"),
-        Event          = require("src/events/Events"),
-        FileUtils      = require("src/utils/FileUtils"),
-        BowerJson      = require("src/bower/BowerJson"),
-        Bower          = require("src/bower/Bower"),
-        PackageFactory = require("src/bower/PackageFactory");
+    var ProjectManager   = brackets.getModule("project/ProjectManager"),
+        FileSystem       = brackets.getModule("filesystem/FileSystem"),
+        AppInit          = brackets.getModule("utils/AppInit"),
+        FileSystemEvents = require("src/events/FileSystemEvents"),
+        FileUtils        = require("src/utils/FileUtils"),
+        BowerJson        = require("src/bower/BowerJson"),
+        Bower            = require("src/bower/Bower"),
+        PackageFactory   = require("src/bower/PackageFactory");
 
     var _bowerJson = null,
-        _packages = [],
+        _packages  = [],
         _reloadedCallback;
 
     /**
@@ -204,7 +203,7 @@ define(function (require, exports) {
         }
     }
 
-    function _loadBowerJsonAtCurrentProject() {
+    function loadBowerJsonAtCurrentProject() {
         // search for the bower.json file if it exists
         var project = ProjectManager.getProjectRoot(),
             path,
@@ -257,11 +256,12 @@ define(function (require, exports) {
     }
 
     AppInit.appReady(function () {
-        _loadBowerJsonAtCurrentProject();
+        var Events = FileSystemEvents.Events;
 
-        EventEmitter.on(Event.BOWER_JSON_CREATE, _onBowerJsonCreated);
-        EventEmitter.on(Event.BOWER_JSON_DELETE, _onBowerJsonDeleted);
-        EventEmitter.on(Event.PROJECT_CHANGE, _loadBowerJsonAtCurrentProject);
+        loadBowerJsonAtCurrentProject();
+
+        FileSystemEvents.on(Events.BOWER_JSON_CREATE, _onBowerJsonCreated);
+        FileSystemEvents.on(Events.BOWER_JSON_DELETE, _onBowerJsonDeleted);
     });
 
     exports.getBowerJson         = getBowerJson;
