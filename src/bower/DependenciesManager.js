@@ -174,8 +174,8 @@ define(function (require, exports) {
             path = ProjectManager.getProjectRoot().fullPath;
         }
 
-        Bower.uninstall(path, name).then(function () {
-            deferred.resolve();
+        Bower.uninstall(path, name).then(function (uninstalled) {
+            deferred.resolve(uninstalled);
         }).fail(function (err) {
             deferred.reject(err);
         });
@@ -192,8 +192,6 @@ define(function (require, exports) {
 
             deferred.resolve(_packages);
         }).fail(function (err) {
-            _packages = [];
-
             deferred.reject(err);
         });
 

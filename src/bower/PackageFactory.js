@@ -35,13 +35,15 @@ define(function (require, exports, module) {
      * @param {string} latestVersion
      * @constructor
      */
-    function Package(name, version, latestVersion) {
+    function Package(name) {
         /** @private */
         this._name = name;
         /** @private */
-        this._version = version;
+        this._version = null;
         /** @private */
-        this._latestVersion = latestVersion;
+        this._latestVersion = null;
+        /** @private */
+        this._extraneous = false;
     }
 
     Object.defineProperty(Package.prototype, "name", {
@@ -62,8 +64,35 @@ define(function (require, exports, module) {
         }
     });
 
-    Package.prototype.fromRawData = function (data) {
+    Object.defineProperty(Package.prototype, "extraneous", {
+        get: function () {
+            return this._extraneous;
+        }
+    });
 
+    /**
+     * Create package from raw data.
+     * @param {string} name
+     * @param {object} data
+     * @return {Package} pkg
+     */
+    Package.fromRawData = function (name, data) {
+        var pkg = new Package(name),
+            meta = data.pkgMeta;
+
+        if (meta.version !== undefined) {
+            pkg._version = meta.version;
+        }
+
+        if (data.update && data.update.latest) {
+            pkg._latestVersion = data.update.latest;
+        }
+
+        if (data.extraneous) {
+            pkg._extraneous = true;
+        }
+
+        return pkg;
     };
 
     /**
@@ -71,6 +100,10 @@ define(function (require, exports, module) {
      * @return {boolean} isLatest True if it has latest version, otherwhise, false.
      */
     Package.prototype.hasUpdates = function () {
+        if (!this._version || !this._latestVersion) {
+            return false;
+        }
+
         var current = this._version.split("."),
             latest = this._latestVersion.split("."),
             hasLatest = false;
@@ -92,10 +125,9 @@ define(function (require, exports, module) {
             pkgs = [];
 
         pkgsName.forEach(function (name) {
-            var version = pkgsData[name].pkgMeta.version,
-                latestVersion = pkgsData[name].update.latest;
+            var pkg = Package.fromRawData(name, pkgsData[name]);
 
-            pkgs.push(new Package(name, version, latestVersion));
+            pkgs.push(pkg);
         });
 
         return pkgs;

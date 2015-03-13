@@ -30,6 +30,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var ExtensionUtils    = brackets.getModule("utils/ExtensionUtils"),
+        NodeDomain        = brackets.getModule("utils/NodeDomain"),
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus             = brackets.getModule("command/Menus"),
@@ -93,12 +94,15 @@ define(function (require, exports, module) {
     }
 
     function init() {
-        var bowerDomainPath = ExtensionUtils.getModulePath(module, "/node/BowerDomain");
+        var path        = ExtensionUtils.getModulePath(module, "/node/BowerDomain"),
+            bowerDomain = new NodeDomain("bower", path);
 
         ExtensionUtils.loadStyleSheet(module, "assets/fonts/octicon.css");
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
-        Bower.init(bowerDomainPath);
+        Bower.setDomain(bowerDomain);
+        GitChecker.setDomain(bowerDomain);
+
         QuickInstall.init();
 
         _initializeControllers();

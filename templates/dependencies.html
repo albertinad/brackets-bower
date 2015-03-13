@@ -4,7 +4,16 @@
         <div class="bower-title">{{Strings.TITLE_INSTALLED_PACKAGES}}</div>
     </div>
 
+    {{#existsDependencies}}
     <table class="bottom-panel-table table table-striped table-condensed">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Latest Version</th>
+                <th>Extraneous</th>
+            </tr>
+        </thead>
         <tbody>
             {{#dependencies}}
             <tr data-bower-dependency="{{ name }}">
@@ -16,6 +25,9 @@
                 </td>
                 <td>
                     <div class="bower-row-item {{ #hasUpdates }}bower-update{{ /hasUpdates }}">{{ latestVersion }}</div>
+                </td>
+                <td>
+                    <div class="bower-row-item">{{ extraneous }}</div>
                 </td>
                 <td>
                     <div class="controls bower-row-item">
@@ -31,13 +43,17 @@
                 </td>
             </tr>
             {{/dependencies}}
-            {{^dependencies}}
+        </tbody>
+    </table>
+    {{/existsDependencies}} {{^existsDependencies}}
+    <table class="bottom-panel-table table table-striped table-condensed">
+        <tbody>
             <tr>
                 <td>
                     <span class="bower-row-item">{{ Strings.INSTALLED_PACKAGES_NOT_FOUND }}</span>
                 </td>
             </tr>
-            {{/dependencies}}
         </tbody>
     </table>
+    {{/existsDependencies}}
 </div>

@@ -96,6 +96,13 @@ maxerr: 50, node: true */
             });
     }
 
+    /**
+     * Uninstall the given packages.
+     * @param {Array} names Array with package's names to uninstall.
+     * @param {boolean} save Save the package into the bower.json if it exists.
+     * @param {object} config Key-value object to specify optional configuration.
+     * @param {function(?string, ?string)} cb Callback for when the uninstallation is finished.
+     */
     function _cmdUninstall(names, save, config, cb) {
         var options = {};
 
@@ -120,6 +127,24 @@ maxerr: 50, node: true */
         bower.commands.prune(null, config)
             .on("end", function () {
                 cb(null, true);
+            })
+            .on("error", function (error) {
+                cb(error ? error.message : UNKNOWN_ERROR, null);
+            });
+    }
+
+    /**
+     * Update the given packages according to the bower.json file.
+     * @param {Array} names Array with package's names to update.
+     * @param {object} config Key-value object to specify optional configuration.
+     * @param {function(?string, ?string)} cb Callback for when the installation is finished.
+     */
+    function _cmdUpdate(names, config, cb) {
+        var options = {};
+
+        bower.commands.update(names, options, config)
+            .on("end", function (result) {
+                cb(null, result);
             })
             .on("error", function (error) {
                 cb(error ? error.message : UNKNOWN_ERROR, null);
@@ -253,6 +278,24 @@ maxerr: 50, node: true */
             true,
             "Uninstall packages removed from bower.json.",
             [{
+                name: "config",
+                type: "object",
+                description: "Configuration object."
+            }],
+            []
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "update",
+            _cmdUpdate,
+            true,
+            "Update packages according to the bower.json.",
+            [{
+                name: "names",
+                type: "array",
+                description: "Array with package's names to update."
+            }, {
                 name: "config",
                 type: "object",
                 description: "Configuration object."

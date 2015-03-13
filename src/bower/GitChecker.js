@@ -29,18 +29,25 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var Bower = require("src/bower/Bower");
+    var bowerDomain;
 
-    var DEFAULT_GIT       = "git",
-        GIT_ARG_VERSION   = "--version",
+    var DEFAULT_GIT = "git",
+        GIT_ARG_VERSION = "--version",
         GIT_VERSION_REGEX = /^git version\s(.*)$/;
+
+    /**
+     * @param {NodeDomain} domain
+     */
+    function setDomain(domain) {
+        bowerDomain = domain;
+    }
 
     /**
      * Search for Git on the system Path.
      */
     function findGitOnSystem() {
         var deferred = new $.Deferred(),
-            execPromise = Bower.executeCommand(DEFAULT_GIT, [GIT_ARG_VERSION]);
+            execPromise = bowerDomain.exec("execCommand", DEFAULT_GIT, [GIT_ARG_VERSION]);
 
         execPromise.then(function (result) {
             var version = result.output,
@@ -58,5 +65,6 @@ define(function (require, exports) {
         return deferred.promise();
     }
 
+    exports.setDomain = setDomain;
     exports.findGitOnSystem = findGitOnSystem;
 });

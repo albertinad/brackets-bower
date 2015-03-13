@@ -69,19 +69,19 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdCacheList(config, cb) {
+    function _cmdListCache(config, cb) {
         var resultType,
             result;
 
-        if (commandExecution && commandExecution.cacheList) {
-            var cacheList = commandExecution.cacheList;
+        if (commandExecution && commandExecution.listCache) {
+            var listCache = commandExecution.listCache;
 
-            resultType = cacheList.resultType;
-            result = cacheList.result;
+            resultType = listCache.resultType;
+            result = listCache.result;
         } else {
             resultType = defaultCommandExecution.resultType;
             // let node to cache the value, since this file must not change on runtime
-            result = require("./data/cache.list.json");
+            result = require("./data/list.cache.json");
         }
 
         if (resultType === "success") {
@@ -186,8 +186,8 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "cacheList",
-            _cmdCacheList,
+            "listCache",
+            _cmdListCache,
             true
         );
 

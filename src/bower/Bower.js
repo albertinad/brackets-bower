@@ -24,19 +24,21 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
+/*global $, define */
 
 define(function (require, exports) {
     "use strict";
 
-    var NodeDomain = brackets.getModule("utils/NodeDomain"),
-        Preferences = require("src/preferences/Preferences"),
+    var Preferences          = require("src/preferences/Preferences"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var bowerDomain;
 
-    function init(domainPath) {
-        bowerDomain = new NodeDomain("bower", domainPath);
+    /**
+     * @param {NodeDomain} domain
+     */
+    function setDomain(domain) {
+        bowerDomain = domain;
     }
 
     /**
@@ -114,6 +116,16 @@ define(function (require, exports) {
         return bowerDomain.exec("uninstall", names, true, config);
     }
 
+    function update(path, names) {
+        var config = _getConfiguration(path);
+
+        if (!Array.isArray(names)) {
+            names = [names];
+        }
+
+        return bowerDomain.exec("update", names, config);
+    }
+
     function search() {
         var config = ConfigurationManager.getConfiguration();
 
@@ -125,7 +137,7 @@ define(function (require, exports) {
      */
     function listCache() {
         var config = ConfigurationManager.getConfiguration(),
-            promise = bowerDomain.exec("cacheList", config);
+            promise = bowerDomain.exec("listCache", config);
 
         // the packages returned from "bower cache list" doesn't have
         // the "name" property, so we added it
@@ -146,29 +158,14 @@ define(function (require, exports) {
         return bowerDomain.exec("getConfiguration", path);
     }
 
-    function executeCommand(cmd, args) {
-        return bowerDomain.exec("execCommand", cmd, args);
-    }
-
-    /**
-     * Use this function only in tests.
-     */
-    function _setBower(nodeDomain) {
-        bowerDomain = nodeDomain;
-    }
-
-    exports.init = init;
-    exports.install = install;
-    exports.installPackage = installPackage;
-    exports.prune = prune;
-    exports.list = list;
-    exports.uninstall = uninstall;
-    exports.search = search;
-    exports.listCache = listCache;
+    exports.setDomain        = setDomain;
     exports.getConfiguration = getConfiguration;
-    exports.executeCommand = executeCommand;
-
-    // API for testing
-
-    exports._setBower = _setBower;
+    exports.install          = install;
+    exports.installPackage   = installPackage;
+    exports.prune            = prune;
+    exports.list             = list;
+    exports.uninstall        = uninstall;
+    exports.update           = update;
+    exports.search           = search;
+    exports.listCache        = listCache;
 });

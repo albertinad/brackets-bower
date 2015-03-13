@@ -30,7 +30,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var template = require("text!templates/dependencies.html"),
-        Strings  = require("strings");
+        Strings = require("strings");
 
     /**
      * Dependencies view.
@@ -62,7 +62,8 @@ define(function (require, exports, module) {
     DependenciesView.prototype.show = function (dependencies) {
         var data = {
             Strings: Strings,
-            dependencies: dependencies
+            dependencies: dependencies,
+            existsDependencies: (dependencies && dependencies.length !== 0)
         };
 
         var sectionHtml = Mustache.render(template, data);
@@ -74,16 +75,20 @@ define(function (require, exports, module) {
         this._$panel.empty();
     };
 
-    DependenciesView.prototype.reload = function () {
+    DependenciesView.prototype.reload = function (dependencies) {
         this._$panel.empty();
 
-        this.show();
+        this.show(dependencies);
     };
 
     DependenciesView.prototype.onDependecyRemoved = function (name) {
-        var $uninstalledDependency = this._$panel.find("[data-bower-dependency='" + name + "']");
+        if (this._$panel.find('[data-bower-dependency]').length > 1) {
+            var $uninstalledDependency = this._$panel.find("[data-bower-dependency='" + name + "']");
 
-        $uninstalledDependency.remove();
+            $uninstalledDependency.remove();
+        } else {
+            this.reload(null);
+        }
     };
 
     module.exports = DependenciesView;

@@ -29,7 +29,7 @@ runs, spyOn, jasmine, $, brackets, waitsForDone */
 define(function (require, exports, module) {
     "use strict";
 
-    var NodeDomain = brackets.getModule("utils/NodeDomain"),
+    var NodeDomain      = brackets.getModule("utils/NodeDomain"),
         SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
 
     describe("BracketsBower", function () {
@@ -61,11 +61,11 @@ define(function (require, exports, module) {
                 });
 
                 runs(function () {
-                    var bowerDomainPath = ExtensionUtils.getModulePath(module, "/tests/BowerDomainMock");
+                    var path = ExtensionUtils.getModulePath(module, "/tests/BowerDomainMock");
 
-                    bowerDomain = new NodeDomain("bower-test", bowerDomainPath);
+                    bowerDomain = new NodeDomain("bower-test", path);
 
-                    bower._setBower(bowerDomain);
+                    bower.setDomain(bowerDomain);
                 });
             });
 
@@ -153,7 +153,7 @@ define(function (require, exports, module) {
                 });
             });
 
-            it("should execute 'cache list' and get a list of available packages at the bower cache", function () {
+            it("should execute 'list cache' and get a list of available packages at the bower cache", function () {
                 spyOn(bowerDomain, "exec").andCallThrough();
 
                 var resultPromise = new testWindow.$.Deferred(),
@@ -181,17 +181,17 @@ define(function (require, exports, module) {
                     });
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("cacheList", {});
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("listCache", {});
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
 
-            it("should execute 'cache list' and get an empty list when any package is available at the bower cache", function () {
+            it("should execute 'list cache' and get an empty list when any package is available at the bower cache", function () {
                 var resultPromise = new testWindow.$.Deferred(),
                     data;
 
                 bowerDomain.exec("setTestData", {
-                    cacheList: {
+                    listCache: {
                         resultType: "failure"
                     }
                 });
@@ -214,7 +214,7 @@ define(function (require, exports, module) {
                     expect(data).toBeDefined();
                     expect(data.length).toEqual(0);
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("cacheList", {});
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("listCache", {});
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
