@@ -29,12 +29,18 @@ maxerr: 50, node: true */
     "use strict";
 
     var bower       = require("bower"),
-        // hack to avoid more node dependencies and to be able to upload the zip file
-        // TODO remove this and use bower-config once it is fixed
-        bowerConfig = require("./node_modules/bower/node_modules/bower-config/lib/Config"),
+        bowerConfig = require("bower-config"),
+        log4js      = require("log4js"),
         Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
+
+    log4js.loadAppender("file");
+    log4js.addAppender(log4js.appenders.file("brackets-bower.log"), "brackets-bower");
+
+    var logger = log4js.getLogger("brackets-bower");
+
+    logger.trace("BracketsBower domain");
 
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
@@ -50,6 +56,8 @@ maxerr: 50, node: true */
                 cb(null, data);
             })
             .on("error", function (error) {
+                logger.error("[search command]");
+                logger.error(error);
                 cb(error.message, null);
             });
     }
@@ -113,6 +121,8 @@ maxerr: 50, node: true */
                 cb(null, result);
             })
             .on("error", function (error) {
+                logger.error("[install command]");
+                logger.error(error);
                 cb(error ? error.message : "Unknown error", null);
             });
     }
@@ -134,6 +144,8 @@ maxerr: 50, node: true */
                 cb(null, true);
             })
             .on("error", function (error) {
+                logger.error("[prune command]");
+                logger.error(error);
                 cb(error ? error.message : "Unknown error", null);
             });
     }
@@ -155,6 +167,8 @@ maxerr: 50, node: true */
                 cb(null, result);
             })
             .on("error", function (error) {
+                logger.error("[list command]");
+                logger.error(error);
                 cb(error ? error.message : "Unknown error", null);
             });
     }
