@@ -30,11 +30,19 @@ maxerr: 50, node: true */
 
     var bower       = require("bower"),
         bowerConfig = require("bower-config"),
+        log4js      = require("log4js"),
         Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
 
     var UNKNOWN_ERROR = "Unknown error";
+
+    log4js.loadAppender("file");
+    log4js.addAppender(log4js.appenders.file("brackets-bower.log"), "brackets-bower");
+
+    var logger = log4js.getLogger("brackets-bower");
+
+    logger.trace("BracketsBower domain");
 
     /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
@@ -50,6 +58,8 @@ maxerr: 50, node: true */
                 cb(null, data);
             })
             .on("error", function (error) {
+                logger.error("[search command]");
+                logger.error(error);
                 cb(error.message, null);
             });
     }
@@ -92,6 +102,9 @@ maxerr: 50, node: true */
                 cb(null, installedPackages);
             })
             .on("error", function (error) {
+                logger.error("[install command]");
+                logger.error(error);
+
                 cb(error ? error.message : UNKNOWN_ERROR, null);
             });
     }
@@ -115,6 +128,9 @@ maxerr: 50, node: true */
                 cb(null, uninstalledPackages);
             })
             .on("error", function (error) {
+                logger.error("[uninstall command]");
+                logger.error(error);
+
                 cb(error ? error.message : UNKNOWN_ERROR, null);
             });
     }
@@ -129,6 +145,9 @@ maxerr: 50, node: true */
                 cb(null, true);
             })
             .on("error", function (error) {
+                logger.error("[prune command]");
+                logger.error(error);
+
                 cb(error ? error.message : UNKNOWN_ERROR, null);
             });
     }
@@ -161,6 +180,9 @@ maxerr: 50, node: true */
                 cb(null, result);
             })
             .on("error", function (error) {
+                logger.error("[list command]");
+                logger.error(error);
+
                 cb(error ? error.message : UNKNOWN_ERROR, null);
             });
     }
