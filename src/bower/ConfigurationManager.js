@@ -31,14 +31,22 @@ define(function (require, exports) {
 
     var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
         ProjectManager     = brackets.getModule("project/ProjectManager"),
-        AppInit            = brackets.getModule("utils/AppInit"),
+        EventDispatcher    = brackets.getModule("utils/EventDispatcher"),
         BowerRc            = require("src/bower/metadata/BowerRc"),
-        FileSystemEvents   = require("src/events/FileSystemEvents"),
+        FileSystemHandler  = require("src/bower/FileSystemHandler"),
         FileUtils          = require("src/utils/FileUtils");
 
     var _bowerRc  = null,
-        _defaultConfiguration = {},
-        _reloadedCallback;
+        _defaultConfiguration = {};
+
+    var namespace = ".albertinad.bracketsbower",
+        BOWERRC_RELOADED = "bowerrcReloaded";
+
+    var Events = {
+        BOWERRC_RELOADED: BOWERRC_RELOADED + namespace
+    };
+
+    EventDispatcher.makeEventDispatcher(exports);
 
     function createConfiguration(path) {
         if (!path || path.trim() === "") {
@@ -134,9 +142,7 @@ define(function (require, exports) {
     }
 
     function _notifyBowerRcReloaded() {
-        if (typeof _reloadedCallback === "function") {
-            _reloadedCallback();
-        }
+        exports.trigger(BOWERRC_RELOADED);
     }
 
     function loadBowerRcAtCurrentProject() {
@@ -211,22 +217,14 @@ define(function (require, exports) {
         _notifyBowerRcReloaded();
     }
 
-    function onBowerRcReloaded(callback) {
-        _reloadedCallback = callback;
-    }
-
     function _init() {
-        var Events = FileSystemEvents.Events;
+        var Events = FileSystemHandler.Events;
 
         _setUpDefaultConfiguration();
 
-        AppInit.appReady(function () {
-            loadBowerRcAtCurrentProject();
-        });
-
-        FileSystemEvents.on(Events.BOWER_BOWERRC_CREATE, _onConfigurationCreated);
-        FileSystemEvents.on(Events.BOWER_BOWERRC_CHANGE, _onConfigurationChanged);
-        FileSystemEvents.on(Events.BOWER_BOWERRC_DELETE, _onBowerRcDeleted);
+        FileSystemHandler.on(Events.BOWER_BOWERRC_CREATED, _onConfigurationCreated);
+        FileSystemHandler.on(Events.BOWER_BOWERRC_CHANGED, _onConfigurationChanged);
+        FileSystemHandler.on(Events.BOWER_BOWERRC_DELETED, _onBowerRcDeleted);
 
         PreferencesManager.on("change", function (event, data) {
             _onPreferencesChange(data.ids);
@@ -241,5 +239,6 @@ define(function (require, exports) {
     exports.getConfiguration    = getConfiguration;
     exports.findConfiguration   = findConfiguration;
     exports.open                = open;
-    exports.onBowerRcReloaded   = onBowerRcReloaded;
+    exports.Events              = Events;
+    exports.loadBowerRcAtCurrentProject = loadBowerRcAtCurrentProject;
 });

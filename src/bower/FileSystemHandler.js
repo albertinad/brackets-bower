@@ -47,17 +47,17 @@ define(function (require, exports) {
         BOWERRC_DELETED    = "bowerrcDeleted",
         BOWER_JSON_CREATED = "bowerjsonCreated",
         BOWER_JSON_CHANGED = "bowerjsonChanged",
-        BOWER_JSON_DELETED ="bowerjsonDeleted";
+        BOWER_JSON_DELETED = "bowerjsonDeleted";
 
     var namespace = ".albertinad.bracketsbower";
 
     var Events = {
-        BOWER_BOWERRC_CREATE: BOWERRC_CREATED + namespace,
-        BOWER_BOWERRC_CHANGE: BOWERRC_CHANGED + namespace,
-        BOWER_BOWERRC_DELETE: BOWERRC_DELETED + namespace,
-        BOWER_JSON_CREATE: BOWER_JSON_CREATED + namespace,
-        BOWER_JSON_CHANGE: BOWER_JSON_CHANGED + namespace,
-        BOWER_JSON_DELETE: BOWER_JSON_DELETED + namespace
+        BOWER_BOWERRC_CREATED: BOWERRC_CREATED + namespace,
+        BOWER_BOWERRC_CHANGED: BOWERRC_CHANGED + namespace,
+        BOWER_BOWERRC_DELETED: BOWERRC_DELETED + namespace,
+        BOWER_JSON_CREATED: BOWER_JSON_CREATED + namespace,
+        BOWER_JSON_CHANGED: BOWER_JSON_CHANGED + namespace,
+        BOWER_JSON_DELETED: BOWER_JSON_DELETED + namespace
     };
 
     EventDispatcher.makeEventDispatcher(exports);
@@ -88,11 +88,9 @@ define(function (require, exports) {
         if (entry.isFile) {
 
             if (entry.fullPath.match(_bowerConfigRegex)) {
-
                 exports.trigger(BOWERRC_CHANGED);
 
             } else if (entry.fullPath.match(_bowerJsonRegex)) {
-
                 exports.trigger(BOWER_JSON_CHANGED);
             }
         } else if (entry.isDirectory && entry.fullPath.match(_projectPathRegex)) {
@@ -101,12 +99,10 @@ define(function (require, exports) {
             if (added && added.length !== 0) {
 
                 if (_isFileByPathInArray(added, _bowerRcFile)) {
-
                     exports.trigger(BOWERRC_CREATED);
                 }
 
                 if (_isFileByPathInArray(added, _bowerJsonFile)) {
-
                     exports.trigger(BOWER_JSON_CREATED);
                 }
             }
@@ -115,19 +111,17 @@ define(function (require, exports) {
             if (removed && removed.length !== 0) {
 
                 if (_isFileByPathInArray(removed, _bowerRcFile)) {
-
                     exports.trigger(BOWERRC_DELETED);
                 }
 
                 if (_isFileByPathInArray(removed, _bowerJsonFile)) {
-
                     exports.trigger(BOWER_JSON_DELETED);
                 }
             }
         }
     }
 
-    function _setUpEventHandler() {
+    function startListenToFileSystem() {
         var currentProject = ProjectManager.getProjectRoot();
 
         if (currentProject) {
@@ -144,7 +138,7 @@ define(function (require, exports) {
         }
     }
 
-    function _onProjectClose() {
+    function stopListenToFileSystem() {
         FileSystem.off("change.bower", _onFileSystemChange);
 
         _bowerRcFile = null;
@@ -154,17 +148,7 @@ define(function (require, exports) {
         _bowerJsonRegex = null;
     }
 
-    function _onProjectOpen() {
-        _setUpEventHandler();
-    }
-
-    function init() {
-        _setUpEventHandler();
-
-        ProjectManager.on("projectClose", _onProjectClose);
-        ProjectManager.on("projectOpen", _onProjectOpen);
-    }
-
-    exports.init   = init;
-    exports.Events = Events;
+    exports.startListenToFileSystem = startListenToFileSystem;
+    exports.stopListenToFileSystem  = stopListenToFileSystem;
+    exports.Events                  = Events;
 });

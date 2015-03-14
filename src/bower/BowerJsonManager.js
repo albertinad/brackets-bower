@@ -29,15 +29,24 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager   = brackets.getModule("project/ProjectManager"),
-        FileSystem       = brackets.getModule("filesystem/FileSystem"),
-        AppInit          = brackets.getModule("utils/AppInit"),
-        FileSystemEvents = require("src/events/FileSystemEvents"),
-        FileUtils        = require("src/utils/FileUtils"),
-        BowerJson        = require("src/bower/metadata/BowerJson");
+    var ProjectManager    = brackets.getModule("project/ProjectManager"),
+        FileSystem        = brackets.getModule("filesystem/FileSystem"),
+        AppInit           = brackets.getModule("utils/AppInit"),
+        EventDispatcher   = brackets.getModule("utils/EventDispatcher"),
+        FileUtils         = require("src/utils/FileUtils"),
+        FileSystemHandler = require("src/bower/FileSystemHandler"),
+        BowerJson         = require("src/bower/metadata/BowerJson");
 
-    var _bowerJson = null,
-        _reloadedCallback;
+    var _bowerJson = null;
+
+    var namespace = ".albertinad.bracketsbower",
+        BOWER_JSON_RELOADED = "bowerjsonReloaded";
+
+    var Events = {
+        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace
+    };
+
+    EventDispatcher.makeEventDispatcher(exports);
 
     /**
      * Create the bower.json file at the given absolute path. If any path is provided,
@@ -131,9 +140,7 @@ define(function (require, exports) {
     }
 
     function _notifyBowerJsonReloaded() {
-        if (typeof _reloadedCallback === "function") {
-            _reloadedCallback();
-        }
+        exports.trigger(BOWER_JSON_RELOADED);
     }
 
     function loadBowerJsonAtCurrentProject() {
@@ -179,22 +186,16 @@ define(function (require, exports) {
         });
     }
 
-    function onBowerJsonReloaded(callback) {
-        _reloadedCallback = callback;
-    }
-
     function _onBowerJsonDeleted() {
         _bowerJson = null;
         _notifyBowerJsonReloaded();
     }
 
     AppInit.appReady(function () {
-        var Events = FileSystemEvents.Events;
+        var Events = FileSystemHandler.Events;
 
-        loadBowerJsonAtCurrentProject();
-
-        FileSystemEvents.on(Events.BOWER_JSON_CREATE, _onBowerJsonCreated);
-        FileSystemEvents.on(Events.BOWER_JSON_DELETE, _onBowerJsonDeleted);
+        FileSystemHandler.on(Events.BOWER_JSON_CREATED, _onBowerJsonCreated);
+        FileSystemHandler.on(Events.BOWER_JSON_DELETED, _onBowerJsonDeleted);
     });
 
     exports.getBowerJson        = getBowerJson;
@@ -202,6 +203,7 @@ define(function (require, exports) {
     exports.removeBowerJson     = removeBowerJson;
     exports.findBowerJson       = findBowerJson;
     exports.open                = open;
-    exports.onBowerJsonReloaded = onBowerJsonReloaded;
-    exports.openBowerComponentsFolder = openBowerComponentsFolder;
+    exports.Events              = Events;
+    exports.openBowerComponentsFolder     = openBowerComponentsFolder;
+    exports.loadBowerJsonAtCurrentProject = loadBowerJsonAtCurrentProject;
 });

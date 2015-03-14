@@ -47,11 +47,13 @@ define(function (require, exports, module) {
     }
 
     BowerJsonController.prototype.initialize = function ($section) {
+        var Events = BowerJsonManager.Events;
+
         this._view = new BowerJsonView(this);
 
         this._view.initialize($section);
 
-        BowerJsonManager.onBowerJsonReloaded(this._onBowerJsonReloadedCallback.bind(this));
+        BowerJsonManager.on(Events.BOWER_JSON_RELOADED, this._onBowerJsonReloadedCallback.bind(this));
     };
 
     BowerJsonController.prototype.show = function () {

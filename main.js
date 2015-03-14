@@ -34,18 +34,15 @@ define(function (require, exports, module) {
         CommandManager    = brackets.getModule("command/CommandManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus             = brackets.getModule("command/Menus"),
-        ProjectManager    = brackets.getModule("project/ProjectManager"),
         AppInit           = brackets.getModule("utils/AppInit");
 
     // local modules
-    var Bower                = require("src/bower/Bower"),
-        ConfigurationManager = require("src/bower/ConfigurationManager"),
-        BowerJsonManager     = require("src/bower/BowerJsonManager"),
-        FileSystemEvents     = require("src/events/FileSystemEvents"),
-        GitChecker           = require("src/utils/GitChecker"),
-        QuickInstall         = require("src/QuickInstall"),
-        ErrorDialog          = require("src/dialogs/ErrorDialog"),
-        Strings              = require("strings"),
+    var Bower          = require("src/bower/Bower"),
+        GitChecker     = require("src/utils/GitChecker"),
+        ProjectManager = require("src/bower/ProjectManager"),
+        QuickInstall   = require("src/QuickInstall"),
+        ErrorDialog    = require("src/dialogs/ErrorDialog"),
+        Strings        = require("strings"),
 
     // controllers
         PanelController         = require("src/PanelController"),
@@ -127,12 +124,7 @@ define(function (require, exports, module) {
                 ErrorDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
             });
 
-            FileSystemEvents.init();
-
-            ProjectManager.on("projectOpen", function () {
-                ConfigurationManager.loadBowerRcAtCurrentProject();
-                BowerJsonManager.loadBowerJsonAtCurrentProject();
-            });
+            ProjectManager.initialize();
         });
     }
 

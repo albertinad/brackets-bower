@@ -47,11 +47,13 @@ define(function (require, exports, module) {
     }
 
     ConfigurationController.prototype.initialize = function ($section) {
+        var Events = ConfigurationManager.Events;
+
         this._view = new ConfigurationView(this);
 
         this._view.initialize($section);
 
-        ConfigurationManager.onBowerRcReloaded(this._onConfigReloadedCallback.bind(this));
+        ConfigurationManager.on(Events.BOWERRC_RELOADED, this._onConfigReloadedCallback.bind(this));
     };
 
     ConfigurationController.prototype.show = function () {
