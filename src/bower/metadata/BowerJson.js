@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerMetadata  = require("src/bower/BowerMetadata"),
-        Bower          = require("src/bower/Bower");
+    var BowerMetadata = require("src/bower/metadata/BowerMetadata"),
+        Bower         = require("src/bower/Bower");
 
     /**
      * Bower json file constructor.

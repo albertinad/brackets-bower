@@ -32,7 +32,7 @@ define(function (require, exports) {
     var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
         ProjectManager     = brackets.getModule("project/ProjectManager"),
         AppInit            = brackets.getModule("utils/AppInit"),
-        BowerRc            = require("src/bower/BowerRc"),
+        BowerRc            = require("src/bower/metadata/BowerRc"),
         FileSystemEvents   = require("src/events/FileSystemEvents"),
         FileUtils          = require("src/utils/FileUtils");
 

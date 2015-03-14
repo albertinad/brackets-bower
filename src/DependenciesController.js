@@ -28,8 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var DependenciesManager = require("src/bower/DependenciesManager"),
-        DependenciesView    = require("src/views/DependenciesView");
+    var PackageManager   = require("src/bower/PackageManager"),
+        DependenciesView = require("src/views/DependenciesView");
 
     /**
      * @constructor
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
         var data = null;
         var that = this;
 
-        DependenciesManager.getInstalledDependencies()
+        PackageManager.getInstalledDependencies()
             .done(function (dependencies) {
                 data = dependencies;
             })
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
         var that = this,
             data = null;
 
-        DependenciesManager.getInstalledDependencies()
+        PackageManager.getInstalledDependencies()
             .done(function (dependencies) {
                 data = dependencies;
             })
@@ -91,7 +91,7 @@ define(function (require, exports, module) {
     DependenciesController.prototype.onUninstall = function (name) {
         var that = this;
 
-        DependenciesManager.uninstall(name).then(function () {
+        PackageManager.uninstall(name).then(function () {
             that._view.onDependecyRemoved(name);
         }).fail(function (error) {
             // TODO warn the user

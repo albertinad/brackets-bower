@@ -29,8 +29,7 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var Preferences          = require("src/preferences/Preferences"),
-        ConfigurationManager = require("src/bower/ConfigurationManager");
+    var Preferences = require("src/preferences/Preferences");
 
     var bowerDomain;
 
@@ -42,20 +41,11 @@ define(function (require, exports) {
     }
 
     /**
-     * @param {string} path
-     * @private
+     * @param {string} packageName
+     * @param {object} config
      */
-    function _getConfiguration(path) {
-        var config = ConfigurationManager.getConfiguration();
-
-        config.cwd = path;
-
-        return config;
-    }
-
-    function installPackage(path, packageName) {
+    function installPackage(packageName, config) {
         var deferred = new $.Deferred(),
-            config = _getConfiguration(path),
             save = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
 
         bowerDomain.exec("install", [packageName], save, config).then(function (installedPackages) {
@@ -74,13 +64,15 @@ define(function (require, exports) {
         return deferred.promise();
     }
 
-    function install(path) {
-        var deferred = new $.Deferred(),
-            config = _getConfiguration(path);
+    /**
+     * @param {object} config
+     */
+    function install(config) {
+        var deferred = new $.Deferred();
 
         bowerDomain.exec("install", null, null, config).then(function (installedPackages) {
             var result = {
-                installationDir: path,
+                installationDir: config.cwd,
                 count: Object.keys(installedPackages).length,
                 packages: installedPackages
             };
@@ -93,21 +85,25 @@ define(function (require, exports) {
         return deferred.promise();
     }
 
-    function prune(path) {
-        var config = _getConfiguration(path);
-
+    /**
+     * @param {object} config
+     */
+    function prune(config) {
         return bowerDomain.exec("prune", config);
     }
 
-    function list(path) {
-        var config = _getConfiguration(path);
-
+    /**
+     * @param {object} config
+     */
+    function list(config) {
         return bowerDomain.exec("list", config);
     }
 
-    function uninstall(path, names) {
-        var config = _getConfiguration(path);
-
+    /**
+     * @param {string|array} names
+     * @param {object} config
+     */
+    function uninstall(names, config) {
         if (!Array.isArray(names)) {
             names = [names];
         }
@@ -116,9 +112,11 @@ define(function (require, exports) {
         return bowerDomain.exec("uninstall", names, true, config);
     }
 
-    function update(path, names) {
-        var config = _getConfiguration(path);
-
+    /**
+     * @param {string|array} names
+     * @param {object} config
+     */
+    function update(names, config) {
         if (!Array.isArray(names)) {
             names = [names];
         }
@@ -126,18 +124,19 @@ define(function (require, exports) {
         return bowerDomain.exec("update", names, config);
     }
 
-    function search() {
-        var config = ConfigurationManager.getConfiguration();
-
+    /**
+     * @param {object} config
+     */
+    function search(config) {
         return bowerDomain.exec("search", config);
     }
 
     /**
      * Get the packages information from the bower cache.
+     * @param {object} config
      */
-    function listCache() {
-        var config = ConfigurationManager.getConfiguration(),
-            promise = bowerDomain.exec("listCache", config);
+    function listCache(config) {
+        var promise = bowerDomain.exec("listCache", config);
 
         // the packages returned from "bower cache list" doesn't have
         // the "name" property, so we added it
@@ -154,6 +153,9 @@ define(function (require, exports) {
         return promise;
     }
 
+    /**
+     * @param {string} path
+     */
     function getConfiguration(path) {
         return bowerDomain.exec("getConfiguration", path);
     }

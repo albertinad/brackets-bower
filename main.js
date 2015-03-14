@@ -39,10 +39,10 @@ define(function (require, exports, module) {
 
     // local modules
     var Bower                = require("src/bower/Bower"),
-        GitChecker           = require("src/bower/GitChecker"),
         ConfigurationManager = require("src/bower/ConfigurationManager"),
-        DependenciesManager  = require("src/bower/DependenciesManager"),
+        BowerJsonManager     = require("src/bower/BowerJsonManager"),
         FileSystemEvents     = require("src/events/FileSystemEvents"),
+        GitChecker           = require("src/utils/GitChecker"),
         QuickInstall         = require("src/QuickInstall"),
         ErrorDialog          = require("src/dialogs/ErrorDialog"),
         Strings              = require("strings"),
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
 
             ProjectManager.on("projectOpen", function () {
                 ConfigurationManager.loadBowerRcAtCurrentProject();
-                DependenciesManager.loadBowerJsonAtCurrentProject();
+                BowerJsonManager.loadBowerJsonAtCurrentProject();
             });
         });
     }

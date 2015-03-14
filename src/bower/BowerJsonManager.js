@@ -34,12 +34,9 @@ define(function (require, exports) {
         AppInit          = brackets.getModule("utils/AppInit"),
         FileSystemEvents = require("src/events/FileSystemEvents"),
         FileUtils        = require("src/utils/FileUtils"),
-        BowerJson        = require("src/bower/BowerJson"),
-        Bower            = require("src/bower/Bower"),
-        PackageFactory   = require("src/bower/PackageFactory");
+        BowerJson        = require("src/bower/metadata/BowerJson");
 
     var _bowerJson = null,
-        _packages  = [],
         _reloadedCallback;
 
     /**
@@ -103,6 +100,20 @@ define(function (require, exports) {
         }
     }
 
+    function openBowerComponentsFolder() {
+        var path;
+
+        if (_bowerJson) {
+            path = _bowerJson.ProjectPath;
+        } else {
+            path = ProjectManager.getProjectRoot().fullPath;
+        }
+         // TODO improve this...
+        window.setTimeout(function () {
+            ProjectManager.showInTree(FileSystem.getDirectoryForPath(path));
+        }, 1000);
+    }
+
     /**
      * Checks if the file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
@@ -117,84 +128,6 @@ define(function (require, exports) {
         path += "bower.json";
 
         return FileUtils.exists(path);
-    }
-
-    function installFromBowerJson() {
-        var deferred = new $.Deferred();
-
-        if (_bowerJson === null) {
-            return deferred.reject();
-        }
-
-        Bower.install(_bowerJson.ProjectPath).then(function (result) {
-            // TODO improve this...
-            window.setTimeout(function () {
-                ProjectManager.showInTree(FileSystem.getDirectoryForPath(_bowerJson.ProjectPath));
-            }, 1000);
-
-            deferred.resolve(result);
-        }).fail(function () {
-            deferred.reject();
-        });
-
-        return deferred;
-    }
-
-    function prune() {
-        var deferred = new $.Deferred();
-
-        if (_bowerJson === null) {
-            return deferred.reject();
-        }
-
-        Bower.prune(_bowerJson.ProjectPath)
-            .then(function () {
-                // TODO improve this...
-                window.setTimeout(function () {
-                    ProjectManager.showInTree(FileSystem.getDirectoryForPath(_bowerJson.ProjectPath));
-                }, 1000);
-
-                deferred.resolve();
-            })
-            .fail(function () {
-                deferred.reject();
-            });
-
-        return deferred;
-    }
-
-    function uninstall(name) {
-        var deferred = new $.Deferred(),
-            path;
-
-        if (_bowerJson !== null) {
-            path = _bowerJson.ProjectPath;
-        } else {
-            path = ProjectManager.getProjectRoot().fullPath;
-        }
-
-        Bower.uninstall(path, name).then(function (uninstalled) {
-            deferred.resolve(uninstalled);
-        }).fail(function (err) {
-            deferred.reject(err);
-        });
-
-        return deferred;
-    }
-
-    function getInstalledDependencies() {
-        var deferred = new $.Deferred(),
-            path = ProjectManager.getProjectRoot().fullPath;
-
-        Bower.list(path).then(function (result) {
-            _packages = PackageFactory.create(result.dependencies);
-
-            deferred.resolve(_packages);
-        }).fail(function (err) {
-            deferred.reject(err);
-        });
-
-        return deferred;
     }
 
     function _notifyBowerJsonReloaded() {
@@ -264,14 +197,11 @@ define(function (require, exports) {
         FileSystemEvents.on(Events.BOWER_JSON_DELETE, _onBowerJsonDeleted);
     });
 
-    exports.getBowerJson         = getBowerJson;
-    exports.createBowerJson      = createBowerJson;
-    exports.removeBowerJson      = removeBowerJson;
-    exports.findBowerJson        = findBowerJson;
-    exports.open                 = open;
-    exports.installFromBowerJson = installFromBowerJson;
-    exports.uninstall            = uninstall;
-    exports.prune                = prune;
-    exports.getInstalledDependencies = getInstalledDependencies;
-    exports.onBowerJsonReloaded  = onBowerJsonReloaded;
+    exports.getBowerJson        = getBowerJson;
+    exports.createBowerJson     = createBowerJson;
+    exports.removeBowerJson     = removeBowerJson;
+    exports.findBowerJson       = findBowerJson;
+    exports.open                = open;
+    exports.onBowerJsonReloaded = onBowerJsonReloaded;
+    exports.openBowerComponentsFolder = openBowerComponentsFolder;
 });

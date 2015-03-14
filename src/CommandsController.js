@@ -31,7 +31,7 @@ define(function (require, exports, module) {
 
     var StringUtils         = brackets.getModule("utils/StringUtils"),
         CommandsView        = require("src/views/CommandsView"),
-        DependenciesManager = require("src/bower/DependenciesManager"),
+        PackageManager      = require("src/bower/PackageManager"),
         StatusBarController = require("src/StatusBarController").Controller,
         Strings             = require("strings");
 
@@ -94,10 +94,10 @@ define(function (require, exports, module) {
             resultMessage;
 
         if (commandKey === "install") {
-            commandFn = DependenciesManager.installFromBowerJson;
+            commandFn = PackageManager.installFromBowerJson;
             resultMessage = Strings.STATUS_SUCCESS_INSTALLING;
         } else {
-            commandFn = DependenciesManager.prune;
+            commandFn = PackageManager.prune;
             resultMessage = StringUtils.format(Strings.STATUS_SUCCESS_EXECUTING_COMMAND, commandKey);
         }
 

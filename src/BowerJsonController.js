@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerJsonView       = require("src/views/BowerJsonView"),
-        DependenciesManager = require("src/bower/DependenciesManager");
+    var BowerJsonView    = require("src/views/BowerJsonView"),
+        BowerJsonManager = require("src/bower/BowerJsonManager");
 
     /**
      * BowerJsonController constructor. Controller for the bower json view.
@@ -51,13 +51,13 @@ define(function (require, exports, module) {
 
         this._view.initialize($section);
 
-        DependenciesManager.onBowerJsonReloaded(this._onBowerJsonReloadedCallback.bind(this));
+        BowerJsonManager.onBowerJsonReloaded(this._onBowerJsonReloadedCallback.bind(this));
     };
 
     BowerJsonController.prototype.show = function () {
         this._isVisible = true;
 
-        this._view.show(DependenciesManager.getBowerJson());
+        this._view.show(BowerJsonManager.getBowerJson());
     };
 
     BowerJsonController.prototype.hide = function () {
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
     };
 
     BowerJsonController.prototype._refreshUi = function () {
-        this._view.reload(DependenciesManager.getBowerJson());
+        this._view.reload(BowerJsonManager.getBowerJson());
     };
 
     BowerJsonController.prototype._onBowerJsonReloadedCallback = function () {
@@ -79,11 +79,11 @@ define(function (require, exports, module) {
     BowerJsonController.prototype.onCreate = function () {
         var that = this;
 
-        DependenciesManager.createBowerJson().done(function () {
-            var bowerJson = DependenciesManager.getBowerJson();
+        BowerJsonManager.createBowerJson().done(function () {
+            var bowerJson = BowerJsonManager.getBowerJson();
 
             if (bowerJson) {
-                DependenciesManager.open();
+                BowerJsonManager.open();
             }
 
             that._view.onBowerJsonCreated(bowerJson);
@@ -93,13 +93,13 @@ define(function (require, exports, module) {
     BowerJsonController.prototype.onDelete = function () {
         var that = this;
 
-        DependenciesManager.removeBowerJson().done(function () {
+        BowerJsonManager.removeBowerJson().done(function () {
             that._refreshUi();
         });
     };
 
     BowerJsonController.prototype.onSelected = function () {
-        DependenciesManager.open();
+        BowerJsonManager.open();
     };
 
     module.exports = BowerJsonController;
