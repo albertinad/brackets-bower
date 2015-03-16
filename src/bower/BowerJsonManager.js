@@ -30,12 +30,12 @@ define(function (require, exports) {
     "use strict";
 
     var ProjectManager    = brackets.getModule("project/ProjectManager"),
-        FileSystem        = brackets.getModule("filesystem/FileSystem"),
         AppInit           = brackets.getModule("utils/AppInit"),
         EventDispatcher   = brackets.getModule("utils/EventDispatcher"),
         FileUtils         = require("src/utils/FileUtils"),
         FileSystemHandler = require("src/bower/FileSystemHandler"),
-        BowerJson         = require("src/bower/metadata/BowerJson");
+        BowerJson         = require("src/bower/metadata/BowerJson"),
+        PackageManager    = require("src/bower/PackageManager");
 
     var _bowerJson = null;
 
@@ -53,23 +53,39 @@ define(function (require, exports) {
      * it use the current active project as the default absolute path.
      * @param {string} path The absolute path where to create the bower.json file.
      */
-    function createBowerJson(path) {
-        var appName;
+    function createBowerJson() {
+        var currentProject = ProjectManager.getProjectRoot(),
+            path,
+            appName,
+            deferred = $.Deferred(),
+            data = null;
 
-        if (!path || path.trim() === "") {
-            var currentProject = ProjectManager.getProjectRoot();
-
-            if (currentProject) {
-                path = currentProject.fullPath;
-                appName = currentProject.name;
-            } else {
-                return $.Deferred().reject();
-            }
+        if (currentProject) {
+            path = currentProject.fullPath;
+            appName = currentProject.name;
+        } else {
+            return deferred.reject();
         }
 
         _bowerJson = new BowerJson(path, appName);
 
-        return _bowerJson.createWithCurrentData();
+        _bowerJson.create().then(function () {
+            return PackageManager.list();
+        }).then(function (result) {
+            // get default installed packages if it exists
+            data = result;
+        }).always(function () {
+            // create bowerJson file with existent data, if not, use the default configuration
+            return _bowerJson.create(data);
+        }).then(function () {
+            deferred.resolve();
+        }).fail(function (error) {
+            _bowerJson = null;
+
+            deferred.reject(error);
+        });
+
+        return deferred;
     }
 
     /**
@@ -109,58 +125,37 @@ define(function (require, exports) {
         }
     }
 
-    function openBowerComponentsFolder() {
-        var path;
-
-        if (_bowerJson) {
-            path = _bowerJson.ProjectPath;
-        } else {
-            path = ProjectManager.getProjectRoot().fullPath;
-        }
-         // TODO improve this...
-        window.setTimeout(function () {
-            ProjectManager.showInTree(FileSystem.getDirectoryForPath(path));
-        }, 1000);
-    }
-
     /**
      * Checks if the file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
-     * @param {string= path
+     * @param {string} path
      * @return {Promise}
      */
     function findBowerJson(path) {
-        if (!path) {
-            return new $.Deferred().reject();
-        }
-
-        path += "bower.json";
-
-        return FileUtils.exists(path);
+        return FileUtils.exists(path + "bower.json");
     }
 
     function _notifyBowerJsonReloaded() {
         exports.trigger(BOWER_JSON_RELOADED);
     }
 
-    function loadBowerJsonAtCurrentProject() {
+    function loadBowerJson(project) {
         // search for the bower.json file if it exists
-        var project = ProjectManager.getProjectRoot(),
-            path,
-            name;
-
         if (project) {
-            path = project.fullPath;
-            name = project.name;
-        }
+            var path = project.fullPath,
+                name = project.name;
 
-        findBowerJson(path).then(function () {
-            _bowerJson = new BowerJson(path, name);
-        }).fail(function () {
+            findBowerJson(path).then(function () {
+                _bowerJson = new BowerJson(path, name);
+            }).fail(function () {
+                _bowerJson = null;
+            }).always(function () {
+                _notifyBowerJsonReloaded();
+            });
+        } else {
             _bowerJson = null;
-        }).always(function () {
             _notifyBowerJsonReloaded();
-        });
+        }
     }
 
     function _onBowerJsonCreated() {
@@ -168,20 +163,7 @@ define(function (require, exports) {
             return;
         }
 
-        var project = ProjectManager.getProjectRoot(),
-            path,
-            name;
-
-        if (project) {
-            path = project.fullPath;
-            name = project.name;
-        }
-
-        _bowerJson = new BowerJson(path, name);
-
-        _bowerJson.createWithCurrentData().fail(function () {
-            _bowerJson = null;
-        }).always(function () {
+        createBowerJson().always(function () {
             _notifyBowerJsonReloaded();
         });
     }
@@ -198,12 +180,11 @@ define(function (require, exports) {
         FileSystemHandler.on(Events.BOWER_JSON_DELETED, _onBowerJsonDeleted);
     });
 
-    exports.getBowerJson        = getBowerJson;
-    exports.createBowerJson     = createBowerJson;
-    exports.removeBowerJson     = removeBowerJson;
-    exports.findBowerJson       = findBowerJson;
-    exports.open                = open;
-    exports.Events              = Events;
-    exports.openBowerComponentsFolder     = openBowerComponentsFolder;
-    exports.loadBowerJsonAtCurrentProject = loadBowerJsonAtCurrentProject;
+    exports.loadBowerJson   = loadBowerJson;
+    exports.getBowerJson    = getBowerJson;
+    exports.createBowerJson = createBowerJson;
+    exports.removeBowerJson = removeBowerJson;
+    exports.findBowerJson   = findBowerJson;
+    exports.open            = open;
+    exports.Events          = Events;
 });

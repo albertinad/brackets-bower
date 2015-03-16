@@ -84,10 +84,6 @@ define(function (require, exports, module) {
         BowerJsonManager.createBowerJson().done(function () {
             var bowerJson = BowerJsonManager.getBowerJson();
 
-            if (bowerJson) {
-                BowerJsonManager.open();
-            }
-
             that._view.onBowerJsonCreated(bowerJson);
         });
     };

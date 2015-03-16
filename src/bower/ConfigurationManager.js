@@ -29,12 +29,13 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
-        ProjectManager     = brackets.getModule("project/ProjectManager"),
-        EventDispatcher    = brackets.getModule("utils/EventDispatcher"),
-        BowerRc            = require("src/bower/metadata/BowerRc"),
-        FileSystemHandler  = require("src/bower/FileSystemHandler"),
-        FileUtils          = require("src/utils/FileUtils");
+    var ProjectManager        = brackets.getModule("project/ProjectManager"),
+        EventDispatcher       = brackets.getModule("utils/EventDispatcher"),
+        BowerRc               = require("src/bower/metadata/BowerRc"),
+        Bower                 = require("src/bower/Bower"),
+        BracketsConfiguration = require("src/bower/configuration/BracketsConfiguration"),
+        FileSystemHandler     = require("src/bower/FileSystemHandler"),
+        FileUtils             = require("src/utils/FileUtils");
 
     var _bowerRc  = null,
         _defaultConfiguration = {};
@@ -48,26 +49,31 @@ define(function (require, exports) {
 
     EventDispatcher.makeEventDispatcher(exports);
 
-    function createConfiguration(path) {
-        if (!path || path.trim() === "") {
-            var currentProject =  ProjectManager.getProjectRoot();
+    function createBowerRc() {
+        var currentProject =  ProjectManager.getProjectRoot(),
+            deferred = new $.Deferred(),
+            path;
 
-            if (currentProject) {
-                path = currentProject.fullPath;
-            } else {
-                var promise = new $.Deferred();
-                promise.reject();
-
-                return promise;
-            }
+        if (currentProject) {
+            path = currentProject.fullPath;
+        } else {
+            return deferred.reject();
         }
 
         _bowerRc = new BowerRc(path, _defaultConfiguration);
 
-        return _bowerRc.create();
+        _bowerRc.create().then(function () {
+            deferred.resolve();
+        }).fail(function (error) {
+            _bowerRc = null;
+
+            deferred.reject(error);
+        });
+
+        return deferred;
     }
 
-    function removeConfiguration() {
+    function removeBowerRc() {
         var deferred = new $.Deferred();
 
         if (_bowerRc !== null) {
@@ -105,109 +111,63 @@ define(function (require, exports) {
         return config;
     }
 
+    function getConfigurationForPath(path) {
+        var config = getConfiguration();
+
+        config.cwd = path;
+
+        return config;
+    }
+
     /**
      * Checks if the file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
      * @param {string} path
      * @return {Promise}
      */
-    function findConfiguration(path) {
-        if (!path) {
-            var promise = new $.Deferred();
-            promise.reject();
-
-            return promise;
-        }
-
-        path += ".bowerrc";
-
-        return FileUtils.exists(path);
-    }
-
-    function _loadConfiguration(path) {
-        _bowerRc = new BowerRc(path, _defaultConfiguration);
-    }
-
-    /**
-     * Creates the default configuration based on those settings defined
-     * in brackets preferences.
-     */
-    function _setUpDefaultConfiguration() {
-        var proxy = PreferencesManager.get("proxy");
-
-        if (proxy) {
-            _defaultConfiguration.proxy = proxy;
-            _defaultConfiguration.httpsProxy = proxy;
-        }
+    function findBowerRc(path) {
+        return FileUtils.exists(path + ".bowerrc");
     }
 
     function _notifyBowerRcReloaded() {
         exports.trigger(BOWERRC_RELOADED);
     }
 
-    function loadBowerRcAtCurrentProject() {
-        // search for the configuration file if it exists
-        var currentProject = ProjectManager.getProjectRoot(),
-            defaultPath = (currentProject) ? currentProject.fullPath : null;
+    function loadBowerRc(project) {
+        if (project) {
+            var path = project.fullPath;
 
-        findConfiguration(defaultPath).then(function () {
-            _loadConfiguration(defaultPath);
-        }).fail(function () {
+            findBowerRc(path).then(function () {
+                _bowerRc = new BowerRc(path, _defaultConfiguration);
+            }).fail(function () {
+                _bowerRc = null;
+            }).always(function () {
+                _notifyBowerRcReloaded();
+            });
+        } else {
             _bowerRc = null;
-        }).always(function () {
             _notifyBowerRcReloaded();
-        });
-    }
-
-
-    /**
-     * Callback when the default preferences change. If the "proxy" preference has changed,
-     * create the default configuration with the new value.
-     * @param {Array} preferencesChanged Array of preferences keys that could have changed.
-     */
-    function _onPreferencesChange(preferencesChanged) {
-        if (!_defaultConfiguration) {
-            return;
-        }
-
-        var indexProxy = preferencesChanged.indexOf("proxy");
-
-        if (indexProxy !== -1) {
-            var proxy = PreferencesManager.get("proxy");
-
-            if (_defaultConfiguration.proxy !== proxy) {
-                _setUpDefaultConfiguration();
-
-                if (_bowerRc !== null) {
-                    _bowerRc.setDefaults(_defaultConfiguration);
-                }
-            }
         }
     }
 
-    function _onConfigurationCreated() {
+    function _onBowerRcCreated() {
         if (_bowerRc !== null) {
             return;
         }
 
-        var currentProject = ProjectManager.getProjectRoot(),
-            defaultPath = (currentProject) ? currentProject.fullPath : null;
-
-        _bowerRc = new BowerRc(defaultPath, _defaultConfiguration);
-
-        _bowerRc.create().fail(function () {
-            _bowerRc = null;
-        }).always(function () {
+        createBowerRc().always(function () {
             _notifyBowerRcReloaded();
         });
     }
 
-    function _onConfigurationChanged() {
+    function _onBowerRcChanged() {
         if (_bowerRc === null) {
             return;
         }
 
-        _bowerRc.reload().done(function () {
+        // TODO: Expose a reload configuration API from bower module
+        Bower.getConfiguration(_bowerRc.AbsolutePath).done(function (configuration) {
+            _bowerRc.Data = configuration;
             _bowerRc.setDefaults(_defaultConfiguration);
         });
     }
@@ -220,25 +180,32 @@ define(function (require, exports) {
     function _init() {
         var Events = FileSystemHandler.Events;
 
-        _setUpDefaultConfiguration();
+        BracketsConfiguration.init();
 
-        FileSystemHandler.on(Events.BOWER_BOWERRC_CREATED, _onConfigurationCreated);
-        FileSystemHandler.on(Events.BOWER_BOWERRC_CHANGED, _onConfigurationChanged);
-        FileSystemHandler.on(Events.BOWER_BOWERRC_DELETED, _onBowerRcDeleted);
+        BracketsConfiguration.on(BracketsConfiguration.Events.CHANGED, function (configuration) {
+            _defaultConfiguration = configuration;
 
-        PreferencesManager.on("change", function (event, data) {
-            _onPreferencesChange(data.ids);
+            if (_bowerRc !== null) {
+                _bowerRc.setDefaults(_defaultConfiguration);
+            }
         });
+
+        _defaultConfiguration = BracketsConfiguration.getConfiguration();
+
+        FileSystemHandler.on(Events.BOWER_BOWERRC_CREATED, _onBowerRcCreated);
+        FileSystemHandler.on(Events.BOWER_BOWERRC_CHANGED, _onBowerRcChanged);
+        FileSystemHandler.on(Events.BOWER_BOWERRC_DELETED, _onBowerRcDeleted);
     }
 
     _init();
 
-    exports.getBowerRc          = getBowerRc;
-    exports.createConfiguration = createConfiguration;
-    exports.removeConfiguration = removeConfiguration;
-    exports.getConfiguration    = getConfiguration;
-    exports.findConfiguration   = findConfiguration;
-    exports.open                = open;
-    exports.Events              = Events;
-    exports.loadBowerRcAtCurrentProject = loadBowerRcAtCurrentProject;
+    exports.loadBowerRc             = loadBowerRc;
+    exports.getBowerRc              = getBowerRc;
+    exports.createBowerRc           = createBowerRc;
+    exports.removeBowerRc           = removeBowerRc;
+    exports.getConfiguration        = getConfiguration;
+    exports.getConfigurationForPath = getConfigurationForPath;
+    exports.findBowerRc             = findBowerRc;
+    exports.open                    = open;
+    exports.Events                  = Events;
 });

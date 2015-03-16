@@ -37,7 +37,7 @@ define(function (require, exports, module) {
 
     var StatusBarController = require("src/StatusBarController").Controller,
         QuickSearchSpinner  = require("src/QuickSearchSpinner").create(),
-        Bower               = require("src/bower/Bower"),
+        PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),
         Strings             = require("strings");
 
@@ -55,13 +55,12 @@ define(function (require, exports, module) {
             return;
         }
 
-        var rootPath      = ProjectManager.getProjectRoot().fullPath,
-            pkgName       = queue.shift(),
+        var pkgName       = queue.shift(),
             installingMsg = StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName);
 
         var statusId = StatusBarController.post(installingMsg, true);
 
-        installPromise = Bower.installPackage(rootPath, pkgName);
+        installPromise = PackageManager.install(pkgName);
 
         installPromise.done(function (result) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
@@ -133,12 +132,12 @@ define(function (require, exports, module) {
 
         _isFetching = true;
 
-        Bower.listCache().then(function (pkgs) {
+        PackageManager.listCache().then(function (pkgs) {
             if (pkgs.length !== 0) {
                 packages = _getSortedPackages(pkgs);
             }
 
-            return Bower.search();
+            return PackageManager.search();
         }).done(function (pkgs) {
             packages = _getSortedPackages(pkgs);
 

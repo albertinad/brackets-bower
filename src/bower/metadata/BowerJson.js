@@ -29,8 +29,7 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerMetadata = require("src/bower/metadata/BowerMetadata"),
-        Bower         = require("src/bower/Bower");
+    var BowerMetadata = require("src/bower/metadata/BowerMetadata");
 
     /**
      * Bower json file constructor.
@@ -47,45 +46,15 @@ define(function (require, exports, module) {
     BowerJson.prototype.constructor = BowerJson;
     BowerJson.prototype.parentClass = BowerMetadata.prototype;
 
-    BowerJson.prototype.content = function () {
-        var that = this,
-            deferred  = new $.Deferred(),
-            packageMetadata;
-
-        Bower.list(this.ProjectPath).then(function (result) {
-            packageMetadata = result.pkgMeta;
-        }).fail(function () {
-            packageMetadata = that._getDefaultData();
-        }).always(function () {
-            var content = JSON.stringify(packageMetadata, null, 4);
-
-            deferred.resolve(content);
-        });
-
-        return deferred;
-    };
-
-    BowerJson.prototype.createWithCurrentData = function () {
-        var that = this,
-            deferred = new $.Deferred(),
-            defaultData = this._getDefaultData(),
-            content = JSON.stringify(defaultData, null, 4);
-
-        this.saveContent(content).then(function () {
-
-            return Bower.list(that.ProjectPath);
-        }).then(function (result) {
-
-            var pkgMeta = that._createPackageMetadata(result);
+    BowerJson.prototype.create = function (data) {
+        var deferred = new $.Deferred(),
+            pkgMeta = (data) ? this._createPackageMetadata(data) : this._getDefaultData(),
             content = JSON.stringify(pkgMeta, null, 4);
 
-            return that.saveContent(content);
-        }).then(function () {
-
-            deferred.resolve(content);
-        }).fail(function () {
-
-            deferred.reject();
+        this.saveContent(content).then(function () {
+            deferred.resolve();
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred;

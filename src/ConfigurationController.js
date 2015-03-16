@@ -81,11 +81,7 @@ define(function (require, exports, module) {
     ConfigurationController.prototype.onCreate = function () {
         var that = this;
 
-        ConfigurationManager.createConfiguration().done(function (path) {
-            if (path) {
-                ConfigurationManager.open();
-            }
-
+        ConfigurationManager.createBowerRc().done(function () {
             that._refreshUi();
         });
     };
@@ -93,7 +89,7 @@ define(function (require, exports, module) {
     ConfigurationController.prototype.onDelete = function () {
         var that = this;
 
-        ConfigurationManager.removeConfiguration().done(function () {
+        ConfigurationManager.removeBowerRc().done(function () {
             that._refreshUi();
         });
     };

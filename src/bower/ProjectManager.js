@@ -34,31 +34,57 @@ define(function (require, exports) {
         BowerJsonManager     = require("src/bower/BowerJsonManager"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
-    function getActivePath() {}
+    var _activePath;
 
-    function getActiveBowerJson() {}
+    function getActivePath() {
+        return _activePath;
+    }
 
-    function getConfiguration() {}
+    function existsBowerJson() {
+        var bowerJson = BowerJsonManager.getBowerJson();
 
-    function projectOpen() {
-        ConfigurationManager.loadBowerRcAtCurrentProject();
-        BowerJsonManager.loadBowerJsonAtCurrentProject();
+        return (bowerJson !== null);
+    }
+
+    function getConfiguration() {
+        var config = ConfigurationManager.getConfiguration(),
+            bowerJson = BowerJsonManager.getBowerJson(),
+            path;
+
+        if (bowerJson !== null) {
+            path = bowerJson.ProjectPath;
+        } else {
+            path = getActivePath();
+        }
+
+        config.cwd = path;
+
+        return config;
+    }
+
+    function _projectOpen() {
+        var project = ProjectManager.getProjectRoot();
+
+        _activePath = (project) ? project.fullPath : null;
+
+        ConfigurationManager.loadBowerRc(project);
+        BowerJsonManager.loadBowerJson(project);
 
         FileSystemHandler.startListenToFileSystem();
     }
 
     function initialize() {
-        projectOpen();
+        _projectOpen();
 
-        ProjectManager.on("projectOpen", projectOpen);
+        ProjectManager.on("projectOpen", _projectOpen);
 
         ProjectManager.on("projectClose", function () {
-            FileSystemHandler.startListenToFileSystem();
+            FileSystemHandler.stopListenToFileSystem();
         });
     }
 
-    exports.initialize         = initialize;
-    exports.getActivePath      = getActivePath;
-    exports.getActiveBowerJson = getActiveBowerJson;
-    exports.getConfiguration   = getConfiguration;
+    exports.initialize       = initialize;
+    exports.getActivePath    = getActivePath;
+    exports.existsBowerJson  = existsBowerJson;
+    exports.getConfiguration = getConfiguration;
 });

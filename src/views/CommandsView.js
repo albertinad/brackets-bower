@@ -71,9 +71,9 @@ define(function (require, exports, module) {
      * @param {string} commandKey
      */
     CommandsView.prototype._onCommandSelected = function (commandKey) {
-        this._controller.executeCommand(commandKey);
-
         this._$container.find(".bower-btn").prop("disabled", true);
+
+        this._controller.executeCommand(commandKey);
     };
 
     /**

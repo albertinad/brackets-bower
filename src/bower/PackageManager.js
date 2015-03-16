@@ -24,29 +24,40 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define, brackets */
+/*global $, define */
 
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager       = brackets.getModule("project/ProjectManager"),
-        Bower                = require("src/bower/Bower"),
-        BowerJsonManager     = require("src/bower/BowerJsonManager"),
-        ConfigurationManager = require("src/bower/ConfigurationManager"),
-        PackageFactory       = require("src/bower/PackageFactory");
+    var Bower          = require("src/bower/Bower"),
+        ProjectManager = require("src/bower/ProjectManager"),
+        PackageFactory = require("src/bower/PackageFactory");
 
     var _packages  = [];
 
+    function install(packageName) {
+        var deferred = new $.Deferred(),
+            config = ProjectManager.getConfiguration();
+
+        Bower.installPackage(packageName, config).then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred;
+    }
+
     function installFromBowerJson() {
         var deferred = new $.Deferred(),
-            bowerJson = BowerJsonManager.getBowerJson(),
+            existsBowerJson = ProjectManager.existsBowerJson(),
             config;
 
-        if (bowerJson === null) {
+        if (!existsBowerJson) {
             return deferred.reject();
         }
 
-        config = _getConfiguration(true);
+        config = ProjectManager.getConfiguration();
 
         Bower.install(config).then(function (result) {
             deferred.resolve(result);
@@ -59,14 +70,14 @@ define(function (require, exports) {
 
     function prune() {
         var deferred = new $.Deferred(),
-            bowerJson = BowerJsonManager.getBowerJson(),
+            existsBowerJson = ProjectManager.existsBowerJson(),
             config;
 
-        if (bowerJson === null) {
+        if (!existsBowerJson) {
             return deferred.reject();
         }
 
-        config = _getConfiguration(true);
+        config = ProjectManager.getConfiguration();
 
         Bower.prune(config)
             .then(function () {
@@ -81,7 +92,7 @@ define(function (require, exports) {
 
     function uninstall(name) {
         var deferred = new $.Deferred(),
-            config = _getConfiguration();
+            config = ProjectManager.getConfiguration();
 
         Bower.uninstall(name, config).then(function (uninstalled) {
             deferred.resolve(uninstalled);
@@ -94,7 +105,7 @@ define(function (require, exports) {
 
     function getInstalledDependencies() {
         var deferred = new $.Deferred(),
-            config = _getConfiguration();
+            config = ProjectManager.getConfiguration();
 
         Bower.list(config).then(function (result) {
             _packages = PackageFactory.create(result.dependencies);
@@ -107,33 +118,30 @@ define(function (require, exports) {
         return deferred;
     }
 
-    // TODO move to configmanager
-    /**
-     * @param {string} path
-     * @private
-     */
-    function _getConfiguration(forceBowerJson) {
-        var config = ConfigurationManager.getConfiguration(),
-            bowerJson = BowerJsonManager.getBowerJson(),
-            path;
+    function search() {
+        var config = ProjectManager.getConfiguration();
 
-        if (forceBowerJson) {
-            path = bowerJson.ProjectPath;
-        } else {
-            if (bowerJson !== null) {
-                path = bowerJson.ProjectPath;
-            } else {
-                path = ProjectManager.getProjectRoot().fullPath;
-            }
-        }
-
-        config.cwd = path;
-
-        return config;
+        return Bower.search(config);
     }
 
-    exports.installFromBowerJson = installFromBowerJson;
-    exports.uninstall            = uninstall;
-    exports.prune                = prune;
+    function listCache() {
+        var config = ProjectManager.getConfiguration();
+
+        return Bower.listCache(config);
+    }
+
+    function list() {
+        var config = ProjectManager.getConfiguration();
+
+        return Bower.list(config);
+    }
+
+    exports.install                  = install;
+    exports.uninstall                = uninstall;
+    exports.installFromBowerJson     = installFromBowerJson;
+    exports.prune                    = prune;
+    exports.search                   = search;
+    exports.listCache                = listCache;
+    exports.list                     = list;
     exports.getInstalledDependencies = getInstalledDependencies;
 });

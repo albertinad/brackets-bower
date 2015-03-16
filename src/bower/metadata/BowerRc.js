@@ -24,13 +24,12 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define */
+/*global define */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerMetadata = require("src/bower/metadata/BowerMetadata"),
-        Bower         = require("src/bower/Bower");
+    var BowerMetadata = require("src/bower/metadata/BowerMetadata");
 
     /**
      * Configuration file constructor.
@@ -57,15 +56,19 @@ define(function (require, exports, module) {
         }
     });
 
-    BowerRc.prototype.content = function () {
-        var deferred = new $.Deferred(),
-            defaultConfiguration = {
-                directory: "bower_components/",
-                interactive: false
-            },
-            content = JSON.stringify(defaultConfiguration, null, 4);
+    BowerRc.prototype.create = function () {
+        var content = this._defaultContent();
 
-        return deferred.resolve(content);
+        return this.saveContent(content);
+    };
+
+    BowerRc.prototype._defaultContent = function () {
+        var defaultConfiguration = {
+            directory: "bower_components/",
+            interactive: false
+        };
+
+        return JSON.stringify(defaultConfiguration, null, 4);
     };
 
     BowerRc.prototype.setDefaults = function (defaults) {
@@ -80,24 +83,6 @@ define(function (require, exports, module) {
                 this._cacheConfig[configKey] = defaults[configKey];
             }
         }
-    };
-
-    /**
-     * Reload the configuration.
-     * @param {string} configFilePath The absolute path root directory.
-     */
-    BowerRc.prototype.reload = function () {
-        var that = this,
-            deferred = new $.Deferred();
-
-        // TODO: Expose a reload configuration API from bower module
-        Bower.getConfiguration(this.AbsolutePath).done(function (configuration) {
-            that._cacheConfig = configuration;
-
-            deferred.resolve();
-        });
-
-        return deferred;
     };
 
     module.exports = BowerRc;
