@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.3
+* List current project dependencies.
+* Uninstall and update commands.
+* Bug fixing.
+
 ## v0.2.2
 * Bug fixing.
 * Test suite improvement.
