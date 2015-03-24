@@ -29,11 +29,28 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var Bower          = require("src/bower/Bower"),
-        ProjectManager = require("src/bower/ProjectManager"),
-        PackageFactory = require("src/bower/PackageFactory");
+    var EventDispatcher = brackets.getModule("utils/EventDispatcher"),
+        Bower           = require("src/bower/Bower"),
+        ProjectManager  = require("src/bower/ProjectManager"),
+        PackageFactory  = require("src/bower/PackageFactory");
+
+    /**
+     * Events definition for the bower PackageManager.
+     */
+    var namespace                    = ".albertinad.bracketsbower",
+        CMD_INSTALL_READY            = "cmdInstallReady",
+        CMD_INSTALL_BOWER_JSON_READY = "cmdInstallBowerJsonReady",
+        CMD_PRUNE_READY              = "cmdPruneReady";
+
+    var Events = {
+        CMD_INSTALL_READY: CMD_INSTALL_READY + namespace,
+        CMD_INSTALL_BOWER_JSON_READY: CMD_INSTALL_BOWER_JSON_READY + namespace,
+        CMD_PRUNE_READY: CMD_PRUNE_READY + namespace
+    };
 
     var _packages  = [];
+
+    EventDispatcher.makeEventDispatcher(exports);
 
     function install(packageName) {
         var deferred = new $.Deferred(),
@@ -43,6 +60,8 @@ define(function (require, exports) {
             deferred.resolve(result);
         }).fail(function (error) {
             deferred.reject(error);
+        }).always(function () {
+            exports.trigger(CMD_INSTALL_READY);
         });
 
         return deferred;
@@ -63,6 +82,8 @@ define(function (require, exports) {
             deferred.resolve(result);
         }).fail(function () {
             deferred.reject();
+        }).always(function () {
+            exports.trigger(CMD_INSTALL_BOWER_JSON_READY);
         });
 
         return deferred;
@@ -79,13 +100,13 @@ define(function (require, exports) {
 
         config = ProjectManager.getConfiguration();
 
-        Bower.prune(config)
-            .then(function () {
-                deferred.resolve();
-            })
-            .fail(function () {
-                deferred.reject();
-            });
+        Bower.prune(config).then(function () {
+            deferred.resolve();
+        }).fail(function () {
+            deferred.reject();
+        }).always(function () {
+            exports.trigger(CMD_PRUNE_READY);
+        });
 
         return deferred;
     }
@@ -144,4 +165,5 @@ define(function (require, exports) {
     exports.listCache                = listCache;
     exports.list                     = list;
     exports.getInstalledDependencies = getInstalledDependencies;
+    exports.Events                   = Events;
 });

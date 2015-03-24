@@ -46,13 +46,29 @@ define(function (require, exports, module) {
     }
 
     DependenciesController.prototype.initialize = function ($section) {
-        var Events = BowerJsonManager.Events;
+        var that = this,
+            BowerJsonEvents = BowerJsonManager.Events,
+            PackageManagerEvents = PackageManager.Events;
 
         this._view = new DependenciesView(this);
 
         this._view.initialize($section);
 
-        BowerJsonManager.on(Events.BOWER_JSON_RELOADED, this._onBowerJsonReloadedCallback.bind(this));
+        BowerJsonManager.on(BowerJsonEvents.BOWER_JSON_RELOADED, function () {
+            that._onBowerJsonReloadedCallback();
+        });
+
+        PackageManager.on(PackageManagerEvents.CMD_INSTALL_BOWER_JSON_READY, function () {
+            if (that._isPanelActive()) {
+                that.loadProjectPackages();
+            }
+        });
+
+        PackageManager.on(PackageManagerEvents.CMD_PRUNE_READY, function () {
+            if (that._isPanelActive()) {
+                that.loadProjectPackages();
+            }
+        });
     };
 
     /**
@@ -129,7 +145,7 @@ define(function (require, exports, module) {
      * Callback for when the bower.json file is created or deleted.
      */
     DependenciesController.prototype._onBowerJsonReloadedCallback = function () {
-        if (this._panelController.isPanelActive() && this._isVisible) {
+        if (this._isPanelActive()) {
             this._refreshBowerJsonUi();
         }
     };
@@ -147,6 +163,14 @@ define(function (require, exports, module) {
      */
     DependenciesController.prototype._refreshPackagesUi = function (packages) {
         this._view.reloadPackages(packages);
+    };
+
+    /**
+     * Checks if the current panel is the active one and it is visible.
+     * @private
+     */
+    DependenciesController.prototype._isPanelActive = function () {
+        return (this._panelController.isPanelActive() && this._isVisible);
     };
 
     module.exports = DependenciesController;
