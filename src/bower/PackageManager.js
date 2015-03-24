@@ -24,7 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define */
+/*global brackets, $, define, _ */
 
 define(function (require, exports) {
     "use strict";
@@ -32,7 +32,8 @@ define(function (require, exports) {
     var EventDispatcher = brackets.getModule("utils/EventDispatcher"),
         Bower           = require("src/bower/Bower"),
         ProjectManager  = require("src/bower/ProjectManager"),
-        PackageFactory  = require("src/bower/PackageFactory");
+        PackageFactory  = require("src/bower/PackageFactory"),
+        BowerJsonManager = require("src/bower/BowerJsonManager");
 
     /**
      * Events definition for the bower PackageManager.
@@ -40,17 +41,73 @@ define(function (require, exports) {
     var namespace                    = ".albertinad.bracketsbower",
         CMD_INSTALL_READY            = "cmdInstallReady",
         CMD_INSTALL_BOWER_JSON_READY = "cmdInstallBowerJsonReady",
+        CMD_UNINSTALL_READY          = "cmdUninstallReady",
         CMD_PRUNE_READY              = "cmdPruneReady";
 
     var Events = {
         CMD_INSTALL_READY: CMD_INSTALL_READY + namespace,
         CMD_INSTALL_BOWER_JSON_READY: CMD_INSTALL_BOWER_JSON_READY + namespace,
+        CMD_UNINSTALL_READY: CMD_UNINSTALL_READY + namespace,
         CMD_PRUNE_READY: CMD_PRUNE_READY + namespace
     };
 
-    var _packages  = [];
+    var _packages  = {};
 
     EventDispatcher.makeEventDispatcher(exports);
+
+    /**
+     * Set the packages.
+     * @private
+     * @param {Array} packagesArray
+     */
+    function _setPackages(packagesArray) {
+        _packages = {};
+
+        packagesArray.forEach(function (pkg) {
+            _packages[pkg.name] = pkg;
+        });
+    }
+
+    /**
+     * Remove a package by its name.
+     * @private
+     * @param {string} name
+     */
+    function _removePackage(name) {
+        if (_packages[name]) {
+            delete _packages[name];
+        }
+    }
+
+    /**
+     * Remove packages by its name.
+     * @private
+     * @param {Array} names
+     */
+    function _removePackages(names) {
+        names.forEach(function (name) {
+            _removePackage(name);
+        });
+    }
+
+    function _getPackageByName(name) {
+        return _packages[name];
+    }
+
+    /**
+     * Get the current packages array.
+     * @private
+     * @returns {Array} packages
+     */
+    function _getPackagesArray() {
+        var packagesArray = [];
+
+        _.forEach(_packages, function (pkg, pkgName) {
+            packagesArray.push(pkg);
+        });
+
+        return packagesArray;
+    }
 
     function install(packageName) {
         var deferred = new $.Deferred(),
@@ -100,8 +157,12 @@ define(function (require, exports) {
 
         config = ProjectManager.getConfiguration();
 
-        Bower.prune(config).then(function () {
-            deferred.resolve();
+        Bower.prune(config).then(function (removedPackages) {
+            var names = Object.keys(removedPackages);
+
+            _removePackages(names);
+
+            deferred.resolve(_getPackagesArray());
         }).fail(function () {
             deferred.reject();
         }).always(function () {
@@ -116,7 +177,28 @@ define(function (require, exports) {
             config = ProjectManager.getConfiguration();
 
         Bower.uninstall(name, config).then(function (uninstalled) {
+            _removePackage(name);
+
             deferred.resolve(uninstalled);
+        }).fail(function (err) {
+            deferred.reject(err);
+        }).always(function () {
+            exports.trigger(CMD_UNINSTALL_READY);
+        });
+
+        return deferred;
+    }
+
+    function getProjectDependencies() {
+        var deferred = new $.Deferred(),
+            config = ProjectManager.getConfiguration();
+
+        Bower.list(config).then(function (result) {
+            var packagesArray = PackageFactory.create(result.dependencies);
+
+            _setPackages(packagesArray);
+
+            deferred.resolve(packagesArray);
         }).fail(function (err) {
             deferred.reject(err);
         });
@@ -124,16 +206,35 @@ define(function (require, exports) {
         return deferred;
     }
 
-    function getInstalledDependencies() {
+    function update(name) {
         var deferred = new $.Deferred(),
-            config = ProjectManager.getConfiguration();
+            config = ProjectManager.getConfiguration(),
+            pkg = _getPackageByName(name),
+            version,
+            bowerJson;
 
-        Bower.list(config).then(function (result) {
-            _packages = PackageFactory.create(result.dependencies);
+        // force bower.json to exists before updating
+        if (!ProjectManager.existsBowerJson()) {
+            return deferred.reject();
+        }
 
-            deferred.resolve(_packages);
-        }).fail(function (err) {
-            deferred.reject(err);
+        // check if the selected package exists
+        if (!pkg) {
+            return deferred.reject();
+        }
+
+        bowerJson = BowerJsonManager.getBowerJson();
+        version = pkg.latestVersion;
+
+        bowerJson.updatePackageVersion(name, version).then(function () {
+
+            return Bower.update(name, config);
+        }).then(function () {
+
+            deferred.resolve();
+        }).fail(function (error) {
+
+            deferred.reject(error);
         });
 
         return deferred;
@@ -157,13 +258,14 @@ define(function (require, exports) {
         return Bower.list(config);
     }
 
-    exports.install                  = install;
-    exports.uninstall                = uninstall;
-    exports.installFromBowerJson     = installFromBowerJson;
-    exports.prune                    = prune;
-    exports.search                   = search;
-    exports.listCache                = listCache;
-    exports.list                     = list;
-    exports.getInstalledDependencies = getInstalledDependencies;
-    exports.Events                   = Events;
+    exports.install                = install;
+    exports.uninstall              = uninstall;
+    exports.installFromBowerJson   = installFromBowerJson;
+    exports.prune                  = prune;
+    exports.update                 = update;
+    exports.search                 = search;
+    exports.listCache              = listCache;
+    exports.list                   = list;
+    exports.getProjectDependencies = getProjectDependencies;
+    exports.Events                 = Events;
 });

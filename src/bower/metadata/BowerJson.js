@@ -60,6 +60,53 @@ define(function (require, exports, module) {
         return deferred;
     };
 
+    /**
+     * Update the package version for the given dependency name.
+     * @param {string} name The package name to update the version.
+     * @param {string} version The version to upgrade.
+     * @return {$.Deferred}
+     */
+    BowerJson.prototype.updatePackageVersion = function (name, version) {
+        var that = this,
+            deferred = new $.Deferred();
+
+        this.read().then(function (result) {
+
+            return JSON.parse(result);
+        }).then(function (content) {
+            var deps = content.dependencies,
+                devDeps = content.devDependencies,
+                newContent;
+
+            // update for dependencies
+            if (deps[name]) {
+                deps[name] = version;
+            }
+
+            // update for devDependencies
+            if (devDeps[name]) {
+                devDeps[name] = version;
+            }
+
+            newContent = JSON.stringify(content, null, 4);
+
+            return that.saveContent(newContent);
+        }).then(function () {
+
+            deferred.resolve();
+        }).fail(function (error) {
+
+            deferred.reject(error);
+        });
+
+        return deferred;
+    };
+
+    /**
+     * Create the bower.json file content using the current information.
+     * @param {object} result
+     * @return {object}
+     */
     BowerJson.prototype._createPackageMetadata = function (result) {
         var pkg = {
             name: result.pkgMeta.name,
@@ -82,6 +129,10 @@ define(function (require, exports, module) {
         return pkg;
     };
 
+    /**
+     * Create the default bower.json content.
+     * @return {object}
+     */
     BowerJson.prototype._getDefaultData = function () {
         return {
             name: this._appName || "your-app-name",

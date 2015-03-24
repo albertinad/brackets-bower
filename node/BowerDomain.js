@@ -121,6 +121,7 @@ maxerr: 50, node: true */
 
         if (save !== null && save !== undefined) {
             options.save = save;
+            options.saveDev = save;
         }
 
         bower.commands.uninstall(names, options, config)
@@ -141,8 +142,8 @@ maxerr: 50, node: true */
      */
     function _cmdPrune(config, cb) {
         bower.commands.prune(null, config)
-            .on("end", function () {
-                cb(null, true);
+            .on("end", function (removedPackages) {
+                cb(null, removedPackages);
             })
             .on("error", function (error) {
                 logger.error("[prune command]");

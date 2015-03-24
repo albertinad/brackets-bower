@@ -94,7 +94,7 @@ define(function (require, exports, module) {
         var that = this,
             data = null;
 
-        PackageManager.getInstalledDependencies()
+        PackageManager.getProjectDependencies()
             .done(function (dependencies) {
                 data = dependencies;
             })
@@ -130,11 +130,29 @@ define(function (require, exports, module) {
         BowerJsonManager.open();
     };
 
+    /**
+     * Uninstall the selected package.
+     */
     DependenciesController.prototype.uninstall = function (name) {
         var that = this;
 
         PackageManager.uninstall(name).then(function () {
             that._view.onDependecyRemoved(name);
+        }).fail(function (error) {
+            // TODO warn the user
+            console.log(error);
+        });
+    };
+
+    /**
+     * Update the selected package.
+     */
+    DependenciesController.prototype.update = function (name) {
+        var that = this;
+
+        PackageManager.update(name).then(function () {
+            // TODO update this
+            that.loadProjectPackages();
         }).fail(function (error) {
             // TODO warn the user
             console.log(error);

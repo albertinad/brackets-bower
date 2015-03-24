@@ -58,19 +58,32 @@ define(function (require, exports, module) {
     /**
      * Create the file with content.
      * @param {object=} data
-     * @return {Promise}
+     * @return {$.Deferred}
      */
     BowerMetadata.prototype.create = function (data) {
         throw "Function 'create' not implemented yet.";
     };
 
+    /**
+     * Save the given content in the file.
+     * @param {object} content JSON object to save to the file.
+     * @return {$.Deferred}
+     */
     BowerMetadata.prototype.saveContent = function (content) {
         return FileUtils.writeContent(this._absolutePath, content);
     };
 
     /**
+     * Read the current content from the file.
+     * @return {$.Deferred}
+     */
+    BowerMetadata.prototype.read = function () {
+        return FileUtils.readFile(this._absolutePath);
+    };
+
+    /**
      * Delete the file.
-     * @return {Promise}
+     * @return {$.Deferred}
      */
     BowerMetadata.prototype.remove = function () {
         return FileUtils.deleteFile(this._absolutePath);

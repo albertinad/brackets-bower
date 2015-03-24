@@ -45,7 +45,7 @@ define(function (require, exports, module) {
         /** @private */
         this._extraneous = false;
         /** @private */
-        this._isInstalled = false;
+        this._isInstalled = true;
     }
 
     Object.defineProperty(Package.prototype, "name", {

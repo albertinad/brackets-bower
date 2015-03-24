@@ -38,8 +38,8 @@ define(function (require, exports) {
     /**
      * Checks if the bowerrc json file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
-     * @param {path=} path
-     * @return {Promise}
+     * @param {string} path
+     * @return {$.Deferred}
      */
     function exists(path) {
         var result = new $.Deferred();
@@ -61,7 +61,7 @@ define(function (require, exports) {
      * Create a new file by giving the absolute path and the content.
      * @param {string} path The absolute path.
      * @param {string} content Content to write to the file.
-     * @return {Promise}
+     * @return {$.Deferred}
      */
     function writeContent(path, content) {
         var deferred = new $.Deferred(),
@@ -87,6 +87,7 @@ define(function (require, exports) {
     /**
      * Permanently delete the given file.
      * @param {string} path The absolute path of the file to remove.
+     * @return {$.Deferred}
      */
     function deleteFile(path) {
         var deferred = new $.Deferred(),
@@ -123,24 +124,25 @@ define(function (require, exports) {
     /**
      * Read and get the content of the file with the give name.
      * @param {string} filePath The absolute path of the file to open in the editor.
+     * @return {$.Deferred}
      */
     function readFile(path) {
-        var promise = new $.Deferred(),
+        var deferred = new $.Deferred(),
             file = FileSystem.getFileForPath(path);
 
         if (!file) {
-            promise.reject();
+            deferred.reject();
         }
 
         file.read(function (error, result) {
             if (error) {
-                promise.reject(error);
+                deferred.reject(error);
             } else {
-                promise.resolve(result);
+                deferred.resolve(result);
             }
         });
 
-        return promise;
+        return deferred;
     }
 
     exports.exists       = exists;

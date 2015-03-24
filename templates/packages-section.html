@@ -10,8 +10,7 @@
 {{/loading}}
 
 <!-- packages loaded -->
-{{^loading}}
-{{#existsDependencies}}
+{{^loading}} {{#existsDependencies}}
 <table class="bottom-panel-table table table-striped table-condensed">
     <thead>
         <tr>
@@ -19,6 +18,7 @@
             <th>Version</th>
             <th>Latest Version</th>
             <th>Extraneous</th>
+            <th>Installed</th>
         </tr>
     </thead>
     <tbody>
@@ -37,24 +37,24 @@
                 <div class="bower-row-item">{{ extraneous }}</div>
             </td>
             <td>
+                <div class="bower-row-item">{{ isInstalled }}</div>
+            </td>
+            <td>
                 <div class="controls bower-row-item">
                     <button class="btn btn-mini" data-bower-installed-action="delete" data-name="{{ name }}" title="{{Strings.COMMAND_UNINSTALL}}">
                         {{ Strings.COMMAND_UNINSTALL }}
                     </button>
-                    <!--
-                        <button class="btn btn-mini" data-bower-installed-action="update" data-name="{{ name }}" title="{{Strings.COMMAND_UPDATE}}" {{ ^hasUpdates }}disabled{{ /hasUpdates }}>
-                            {{ Strings.COMMAND_UPDATE }}
-                        </button>
-    -->
+
+                    <button class="btn btn-mini" data-bower-installed-action="update" data-name="{{ name }}" title="{{Strings.COMMAND_UPDATE}}" {{ ^hasUpdates }}disabled{{ /hasUpdates }}>
+                        {{ Strings.COMMAND_UPDATE }}
+                    </button>
                 </div>
             </td>
         </tr>
         {{/dependencies}}
     </tbody>
 </table>
-{{/existsDependencies}}
-
-{{^existsDependencies}}
+{{/existsDependencies}} {{^existsDependencies}}
 <table class="bottom-panel-table table table-striped table-condensed">
     <tbody>
         <tr>
@@ -64,5 +64,4 @@
         </tr>
     </tbody>
 </table>
-{{/existsDependencies}}
-{{/loading}}
+{{/existsDependencies}} {{/loading}}

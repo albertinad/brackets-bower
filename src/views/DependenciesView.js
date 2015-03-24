@@ -44,10 +44,6 @@ define(function (require, exports, module) {
         this._controller = controller;
         /** @private */
         this._$panel = null;
-        /** @private */
-        this._$bowerJsonSection = null;
-        /** @private */
-        this._$packagesSection = null;
     }
 
     DependenciesView.prototype.initialize = function ($container) {
@@ -55,13 +51,12 @@ define(function (require, exports, module) {
 
         this._$panel = $container;
 
-        this._$panel.on("click", "[data-bower-installed-action='delete']", function (event) {
-            event.stopPropagation();
-
+        this._$panel.on("click", "[data-bower-installed-action='delete']", function () {
             /*jshint validthis:true */
-            var name = $(this).data("name");
-
-            that._controller.uninstall(name);
+            that._controller.uninstall($(this).data("name"));
+        }).on("click", "[data-bower-installed-action='update']", function () {
+            /*jshint validthis:true */
+            that._controller.update($(this).data("name"));
         }).on("click", "[data-bower-json-action='create']", function (event) {
             event.stopPropagation();
 
@@ -73,6 +68,8 @@ define(function (require, exports, module) {
 
             that._controller.deleteBowerJson();
         }).on("click", "[data-bower-json]", function () {
+            event.stopPropagation();
+
             that._controller.openBowerJson();
         });
     };
