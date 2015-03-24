@@ -41,7 +41,7 @@
             </td>
             <td>
                 <div class="controls bower-row-item">
-                    <button class="btn btn-mini" data-bower-installed-action="delete" data-name="{{ name }}" title="{{Strings.COMMAND_UNINSTALL}}">
+                    <button class="btn btn-mini" data-bower-installed-action="delete" data-name="{{ name }}" title="{{Strings.COMMAND_UNINSTALL}}" {{ ^isInstalled }}disabled{{ /isInstalled }}>
                         {{ Strings.COMMAND_UNINSTALL }}
                     </button>
 
