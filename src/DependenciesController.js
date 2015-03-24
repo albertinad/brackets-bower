@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * LIABILITY, WHETHER IN AN ACTIONre OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *
@@ -29,6 +29,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var PackageManager   = require("src/bower/PackageManager"),
+        BowerJsonManager = require("src/bower/BowerJsonManager"),
         DependenciesView = require("src/views/DependenciesView");
 
     /**
@@ -45,37 +46,35 @@ define(function (require, exports, module) {
     }
 
     DependenciesController.prototype.initialize = function ($section) {
+        var Events = BowerJsonManager.Events;
+
         this._view = new DependenciesView(this);
 
         this._view.initialize($section);
+
+        BowerJsonManager.on(Events.BOWER_JSON_RELOADED, this._onBowerJsonReloadedCallback.bind(this));
     };
 
+    /**
+     * Show the Dependencies panel view. Get the installed packages for the current project
+     * and the bower.json file if it exists. Then show the view.
+     */
     DependenciesController.prototype.show = function () {
         this._isVisible = true;
-        var data = null;
-        var that = this;
 
-        PackageManager.getInstalledDependencies()
-            .done(function (dependencies) {
-                data = dependencies;
-            })
-            .always(function () {
-                 that._view.show(data);
-            });
-
+        this._view.show(BowerJsonManager.getBowerJson());
     };
 
+    /**
+     * Hide the Dependencies panel view.
+     */
     DependenciesController.prototype.hide = function () {
         this._isVisible = false;
 
         this._view.hide();
     };
 
-    DependenciesController.prototype._refreshUi = function (dependencies) {
-        this._view.reload(dependencies);
-    };
-
-    DependenciesController.prototype.onLoad = function () {
+    DependenciesController.prototype.loadProjectPackages = function () {
         var that = this,
             data = null;
 
@@ -84,11 +83,38 @@ define(function (require, exports, module) {
                 data = dependencies;
             })
             .always(function () {
-                that._refreshUi(data);
+                that._refreshPackagesUi(data);
             });
     };
 
-    DependenciesController.prototype.onUninstall = function (name) {
+    /**
+     * Create the bower.json file.
+     */
+    DependenciesController.prototype.createBowerJson = function () {
+        var that = this;
+
+        BowerJsonManager.createBowerJson().done(function () {
+            var bowerJson = BowerJsonManager.getBowerJson();
+
+            that._view.onBowerJsonCreated(bowerJson);
+        });
+    };
+
+    /**
+     * Delete the bower.json file.
+     */
+    DependenciesController.prototype.deleteBowerJson = function () {
+        BowerJsonManager.removeBowerJson().done(this._refreshBowerJsonUi.bind(this));
+    };
+
+    /**
+     * Open the current bower.json file in the editor.
+     */
+    DependenciesController.prototype.openBowerJson = function () {
+        BowerJsonManager.open();
+    };
+
+    DependenciesController.prototype.uninstall = function (name) {
         var that = this;
 
         PackageManager.uninstall(name).then(function () {
@@ -97,6 +123,30 @@ define(function (require, exports, module) {
             // TODO warn the user
             console.log(error);
         });
+    };
+
+    /**
+     * Callback for when the bower.json file is created or deleted.
+     */
+    DependenciesController.prototype._onBowerJsonReloadedCallback = function () {
+        if (this._panelController.isPanelActive() && this._isVisible) {
+            this._refreshBowerJsonUi();
+        }
+    };
+
+    /**
+     * @private
+     */
+    DependenciesController.prototype._refreshBowerJsonUi = function () {
+        this._view.reloadBowerJson(BowerJsonManager.getBowerJson());
+    };
+
+    /**
+     * @private
+     * @param {Array} packages
+     */
+    DependenciesController.prototype._refreshPackagesUi = function (packages) {
+        this._view.reloadPackages(packages);
     };
 
     module.exports = DependenciesController;

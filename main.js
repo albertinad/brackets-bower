@@ -47,7 +47,6 @@ define(function (require, exports, module) {
     // controllers
         PanelController         = require("src/PanelController"),
         ConfigurationController = require("src/ConfigurationController"),
-        BowerJsonController     = require("src/BowerJsonController"),
         DependenciesController  = require("src/DependenciesController");
 
     var EXTENSION_NAME         = "albertinad.bracketsbower",
@@ -74,15 +73,12 @@ define(function (require, exports, module) {
     function _initializeControllers() {
         // initialize controllers
         var controllersMap = {
-            "bower-json": {
-                constructor: BowerJsonController,
+            "dependencies": {
+                constructor: DependenciesController,
                 isActive: true
             },
             "config": {
                 constructor: ConfigurationController
-            },
-            "dependencies": {
-                constructor: DependenciesController
             }
         };
 
@@ -125,6 +121,8 @@ define(function (require, exports, module) {
             });
 
             ProjectManager.initialize();
+
+            panelController.showIfNeeded();
         });
     }
 

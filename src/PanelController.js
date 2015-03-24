@@ -86,7 +86,9 @@ define(function (require, exports, module) {
                 this.registerController(key, controllerInstance, controllerData.isActive);
             }
         }
+    };
 
+    PanelController.prototype.showIfNeeded = function () {
         if (Preferences.get(Preferences.settings.EXTENSION_VISIBLE)) {
             this.toggle();
         }

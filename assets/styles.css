@@ -1,5 +1,3 @@
-/* panel options */
-
 .bower-panel-header .title {
     padding-right: 10px;
 }
@@ -94,6 +92,38 @@
     top: 3px;
 }
 
+/* bower.json section */
+
+.bower-json-section {
+    display: flex;
+    flex-flow: row nowrap;
+    padding: 8px;
+}
+
+.bower-json-section > div {
+    padding: 3px;
+    flex: 0 1 auto;
+}
+
+.bower-json-fieldset > label {
+    display: inline-block;
+    padding-right: 10px;
+}
+
+.bower-json-fieldset .bower-json-title {
+    font-size: 14px;
+    line-height: normal;
+    font-weight: 500;
+}
+
+/* packages section */
+
+.bower-packages-loading > div {
+    display: block;
+    margin: auto;
+    padding: 3px;
+}
+
 /* common */
 
 .bower-title {
@@ -123,20 +153,20 @@
 
 /* configuration files: .bowerrc and bower.json */
 
-.bower-config-file {
+.bower-section-panel {
     display: flex;
     flex-direction: column;
 }
 
-.bower-config-file .header-section {
+.bower-section-panel .header-section {
     padding: 8px;
 }
 
-.bower-config-file .header-section .bower-title {
+.bower-section-panel .header-section .bower-title {
     padding-bottom: 3px;
 }
 
-.bower-config-file tr:hover {
+.bower-section-panel tr:hover {
     cursor: pointer;
 }
 

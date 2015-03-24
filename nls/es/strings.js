@@ -25,15 +25,14 @@
 /*global define */
 
 define({
-    "TITLE_CONFIGURATION": "Bower",
+    "TITLE_BOWER": "Bower",
     "TITLE_WARNING": "Advertencia de Bower",
     "TITLE_SHORTCUT": "Instalar desde Bower...",
     "TITLE_QUICK_OPEN": "Instalar desde Bower",
     "TITLE_CONFIG": "Configuración",
     "TITLE_DEPENDENCIES": "Dependencias",
-    "TITLE_BOWER_JSON": "bower.json",
     "TITLE_SETTINGS": "Configuración de Bower",
-    "TITLE_INSTALLED_PACKAGES": "Paquetes instalados",
+    "TITLE_PROJECT_PACKAGES": "Paquetes del proyecto",
     "BOWERRC_NOT_FOUND": "El archivo .bowerrc no se encontró!",
     "BOWER_JSON_NOT_FOUND": "El archivo bower.json no se encontró!",
     "INSTALLED_PACKAGES_NOT_FOUND": "No se encuentran paquetes instalados",

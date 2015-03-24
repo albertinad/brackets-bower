@@ -29,8 +29,10 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var template = require("text!templates/dependencies.html"),
-        Strings = require("strings");
+    var templatePanel     = require("text!templates/dependencies.html"),
+        templateBowerJson = require("text!templates/bower-json-section.html"),
+        templatePackages  = require("text!templates/packages-section.html"),
+        Strings           = require("strings");
 
     /**
      * Dependencies view.
@@ -42,6 +44,10 @@ define(function (require, exports, module) {
         this._controller = controller;
         /** @private */
         this._$panel = null;
+        /** @private */
+        this._$bowerJsonSection = null;
+        /** @private */
+        this._$packagesSection = null;
     }
 
     DependenciesView.prototype.initialize = function ($container) {
@@ -55,30 +61,103 @@ define(function (require, exports, module) {
             /*jshint validthis:true */
             var name = $(this).data("name");
 
-            that._controller.onUninstall(name);
+            that._controller.uninstall(name);
+        }).on("click", "[data-bower-json-action='create']", function (event) {
+            event.stopPropagation();
+
+            that._disableButton($(this));
+
+            that._controller.createBowerJson();
+        }).on("click", "[data-bower-json-action='delete']", function (event) {
+            event.stopPropagation();
+
+            that._controller.deleteBowerJson();
+        }).on("click", "[data-bower-json]", function () {
+            that._controller.openBowerJson();
         });
     };
 
-    DependenciesView.prototype.show = function (dependencies) {
-        var data = {
-            Strings: Strings,
-            dependencies: dependencies,
-            existsDependencies: (dependencies && dependencies.length !== 0)
-        };
+    DependenciesView.prototype.show = function (bowerJson) {
+        var $sectionBowerJson,
+            $sectionPackages,
+            data = {
+                Strings: Strings
+            },
+            bowerJsonData = {
+                Strings: Strings,
+                bowerJson: bowerJson
+            },
+            packagesData = {
+                Strings: Strings,
+                loading: true,
+                dependencies: null,
+                existsDependencies: false
+            };
 
-        var sectionHtml = Mustache.render(template, data);
+        var panelHtml = Mustache.render(templatePanel, data),
+            bowerJsonSectionHtml = Mustache.render(templateBowerJson, bowerJsonData),
+            packagesSectionHtml = Mustache.render(templatePackages, packagesData);
 
-        this._$panel.append(sectionHtml);
+        this._$panel.append(panelHtml);
+
+        $sectionBowerJson = this._$panel.find("[data-bower-section-id='bower-json-section']");
+        $sectionPackages = this._$panel.find("[data-bower-section-id='packages-section']");
+
+        $sectionBowerJson.append(bowerJsonSectionHtml);
+        $sectionPackages.append(packagesSectionHtml);
+
+        this._controller.loadProjectPackages();
     };
 
     DependenciesView.prototype.hide = function () {
         this._$panel.empty();
     };
 
-    DependenciesView.prototype.reload = function (dependencies) {
-        this._$panel.empty();
+    /**
+     * Reload the bower.json information section.
+     * @param {BowerJson} bowerJson
+     */
+    DependenciesView.prototype.reloadBowerJson = function (bowerJson) {
+        var $sectionBowerJson = this._$panel.find("[data-bower-section-id='bower-json-section']"),
+            data = {
+                Strings: Strings,
+                bowerJson: bowerJson
+            },
+            bowerJsonSectionHtml = Mustache.render(templateBowerJson, data);
 
-        this.show(dependencies);
+        $sectionBowerJson.empty();
+
+        $sectionBowerJson.append(bowerJsonSectionHtml);
+    };
+
+    /**
+     * Reload the project packages information section.
+     * @param {Array} dependencies
+     */
+    DependenciesView.prototype.reloadPackages = function (dependencies) {
+        var $sectionPackages = this._$panel.find("[data-bower-section-id='packages-section']"),
+            data = {
+                Strings: Strings,
+                loading: false,
+                dependencies: dependencies,
+                existsDependencies: (dependencies && dependencies.length !== 0)
+            },
+            packagesHtml = Mustache.render(templatePackages, data);
+
+        $sectionPackages.empty();
+
+        $sectionPackages.append(packagesHtml);
+    };
+
+    /**
+     * @param{BowerJson} bowerJson
+     */
+    DependenciesView.prototype.onBowerJsonCreated = function (bowerJson) {
+        var $btnCreate = this._$panel.find("[data-bower-json-action='create']");
+
+        this._enableButton($btnCreate);
+
+        this.reloadBowerJson(bowerJson);
     };
 
     DependenciesView.prototype.onDependecyRemoved = function (name) {
@@ -87,8 +166,26 @@ define(function (require, exports, module) {
 
             $uninstalledDependency.remove();
         } else {
-            this.reload(null);
+            this.reloadPackages(null);
         }
+    };
+
+    /**
+     * Helper function to enable a given jQuery button object.
+     * @private
+     * @param {jQuery} $btn
+     */
+    DependenciesView.prototype._enableButton = function ($btn) {
+        $btn.prop("disabled", false);
+    };
+
+    /**
+     * Helper function to disable a given jQuery button object.
+     * @private
+     * @param {jQuery} $btn
+     */
+    DependenciesView.prototype._disableButton = function ($btn) {
+        $btn.prop("disabled", true);
     };
 
     module.exports = DependenciesView;

@@ -3,21 +3,16 @@
     <div class="toolbar simple-toolbar-layout bower-panel-header">
         <div class="title">{{ Strings.TITLE_BOWER }}</div>
 
-        <div id="brackets-bower-button-bar">
-        </div>
+        <div id="brackets-bower-button-bar"></div>
 
         <div class="panels">
             <div class="btn-group">
-                <button data-bower-panel-key="bower-json" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn small bower-btn active">
+                <button data-bower-panel-key="dependencies" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn small bower-btn">
                     <span class="octicon octicon-package"></span>
                 </button>
 
                 <button data-bower-panel-key="config" title="{{ Strings.TITLE_CONFIG }}" class="btn small  bower-btn">
                     <span class="octicon octicon-settings"></span>
-                </button>
-
-                <button data-bower-panel-key="dependencies" title="{{ Strings.TITLE_INSTALLED_PACKAGES }}" class="btn small bower-btn">
-                    <span class="octicon octicon-list-unordered"></span>
                 </button>
             </div>
         </div>
@@ -33,8 +28,6 @@
 
     <!-- content -->
     <div class="brackets-container">
-
         <div id="brackets-bower-active-panel"></div>
-
     </div>
 </div>

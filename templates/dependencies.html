@@ -1,59 +1,7 @@
-<div class="bower-config-file">
+<div class="bower-section-panel">
+    <!-- bower.json -->
+    <div data-bower-section-id="bower-json-section"></div>
 
-    <div class="header-section">
-        <div class="bower-title">{{Strings.TITLE_INSTALLED_PACKAGES}}</div>
-    </div>
-
-    {{#existsDependencies}}
-    <table class="bottom-panel-table table table-striped table-condensed">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Version</th>
-                <th>Latest Version</th>
-                <th>Extraneous</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#dependencies}}
-            <tr data-bower-dependency="{{ name }}">
-                <td>
-                    <div class="bower-row-item">{{ name }}</div>
-                </td>
-                <td>
-                    <div class="bower-row-item">{{ version }}</div>
-                </td>
-                <td>
-                    <div class="bower-row-item {{ #hasUpdates }}bower-update{{ /hasUpdates }}">{{ latestVersion }}</div>
-                </td>
-                <td>
-                    <div class="bower-row-item">{{ extraneous }}</div>
-                </td>
-                <td>
-                    <div class="controls bower-row-item">
-                        <button class="btn btn-mini" data-bower-installed-action="delete" data-name="{{ name }}" title="{{Strings.COMMAND_UNINSTALL}}">
-                            {{ Strings.COMMAND_UNINSTALL }}
-                        </button>
-                        <!--
-                        <button class="btn btn-mini" data-bower-installed-action="update" data-name="{{ name }}" title="{{Strings.COMMAND_UPDATE}}" {{ ^hasUpdates }}disabled{{ /hasUpdates }}>
-                            {{ Strings.COMMAND_UPDATE }}
-                        </button>
-    -->
-                    </div>
-                </td>
-            </tr>
-            {{/dependencies}}
-        </tbody>
-    </table>
-    {{/existsDependencies}} {{^existsDependencies}}
-    <table class="bottom-panel-table table table-striped table-condensed">
-        <tbody>
-            <tr>
-                <td>
-                    <span class="bower-row-item">{{ Strings.INSTALLED_PACKAGES_NOT_FOUND }}</span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    {{/existsDependencies}}
+    <!-- project packages -->
+    <div data-bower-section-id="packages-section"></div>
 </div>

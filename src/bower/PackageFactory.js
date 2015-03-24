@@ -44,6 +44,8 @@ define(function (require, exports, module) {
         this._latestVersion = null;
         /** @private */
         this._extraneous = false;
+        /** @private */
+        this._isInstalled = false;
     }
 
     Object.defineProperty(Package.prototype, "name", {
@@ -70,6 +72,12 @@ define(function (require, exports, module) {
         }
     });
 
+    Object.defineProperty(Package.prototype, "isInstalled", {
+        get: function () {
+            return this._isInstalled;
+        }
+    });
+
     /**
      * Create package from raw data.
      * @param {string} name
@@ -80,12 +88,16 @@ define(function (require, exports, module) {
         var pkg = new Package(name),
             meta = data.pkgMeta;
 
-        if (meta.version !== undefined) {
+        if (meta && meta.version !== undefined) {
             pkg._version = meta.version;
         }
 
         if (data.update && data.update.latest) {
             pkg._latestVersion = data.update.latest;
+        }
+
+        if (data.missing) {
+            pkg._isInstalled = false;
         }
 
         if (data.extraneous) {

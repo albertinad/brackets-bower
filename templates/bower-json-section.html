@@ -1,0 +1,27 @@
+<div class="bower-json-section">
+    <div class="bower-json-fieldset" {{#bowerJson}} data-bower-json="{{ bowerJson.AbsolutePath }}" {{/bowerJson}}>
+        <label class="bower-json-title">bower.json: </label>
+
+        {{#bowerJson}}
+        <label>{{ bowerJson.AbsolutePath }}</label>
+        {{/bowerJson}}
+
+        {{^bowerJson}}
+        <label>{{ Strings.BOWER_JSON_NOT_FOUND}}</label>
+        {{/bowerJson}}
+    </div>
+
+    <div>
+        {{#bowerJson}}
+        <button class="bower-json-action btn small" data-bower-json-action="delete" title="{{Strings.DELETE}}">
+            <span>{{ Strings.DELETE }}</span>
+        </button>
+        {{/bowerJson}}
+
+        {{^bowerJson}}
+        <button class="btn small" data-bower-json-action="create" title="{{Strings.CREATE}}">
+            <span>{{ Strings.CREATE }}</span>
+        </button>
+        {{/bowerJson}}
+    </div>
+</div>
