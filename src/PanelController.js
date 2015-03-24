@@ -104,6 +104,7 @@ define(function (require, exports, module) {
             this._activePanelController.hide();
         } else {
             this._view.show();
+            this._view.selectPanelButton(this._activePanelkey);
             this._activePanelController.show();
         }
 
@@ -128,7 +129,7 @@ define(function (require, exports, module) {
 
         this._activePanelController = this._getPanelControllerByKey(key);
 
-        this._view.selectPanelButton(key, this._activePanelkey);
+        this._view.selectPanelButton(key);
 
         this._activePanelkey = key;
 

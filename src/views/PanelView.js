@@ -140,10 +140,9 @@ define(function (require, exports, module) {
     /**
      * Update the status selection of the panels buttons toolbar.
      * @param {string} panelKey
-     * @param {string} previousPanelKey
      */
-    PanelView.prototype.selectPanelButton = function (panelKey, previousPanelkey) {
-        var $previousPanelBtn = this._$header.find("[data-bower-panel-key='" + previousPanelkey + "']"),
+    PanelView.prototype.selectPanelButton = function (panelKey) {
+        var $previousPanelBtn = this._$header.find("[data-bower-panel-key].active"),
             $panelBtn = this._$header.find("[data-bower-panel-key='" + panelKey + "']");
 
         $previousPanelBtn.removeClass("active");
