@@ -72,6 +72,7 @@ define(function (require, exports, module) {
 
         this._$panel = $("#brackets-bower-panel");
         this._$header = this._$panel.find(".bower-panel-header");
+        this._$commands = this._$header.find(".bower-commands-group");
         this._$bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
 
         this._$bowerIcon.appendTo("#main-toolbar .buttons");
@@ -81,10 +82,13 @@ define(function (require, exports, module) {
             .on("click", "[data-bower-btn-id='settings']", this._onSettingsSelected.bind(this))
             .on("click", "[data-bower-panel-key]", function () {
                 /*jshint validthis:true */
-                var key = $(this).data("bower-panel-key");
-
-                that._onPanelSelected(key);
+                that._onPanelSelected($(this).data("bower-panel-key"));
             });
+
+        this._$commands.on("click", "[data-bower-cmd-key]", function () {
+            /*jshint validthis:true */
+            that._onCommandSelected($(this).data("bower-cmd-key"));
+        });
 
         this._$bowerIcon.on("click", this._onClose.bind(this));
     };
@@ -115,10 +119,6 @@ define(function (require, exports, module) {
         return this._$panel.find("#brackets-bower-active-panel");
     };
 
-    PanelView.prototype.getCommandsSection = function () {
-        return $("#bower-commands");
-    };
-
     /**
      * Updates the bower icon class according to the status.
      * @param {string} status The status css class to set.
@@ -147,6 +147,24 @@ define(function (require, exports, module) {
 
         $previousPanelBtn.removeClass("active");
         $panelBtn.addClass("active");
+    };
+
+    /**
+     * Callback for when the command finishes its execution.
+     */
+    PanelView.prototype.onCommandExecuted = function () {
+        this._$commands.find(".bower-btn").prop("disabled", false);
+    };
+
+    /**
+     * Callback for when a command is selected, notify the controller to
+     * start the command execution.
+     * @param {string} commandKey
+     */
+    PanelView.prototype._onCommandSelected = function (commandKey) {
+        this._$commands.find(".bower-btn").prop("disabled", true);
+
+        this._controller.executeCommand(commandKey);
     };
 
     /**

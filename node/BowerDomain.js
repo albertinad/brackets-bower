@@ -289,7 +289,6 @@ maxerr: 50, node: true */
             _cmdUninstall,
             true,
             "Uninstalls a package.",
-            // TODO complete
             [],
             []
         );

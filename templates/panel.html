@@ -18,7 +18,17 @@
         </div>
 
         <div class="tools">
-            <div id="bower-commands"></div>
+            <div id="bower-commands">
+                <div class="btn-group bower-commands-group">
+                    <button data-bower-cmd-key="install" title="{{ Strings.COMMAND_INSTALL }}" class="btn small bower-btn">
+                        {{ Strings.COMMAND_INSTALL }}
+                    </button>
+
+                    <button data-bower-cmd-key="prune" title="{{ Strings.COMMAND_PRUNE }}" class="btn small bower-btn">
+                        {{ Strings.COMMAND_PRUNE }}
+                    </button>
+                </div>
+            </div>
 
             <span data-bower-btn-id="settings" title="{{ Strings.TITLE_SETTINGS }}" class="octicon octicon-gear bower-btn"></span>
         </div>

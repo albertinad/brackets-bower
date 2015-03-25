@@ -24,15 +24,18 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global brackets, define */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var PanelView          = require("src/views/PanelView"),
-        CommandsController = require("src/CommandsController"),
-        SettingsDialog     = require("src/dialogs/SettingsDialog"),
-        Preferences        = require("src/preferences/Preferences");
+    var StringUtils         = brackets.getModule("utils/StringUtils"),
+        PanelView           = require("src/views/PanelView"),
+        StatusBarController = require("src/StatusBarController").Controller,
+        SettingsDialog      = require("src/dialogs/SettingsDialog"),
+        PackageManager      = require("src/bower/PackageManager"),
+        Preferences         = require("src/preferences/Preferences"),
+        Strings             = require("strings");
 
     /**
      * PanelController constructor. Main controller for the bower extension view.
@@ -44,8 +47,6 @@ define(function (require, exports, module) {
         /** @private */
         this._isActive = false;
 
-        /** @private */
-        this._commandsController = null;
         /** @private */
         this._panelsControllersMap = {};
         /** @private */
@@ -67,12 +68,11 @@ define(function (require, exports, module) {
 
         this._view.initialize(extensionName);
 
-        // initialize the commands controller
-        this._commandsController = new CommandsController(this);
-        this._commandsController.initialize(this._view.getCommandsSection());
-
         var $section = this._view.getPanelSection(),
-            key, controllerData, ConstructorFn, controllerInstance;
+            key,
+            controllerData,
+            ConstructorFn,
+            controllerInstance;
 
         // initializes and register the sub panels controllers
         for (key in controllers) {
@@ -175,6 +175,45 @@ define(function (require, exports, module) {
             this._activePanelkey = key;
             this._activePanelController = controller;
         }
+    };
+
+    /**
+     * Execute the bower command by the given key. Notifies the view when the
+     * command has finished executing.
+     * @param {string} commandKey The key of the bower command to execute.
+     */
+    PanelController.prototype.executeCommand = function (commandKey) {
+        var that = this,
+            commandFn,
+            resultMessage;
+
+        if (commandKey === "install") {
+            commandFn = PackageManager.installFromBowerJson;
+            resultMessage = Strings.STATUS_SUCCESS_INSTALLING;
+        } else {
+            commandFn = PackageManager.prune;
+            resultMessage = StringUtils.format(Strings.STATUS_SUCCESS_EXECUTING_COMMAND, commandKey);
+        }
+
+        var statusId = StatusBarController.post(StringUtils.format(Strings.STATUS_EXECUTING_COMMAND, commandKey), true);
+
+        commandFn().then(function (result) {
+
+            if (result && result.count === 0) {
+                resultMessage = Strings.STATUS_NO_PACKAGES_INSTALLED;
+            }
+
+        }).fail(function () {
+
+            resultMessage = StringUtils.format(Strings.STATUS_ERROR_EXECUTING_COMMAND, commandKey);
+
+        }).always(function () {
+
+            StatusBarController.update(statusId, resultMessage, false);
+            StatusBarController.remove(statusId);
+
+            that._view.onCommandExecuted();
+        });
     };
 
     /**

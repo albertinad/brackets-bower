@@ -24,6 +24,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
+/*global define */
 
 define(function (require, exports, module) {
     "use strict";
@@ -151,7 +152,6 @@ define(function (require, exports, module) {
         var that = this;
 
         PackageManager.update(name).then(function () {
-            // TODO update this
             that.loadProjectPackages();
         }).fail(function (error) {
             // TODO warn the user
