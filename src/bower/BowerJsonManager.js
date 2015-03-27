@@ -29,13 +29,13 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager    = brackets.getModule("project/ProjectManager"),
-        AppInit           = brackets.getModule("utils/AppInit"),
+    var AppInit           = brackets.getModule("utils/AppInit"),
         EventDispatcher   = brackets.getModule("utils/EventDispatcher"),
         FileUtils         = require("src/utils/FileUtils"),
+        ProjectManager    = require("src/bower/ProjectManager"),
         FileSystemHandler = require("src/bower/FileSystemHandler"),
-        BowerJson         = require("src/bower/metadata/BowerJson"),
-        PackageManager    = require("src/bower/PackageManager");
+        PackageManager    = require("src/bower/PackageManager"),
+        BowerJson         = require("src/bower/metadata/BowerJson");
 
     var _bowerJson = null;
 
@@ -51,20 +51,20 @@ define(function (require, exports) {
     /**
      * Create the bower.json file at the given absolute path. If any path is provided,
      * it use the current active project as the default absolute path.
-     * @param {string} path The absolute path where to create the bower.json file.
+     * @param {string=} path The absolute path where to create the bower.json file.
      */
-    function createBowerJson() {
-        var currentProject = ProjectManager.getProjectRoot(),
-            path,
-            appName,
+    function createBowerJson(path) {
+        var project = ProjectManager.getProject(),
+            appName = (project) ? project.name : null,
             deferred = $.Deferred(),
             data = null;
 
-        if (currentProject) {
-            path = currentProject.fullPath;
-            appName = currentProject.name;
-        } else {
-            return deferred.reject();
+        if (!path || path.trim() === "") {
+            if (project) {
+                path = project.getPath();
+            } else {
+                return deferred.reject();
+            }
         }
 
         _bowerJson = new BowerJson(path, appName);
@@ -142,7 +142,7 @@ define(function (require, exports) {
     function loadBowerJson(project) {
         // search for the bower.json file if it exists
         if (project) {
-            var path = project.fullPath,
+            var path = project.getPath(),
                 name = project.name;
 
             findBowerJson(path).then(function () {

@@ -34,11 +34,51 @@ define(function (require, exports) {
         BowerJsonManager     = require("src/bower/BowerJsonManager"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
-    var _activePath;
+    var _bowerProject;
 
-    function getActivePath() {
-        return _activePath;
+    /**
+     * @constructor
+     */
+    function BowerProject(name, rootPath) {
+        /** @private */
+        this._name = name;
+        /** @private */
+        this._rootPath = rootPath;
+        /** @private */
+        this._activePath = null;
     }
+
+    Object.defineProperty(BowerProject.prototype, "name", {
+        get: function () {
+            return this._name;
+        }
+    });
+
+    Object.defineProperty(BowerProject.prototype, "rootPath", {
+        get: function () {
+            return this._rootPath;
+        }
+    });
+
+    Object.defineProperty(BowerProject.prototype, "activePath", {
+        set: function (activePath) {
+            this._activePath = activePath;
+        },
+        get: function () {
+            return this._activePath;
+        }
+    });
+
+    BowerProject.prototype.getPath = function () {
+        return (this._activePath || this._rootPath);
+    };
+
+    BowerProject.create = function (project) {
+        var name = project.name,
+            rootPath = project.fullPath;
+
+        return new BowerProject(name, rootPath);
+    };
 
     function existsBowerJson() {
         var bowerJson = BowerJsonManager.getBowerJson();
@@ -47,30 +87,37 @@ define(function (require, exports) {
     }
 
     function getConfiguration() {
-        var config = ConfigurationManager.getConfiguration(),
-            bowerJson = BowerJsonManager.getBowerJson(),
-            path;
+        var config = ConfigurationManager.getConfiguration();
 
-        if (bowerJson !== null) {
-            path = bowerJson.ProjectPath;
-        } else {
-            path = getActivePath();
-        }
-
-        config.cwd = path;
+        config.cwd = (_bowerProject !== null) ? _bowerProject.getPath() : null;
 
         return config;
     }
 
+    function getProject() {
+        return _bowerProject;
+    }
+
+    function setActivePath(activePath) {
+        if (_bowerProject !== null) {
+            _bowerProject.activePath = activePath;
+
+            ConfigurationManager.loadBowerRc(_bowerProject);
+            BowerJsonManager.loadBowerJson(_bowerProject);
+            FileSystemHandler.startListenToFileSystem(_bowerProject);
+        }
+    }
+
     function _projectOpen() {
+        // get the current/active project
         var project = ProjectManager.getProjectRoot();
 
-        _activePath = (project) ? project.fullPath : null;
+        _bowerProject = (project) ? BowerProject.create(project) : null;
 
-        ConfigurationManager.loadBowerRc(project);
-        BowerJsonManager.loadBowerJson(project);
+        ConfigurationManager.loadBowerRc(_bowerProject);
+        BowerJsonManager.loadBowerJson(_bowerProject);
 
-        FileSystemHandler.startListenToFileSystem();
+        FileSystemHandler.startListenToFileSystem(_bowerProject);
     }
 
     function initialize() {
@@ -84,7 +131,8 @@ define(function (require, exports) {
     }
 
     exports.initialize       = initialize;
-    exports.getActivePath    = getActivePath;
+    exports.getProject       = getProject;
+    exports.setActivePath    = setActivePath;
     exports.existsBowerJson  = existsBowerJson;
     exports.getConfiguration = getConfiguration;
 });

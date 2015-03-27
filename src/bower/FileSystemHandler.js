@@ -30,7 +30,6 @@ define(function (require, exports) {
     "use strict";
 
     var FileSystem      = brackets.getModule("filesystem/FileSystem"),
-        ProjectManager  = brackets.getModule("project/ProjectManager"),
         EventDispatcher = brackets.getModule("utils/EventDispatcher");
 
     var _bowerRcFile,
@@ -121,16 +120,16 @@ define(function (require, exports) {
         }
     }
 
-    function startListenToFileSystem() {
-        var currentProject = ProjectManager.getProjectRoot();
+    function startListenToFileSystem(bowerProject) {
+        stopListenToFileSystem();
 
-        if (currentProject) {
-            var projectPath = currentProject.fullPath;
+        if (bowerProject) {
+            var path = bowerProject.getPath();
 
-            _bowerRcFile = projectPath + ".bowerrc";
-            _bowerJsonFile = projectPath + "bower.json";
+            _bowerRcFile = path + ".bowerrc";
+            _bowerJsonFile = path + "bower.json";
 
-            _projectPathRegex = new RegExp(projectPath);
+            _projectPathRegex = new RegExp(path);
             _bowerConfigRegex = new RegExp(_bowerRcFile);
             _bowerJsonRegex = new RegExp(_bowerJsonFile);
 

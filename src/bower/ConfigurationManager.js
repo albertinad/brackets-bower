@@ -29,8 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager        = brackets.getModule("project/ProjectManager"),
-        EventDispatcher       = brackets.getModule("utils/EventDispatcher"),
+    var EventDispatcher       = brackets.getModule("utils/EventDispatcher"),
+        ProjectManager        = require("src/bower/ProjectManager"),
         BowerRc               = require("src/bower/metadata/BowerRc"),
         Bower                 = require("src/bower/Bower"),
         BracketsConfiguration = require("src/bower/configuration/BracketsConfiguration"),
@@ -49,15 +49,19 @@ define(function (require, exports) {
 
     EventDispatcher.makeEventDispatcher(exports);
 
-    function createBowerRc() {
-        var currentProject =  ProjectManager.getProjectRoot(),
-            deferred = new $.Deferred(),
-            path;
+    /**
+     * @param {string=} path
+     */
+    function createBowerRc(path) {
+        var currentProject = ProjectManager.getProject(),
+            deferred = new $.Deferred();
 
-        if (currentProject) {
-            path = currentProject.fullPath;
-        } else {
-            return deferred.reject();
+        if (!path || path.trim() === "") {
+            if (currentProject) {
+                path = currentProject.getPath();
+            } else {
+                return deferred.reject();
+            }
         }
 
         _bowerRc = new BowerRc(path, _defaultConfiguration);
@@ -135,7 +139,7 @@ define(function (require, exports) {
 
     function loadBowerRc(project) {
         if (project) {
-            var path = project.fullPath;
+            var path = project.getPath();
 
             findBowerRc(path).then(function () {
                 _bowerRc = new BowerRc(path, _defaultConfiguration);
