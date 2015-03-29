@@ -29,7 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var EventDispatcher       = brackets.getModule("utils/EventDispatcher"),
+    var _                     = brackets.getModule("thirdparty/lodash"),
+        EventDispatcher       = brackets.getModule("utils/EventDispatcher"),
         ProjectManager        = require("src/bower/ProjectManager"),
         BowerRc               = require("src/bower/metadata/BowerRc"),
         Bower                 = require("src/bower/Bower"),
@@ -37,8 +38,7 @@ define(function (require, exports) {
         FileSystemHandler     = require("src/bower/FileSystemHandler"),
         FileUtils             = require("src/utils/FileUtils");
 
-    var _bowerRc  = null,
-        _defaultConfiguration = {};
+    var _bowerRc  = null;
 
     var namespace = ".albertinad.bracketsbower",
         BOWERRC_RELOADED = "bowerrcReloaded";
@@ -64,7 +64,7 @@ define(function (require, exports) {
             }
         }
 
-        _bowerRc = new BowerRc(path, _defaultConfiguration);
+        _bowerRc = new BowerRc(path);
 
         _bowerRc.create().then(function () {
             deferred.resolve();
@@ -99,26 +99,25 @@ define(function (require, exports) {
 
     function open() {
         if (_bowerRc !== null) {
-            _bowerRc.open();
+            FileUtils.openInEditor(_bowerRc.AbsolutePath);
         }
     }
 
     function getConfiguration() {
-        var config;
+        var config,
+            project = ProjectManager.getProject();
 
         if (_bowerRc !== null) {
             config = _bowerRc.Data;
         } else {
-            config = _defaultConfiguration;
+            config = {};
         }
 
-        return config;
-    }
+        config = _.extend(config, BracketsConfiguration.getConfiguration());
 
-    function getConfigurationForPath(path) {
-        var config = getConfiguration();
-
-        config.cwd = path;
+        if (project) {
+            config.cwd = project.getPath();
+        }
 
         return config;
     }
@@ -142,7 +141,7 @@ define(function (require, exports) {
             var path = project.getPath();
 
             findBowerRc(path).then(function () {
-                _bowerRc = new BowerRc(path, _defaultConfiguration);
+                _bowerRc = new BowerRc(path);
             }).fail(function () {
                 _bowerRc = null;
             }).always(function () {
@@ -169,10 +168,8 @@ define(function (require, exports) {
             return;
         }
 
-        // TODO: Expose a reload configuration API from bower module
         Bower.getConfiguration(_bowerRc.AbsolutePath).done(function (configuration) {
             _bowerRc.Data = configuration;
-            _bowerRc.setDefaults(_defaultConfiguration);
         });
     }
 
@@ -187,14 +184,10 @@ define(function (require, exports) {
         BracketsConfiguration.init();
 
         BracketsConfiguration.on(BracketsConfiguration.Events.CHANGED, function (configuration) {
-            _defaultConfiguration = configuration;
-
             if (_bowerRc !== null) {
-                _bowerRc.setDefaults(_defaultConfiguration);
+                _bowerRc.Data = configuration;
             }
         });
-
-        _defaultConfiguration = BracketsConfiguration.getConfiguration();
 
         FileSystemHandler.on(Events.BOWER_BOWERRC_CREATED, _onBowerRcCreated);
         FileSystemHandler.on(Events.BOWER_BOWERRC_CHANGED, _onBowerRcChanged);
@@ -208,7 +201,6 @@ define(function (require, exports) {
     exports.createBowerRc           = createBowerRc;
     exports.removeBowerRc           = removeBowerRc;
     exports.getConfiguration        = getConfiguration;
-    exports.getConfigurationForPath = getConfigurationForPath;
     exports.findBowerRc             = findBowerRc;
     exports.open                    = open;
     exports.Events                  = Events;

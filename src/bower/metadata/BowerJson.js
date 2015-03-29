@@ -48,7 +48,7 @@ define(function (require, exports, module) {
 
     BowerJson.prototype.create = function (data) {
         var deferred = new $.Deferred(),
-            pkgMeta = (data) ? this._createPackageMetadata(data) : this._getDefaultData(),
+            pkgMeta = (Array.isArray(data)) ? this._createPackageMetadata(data) : this._getDefaultData(),
             content = JSON.stringify(pkgMeta, null, 4);
 
         this.saveContent(content).then(function () {
@@ -103,30 +103,22 @@ define(function (require, exports, module) {
     };
 
     /**
-     * Create the bower.json file content using the current information.
-     * @param {object} result
+     * Create the bower.json file content using the current project dependencies.
+     * @param {Array} packages
      * @return {object}
      */
-    BowerJson.prototype._createPackageMetadata = function (result) {
-        var pkg = {
-            name: result.pkgMeta.name,
+    BowerJson.prototype._createPackageMetadata = function (packages) {
+        var pkgMeta = {
+            name: this._appName,
             dependencies: {},
             devDependencies: {}
         };
 
-        var dependencies = result.dependencies,
-            dependencyName,
-            dependency;
+        packages.forEach(function (pkg) {
+            pkgMeta.dependencies[pkg.name] = pkg.version;
+        });
 
-        for (dependencyName in dependencies) {
-            if (dependencies.hasOwnProperty(dependencyName)) {
-                dependency = dependencies[dependencyName];
-
-                pkg.dependencies[dependencyName] = dependency.pkgMeta._target;
-            }
-        }
-
-        return pkg;
+        return pkgMeta;
     };
 
     /**

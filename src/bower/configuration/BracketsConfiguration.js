@@ -51,6 +51,8 @@ define(function (require, exports) {
         if (proxy) {
             _configuration.proxy = proxy;
             _configuration.httpsProxy = proxy;
+        } else {
+            _configuration = {};
         }
     }
 

@@ -101,8 +101,8 @@
 }
 
 .bower-json-section > div {
-    padding: 3px;
     flex: 0 1 auto;
+    padding: 3px;
 }
 
 .bower-json-fieldset > label {
@@ -112,11 +112,25 @@
 
 .bower-json-fieldset .bower-json-title {
     font-size: 14px;
-    line-height: normal;
     font-weight: 500;
+    line-height: normal;
 }
 
-/* packages section */
+/* loaders section */
+
+#brackets-bower-panel-loading {
+    display: none;
+    height: 100%;
+    width: 100%;
+}
+
+#brackets-bower-panel-loading > div {
+    display: block;
+    margin: auto;
+    padding: 3px;
+    position: relative;
+    top: 40%;
+}
 
 .bower-packages-loading > div {
     display: block;
@@ -128,18 +142,16 @@
 
 .bower-title {
     font-size: 14px;
-    line-height: normal;
     font-weight: 500;
-    white-space: nowrap;
+    line-height: normal;
     overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .bower-row {
-    padding: 3px;
     display: block;
+    padding: 3px;
 }
 
 .bower-row .bower-row-item {

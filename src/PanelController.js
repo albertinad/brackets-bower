@@ -33,6 +33,7 @@ define(function (require, exports, module) {
         PanelView           = require("src/views/PanelView"),
         StatusBarController = require("src/StatusBarController").Controller,
         SettingsDialog      = require("src/dialogs/SettingsDialog"),
+        ProjectManager      = require("src/bower/ProjectManager"),
         PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),
         Strings             = require("strings");
@@ -64,6 +65,8 @@ define(function (require, exports, module) {
      * @param {string} extensionName Name of the extension.
      */
     PanelController.prototype.initialize = function (extensionName, controllers) {
+        var Events = ProjectManager.Events;
+
         this._view = new PanelView(this);
 
         this._view.initialize(extensionName);
@@ -86,6 +89,9 @@ define(function (require, exports, module) {
                 this.registerController(key, controllerInstance, controllerData.isActive);
             }
         }
+
+        ProjectManager.on(Events.PROJECT_LOADING, this._disable.bind(this));
+        ProjectManager.on(Events.PROJECT_READY, this._enable.bind(this));
     };
 
     PanelController.prototype.showIfNeeded = function () {
@@ -214,6 +220,20 @@ define(function (require, exports, module) {
 
             that._view.onCommandExecuted();
         });
+    };
+
+    /**
+     * @private
+     */
+    PanelController.prototype._enable = function () {
+        this._view.enable();
+    };
+
+    /**
+     * @private
+     */
+    PanelController.prototype._disable = function () {
+        this._view.disable();
     };
 
     /**

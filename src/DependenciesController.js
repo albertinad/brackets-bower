@@ -29,7 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var PackageManager   = require("src/bower/PackageManager"),
+    var ProjectManager   = require("src/bower/ProjectManager"),
+        PackageManager   = require("src/bower/PackageManager"),
         BowerJsonManager = require("src/bower/BowerJsonManager"),
         DependenciesView = require("src/views/DependenciesView");
 
@@ -47,25 +48,17 @@ define(function (require, exports, module) {
     }
 
     DependenciesController.prototype.initialize = function ($section) {
-        var that = this,
-            BowerJsonEvents = BowerJsonManager.Events,
-            PackageManagerEvents = PackageManager.Events;
+        var that = this;
 
         this._view = new DependenciesView(this);
 
         this._view.initialize($section);
 
-        BowerJsonManager.on(BowerJsonEvents.BOWER_JSON_RELOADED, function () {
+        BowerJsonManager.on(BowerJsonManager.Events.BOWER_JSON_RELOADED, function () {
             that._onBowerJsonReloadedCallback();
         });
 
-        PackageManager.on(PackageManagerEvents.CMD_INSTALL_BOWER_JSON_READY, function () {
-            if (that._isPanelActive()) {
-                that.loadProjectPackages();
-            }
-        });
-
-        PackageManager.on(PackageManagerEvents.CMD_PRUNE_READY, function () {
+        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_UPDATED, function () {
             if (that._isPanelActive()) {
                 that.loadProjectPackages();
             }
@@ -92,16 +85,9 @@ define(function (require, exports, module) {
     };
 
     DependenciesController.prototype.loadProjectPackages = function () {
-        var that = this,
-            data = null;
+        var data = ProjectManager.getProjectDependencies();
 
-        PackageManager.getProjectDependencies()
-            .done(function (dependencies) {
-                data = dependencies;
-            })
-            .always(function () {
-                that._refreshPackagesUi(data);
-            });
+        this._refreshPackagesUi(data);
     };
 
     /**
@@ -135,10 +121,8 @@ define(function (require, exports, module) {
      * Uninstall the selected package.
      */
     DependenciesController.prototype.uninstall = function (name) {
-        var that = this;
-
         PackageManager.uninstall(name).then(function () {
-            that._view.onDependecyRemoved(name);
+           // TODO that._view.onDependecyRemoved(name);
         }).fail(function (error) {
             // TODO warn the user
             console.log(error);
@@ -149,11 +133,7 @@ define(function (require, exports, module) {
      * Update the selected package.
      */
     DependenciesController.prototype.update = function (name) {
-        var that = this;
-
-        PackageManager.update(name).then(function () {
-            that.loadProjectPackages();
-        }).fail(function (error) {
+        PackageManager.update(name).fail(function (error) {
             // TODO warn the user
             console.log(error);
         });

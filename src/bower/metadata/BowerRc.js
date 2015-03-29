@@ -37,10 +37,10 @@ define(function (require, exports, module) {
      * @param {object=} defaultConfiguration
      * @constructor
      */
-    function BowerRc(path, defaultConfiguration) {
+    function BowerRc(path) {
         BowerMetadata.call(this, ".bowerrc", path);
 
-        this._cacheConfig = defaultConfiguration || {};
+        this._data = {};
     }
 
     BowerRc.prototype = Object.create(BowerMetadata.prototype);
@@ -49,10 +49,10 @@ define(function (require, exports, module) {
 
     Object.defineProperty(BowerRc.prototype, "Data", {
         get: function () {
-            return this._cacheConfig;
+            return this._data;
         },
         set: function (data) {
-            this._cacheConfig = data;
+            this._data = data;
         }
     });
 
@@ -69,20 +69,6 @@ define(function (require, exports, module) {
         };
 
         return JSON.stringify(defaultConfiguration, null, 4);
-    };
-
-    BowerRc.prototype.setDefaults = function (defaults) {
-        var configKey;
-
-        if (!this._cacheConfig) {
-            this._cacheConfig = {};
-        }
-
-        for (configKey in defaults) {
-            if (defaults.hasOwnProperty(configKey)) {
-                this._cacheConfig[configKey] = defaults[configKey];
-            }
-        }
     };
 
     module.exports = BowerRc;

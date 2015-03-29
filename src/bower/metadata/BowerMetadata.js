@@ -89,12 +89,5 @@ define(function (require, exports, module) {
         return FileUtils.deleteFile(this._absolutePath);
     };
 
-    /**
-     * Open the file in the editor.
-     */
-    BowerMetadata.prototype.open = function () {
-        FileUtils.openInEditor(this._absolutePath);
-    };
-
     module.exports = BowerMetadata;
 });

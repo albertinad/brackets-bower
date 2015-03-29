@@ -29,12 +29,28 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager       = brackets.getModule("project/ProjectManager"),
+    var _                    = brackets.getModule("thirdparty/lodash"),
+        ProjectManager       = brackets.getModule("project/ProjectManager"),
+        EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
+        PackageManager       = require("src/bower/PackageManager"),
         FileSystemHandler    = require("src/bower/FileSystemHandler"),
         BowerJsonManager     = require("src/bower/BowerJsonManager"),
         ConfigurationManager = require("src/bower/ConfigurationManager");
 
     var _bowerProject;
+
+    var namespace = ".albertinad.bracketsbower",
+        PROJECT_LOADING = "bowerProjectLoading",
+        PROJECT_READY = "bowerProjectReady",
+        DEPENDENCIES_UPDATED = "bowerProjectDepsUpdated";
+
+    var Events = {
+        PROJECT_LOADING: PROJECT_LOADING + namespace,
+        PROJECT_READY: PROJECT_READY + namespace,
+        DEPENDENCIES_UPDATED: DEPENDENCIES_UPDATED + namespace
+    };
+
+    EventDispatcher.makeEventDispatcher(exports);
 
     /**
      * @constructor
@@ -46,6 +62,8 @@ define(function (require, exports) {
         this._rootPath = rootPath;
         /** @private */
         this._activePath = null;
+        /** @private */
+        this._packages = {};
     }
 
     Object.defineProperty(BowerProject.prototype, "name", {
@@ -73,25 +91,70 @@ define(function (require, exports) {
         return (this._activePath || this._rootPath);
     };
 
-    BowerProject.create = function (project) {
+    /**
+     * Set the packages.
+     * @param {Array} packagesArray
+     */
+    BowerProject.prototype.setPackages = function (packagesArray) {
+        this._packages = {};
+
+        this.addPackages(packagesArray);
+    };
+
+    /**
+     * Add project packages.
+     * @param {Array} packagesArray
+     */
+    BowerProject.prototype.addPackages = function (packagesArray) {
+        var that = this;
+
+        packagesArray.forEach(function (pkg) {
+            that._packages[pkg.name] = pkg;
+        });
+
+        exports.trigger(DEPENDENCIES_UPDATED);
+    };
+
+    /**
+     * Remove packages by its name.
+     * @param {Array} names
+     */
+    BowerProject.prototype.removePackages = function (names) {
+        var that = this;
+
+        names.forEach(function (name) {
+            if (that._packages[name]) {
+                delete that._packages[name];
+            }
+        });
+
+        exports.trigger(DEPENDENCIES_UPDATED);
+    };
+
+    BowerProject.prototype.getPackageByName = function (name) {
+        return this._packages[name];
+    };
+
+    /**
+     * Get the current packages array.
+     * @private
+     * @returns {Array} packages
+     */
+    BowerProject.prototype.getPackagesArray = function () {
+        var packagesArray = [];
+
+        _.forEach(this._packages, function (pkg, pkgName) {
+            packagesArray.push(pkg);
+        });
+
+        return packagesArray;
+    };
+
+    function _createBowerProject(project) {
         var name = project.name,
             rootPath = project.fullPath;
 
         return new BowerProject(name, rootPath);
-    };
-
-    function existsBowerJson() {
-        var bowerJson = BowerJsonManager.getBowerJson();
-
-        return (bowerJson !== null);
-    }
-
-    function getConfiguration() {
-        var config = ConfigurationManager.getConfiguration();
-
-        config.cwd = (_bowerProject !== null) ? _bowerProject.getPath() : null;
-
-        return config;
     }
 
     function getProject() {
@@ -108,16 +171,34 @@ define(function (require, exports) {
         }
     }
 
+    function getProjectDependencies() {
+        return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
+    }
+
+    function _loadBowerProject() {
+        // notify bower project is being loaded
+        exports.trigger(PROJECT_LOADING);
+
+        ConfigurationManager.loadBowerRc(_bowerProject);
+
+        PackageManager.loadProjectDependencies().always(function () {
+
+            return BowerJsonManager.loadBowerJson(_bowerProject);
+        }).always(function () {
+
+            FileSystemHandler.startListenToFileSystem(_bowerProject);
+
+            exports.trigger(PROJECT_READY);
+        });
+    }
+
     function _projectOpen() {
         // get the current/active project
         var project = ProjectManager.getProjectRoot();
 
-        _bowerProject = (project) ? BowerProject.create(project) : null;
+        _bowerProject = (project) ? _createBowerProject(project) : null;
 
-        ConfigurationManager.loadBowerRc(_bowerProject);
-        BowerJsonManager.loadBowerJson(_bowerProject);
-
-        FileSystemHandler.startListenToFileSystem(_bowerProject);
+        _loadBowerProject();
     }
 
     function initialize() {
@@ -130,9 +211,9 @@ define(function (require, exports) {
         });
     }
 
-    exports.initialize       = initialize;
-    exports.getProject       = getProject;
-    exports.setActivePath    = setActivePath;
-    exports.existsBowerJson  = existsBowerJson;
-    exports.getConfiguration = getConfiguration;
+    exports.initialize             = initialize;
+    exports.getProject             = getProject;
+    exports.setActivePath          = setActivePath;
+    exports.getProjectDependencies = getProjectDependencies;
+    exports.Events                 = Events;
 });

@@ -53,7 +53,13 @@ define(function (require, exports, module) {
         /** @private */
         this._$header = null;
         /** @private */
+        this._$commands = null;
+        /** @private */
         this._$bowerIcon = null;
+        /** @private */
+        this._$activePanelSection = null;
+        /** @private */
+        this._$loading = null;
 
         /** @private */
         this._currentStatusClass = "default";
@@ -71,6 +77,8 @@ define(function (require, exports, module) {
         WorkspaceManager.createBottomPanel(extensionName, $(panelHTML), 100);
 
         this._$panel = $("#brackets-bower-panel");
+        this._$activePanelSection = $("#brackets-bower-active-panel");
+        this._$loading = $("#brackets-bower-panel-loading");
         this._$header = this._$panel.find(".bower-panel-header");
         this._$commands = this._$header.find(".bower-commands-group");
         this._$bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
@@ -112,11 +120,29 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Enable the view to receive inputs from the user.
+     */
+    PanelView.prototype.enable = function () {
+        this._$header.find("button.bower-btn").prop("disabled", false);
+        this._$activePanelSection.show();
+        this._$loading.hide();
+    };
+
+    /**
+     * Disable the view to receive inputs from the user.
+     */
+    PanelView.prototype.disable = function () {
+        this._$header.find("button.bower-btn").prop("disabled", true);
+        this._$activePanelSection.hide();
+        this._$loading.show();
+    };
+
+    /**
      * Get the panel section where the sub panels can be rendered.
      * @return {jQuery} jQuery object encapsulating the panel section HTML Element for the sub panels.
      */
     PanelView.prototype.getPanelSection = function () {
-        return this._$panel.find("#brackets-bower-active-panel");
+        return this._$activePanelSection;
     };
 
     /**
