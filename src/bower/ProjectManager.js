@@ -42,12 +42,14 @@ define(function (require, exports) {
     var namespace = ".albertinad.bracketsbower",
         PROJECT_LOADING = "bowerProjectLoading",
         PROJECT_READY = "bowerProjectReady",
-        DEPENDENCIES_UPDATED = "bowerProjectDepsUpdated";
+        DEPENDENCIES_ADDED = "bowerProjectDepsAdded",
+        DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
         PROJECT_READY: PROJECT_READY + namespace,
-        DEPENDENCIES_UPDATED: DEPENDENCIES_UPDATED + namespace
+        DEPENDENCIES_ADDED: DEPENDENCIES_ADDED + namespace,
+        DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace
     };
 
     EventDispatcher.makeEventDispatcher(exports);
@@ -112,7 +114,7 @@ define(function (require, exports) {
             that._packages[pkg.name] = pkg;
         });
 
-        exports.trigger(DEPENDENCIES_UPDATED);
+        exports.trigger(DEPENDENCIES_ADDED);
     };
 
     /**
@@ -128,9 +130,14 @@ define(function (require, exports) {
             }
         });
 
-        exports.trigger(DEPENDENCIES_UPDATED);
+        exports.trigger(DEPENDENCIES_REMOVED, names);
     };
 
+    /**
+     * Get the package by the given name;
+     * @param {string} name
+     * @return {object}
+     */
     BowerProject.prototype.getPackageByName = function (name) {
         return this._packages[name];
     };
@@ -150,6 +157,77 @@ define(function (require, exports) {
         return packagesArray;
     };
 
+    /**
+     * Update the current version of the given package by name.
+     * @param {string} name The package name of the package to update.
+     * @param {string} version The new version of the package.
+     */
+    BowerProject.prototype.updatePackageVersion = function (name, version) {
+        var pkg = this.getPackageByName(name);
+
+        pkg.version = version;
+    };
+
+    /**
+     * Check if the project has dependencies.
+     * @return {boolean}
+     */
+    BowerProject.prototype.hasPackages = function () {
+        return (Object.keys(this._packages).length !== 0);
+    };
+
+    /**
+     * Check if there is some uninstalled package. An uninstalled package
+     * is the one that is defined in the bower.json but is not installed
+     * in the libraries folder.
+     * @return {boolean}
+     */
+    BowerProject.prototype.hasUninstalledPackages = function () {
+        var hasUninstalled = _.some(this._packages, function (pkg) {
+            return pkg.isInstalled;
+        });
+
+        return hasUninstalled;
+    };
+
+    /**
+     * Check if there is some extraneous package. An extraneous package is the
+     * one that is installed (available at the libraries folder) but is not
+     * defined in the bower.json file.
+     * @return {boolean}
+     */
+    BowerProject.prototype.hasExtraPackages = function () {
+        var hasExtraneous = _.some(this._packages, function (pkg) {
+            return pkg.extraneous;
+        });
+
+        return hasExtraneous;
+    };
+
+    /**
+     * Get the project uninstalled packages.
+     * @return {Array}
+     */
+    BowerProject.prototype.getUninstalledPackages = function () {
+        return _.filter(this._packages, function (pkg) {
+            return !pkg.isInstalled;
+        });
+    };
+
+    /**
+     * Get the project extraneous packages.
+     * @return {Array}
+     */
+    BowerProject.prototype.getExtraneousPackages = function () {
+        return _.filter(this._packages, function (pkg) {
+            return pkg.extraneous;
+        });
+    };
+
+    /**
+     * Create a BowerProject instance as a proxy of the current project.
+     * @param {object} project Current active project.
+     */
     function _createBowerProject(project) {
         var name = project.name,
             rootPath = project.fullPath;
@@ -157,10 +235,19 @@ define(function (require, exports) {
         return new BowerProject(name, rootPath);
     }
 
+    /**
+     * Get the current BowerProject instance.
+     * @return {object} bowerProject
+     */
     function getProject() {
         return _bowerProject;
     }
 
+    /**
+     * Update the BwerProject instance active path. Reload ConfigurationManager,
+     * BowerJsonManager and FileSystemHandler to be aware of this changes.
+     * @param {string} activePath Full path.
+     */
     function setActivePath(activePath) {
         if (_bowerProject !== null) {
             _bowerProject.activePath = activePath;
@@ -171,10 +258,21 @@ define(function (require, exports) {
         }
     }
 
+    /**
+     * Get the current project dependencies.
+     * @return {Array}
+     */
     function getProjectDependencies() {
         return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
     }
 
+    /**
+     * Initialization sequence when the project changes. Notifies that the
+     * BowerProject instance is loading. Load the current project dependencies
+     * if any, the configuration for the project and bower.json if any. After
+     * loading the current project infomartation, notifies that the bower project
+     * is ready.
+     */
     function _loadBowerProject() {
         // notify bower project is being loaded
         exports.trigger(PROJECT_LOADING);
@@ -183,12 +281,12 @@ define(function (require, exports) {
 
         PackageManager.loadProjectDependencies().always(function () {
 
-            return BowerJsonManager.loadBowerJson(_bowerProject);
-        }).always(function () {
+            BowerJsonManager.loadBowerJson(_bowerProject).always(function () {
 
-            FileSystemHandler.startListenToFileSystem(_bowerProject);
+                FileSystemHandler.startListenToFileSystem(_bowerProject);
 
-            exports.trigger(PROJECT_READY);
+                exports.trigger(PROJECT_READY);
+            });
         });
     }
 

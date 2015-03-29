@@ -58,9 +58,17 @@ define(function (require, exports, module) {
             that._onBowerJsonReloadedCallback();
         });
 
-        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_UPDATED, function () {
+        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_ADDED, function () {
             if (that._isPanelActive()) {
                 that.loadProjectPackages();
+            }
+        });
+
+        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_REMOVED, function (event, names) {
+            if (that._isPanelActive()) {
+                names.forEach(function (pkgName) {
+                    that._view.onDependecyRemoved(pkgName);
+                });
             }
         });
     };
@@ -121,9 +129,7 @@ define(function (require, exports, module) {
      * Uninstall the selected package.
      */
     DependenciesController.prototype.uninstall = function (name) {
-        PackageManager.uninstall(name).then(function () {
-           // TODO that._view.onDependecyRemoved(name);
-        }).fail(function (error) {
+        PackageManager.uninstall(name).fail(function (error) {
             // TODO warn the user
             console.log(error);
         });
@@ -133,7 +139,11 @@ define(function (require, exports, module) {
      * Update the selected package.
      */
     DependenciesController.prototype.update = function (name) {
-        PackageManager.update(name).fail(function (error) {
+        var that = this;
+
+        PackageManager.update(name).then(function () {
+            that.loadProjectPackages();
+        }).fail(function (error) {
             // TODO warn the user
             console.log(error);
         });

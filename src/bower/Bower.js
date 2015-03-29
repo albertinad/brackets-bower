@@ -49,10 +49,8 @@ define(function (require, exports) {
             save = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
 
         bowerDomain.exec("install", [packageName], save, config).then(function (installedPackages) {
-            var installedPackage = installedPackages[packageName],
-                result = {
-                    installationDir: installedPackage.canonicalDir,
-                    count: 1,
+            var result = {
+                    count: Object.keys(installedPackages).length,
                     packages: installedPackages
                 };
 
@@ -72,7 +70,6 @@ define(function (require, exports) {
 
         bowerDomain.exec("install", null, null, config).then(function (installedPackages) {
             var result = {
-                installationDir: config.cwd,
                 count: Object.keys(installedPackages).length,
                 packages: installedPackages
             };

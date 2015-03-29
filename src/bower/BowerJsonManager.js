@@ -160,14 +160,14 @@ define(function (require, exports) {
                 if (_bowerJson) {
                     deferred.resolve();
                 } else {
-                    deferred.resolve();
+                    deferred.reject();
                 }
             });
         } else {
             _bowerJson = null;
             _notifyBowerJsonReloaded();
 
-            deferred.resolve();
+            deferred.reject();
         }
 
         return deferred;

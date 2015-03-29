@@ -38,12 +38,21 @@ define(function (require, exports) {
 
     EventDispatcher.makeEventDispatcher(exports);
 
-    function install(packageName) {
+    /**
+     * Install the given package and udpate the project model.
+     * @param {string} name The package name to install.
+     * @param {string=} version The package version.
+     */
+    function install(name, version) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject();
 
-        Bower.installPackage(packageName, config).then(function (result) {
+        if (version && (version.trim() !== "")) {
+            name += "#" + version;
+        }
+
+        Bower.installPackage(name, config).then(function (result) {
             var packagesArray = PackageFactory.create(result.packages);
 
             project.addPackages(packagesArray);
@@ -56,6 +65,12 @@ define(function (require, exports) {
         return deferred;
     }
 
+    /**
+     * Install all the defined packages in the bower.json file.
+     * First checks if the bower.json file is available for the
+     * current project, if so, it continues with the dependencies
+     * installation, otherwhise, it rejects the promise.
+     */
     function installFromBowerJson() {
         var deferred = new $.Deferred(),
             existsBowerJson = BowerJsonManager.existsBowerJson(),
@@ -94,10 +109,12 @@ define(function (require, exports) {
 
         config = ConfigurationManager.getConfiguration();
 
-        Bower.prune(config).then(function (removedPackages) {
-            project.removePackages(Object.keys(removedPackages));
+        Bower.prune(config).then(function (uninstalled) {
+            var pkgNames = Object.keys(uninstalled);
 
-            deferred.resolve(removedPackages);
+            project.removePackages(pkgNames);
+
+            deferred.resolve(pkgNames);
         }).fail(function () {
             deferred.reject();
         });
@@ -111,9 +128,11 @@ define(function (require, exports) {
             project = ProjectManager.getProject();
 
         Bower.uninstall(name, config).then(function (uninstalled) {
-            project.removePackages(Object.keys(uninstalled));
+            var pkgNames = Object.keys(uninstalled);
 
-            deferred.resolve(uninstalled);
+            project.removePackages(pkgNames);
+
+            deferred.resolve(pkgNames);
         }).fail(function (err) {
             deferred.reject(err);
         });
@@ -157,9 +176,10 @@ define(function (require, exports) {
         version = pkg.latestVersion;
 
         bowerJson.updatePackageVersion(name, version).then(function () {
-            // TODO update model
             return Bower.update(name, config);
         }).then(function () {
+            // update model
+            project.updatePackageVersion(name, version);
 
             deferred.resolve();
         }).fail(function (error) {

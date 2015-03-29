@@ -55,6 +55,9 @@ define(function (require, exports, module) {
     });
 
     Object.defineProperty(Package.prototype, "version", {
+        set: function (version) {
+            this._version = version;
+        },
         get: function () {
             return this._version;
         }
@@ -67,12 +70,18 @@ define(function (require, exports, module) {
     });
 
     Object.defineProperty(Package.prototype, "extraneous", {
+        set: function (extraneous) {
+            this._extraneous = extraneous;
+        },
         get: function () {
             return this._extraneous;
         }
     });
 
     Object.defineProperty(Package.prototype, "isInstalled", {
+        set: function (isInstalled) {
+            this._isInstalled = isInstalled;
+        },
         get: function () {
             return this._isInstalled;
         }
@@ -132,6 +141,12 @@ define(function (require, exports, module) {
         return hasLatest;
     };
 
+    /**
+     * Create an object or an array of objets from the
+     * raw data given as arguments.
+     * @param {object} pgksData
+     * @return {Array}
+     */
     function create(pkgsData) {
         var pkgsName = Object.keys(pkgsData),
             pkgs = [];
