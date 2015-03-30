@@ -30,6 +30,7 @@ define(function (require, exports, module) {
     "use strict";
 
     /**
+     * Constructor function for Bower package instances.
      * @param {string} name
      * @param {string} version
      * @param {string} latestVersion
@@ -142,6 +143,81 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Constructor function for Bower package information instances.
+     * @constructor
+     */
+    function PackageInfo(name, latestVersion, versions) {
+        /** @private */
+        this._name = name;
+        /** @private */
+        this._latestVersion = latestVersion;
+        /** @private */
+        this._versions = versions;
+        /** @private */
+        this._dependencies = [];
+        /** @private */
+        this._keywords = [];
+        /** @private */
+        this._homepage = "";
+        /** @private */
+        this._description = "";
+    }
+
+    Object.defineProperty(PackageInfo.prototype, "name", {
+        get: function () {
+            return this._name;
+        }
+    });
+
+    Object.defineProperty(PackageInfo.prototype, "latestVersion", {
+        get: function () {
+            return this._latestVersion;
+        }
+    });
+
+    Object.defineProperty(PackageInfo.prototype, "versions", {
+        get: function () {
+            return this._versions;
+        }
+    });
+
+    Object.defineProperty(PackageInfo.prototype, "dependencies", {
+        set: function (dependencies) {
+            this._dependencies = dependencies;
+        },
+        get: function () {
+            return this._dependencies;
+        }
+    });
+
+    Object.defineProperty(PackageInfo.prototype, "keywords", {
+        set: function (keywords) {
+            this._keywords = keywords;
+        },
+        get: function () {
+            return this._keywords;
+        }
+    });
+
+    Object.defineProperty(PackageInfo.prototype, "homepage", {
+        set: function (homepage) {
+            this._homepage = homepage;
+        },
+        get: function () {
+            return this._homepage;
+        }
+    });
+
+    Object.defineProperty(PackageInfo.prototype, "description", {
+        set: function (description) {
+            this._description = description;
+        },
+        get: function () {
+            return this._description;
+        }
+    });
+
+    /**
      * Create an object or an array of objets from the
      * raw data given as arguments.
      * @param {object} pgksData
@@ -160,5 +236,35 @@ define(function (require, exports, module) {
         return pkgs;
     }
 
-    exports.create = create;
+    /**
+     * Create a PackageInfo instance from the raw data.
+     * @param {object} infoData
+     * @return {PackageInfo}
+     */
+    function createInfo(infoData) {
+        var latest = infoData.latest,
+            latestVersion = latest.version,
+            pkg = new PackageInfo(infoData.name, latestVersion, infoData.versions);
+
+        if (latest.dependencies) {
+            pkg.dependencies = latest.dependencies;
+        }
+
+        if (latest.keywords) {
+            pkg.keywords = latest.keywords;
+        }
+
+        if (latest.homepage) {
+            pkg.homepage = latest.homepage;
+        }
+
+        if (latest.description) {
+            pkg.description = latest.description;
+        }
+
+        return pkg;
+    }
+
+    exports.create     = create;
+    exports.createInfo = createInfo;
 });

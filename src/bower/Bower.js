@@ -122,6 +122,14 @@ define(function (require, exports) {
     }
 
     /**
+     * @param {string} name
+     * @param {object} config
+     */
+    function info(name, config) {
+        return bowerDomain.exec("info", name, config);
+    }
+
+    /**
      * @param {object} config
      */
     function search(config) {
@@ -165,6 +173,7 @@ define(function (require, exports) {
     exports.list             = list;
     exports.uninstall        = uninstall;
     exports.update           = update;
+    exports.info             = info;
     exports.search           = search;
     exports.listCache        = listCache;
 });

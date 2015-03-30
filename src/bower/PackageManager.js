@@ -190,6 +190,19 @@ define(function (require, exports) {
         return deferred;
     }
 
+    function info(name) {
+        var deferred = new $.Deferred(),
+            config = ConfigurationManager.getConfiguration();
+
+        Bower.info(name, config).then(function (result) {
+            deferred.resolve(PackageFactory.createInfo(result));
+        }).fail(function (err) {
+            deferred.reject(err);
+        });
+
+        return deferred;
+    }
+
     function search() {
         var config = ConfigurationManager.getConfiguration();
 
@@ -213,6 +226,7 @@ define(function (require, exports) {
     exports.installFromBowerJson    = installFromBowerJson;
     exports.prune                   = prune;
     exports.update                  = update;
+    exports.info                    = info;
     exports.search                  = search;
     exports.listCache               = listCache;
     exports.list                    = list;

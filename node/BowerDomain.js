@@ -172,6 +172,22 @@ maxerr: 50, node: true */
     }
 
     /**
+     * Get information about a particular package.
+     * @param {string} name Name of the package to get more information.
+     * @param {object} config Key-value object to specify optional configuration.
+     * @param {function(?string, ?string)} cb
+     */
+    function _cmdInfo(name, config, cb) {
+        bower.commands.info(name, null, config)
+            .on("end", function (result) {
+                cb(null, result);
+            })
+            .on("error", function (error) {
+                cb(error ? error.message : UNKNOWN_ERROR, null);
+            });
+    }
+
+    /**
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function} cb
      */
@@ -322,6 +338,16 @@ maxerr: 50, node: true */
                 type: "object",
                 description: "Configuration object."
             }],
+            []
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "info",
+            _cmdInfo,
+            true,
+            "Get information about the given package",
+            [],
             []
         );
 
