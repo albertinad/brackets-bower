@@ -31,9 +31,7 @@ define(function (require, exports, module) {
 
     var QuickOpen      = brackets.getModule("search/QuickOpen"),
         StringMatch    = brackets.getModule("utils/StringMatch"),
-        StringUtils    = brackets.getModule("utils/StringUtils"),
-        ProjectManager = brackets.getModule("project/ProjectManager"),
-        FileSystem     = brackets.getModule("filesystem/FileSystem");
+        StringUtils    = brackets.getModule("utils/StringUtils");
 
     var StatusBarController = require("src/StatusBarController").Controller,
         QuickSearchSpinner  = require("src/QuickSearchSpinner").create(),
@@ -66,9 +64,10 @@ define(function (require, exports, module) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
             StatusBarController.remove(statusId);
 
-            window.setTimeout(function () {
-                ProjectManager.showInTree(FileSystem.getDirectoryForPath(result.installationDir));
-            }, 1000);
+            // disable for now...
+            //window.setTimeout(function () {
+            //    ProjectManager.showInTree(FileSystem.getDirectoryForPath(result.installationDir));
+            //}, 1000);
 
         }).fail(function (error) {
             // Make sure the user sees the error even if other packages get installed.

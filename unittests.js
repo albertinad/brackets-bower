@@ -245,7 +245,6 @@ define(function (require, exports, module) {
                     expect(data).not.toBeNull();
                     expect(data).toBeDefined();
                     expect(data.count).toEqual(1);
-                    expect(typeof data.installationDir).toBe("string");
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
                     expect(bowerDomain.exec).toHaveBeenCalledWith("install", ["jQuery"], true, config);
@@ -274,7 +273,6 @@ define(function (require, exports, module) {
                     expect(data).not.toBeNull();
                     expect(data).toBeDefined();
                     expect(data.count).toBeGreaterThan(1);
-                    expect(data.installationDir).toEqual(tempDir);
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
                     expect(bowerDomain.exec).toHaveBeenCalledWith("install", null, null, config);

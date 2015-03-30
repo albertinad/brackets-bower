@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.4
+* Minor UI improvements:
+    - Adding scroll to panel
+    - Disable UI interaction when changing project
+* Improving project management.
+
 ## v0.2.3
 * List current project dependencies.
 * Uninstall and update commands.
