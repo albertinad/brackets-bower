@@ -25,6 +25,7 @@
     },
     "i18n": ["en", "es"],
     "keywords": [
+        "brackets-extension",
         "brackets",
         "bower",
         "package manager",
