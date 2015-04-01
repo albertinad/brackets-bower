@@ -46,14 +46,20 @@ define(function (require, exports) {
     function install(name, version) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
-            project = ProjectManager.getProject();
+            project = ProjectManager.getProject(),
+            packageName = name;
 
         if (version && (version.trim() !== "")) {
-            name += "#" + version;
+            packageName += "#" + version;
         }
 
-        Bower.installPackage(name, config).then(function (result) {
-            var packagesArray = PackageFactory.create(result.packages);
+        Bower.installPackage(packageName, config).then(function (result) {
+            // get only the direct dependency
+            var pkg = {},
+                packagesArray;
+
+            pkg[name] = result.packages[name];
+            packagesArray = PackageFactory.create(pkg);
 
             project.addPackages(packagesArray);
 

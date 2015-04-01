@@ -76,21 +76,24 @@ define(function (require, exports, module) {
         }).then(function (content) {
             var deps = content.dependencies,
                 devDeps = content.devDependencies,
-                newContent;
+                newContent,
+                exists = false;
 
-            // update for dependencies
-            if (deps[name]) {
+            if (deps && deps[name]) {
                 deps[name] = version;
-            }
-
-            // update for devDependencies
-            if (devDeps[name]) {
+                exists = true;
+            } else if (devDeps && devDeps[name]) {
                 devDeps[name] = version;
+                exists = true;
             }
 
-            newContent = JSON.stringify(content, null, 4);
+            if (exists) {
+                newContent = JSON.stringify(content, null, 4);
 
-            return that.saveContent(newContent);
+                return that.saveContent(newContent);
+            } else {
+                deferred.reject();
+            }
         }).then(function () {
 
             deferred.resolve();
@@ -110,12 +113,27 @@ define(function (require, exports, module) {
     BowerJson.prototype._createPackageMetadata = function (packages) {
         var pkgMeta = {
             name: this._appName,
-            dependencies: {},
-            devDependencies: {}
+            dependencies: {}
         };
 
+        function addToDevDeps(name, version) {
+            if (!pkgMeta.devDependencies) {
+                pkgMeta.devDependencies = {};
+            }
+
+            pkgMeta.devDependencies[name] = version;
+        }
+
         packages.forEach(function (pkg) {
-            pkgMeta.dependencies[pkg.name] = pkg.version;
+            var name = pkg.name,
+                version = pkg.version;
+
+            if (!pkg.isDevDependency) {
+                pkgMeta.dependencies[name] = version;
+            } else {
+                addToDevDeps(name, version);
+            }
+
         });
 
         return pkgMeta;

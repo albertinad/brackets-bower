@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.5
+* Bug fixing:
+    - Better handling of BowerJson instance when updating packages from dependencies/devDependencies.
+
 ## v0.2.4
 * Minor UI improvements:
     - Adding scroll to panel

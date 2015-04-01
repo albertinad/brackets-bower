@@ -47,6 +47,8 @@ define(function (require, exports, module) {
         this._extraneous = false;
         /** @private */
         this._isInstalled = true;
+        /** @private */
+        this._isDevDependency = false;
     }
 
     Object.defineProperty(Package.prototype, "name", {
@@ -88,6 +90,15 @@ define(function (require, exports, module) {
         }
     });
 
+    Object.defineProperty(Package.prototype, "isDevDependency", {
+        set: function (isDevDependency) {
+            this._isDevDependency = isDevDependency;
+        },
+        get: function () {
+            return this._isDevDependency;
+        }
+    });
+
     /**
      * Create package from raw data.
      * @param {string} name
@@ -113,6 +124,8 @@ define(function (require, exports, module) {
         if (data.extraneous) {
             pkg._extraneous = true;
         }
+
+        // TODO check if it's a devDependency
 
         return pkg;
     };
@@ -267,4 +280,7 @@ define(function (require, exports, module) {
 
     exports.create     = create;
     exports.createInfo = createInfo;
+
+    // tests
+    exports._Package = Package;
 });
