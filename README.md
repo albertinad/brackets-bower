@@ -1,4 +1,4 @@
-## Bower extension for [Brackets](http://brackets.io)
+# Bower extension for [Brackets](http://brackets.io) [![Build Status](https://travis-ci.org/albertinad/brackets-bower.svg?branch=master)](https://travis-ci.org/albertinad/brackets-bower)
 
 This Brackets extension lets you manage your application's front-end dependencies using the bower.json file,
 and quickly install a package from [Bower](http://bower.io) into your current project using a
