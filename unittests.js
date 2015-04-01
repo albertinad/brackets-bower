@@ -21,7 +21,6 @@
  *
  */
 
-
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
 /*global define, describe, it, expect, beforeEach, afterEach, beforeFirst, afterLast, waitsFor, waitsForDone, waitsForFail,
 runs, spyOn, jasmine, $, brackets, waitsForDone */

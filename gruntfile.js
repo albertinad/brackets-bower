@@ -38,6 +38,17 @@ module.exports = function (grunt) {
             }
         },
 
+        jscs: {
+            src: [
+                "**/*.js",
+                "!**/node_modules/**/*.js",
+                "!**/bower_components/**/*.js"
+            ],
+            options: {
+                config: ".jscs.json"
+            }
+        },
+
         zip: {
             extension: {
                 src: [
@@ -54,11 +65,12 @@ module.exports = function (grunt) {
                     "*.md"
                 ],
                 dest: "<%= pkg.name %>-<%= pkg.version %>.zip",
-                compression: 'DEFLATE'
+                compression: "DEFLATE"
             }
         }
     });
 
-    grunt.registerTask("package", ["jshint", "csslint", "zip"]);
+    grunt.registerTask("test", ["jshint", "csslint", "jscs"]);
+    grunt.registerTask("package", ["test", "zip"]);
     grunt.registerTask("default", ["jshint"]);
 };

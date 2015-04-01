@@ -21,7 +21,6 @@
  *
  */
 
-
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
 /*globals define, $, Mustache */
@@ -158,7 +157,7 @@ define(function (require, exports, module) {
     };
 
     DependenciesView.prototype.onDependecyRemoved = function (name) {
-        if (this._$panel.find('[data-bower-dependency]').length > 1) {
+        if (this._$panel.find("[data-bower-dependency]").length > 1) {
             var $uninstalledDependency = this._$panel.find("[data-bower-dependency='" + name + "']");
 
             $uninstalledDependency.remove();

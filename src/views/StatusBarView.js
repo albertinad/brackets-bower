@@ -21,7 +21,6 @@
  *
  */
 
-
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
 /*global $, define */
@@ -77,7 +76,7 @@ define(function (require, exports, module) {
         var statusHtml = "<span class='status' data-bower-status-id='" + id + "'>" + status.Text + "</span>",
             statusType = this._controller.statusTypes();
 
-        if(status.Type === statusType.INFO) {
+        if (status.Type === statusType.INFO) {
             this._$infoSection.append(statusHtml);
         } else {
             this._$progressInfo.append(statusHtml);
@@ -150,12 +149,12 @@ define(function (require, exports, module) {
         var hideClass = "hide",
             hasClass = this._$progressSection.hasClass(hideClass);
 
-        if(this._progressCount === 0) {
-            if(!hasClass) {
+        if (this._progressCount === 0) {
+            if (!hasClass) {
                 this._$progressSection.addClass(hideClass);
             }
         } else {
-            if(hasClass) {
+            if (hasClass) {
                 this._$progressSection.removeClass(hideClass);
             }
         }

@@ -21,7 +21,6 @@
  *
  */
 
-
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
 /*global define */
@@ -62,7 +61,7 @@ define(function (require, exports, module) {
     }
 
     // API required by Preferences module
-    
+
     exports.key          = key;
     exports.preferenceId = preferenceId;
     exports.type         = type;

@@ -21,7 +21,6 @@
  *
  */
 
-
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
 /*global define, brackets */
@@ -56,7 +55,7 @@ define(function (require, exports, module) {
         var defaults = {},
             key;
 
-        for(key in settings) {
+        for (key in settings) {
             if (settings.hasOwnProperty(key)) {
                 defaults[key] = settings[key].defaultValue();
             }
@@ -112,7 +111,7 @@ define(function (require, exports, module) {
         settings[savePackageSetting.key()] = savePackageSetting;
         settings[showExtensionSetting.key()] = showExtensionSetting;
 
-        for(key in settings) {
+        for (key in settings) {
             if (settings.hasOwnProperty(key)) {
                 var setting = settings[key];
 
