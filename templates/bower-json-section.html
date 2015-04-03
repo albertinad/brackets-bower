@@ -1,6 +1,6 @@
-<div class="bower-json-section">
-    <div class="bower-json-fieldset" {{#bowerJson}} data-bower-json="{{ bowerJson.AbsolutePath }}" {{/bowerJson}}>
-        <label class="bower-json-title">bower.json: </label>
+<div class="bower-data-section">
+    <div class="bower-data-fieldset" {{#bowerJson}} data-bower-json="{{ bowerJson.AbsolutePath }}" {{/bowerJson}}>
+        <label class="bower-data-title">bower.json: </label>
 
         {{#bowerJson}}
         <label>{{ bowerJson.AbsolutePath }}</label>
@@ -13,7 +13,7 @@
 
     <div>
         {{#bowerJson}}
-        <button class="bower-json-action btn small" data-bower-json-action="delete" title="{{Strings.DELETE}}">
+        <button class="btn small" data-bower-json-action="delete" title="{{Strings.DELETE}}">
             <span>{{ Strings.DELETE }}</span>
         </button>
         {{/bowerJson}}

@@ -60,6 +60,44 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Get the dependencies and devDependencies defined in the bower.json.
+     * @param {$.Deferred}
+     */
+    BowerJson.prototype.getAllDependencies = function () {
+        var that = this,
+            deferred = new $.Deferred();
+
+        this.read().then(function (result) {
+
+            var content,
+                deps = {
+                    dependencies: {},
+                    devDependencies: {}
+                };
+
+            try {
+                content = JSON.parse(content);
+
+                if (content.dependencies) {
+                    deps.dependencies = content.dependencies;
+                }
+
+                if (content.dependencies) {
+                    deps.devDependencies = content.devDependencies;
+                }
+
+                deferred.resolve(deps);
+            } catch (error) {
+                deferred.reject(error);
+            }
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    };
+
+    /**
      * Update the package version for the given dependency name.
      * @param {string} name The package name to update the version.
      * @param {string} version The version to upgrade.
@@ -71,9 +109,8 @@ define(function (require, exports, module) {
 
         this.read().then(function (result) {
 
-            return JSON.parse(result);
-        }).then(function (content) {
-            var deps = content.dependencies,
+            var content = JSON.parse(result),
+                deps = content.dependencies,
                 devDeps = content.devDependencies,
                 newContent,
                 exists = false;

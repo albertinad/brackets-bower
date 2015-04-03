@@ -1,8 +1,5 @@
 {
   "name": "brackets-bower",
-  "dependencies": {      
-    "jquery.aria": "~2.1.7",
-    "requirejs": "*",
-    "knockout.js":"*"
+  "dependencies": {
   }
 }

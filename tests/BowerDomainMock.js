@@ -91,7 +91,7 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdInstall(names, save, config, cb) {
+    function _cmdInstall(names, options, config, cb) {
         var resultType,
             result,
             bowerJsonExists;
@@ -119,7 +119,7 @@ maxerr: 50, node: true */
         }
     }
 
-    function _cmdUninstall(names, save, config, cb) {
+    function _cmdUninstall(names, options, config, cb) {
         var resultType,
             packagesExists,
             result = {};

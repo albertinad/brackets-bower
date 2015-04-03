@@ -94,23 +94,23 @@
 
 /* bower.json section */
 
-.bower-json-section {
+.bower-data-section {
     display: flex;
     flex-flow: row nowrap;
     padding: 8px;
 }
 
-.bower-json-section > div {
+.bower-data-section > div {
     flex: 0 1 auto;
     padding: 3px;
 }
 
-.bower-json-fieldset > label {
+.bower-data-fieldset > label {
     display: inline-block;
     padding-right: 10px;
 }
 
-.bower-json-fieldset .bower-json-title {
+.bower-data-fieldset .bower-data-title {
     font-size: 14px;
     font-weight: 500;
     line-height: normal;

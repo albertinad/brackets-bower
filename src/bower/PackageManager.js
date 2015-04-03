@@ -35,29 +35,51 @@ define(function (require, exports) {
         ConfigurationManager = require("src/bower/ConfigurationManager"),
         BowerJsonManager     = require("src/bower/BowerJsonManager");
 
+    var PRODUCTION_DEPENDENCY = 0,
+        DEVELOPMENT_DEPENDENCY = 1;
+
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
      * Install the given package and udpate the project model.
      * @param {string} name The package name to install.
-     * @param {string=} version The package version.
+     * @param {string|null} version The package version.
+     * @param {number} type Specify if the package to install is a dependency or devDependency.
+     * @param {boolean} save Save or not the package to the bower.json file.
      */
-    function install(name, version) {
+    function install(name, version, type, save) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
-            packageName = name;
+            packageName = name,
+            options = {};
 
         if (version && (version.trim() !== "")) {
             packageName += "#" + version;
         }
 
-        Bower.installPackage(packageName, config).then(function (result) {
+        // prepare default values when needed
+        if (type === undefined || type === null) {
+            type = PRODUCTION_DEPENDENCY;
+        }
+
+        if (save === undefined || type === null) {
+            save = false;
+        }
+
+        if (type === PRODUCTION_DEPENDENCY) {
+            options.save = save;
+        } else if (type === DEVELOPMENT_DEPENDENCY) {
+            options.saveDev = save;
+        }
+
+        Bower.installPackage(packageName, options, config).then(function (result) {
             // get only the direct dependency
             var pkg = {},
                 packagesArray;
 
             pkg[name] = result.packages[name];
+
             packagesArray = PackageFactory.create(pkg);
 
             project.addPackages(packagesArray);
@@ -130,9 +152,13 @@ define(function (require, exports) {
     function uninstall(name) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
-            project = ProjectManager.getProject();
+            project = ProjectManager.getProject(),
+            options = {
+                save: true,
+                saveDev: true
+            };
 
-        Bower.uninstall(name, config).then(function (uninstalled) {
+        Bower.uninstall(name, options, config).then(function (uninstalled) {
             var pkgNames = Object.keys(uninstalled);
 
             project.removePackages(pkgNames);
@@ -236,4 +262,6 @@ define(function (require, exports) {
     exports.listCache               = listCache;
     exports.list                    = list;
     exports.loadProjectDependencies = loadProjectDependencies;
+    exports.PRODUCTION_DEPENDENCY   = PRODUCTION_DEPENDENCY,
+    exports.DEVELOPMENT_DEPENDENCY  = DEVELOPMENT_DEPENDENCY;
 });

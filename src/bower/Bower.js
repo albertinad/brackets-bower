@@ -28,8 +28,6 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var Preferences = require("src/preferences/Preferences");
-
     var bowerDomain;
 
     /**
@@ -41,22 +39,24 @@ define(function (require, exports) {
 
     /**
      * @param {string} packageName
+     * @param {object} options
      * @param {object} config
      */
-    function installPackage(packageName, config) {
+    function installPackage(packageName, options, config) {
         var deferred = new $.Deferred(),
-            save = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE);
+            options = options || {};
 
-        bowerDomain.exec("install", [packageName], save, config).then(function (installedPackages) {
-            var result = {
+        bowerDomain.exec("install", [packageName], options, config)
+            .then(function (installedPackages) {
+                var result = {
                     count: Object.keys(installedPackages).length,
                     packages: installedPackages
                 };
 
-            deferred.resolve(result);
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
+                deferred.resolve(result);
+            }).fail(function (error) {
+                deferred.reject(error);
+            });
 
         return deferred.promise();
     }
@@ -67,7 +67,7 @@ define(function (require, exports) {
     function install(config) {
         var deferred = new $.Deferred();
 
-        bowerDomain.exec("install", null, null, config).then(function (installedPackages) {
+        bowerDomain.exec("install", null, {}, config).then(function (installedPackages) {
             var result = {
                 count: Object.keys(installedPackages).length,
                 packages: installedPackages
@@ -97,15 +97,18 @@ define(function (require, exports) {
 
     /**
      * @param {string|array} names
+     * @param {object} options
      * @param {object} config
      */
-    function uninstall(names, config) {
+    function uninstall(names, options, config) {
+        options = options || {};
+
         if (!Array.isArray(names)) {
             names = [names];
         }
 
         // TODO save should be stored in Preferences
-        return bowerDomain.exec("uninstall", names, true, config);
+        return bowerDomain.exec("uninstall", names, options, config);
     }
 
     /**

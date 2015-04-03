@@ -43,8 +43,8 @@ define(function (require, exports, module) {
         packages,
         packageListPromise,
         installPromise,
-        latestQuery,
-        lastFetchTime,
+        _latestQuery,
+        _lastFetchTime,
         _isFetching = false;
 
     function _installNext() {
@@ -53,17 +53,19 @@ define(function (require, exports, module) {
         }
 
         var pkgName       = queue.shift(),
-            installingMsg = StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName);
+            installingMsg = StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName),
+            statusId      = StatusBarController.post(installingMsg, true);
 
-        var statusId = StatusBarController.post(installingMsg, true);
+        var save           = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE),
+            dependencyType = PackageManager.PRODUCTION_DEPENDENCY;
 
-        installPromise = PackageManager.install(pkgName);
+        installPromise = PackageManager.install(pkgName, null, dependencyType, save);
 
         installPromise.done(function (result) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
             StatusBarController.remove(statusId);
 
-            // disable for now...
+            // disabled for now...
             //window.setTimeout(function () {
             //    ProjectManager.showInTree(FileSystem.getDirectoryForPath(result.installationDir));
             //}, 1000);
@@ -106,11 +108,11 @@ define(function (require, exports, module) {
         var curTime = Date.now(),
             maxTimeFetch = Preferences.get(Preferences.settings.RELOAD_REGISTRY_TIME) * 60000; // minutes to milliseconds
 
-        if (!_isFetching && (lastFetchTime === undefined || (curTime - lastFetchTime > maxTimeFetch))) {
+        if (!_isFetching && (_lastFetchTime === undefined || (curTime - _lastFetchTime > maxTimeFetch))) {
             // Re-fetch the list of packages if it's been more than 10 minutes since the last time we fetched them.
             packages = null;
             packageListPromise = null;
-            lastFetchTime = curTime;
+            _lastFetchTime = curTime;
         }
     }
 
@@ -155,7 +157,7 @@ define(function (require, exports, module) {
         // Remove initial "+"
         query = query.slice(1);
 
-        latestQuery = query;
+        _latestQuery = query;
 
         _resetFetchStatusIfNeeded();
 
@@ -194,9 +196,9 @@ define(function (require, exports, module) {
 
             packageListPromise.done(function () {
                 // validate for an empty string avoids an exception in smart autocomplete
-                if (query === latestQuery && query.trim() !== "") {
+                if (query === _latestQuery && query.trim() !== "") {
                     try {
-                        result.resolve(_search(latestQuery, matcher));
+                        result.resolve(_search(_latestQuery, matcher));
                     } catch (exception) {
                         console.log(exception);
                         result.reject();

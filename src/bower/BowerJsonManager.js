@@ -54,7 +54,7 @@ define(function (require, exports) {
     function createBowerJson(path) {
         var project = ProjectManager.getProject(),
             appName = (project) ? project.name : null,
-            deferred = $.Deferred();
+            deferred = new $.Deferred();
 
         // TODO use regex
         // TODO validate path
@@ -131,12 +131,16 @@ define(function (require, exports) {
      * Checks if the file exists in the given directory. If the directory
      * is not set, the root project directory is taken as the default directory.
      * @param {string} path
-     * @return {Promise}
+     * @return {$.Deferred}
      */
     function findBowerJson(path) {
         return FileUtils.exists(path + "bower.json");
     }
 
+    /**
+     * Notify when the bower.json was reloaded: created, modified or deleted.
+     * @private
+     */
     function _notifyBowerJsonReloaded() {
         exports.trigger(BOWER_JSON_RELOADED);
     }
@@ -172,6 +176,10 @@ define(function (require, exports) {
         return deferred;
     }
 
+    /**
+     * Callback for when the bower.json is created manually through the file system.
+     * @private
+     */
     function _onBowerJsonCreated() {
         if (_bowerJson !== null) {
             return;
@@ -182,6 +190,10 @@ define(function (require, exports) {
         });
     }
 
+    /**
+     * Callback for when the bower.json is deleted manually through the file system.
+     * @private
+     */
     function _onBowerJsonDeleted() {
         _bowerJson = null;
         _notifyBowerJsonReloaded();

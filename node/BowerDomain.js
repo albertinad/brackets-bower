@@ -84,19 +84,13 @@ maxerr: 50, node: true */
     /**
      * Installs packages.
      * @param {Array} names Array with package's names to install.
-     * @param {boolean} save Save the package into the bower.json if it exists.
+     * @param {object} options Options object, to specify if it should save the package into bower.json.
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function(?string, ?string)} cb Callback for when the installation is finished.
      * First parameter is an error string, or null if no error, and second parameter is either
      * the full installation path or null if there was an error.
      */
-    function _cmdInstall(names, save, config, cb) {
-        var options = {};
-
-        if (save !== null && save !== undefined) {
-            options.save = save;
-        }
-
+    function _cmdInstall(names, options, config, cb) {
         bower.commands.install(names, options, config)
             .on("end", function (installedPackages) {
                 cb(null, installedPackages);
@@ -112,18 +106,11 @@ maxerr: 50, node: true */
     /**
      * Uninstall the given packages.
      * @param {Array} names Array with package's names to uninstall.
-     * @param {boolean} save Save the package into the bower.json if it exists.
+     * @param {object} options Options object, to specify if it should update the bower.json.
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function(?string, ?string)} cb Callback for when the uninstallation is finished.
      */
-    function _cmdUninstall(names, save, config, cb) {
-        var options = {};
-
-        if (save !== null && save !== undefined) {
-            options.save = save;
-            options.saveDev = save;
-        }
-
+    function _cmdUninstall(names, options, config, cb) {
         bower.commands.uninstall(names, options, config)
             .on("end", function (uninstalledPackages) {
                 cb(null, uninstalledPackages);
@@ -285,8 +272,8 @@ maxerr: 50, node: true */
                 description: "Array with package's names to install. If null, it will look for the bower.json dependencies."
             }, {
                 name: "save",
-                type: "boolean",
-                description: "Save the installed package to the bower.json file"
+                type: "object",
+                description: "Options to specify to ave the installed package to the bower.json file"
             }, {
                 name: "config",
                 type: "object",

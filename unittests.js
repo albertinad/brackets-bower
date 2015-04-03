@@ -227,10 +227,13 @@ define(function (require, exports, module) {
                 spyOn(bowerDomain, "exec").andCallThrough();
 
                 var resultPromise = new testWindow.$.Deferred(),
+                    options = {
+                        save: true,
+                    },
                     data;
 
                 runs(function () {
-                    bower.installPackage("jQuery", config).then(function (result) {
+                    bower.installPackage("jQuery", options, config).then(function (result) {
                         data = result;
                         resultPromise.resolve();
                     }).fail(function () {
@@ -246,7 +249,7 @@ define(function (require, exports, module) {
                     expect(data.count).toEqual(1);
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", ["jQuery"], true, config);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", ["jQuery"], options, config);
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
@@ -274,7 +277,7 @@ define(function (require, exports, module) {
                     expect(data.count).toBeGreaterThan(1);
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", null, null, config);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", null, {}, config);
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
@@ -306,7 +309,7 @@ define(function (require, exports, module) {
                     expect(error).toEqual("BowerDomainMock error message");
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", null, null, config);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("install", null, {}, config);
                     expect(resultPromise.state()).toEqual("rejected");
                 });
             });
@@ -315,10 +318,13 @@ define(function (require, exports, module) {
                 spyOn(bowerDomain, "exec").andCallThrough();
 
                 var resultPromise = new testWindow.$.Deferred(),
+                    options = {
+                        save: true,
+                    },
                     data;
 
                 runs(function () {
-                    bower.uninstall("jquery", config).then(function (result) {
+                    bower.uninstall("jquery", options, config).then(function (result) {
                         data = result;
                         resultPromise.resolve();
                     }).fail(function (err) {
@@ -336,7 +342,7 @@ define(function (require, exports, module) {
                     expect(data.jquery).toBeDefined();
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("uninstall", ["jquery"], true, config);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("uninstall", ["jquery"], options, config);
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
@@ -346,10 +352,13 @@ define(function (require, exports, module) {
 
                 var resultPromise = new testWindow.$.Deferred(),
                     pkgs = ["package1", "package2", "package3"],
+                    options = {
+                        save: true,
+                    },
                     data;
 
                 runs(function () {
-                    bower.uninstall(pkgs, config).then(function (result) {
+                    bower.uninstall(pkgs, options, config).then(function (result) {
                         data = result;
                         resultPromise.resolve();
                     }).fail(function () {
@@ -371,13 +380,16 @@ define(function (require, exports, module) {
                     });
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("uninstall", pkgs, true, config);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("uninstall", pkgs, options, config);
                     expect(resultPromise.state()).toEqual("resolved");
                 });
             });
 
             it("should execute 'uninstall' to uninstall a package that doesn't exists and reject the promise", function () {
                 var resultPromise = new testWindow.$.Deferred(),
+                    options = {
+                        save: true,
+                    },
                     data;
 
                 bowerDomain.exec("setTestData", {
@@ -389,7 +401,7 @@ define(function (require, exports, module) {
                 spyOn(bowerDomain, "exec").andCallThrough();
 
                 runs(function () {
-                    bower.uninstall("package1", config).then(function (result) {
+                    bower.uninstall("package1", options, config).then(function (result) {
                         data = result;
                         resultPromise.resolve();
                     }).fail(function (err) {
@@ -403,7 +415,7 @@ define(function (require, exports, module) {
                     expect(data).not.toBeDefined();
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
-                    expect(bowerDomain.exec).toHaveBeenCalledWith("uninstall", ["package1"], true, config);
+                    expect(bowerDomain.exec).toHaveBeenCalledWith("uninstall", ["package1"], options, config);
                     expect(resultPromise.state()).toEqual("rejected");
                 });
             });
@@ -1872,10 +1884,13 @@ define(function (require, exports, module) {
             it("should install jquery", function () {
                 runs(function () {
                     var config = {
-                        cwd: tempDir
-                    };
+                            cwd: tempDir
+                        },
+                        options = {
+                            save: false
+                        };
 
-                    waitsForDone(bowerDomain.exec("install", ["jquery"], false, config),
+                    waitsForDone(bowerDomain.exec("install", ["jquery"], options, config),
                         "installing jquery", 100000);
                 });
 
