@@ -43,8 +43,9 @@ define(function (require, exports) {
      * @param {object} config
      */
     function installPackage(packageName, options, config) {
-        var deferred = new $.Deferred(),
-            options = options || {};
+        var deferred = new $.Deferred();
+
+        options = options || {};
 
         bowerDomain.exec("install", [packageName], options, config)
             .then(function (installedPackages) {

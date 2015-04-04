@@ -262,6 +262,6 @@ define(function (require, exports) {
     exports.listCache               = listCache;
     exports.list                    = list;
     exports.loadProjectDependencies = loadProjectDependencies;
-    exports.PRODUCTION_DEPENDENCY   = PRODUCTION_DEPENDENCY,
+    exports.PRODUCTION_DEPENDENCY   = PRODUCTION_DEPENDENCY;
     exports.DEVELOPMENT_DEPENDENCY  = DEVELOPMENT_DEPENDENCY;
 });

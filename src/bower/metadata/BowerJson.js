@@ -64,8 +64,7 @@ define(function (require, exports, module) {
      * @param {$.Deferred}
      */
     BowerJson.prototype.getAllDependencies = function () {
-        var that = this,
-            deferred = new $.Deferred();
+        var deferred = new $.Deferred();
 
         this.read().then(function (result) {
 
