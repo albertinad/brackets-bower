@@ -1814,8 +1814,7 @@ define(function (require, exports, module) {
         });
 
         describe("PackageManager", function () {
-            var _              = brackets.getModule("thirdparty/lodash"),
-                PackageManager = require("src/bower/PackageManager"),
+            var PackageManager = require("src/bower/PackageManager"),
                 Bower          = require("src/bower/Bower"),
                 tempDir        = SpecRunnerUtils.getTempDirectory(),
                 ExtensionUtils,
@@ -1953,10 +1952,7 @@ define(function (require, exports, module) {
                 runs(function () {
                     expect(data).not.toBeNull();
                     expect(data).toBeDefined();
-
-                    _.forEach(data, function (pkg) {
-                        expect(pkg.pkgMeta).toBeDefined();
-                    });
+                    expect(data.pkgMeta).toBeDefined();
 
                     expect(Bower.list.calls.length).toEqual(1);
                     expect(resultPromise.state()).toEqual("resolved");
