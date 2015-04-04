@@ -169,6 +169,51 @@ maxerr: 50, node: true */
         }
     }
 
+    function _cmdList(config, cb) {
+        var resultType,
+            result;
+
+        if (commandExecution && commandExecution.list) {
+            var list = commandExecution.list;
+
+            resultType = list.resultType;
+            result = list.result;
+        } else {
+            resultType = defaultCommandExecution.resultType;
+            // let node to cache the value, since this file must not change on runtime
+            result = require("./data/list.json");
+        }
+
+        if (resultType === "success") {
+            cb(null, result);
+        } else {
+            cb(errorMessage, null);
+        }
+    }
+
+    function _cmdInfo(name, config, cb) {
+         var resultType,
+            result;
+
+        if (commandExecution && commandExecution.info) {
+            var info = commandExecution.info;
+
+            resultType = info.resultType;
+            result = info.result;
+        } else {
+            resultType = defaultCommandExecution.resultType;
+            // let node to cache the value, since this file must not change on runtime
+            result = require("./data/info.json");
+        }
+
+        if (resultType === "success" && name) {
+            cb(null, result);
+        } else {
+            cb(errorMessage, null);
+        }
+    }
+
+
     function init(domainManager) {
         if (!domainManager.hasDomain(DOMAIN_NAME)) {
             domainManager.registerDomain(DOMAIN_NAME, {
@@ -177,56 +222,18 @@ maxerr: 50, node: true */
             });
         }
 
-        domainManager.registerCommand(
-            DOMAIN_NAME,
-            "search",
-            _cmdSearch,
-            true
-        );
-
-        domainManager.registerCommand(
-            DOMAIN_NAME,
-            "listCache",
-            _cmdListCache,
-            true
-        );
-
-        domainManager.registerCommand(
-            DOMAIN_NAME,
-            "install",
-            _cmdInstall,
-            true
-        );
-
-        domainManager.registerCommand(
-            DOMAIN_NAME,
-            "uninstall",
-            _cmdUninstall,
-            true
-        );
-
-        domainManager.registerCommand(
-            DOMAIN_NAME,
-            "prune",
-            _cmdPrune,
-            true
-        );
+        domainManager.registerCommand(DOMAIN_NAME, "search", _cmdSearch, true);
+        domainManager.registerCommand(DOMAIN_NAME, "listCache", _cmdListCache, true);
+        domainManager.registerCommand(DOMAIN_NAME, "install", _cmdInstall, true);
+        domainManager.registerCommand(DOMAIN_NAME, "uninstall", _cmdUninstall, true);
+        domainManager.registerCommand(DOMAIN_NAME, "prune", _cmdPrune, true);
+        domainManager.registerCommand(DOMAIN_NAME, "list", _cmdList, true);
+        domainManager.registerCommand(DOMAIN_NAME, "info", _cmdInfo, true);
 
         // test APIs
 
-        domainManager.registerCommand(
-            DOMAIN_NAME,
-            "setTestData",
-            _setTestData,
-            false
-        );
-
-        domainManager.registerCommand(
-            DOMAIN_NAME,
-            "resetTestData",
-            _resetTestData,
-            false
-        );
+        domainManager.registerCommand(DOMAIN_NAME, "setTestData", _setTestData, false);
+        domainManager.registerCommand(DOMAIN_NAME, "resetTestData", _resetTestData, false);
     }
 
     exports.init = init;
