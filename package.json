@@ -2,7 +2,7 @@
     "name": "brackets-bower",
     "title": "Brackets Bower",
     "version": "0.2.5",
-    "description": "Manage your application's front-end dependencies using Bower. You can install and prune dependencies using the bower.json file and configure Bower throubh .bowerrc. Also, quickly install front-end packages by hitting Ctrl/Cmd-Alt-B, then start typing the name of a package. Once you see the package you want, hit Enter and the package will be installed into your project folder. NOTE: To install some packages, you must have git installed.",
+    "description": "Manage your application's front-end dependencies using Bower. You can install and prune dependencies using the bower.json file and configure Bower through .bowerrc. Also, quickly install front-end packages by hitting Ctrl/Cmd-Alt-B, then start typing the name of a package. Once you see the package you want, hit Enter and the package will be installed into your project folder. NOTE: To install some packages, you must have Git installed.",
     "author": "Albertina Durante (https://github.com/albertinad)",
     "homepage": "https://github.com/albertinad/brackets-bower",
     "repository": {
@@ -13,7 +13,7 @@
         "url": "https://github.com/albertinad/brackets-bower/issues"
     },
     "engines": {
-        "brackets": ">=0.34.0"
+        "brackets": ">=1.1.0"
     },
     "devDependencies": {
         "grunt": "0.4.5",
@@ -27,7 +27,7 @@
     "scripts": {
         "test": "grunt test"
     },
-    "i18n": ["en", "es"],
+    "i18n": ["en", "es", "it"],
     "keywords": [
         "brackets-extension",
         "brackets",
@@ -39,5 +39,10 @@
         "packages",
         "frameworks",
         "front-end"
-    ]
+    ],
+    "package-i18n": {
+        "it": {
+            "description": "Gestire le dipendenze front-end della vostra applicazione utilizzando Bower. È possibile installare e dipendenze riducendo l'utilizzo del file bower.json e configurare Bower attraverso .bowerrc. Inoltre, installare rapidamente pacchetti front-end premendo Ctrl/Cmd - Alt - B, quindi iniziare a digitare il nome di un pacchetto. Una volta che si vede il pacchetto che si desidera, premere Invio e il pacchetto verrà installato nella cartella del progetto. NOTA : Per installare alcuni pacchetti, è necessario avere Git installato."
+        }
+    }
 }
