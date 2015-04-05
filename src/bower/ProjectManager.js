@@ -276,14 +276,18 @@ define(function (require, exports) {
         // notify bower project is being loaded
         exports.trigger(PROJECT_LOADING);
 
+        // load bowerrc if any
         ConfigurationManager.loadBowerRc(_bowerProject);
 
-        PackageManager.loadProjectDependencies().always(function () {
+        // load bower.json if any
+        BowerJsonManager.loadBowerJson(_bowerProject).always(function () {
 
-            BowerJsonManager.loadBowerJson(_bowerProject).always(function () {
+            // start loading project dependencies
+            PackageManager.loadProjectDependencies().always(function () {
 
                 FileSystemHandler.startListenToFileSystem(_bowerProject);
 
+                // notify bower project is ready
                 exports.trigger(PROJECT_READY);
             });
         });

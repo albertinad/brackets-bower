@@ -75,7 +75,7 @@ define(function (require, exports, module) {
                 };
 
             try {
-                content = JSON.parse(content);
+                content = JSON.parse(result);
 
                 if (content.dependencies) {
                     deps.dependencies = content.dependencies;

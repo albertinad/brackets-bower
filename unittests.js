@@ -228,7 +228,7 @@ define(function (require, exports, module) {
 
                 var resultPromise = new testWindow.$.Deferred(),
                     options = {
-                        save: true,
+                        save: true
                     },
                     data;
 
@@ -319,7 +319,7 @@ define(function (require, exports, module) {
 
                 var resultPromise = new testWindow.$.Deferred(),
                     options = {
-                        save: true,
+                        save: true
                     },
                     data;
 
@@ -353,7 +353,7 @@ define(function (require, exports, module) {
                 var resultPromise = new testWindow.$.Deferred(),
                     pkgs = ["package1", "package2", "package3"],
                     options = {
-                        save: true,
+                        save: true
                     },
                     data;
 
@@ -388,7 +388,7 @@ define(function (require, exports, module) {
             it("should execute 'uninstall' to uninstall a package that doesn't exists and reject the promise", function () {
                 var resultPromise = new testWindow.$.Deferred(),
                     options = {
-                        save: true,
+                        save: true
                     },
                     data;
 

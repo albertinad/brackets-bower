@@ -40,6 +40,19 @@ define(function (require, exports) {
 
     EventDispatcher.makeEventDispatcher(exports);
 
+    function info(name) {
+        var deferred = new $.Deferred(),
+            config = ConfigurationManager.getConfiguration();
+
+        Bower.info(name, config).then(function (result) {
+            deferred.resolve(PackageFactory.createInfo(result));
+        }).fail(function (err) {
+            deferred.reject(err);
+        });
+
+        return deferred;
+    }
+
     /**
      * Install the given package and udpate the project model.
      * @param {string} name The package name to install.
@@ -73,18 +86,29 @@ define(function (require, exports) {
             options.saveDev = save;
         }
 
+        // install the given package
         Bower.installPackage(packageName, options, config).then(function (result) {
             // get only the direct dependency
-            var pkg = {},
-                packagesArray;
+            var rawPkg = {};
 
-            pkg[name] = result.packages[name];
+            rawPkg[name] = result.packages[name];
 
-            packagesArray = PackageFactory.create(pkg);
+            // create the package model
+            PackageFactory.create(rawPkg).then(function (packages) {
 
-            project.addPackages(packagesArray);
+                return info(name).then(function (packageInfo) {
+                    // update the package latestVersion
+                    packages[0].latestVersion = packageInfo.latestVersion;
+                }).always(function () {
+                    project.addPackages(packages);
 
-            deferred.resolve(result);
+                    deferred.resolve(result);
+                });
+
+            }).fail(function () {
+                deferred.reject();
+            });
+
         }).fail(function (error) {
             deferred.reject(error);
         });
@@ -112,11 +136,16 @@ define(function (require, exports) {
         project = ProjectManager.getProject();
 
         Bower.install(config).then(function (result) {
-            var packagesArray = PackageFactory.create(result.packages);
+            // create the package model
+            PackageFactory.create(result.packages).then(function (packagesArray) {
 
-            project.addPackages(packagesArray);
+                project.addPackages(packagesArray);
 
-            deferred.resolve(result);
+                deferred.resolve(result);
+            }).fail(function () {
+                deferred.reject();
+            });
+
         }).fail(function () {
             deferred.reject();
         });
@@ -176,8 +205,13 @@ define(function (require, exports) {
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject();
 
+        config.offline = true;
+
         Bower.list(config).then(function (result) {
-            var packagesArray = PackageFactory.create(result.dependencies);
+
+            // create the package model
+            return PackageFactory.create(result.dependencies);
+        }).then(function (packagesArray) {
 
             project.setPackages(packagesArray);
 
@@ -216,19 +250,6 @@ define(function (require, exports) {
         }).fail(function (error) {
 
             deferred.reject(error);
-        });
-
-        return deferred;
-    }
-
-    function info(name) {
-        var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration();
-
-        Bower.info(name, config).then(function (result) {
-            deferred.resolve(PackageFactory.createInfo(result));
-        }).fail(function (err) {
-            deferred.reject(err);
         });
 
         return deferred;

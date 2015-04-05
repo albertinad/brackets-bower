@@ -23,10 +23,12 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global define, $ */
 
 define(function (require, exports, module) {
     "use strict";
+
+    var BowerJsonManager = require("src/bower/BowerJsonManager");
 
     /**
      * Constructor function for Bower package instances.
@@ -66,6 +68,9 @@ define(function (require, exports, module) {
     });
 
     Object.defineProperty(Package.prototype, "latestVersion", {
+        set: function (latestVersion) {
+            this._latestVersion = latestVersion;
+        },
         get: function () {
             return this._latestVersion;
         }
@@ -104,27 +109,30 @@ define(function (require, exports, module) {
      * @param {object} data
      * @return {Package} pkg
      */
-    Package.fromRawData = function (name, data) {
+    Package.fromRawData = function (name, data, bowerJsonDeps) {
         var pkg = new Package(name),
             meta = data.pkgMeta;
 
         if (meta && meta.version !== undefined) {
-            pkg._version = meta.version;
+            pkg.version = meta.version;
         }
 
         if (data.update && data.update.latest) {
-            pkg._latestVersion = data.update.latest;
+            pkg.latestVersion = data.update.latest;
         }
 
         if (data.missing) {
-            pkg._isInstalled = false;
+            pkg.isInstalled = false;
         }
 
         if (data.extraneous) {
-            pkg._extraneous = true;
+            pkg.extraneous = true;
         }
 
-        // TODO check if it's a devDependency
+        if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
+                bowerJsonDeps.devDependencies[name]) {
+            pkg.isDevDependency = true;
+        }
 
         return pkg;
     };
@@ -232,20 +240,31 @@ define(function (require, exports, module) {
     /**
      * Create an object or an array of objets from the
      * raw data given as arguments.
-     * @param {object} pgksData
+     * @param {object} packages
      * @return {Array}
      */
-    function create(pkgsData) {
-        var pkgsName = Object.keys(pkgsData),
-            pkgs = [];
+    function create(packages) {
+        var deferred = new $.Deferred(),
+            pkgsName = Object.keys(packages),
+            pkgs = [],
+            deps = null;
 
-        pkgsName.forEach(function (name) {
-            var pkg = Package.fromRawData(name, pkgsData[name]);
+        // get all the dependencies defined in bower.json if any
+        BowerJsonManager.getDependencies().then(function (data) {
 
-            pkgs.push(pkg);
+            deps = data;
+        }).always(function () {
+
+            pkgsName.forEach(function (name) {
+                var pkg = Package.fromRawData(name, packages[name], deps);
+
+                pkgs.push(pkg);
+            });
+
+            deferred.resolve(pkgs);
         });
 
-        return pkgs;
+        return deferred;
     }
 
     /**

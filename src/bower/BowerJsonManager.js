@@ -176,6 +176,22 @@ define(function (require, exports) {
         return deferred;
     }
 
+    function getDependencies() {
+        var deferred = new $.Deferred();
+
+        if (_bowerJson) {
+            _bowerJson.getAllDependencies().then(function (data) {
+                deferred.resolve(data);
+            }).fail(function (err) {
+                deferred.reject(err);
+            });
+        } else {
+            deferred.reject();
+        }
+
+        return deferred;
+    }
+
     /**
      * Callback for when the bower.json is created manually through the file system.
      * @private
@@ -212,6 +228,7 @@ define(function (require, exports) {
     exports.removeBowerJson = removeBowerJson;
     exports.findBowerJson   = findBowerJson;
     exports.existsBowerJson = existsBowerJson;
+    exports.getDependencies = getDependencies;
     exports.open            = open;
     exports.Events          = Events;
 });
