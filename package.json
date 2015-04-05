@@ -42,6 +42,7 @@
     ],
     "package-i18n": {
         "it": {
-            "description": "Gestire le dipendenze front-end della vostra applicazione utilizzando Bower. È possibile installare e dipendenze riducendo l'utilizzo del file bower.json e configurare Bower attraverso .bowerrc. Inoltre, installare rapidamente pacchetti front-end premendo Ctrl/Cmd - Alt - B, quindi iniziare a digitare il nome di un pacchetto. Una volta che si vede il pacchetto che si desidera, premere Invio e il pacchetto verrà installato nella cartella del progetto. NOTA : Per installare alcuni pacchetti, è necessario avere Git installato.",    }
-}
+            "description": "Gestire le dipendenze front-end della vostra applicazione utilizzando Bower. È possibile installare e dipendenze riducendo l'utilizzo del file bower.json e configurare Bower attraverso .bowerrc. Inoltre, installare rapidamente pacchetti front-end premendo Ctrl/Cmd - Alt - B, quindi iniziare a digitare il nome di un pacchetto. Una volta che si vede il pacchetto che si desidera, premere Invio e il pacchetto verrà installato nella cartella del progetto. NOTA : Per installare alcuni pacchetti, è necessario avere Git installato."
+        }
+    }
 }
