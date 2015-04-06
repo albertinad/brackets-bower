@@ -45,7 +45,14 @@ define(function (require, exports) {
             config = ConfigurationManager.getConfiguration();
 
         Bower.info(name, config).then(function (result) {
-            deferred.resolve(PackageFactory.createInfo(result));
+            var packageInfo = PackageFactory.createInfo(result),
+                project = ProjectManager.getProject();
+
+            if (project) {
+                packageInfo.isInstalled = project.hasPackage(name);
+            }
+
+            deferred.resolve(packageInfo);
         }).fail(function (err) {
             deferred.reject(err);
         });

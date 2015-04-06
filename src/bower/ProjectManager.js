@@ -176,6 +176,16 @@ define(function (require, exports) {
     };
 
     /**
+     * Check if the given package is installed for the project.
+     * @return {boolean}
+     */
+    BowerProject.prototype.hasPackage = function (name) {
+        var pkg = this._packages[name];
+
+        return (pkg && pkg.isInstalled);
+    };
+
+    /**
      * Check if there is some uninstalled package. An uninstalled package
      * is the one that is defined in the bower.json but is not installed
      * in the libraries folder.

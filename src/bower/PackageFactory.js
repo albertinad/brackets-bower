@@ -28,7 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerJsonManager = require("src/bower/BowerJsonManager");
+    var _                = brackets.getModule("thirdparty/lodash"),
+        BowerJsonManager = require("src/bower/BowerJsonManager");
 
     /**
      * Constructor function for Bower package instances.
@@ -277,9 +278,9 @@ define(function (require, exports, module) {
             latestVersion = latest.version,
             pkg = new PackageInfo(infoData.name, latestVersion, infoData.versions);
 
-        if (latest.dependencies) {
-            pkg.dependencies = latest.dependencies;
-        }
+        _.forEach(latest.dependencies, function (version, name) {
+            pkg.dependencies.push({ name: name, version: version });
+        });
 
         if (latest.keywords) {
             pkg.keywords = latest.keywords;
