@@ -230,12 +230,15 @@ define(function (require, exports) {
         return deferred;
     }
 
-    function update(name) {
+    /**
+     * @param {string} name
+     * @param {version=} version
+     */
+    function update(name, version) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
             pkg = project.getPackageByName(name),
-            version,
             bowerJson;
 
         // force bower.json to exists before updating
@@ -245,7 +248,7 @@ define(function (require, exports) {
         }
 
         bowerJson = BowerJsonManager.getBowerJson();
-        version = pkg.latestVersion;
+        version = version || pkg.latestVersion;
 
         bowerJson.updatePackageVersion(name, version).then(function () {
             return Bower.update(name, config);
