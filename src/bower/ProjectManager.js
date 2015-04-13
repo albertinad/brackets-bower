@@ -38,17 +38,19 @@ define(function (require, exports) {
 
     var _bowerProject;
 
-    var namespace = ".albertinad.bracketsbower",
-        PROJECT_LOADING = "bowerProjectLoading",
-        PROJECT_READY = "bowerProjectReady",
-        DEPENDENCIES_ADDED = "bowerProjectDepsAdded",
-        DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved";
+    var namespace            = ".albertinad.bracketsbower",
+        PROJECT_LOADING      = "bowerProjectLoading",
+        PROJECT_READY        = "bowerProjectReady",
+        DEPENDENCIES_ADDED   = "bowerProjectDepsAdded",
+        DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved",
+        DEPENDENCY_UPDATED   = "bowerProjectDepUpdated";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
         PROJECT_READY: PROJECT_READY + namespace,
         DEPENDENCIES_ADDED: DEPENDENCIES_ADDED + namespace,
-        DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace
+        DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace,
+        DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace
     };
 
     EventDispatcher.makeEventDispatcher(exports);
@@ -165,6 +167,8 @@ define(function (require, exports) {
         var pkg = this.getPackageByName(name);
 
         pkg.version = version;
+
+        exports.trigger(DEPENDENCY_UPDATED, pkg);
     };
 
     /**
