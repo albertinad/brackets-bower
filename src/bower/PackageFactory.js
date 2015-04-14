@@ -23,7 +23,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, $ */
+/*global define, $, brackets */
 
 define(function (require, exports, module) {
     "use strict";
@@ -108,6 +108,7 @@ define(function (require, exports, module) {
      * Create package from raw data.
      * @param {string} name
      * @param {object} data
+     * @param {object=} bowerJsonDeps
      * @return {Package} pkg
      */
     Package.fromRawData = function (name, data, bowerJsonDeps) {
@@ -239,12 +240,11 @@ define(function (require, exports, module) {
     });
 
     /**
-     * Create an object or an array of objets from the
-     * raw data given as arguments.
+     * Create an array of Package instances from the raw data given as arguments.
      * @param {object} packages
      * @return {Array}
      */
-    function create(packages) {
+    function createPackages(packages) {
         var deferred = new $.Deferred(),
             pkgsName = Object.keys(packages),
             pkgs = [],
@@ -266,6 +266,21 @@ define(function (require, exports, module) {
         });
 
         return deferred;
+    }
+
+    /**
+     * Create an instance of Package from the raw data given as arguments.
+     * @param {string} packageName
+     * @param {object} rawData
+     * @param {boolean} isDev
+     * @return {Package}
+     */
+    function createPackage(packageName, rawData, isDev) {
+        var pkg = Package.fromRawData(packageName, rawData);
+
+        pkg.isDevDependency = isDev;
+
+        return pkg;
     }
 
     /**
@@ -297,8 +312,9 @@ define(function (require, exports, module) {
         return pkg;
     }
 
-    exports.create     = create;
-    exports.createInfo = createInfo;
+    exports.createPackages = createPackages;
+    exports.createPackage  = createPackage;
+    exports.createInfo     = createInfo;
 
     // tests
     exports._Package = Package;

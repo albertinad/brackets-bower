@@ -72,7 +72,8 @@ define(function (require, exports) {
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
             packageName = name,
-            options = {};
+            options = {},
+            isProduction;
 
         if (version && (version.trim() !== "")) {
             packageName += "#" + version;
@@ -87,33 +88,27 @@ define(function (require, exports) {
             save = false;
         }
 
-        if (type === PRODUCTION_DEPENDENCY) {
+        isProduction = (type === PRODUCTION_DEPENDENCY);
+
+        if (isProduction) {
             options.save = save;
-        } else if (type === DEVELOPMENT_DEPENDENCY) {
+        } else {
             options.saveDev = save;
         }
 
         // install the given package
         Bower.installPackage(packageName, options, config).then(function (result) {
             // get only the direct dependency
-            var rawPkg = {};
+            var data = result.packages[name],
+                pkg = PackageFactory.createPackage(name, data, !isProduction);
 
-            rawPkg[name] = result.packages[name];
+            info(name).then(function (packageInfo) {
+                // update the package latestVersion
+                pkg.latestVersion = packageInfo.latestVersion;
+            }).always(function () {
+                project.addPackages([pkg]);
 
-            // create the package model
-            PackageFactory.create(rawPkg).then(function (packages) {
-
-                return info(name).then(function (packageInfo) {
-                    // update the package latestVersion
-                    packages[0].latestVersion = packageInfo.latestVersion;
-                }).always(function () {
-                    project.addPackages(packages);
-
-                    deferred.resolve(result);
-                });
-
-            }).fail(function () {
-                deferred.reject();
+                deferred.resolve(result);
             });
 
         }).fail(function (error) {
@@ -143,8 +138,8 @@ define(function (require, exports) {
         project = ProjectManager.getProject();
 
         Bower.install(config).then(function (result) {
-            // create the package model
-            PackageFactory.create(result.packages).then(function (packagesArray) {
+            // create the package model for the packages list
+            PackageFactory.createPackages(result.packages).then(function (packagesArray) {
 
                 project.addPackages(packagesArray);
 
@@ -215,7 +210,7 @@ define(function (require, exports) {
         Bower.list(config).then(function (result) {
 
             // create the package model
-            return PackageFactory.create(result.dependencies);
+            return PackageFactory.createPackages(result.dependencies);
         }).then(function (packagesArray) {
 
             project.setPackages(packagesArray);
@@ -286,7 +281,7 @@ define(function (require, exports) {
 
         list().then(function (result) {
 
-            return PackageFactory.create(result.dependencies);
+            return PackageFactory.createPackages(result.dependencies);
         }).then(function (packagesArray) {
             var project = ProjectManager.getProject();
             project.setPackages(packagesArray);
