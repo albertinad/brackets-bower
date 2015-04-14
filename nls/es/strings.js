@@ -29,6 +29,7 @@ define({
     "TITLE_WARNING": "Advertencia de Bower",
     "TITLE_SHORTCUT": "Instalar desde Bower...",
     "TITLE_QUICK_OPEN": "Instalar desde Bower",
+    "TITLE_SET_CWD": "Establecer como Bower cwd",
     "TITLE_CONFIG": "Configuración",
     "TITLE_DEPENDENCIES": "Dependencias",
     "TITLE_SETTINGS": "Configuración de Bower",

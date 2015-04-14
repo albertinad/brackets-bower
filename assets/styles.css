@@ -9,8 +9,7 @@
 }
 
 .bower-panel-header .tools {
-    position: absolute;
-    right: 35px;
+    margin-right: 10px;
 }
 
 .bower-panel-header .tools > div {
@@ -19,6 +18,17 @@
 
 .bower-panel-header .tools #bower-commands {
     display: inline-block;
+}
+
+.bower-panel-header .bower-active-path {
+    margin: 0 auto;
+    padding: 0 5px;
+    text-align: center;
+}
+
+.bower-panel-header .bower-panel-header-wrapper {
+    display: flex;
+    width: calc(100% - 14px);
 }
 
 /* panel */

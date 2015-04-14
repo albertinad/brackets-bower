@@ -43,14 +43,16 @@ define(function (require, exports) {
         PROJECT_READY        = "bowerProjectReady",
         DEPENDENCIES_ADDED   = "bowerProjectDepsAdded",
         DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved",
-        DEPENDENCY_UPDATED   = "bowerProjectDepUpdated";
+        DEPENDENCY_UPDATED   = "bowerProjectDepUpdated",
+        ACTIVE_PATH_CHANGED  = "bowerActivePathChanged";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
         PROJECT_READY: PROJECT_READY + namespace,
         DEPENDENCIES_ADDED: DEPENDENCIES_ADDED + namespace,
         DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace,
-        DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace
+        DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace,
+        ACTIVE_PATH_CHANGED: ACTIVE_PATH_CHANGED + namespace
     };
 
     EventDispatcher.makeEventDispatcher(exports);
@@ -65,6 +67,8 @@ define(function (require, exports) {
         this._rootPath = rootPath;
         /** @private */
         this._activePath = null;
+        /** @private */
+        this._shortActivePath = null;
         /** @private */
         this._packages = {};
     }
@@ -84,9 +88,22 @@ define(function (require, exports) {
     Object.defineProperty(BowerProject.prototype, "activePath", {
         set: function (activePath) {
             this._activePath = activePath;
+
+            // calculate shortPath
+            if (this._activePath === this._rootPath) {
+                this._shortActivePath = "";
+            } else {
+                this._shortActivePath = this._activePath.slice(this._rootPath.length);
+            }
         },
         get: function () {
             return this._activePath;
+        }
+    });
+
+    Object.defineProperty(BowerProject.prototype, "shortActivePath", {
+        get: function () {
+            return this._shortActivePath;
         }
     });
 
@@ -262,21 +279,6 @@ define(function (require, exports) {
     }
 
     /**
-     * Update the BwerProject instance active path. Reload ConfigurationManager,
-     * BowerJsonManager and FileSystemHandler to be aware of this changes.
-     * @param {string} activePath Full path.
-     */
-    function setActivePath(activePath) {
-        if (_bowerProject !== null) {
-            _bowerProject.activePath = activePath;
-
-            ConfigurationManager.loadBowerRc(_bowerProject);
-            BowerJsonManager.loadBowerJson(_bowerProject);
-            FileSystemHandler.startListenToFileSystem(_bowerProject);
-        }
-    }
-
-    /**
      * Get the current project dependencies.
      * @return {Array}
      */
@@ -291,7 +293,7 @@ define(function (require, exports) {
      * loading the current project infomartation, notifies that the bower project
      * is ready.
      */
-    function _loadBowerProject() {
+    function _configureBowerProject() {
         // notify bower project is being loaded
         exports.trigger(PROJECT_LOADING);
 
@@ -317,13 +319,45 @@ define(function (require, exports) {
         });
     }
 
+    /**
+     * Update the BwerProject instance active path. Reload ConfigurationManager,
+     * BowerJsonManager and FileSystemHandler to be aware of this changes.
+     * @param {string} activePath Full path.
+     */
+    function updateCwdToSelection() {
+        if (_bowerProject === null) {
+            return;
+        }
+
+        var selectedItem = ProjectManager.getSelectedItem(),
+            activePath;
+
+        // get the cwd according to selection
+        if (selectedItem.isDirectory) {
+            activePath = selectedItem.fullPath;
+        } else {
+            activePath = selectedItem.parentPath;
+        }
+
+        // TODO exclude bower_components and node_modules folders
+
+        _bowerProject.activePath = activePath;
+
+        exports.trigger(ACTIVE_PATH_CHANGED, activePath, _bowerProject.shortActivePath);
+
+        _configureBowerProject();
+    }
+
     function _projectOpen() {
         // get the current/active project
         var project = ProjectManager.getProjectRoot();
 
         _bowerProject = (project) ? _createBowerProject(project) : null;
 
-        _loadBowerProject();
+        _configureBowerProject();
+
+        // by default on project open, the default active path is set to project root path
+        exports.trigger(ACTIVE_PATH_CHANGED, "", "");
     }
 
     function initialize() {
@@ -338,7 +372,7 @@ define(function (require, exports) {
 
     exports.initialize             = initialize;
     exports.getProject             = getProject;
-    exports.setActivePath          = setActivePath;
     exports.getProjectDependencies = getProjectDependencies;
+    exports.updateCwdToSelection   = updateCwdToSelection;
     exports.Events                 = Events;
 });

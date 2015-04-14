@@ -1,38 +1,41 @@
 <div id="brackets-bower-panel" class="bottom-panel vert-resizable top-resizer">
     <!-- header -->
     <div class="toolbar simple-toolbar-layout bower-panel-header">
-        <div class="title">{{ Strings.TITLE_BOWER }}</div>
+        <div class="bower-panel-header-wrapper">
+            <div class="title">{{ Strings.TITLE_BOWER }}</div>
 
-        <div id="brackets-bower-button-bar"></div>
-
-        <div class="panels">
-            <div class="btn-group">
-                <button data-bower-panel-key="dependencies" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn small bower-btn">
-                    <span class="octicon octicon-package"></span>
-                </button>
-
-                <button data-bower-panel-key="config" title="{{ Strings.TITLE_CONFIG }}" class="btn small  bower-btn">
-                    <span class="octicon octicon-settings"></span>
-                </button>
-            </div>
-        </div>
-
-        <div class="tools">
-            <div id="bower-commands">
-                <div class="btn-group bower-commands-group">
-                    <button data-bower-cmd-key="install" title="{{ Strings.COMMAND_INSTALL }}" class="btn small bower-btn">
-                        {{ Strings.COMMAND_INSTALL }}
+            <div class="panels">
+                <div class="btn-group">
+                    <button data-bower-panel-key="dependencies" title="{{ Strings.TITLE_DEPENDENCIES }}" class="btn small bower-btn">
+                        <span class="octicon octicon-package"></span>
                     </button>
 
-                    <button data-bower-cmd-key="prune" title="{{ Strings.COMMAND_PRUNE }}" class="btn small bower-btn">
-                        {{ Strings.COMMAND_PRUNE }}
+                    <button data-bower-panel-key="config" title="{{ Strings.TITLE_CONFIG }}" class="btn small  bower-btn">
+                        <span class="octicon octicon-settings"></span>
                     </button>
                 </div>
             </div>
 
-            <span data-bower-btn-id="settings" title="{{ Strings.TITLE_SETTINGS }}" class="octicon octicon-gear bower-btn"></span>
-        </div>
+            <div class="bower-active-path">
+                <label id="bower-active-path"></label>
+            </div>
 
+            <div class="tools">
+                <div id="bower-commands">
+                    <div class="btn-group bower-commands-group">
+                        <button data-bower-cmd-key="install" title="{{ Strings.COMMAND_INSTALL }}" class="btn small bower-btn">
+                            {{ Strings.COMMAND_INSTALL }}
+                        </button>
+
+                        <button data-bower-cmd-key="prune" title="{{ Strings.COMMAND_PRUNE }}" class="btn small bower-btn">
+                            {{ Strings.COMMAND_PRUNE }}
+                        </button>
+                    </div>
+                </div>
+
+                <span data-bower-btn-id="settings" title="{{ Strings.TITLE_SETTINGS }}" class="octicon octicon-gear bower-btn"></span>
+            </div>
+        </div>
         <a href="#" class="close">&times;</a>
     </div>
 

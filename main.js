@@ -51,6 +51,7 @@ define(function (require, exports, module) {
     var EXTENSION_NAME         = "albertinad.bracketsbower",
         CMD_QUICK_INSTALL      = EXTENSION_NAME + ".installFromBower",
         CMD_PANEL              = EXTENSION_NAME + ".togglePanel",
+        CMD_SET_BOWER_CWD      = EXTENSION_NAME + ".setAsCwd",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     var panelController;
@@ -85,6 +86,10 @@ define(function (require, exports, module) {
         panelController.initialize(EXTENSION_NAME, controllersMap);
     }
 
+    function _setAsBowerCwd() {
+        ProjectManager.updateCwdToSelection();
+    }
+
     function init() {
         var path        = ExtensionUtils.getModulePath(module, "/node/BowerDomain"),
             bowerDomain = new NodeDomain("bower", path);
@@ -113,6 +118,8 @@ define(function (require, exports, module) {
         });
 
         AppInit.appReady(function () {
+            var projectMenu;
+
             GitChecker.findGitOnSystem().fail(function () {
                 panelController.updateStatus(PanelController.WARNING);
 
@@ -120,6 +127,14 @@ define(function (require, exports, module) {
             });
 
             ProjectManager.initialize();
+
+            // setup command for project tree files
+            projectMenu = Menus.getContextMenu(Menus.ContextMenuIds.PROJECT_MENU);
+
+            CommandManager.register("Set as Bower cwd", CMD_SET_BOWER_CWD, _setAsBowerCwd);
+
+            projectMenu.addMenuDivider();
+            projectMenu.addMenuItem(CMD_SET_BOWER_CWD);
 
             panelController.showIfNeeded();
         });

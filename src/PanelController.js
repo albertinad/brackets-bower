@@ -64,7 +64,8 @@ define(function (require, exports, module) {
      * @param {string} extensionName Name of the extension.
      */
     PanelController.prototype.initialize = function (extensionName, controllers) {
-        var Events = ProjectManager.Events;
+        var that = this,
+            Events = ProjectManager.Events;
 
         this._view = new PanelView(this);
 
@@ -91,6 +92,10 @@ define(function (require, exports, module) {
 
         ProjectManager.on(Events.PROJECT_LOADING, this._disable.bind(this));
         ProjectManager.on(Events.PROJECT_READY, this._enable.bind(this));
+
+        ProjectManager.on(Events.ACTIVE_PATH_CHANGED, function (event, fullPath, shortPath) {
+            that._view.onActivePathChanged(shortPath);
+        });
     };
 
     PanelController.prototype.showIfNeeded = function () {
