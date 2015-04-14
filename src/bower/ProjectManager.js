@@ -55,6 +55,9 @@ define(function (require, exports) {
         ACTIVE_PATH_CHANGED: ACTIVE_PATH_CHANGED + namespace
     };
 
+    var REGEX_NODE_MODULES = /node_modules/,
+        REGEX_BOWER_COMPONENTS = /bower_components/;
+
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
@@ -339,7 +342,12 @@ define(function (require, exports) {
             activePath = selectedItem.parentPath;
         }
 
-        // TODO exclude bower_components and node_modules folders
+        // exclude bower_components and node_modules folders
+        if (activePath.match(REGEX_NODE_MODULES) ||
+            activePath.match(REGEX_BOWER_COMPONENTS)) {
+            // do not set it as active path
+            return;
+        }
 
         _bowerProject.activePath = activePath;
 
