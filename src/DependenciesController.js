@@ -63,10 +63,10 @@ define(function (require, exports, module) {
             }
         });
 
-        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_REMOVED, function (event, names) {
+        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_REMOVED, function (event, pkgs) {
             if (that._isPanelActive()) {
-                names.forEach(function (pkgName) {
-                    that._view.onDependecyRemoved(pkgName);
+                pkgs.forEach(function (pkg) {
+                    that._view.onDependecyRemoved(pkg.name);
                 });
             }
         });

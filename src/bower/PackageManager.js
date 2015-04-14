@@ -195,11 +195,9 @@ define(function (require, exports) {
             };
 
         Bower.uninstall(name, options, config).then(function (uninstalled) {
-            var pkgNames = Object.keys(uninstalled);
+            var pkg = project.removePackages(Object.keys(uninstalled));
 
-            project.removePackages(pkgNames);
-
-            deferred.resolve(pkgNames);
+            deferred.resolve(pkg);
         }).fail(function (err) {
             deferred.reject(err);
         });
@@ -283,6 +281,24 @@ define(function (require, exports) {
         return Bower.list(config);
     }
 
+    function checkForUpdates() {
+        var deferred = new $.Deferred();
+
+        list().then(function (result) {
+
+            return PackageFactory.create(result.dependencies);
+        }).then(function (packagesArray) {
+            var project = ProjectManager.getProject();
+            project.setPackages(packagesArray);
+
+            deferred.resolve(packagesArray);
+        }).fail(function (err) {
+            deferred.reject(err);
+        });
+
+        return deferred;
+    }
+
     exports.install                 = install;
     exports.uninstall               = uninstall;
     exports.installFromBowerJson    = installFromBowerJson;
@@ -293,6 +309,7 @@ define(function (require, exports) {
     exports.listCache               = listCache;
     exports.list                    = list;
     exports.loadProjectDependencies = loadProjectDependencies;
+    exports.checkForUpdates         = checkForUpdates;
     exports.PRODUCTION_DEPENDENCY   = PRODUCTION_DEPENDENCY;
     exports.DEVELOPMENT_DEPENDENCY  = DEVELOPMENT_DEPENDENCY;
 });

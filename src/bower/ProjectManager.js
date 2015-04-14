@@ -123,15 +123,20 @@ define(function (require, exports) {
      * @param {Array} names
      */
     BowerProject.prototype.removePackages = function (names) {
-        var that = this;
+        var that = this,
+            removedPkgs = [];
 
         names.forEach(function (name) {
-            if (that._packages[name]) {
+            var pkg = that._packages[name];
+
+            if (pkg) {
+                removedPkgs.push(pkg);
+
                 delete that._packages[name];
             }
         });
 
-        exports.trigger(DEPENDENCIES_REMOVED, names);
+        exports.trigger(DEPENDENCIES_REMOVED, removedPkgs);
     };
 
     /**
@@ -303,6 +308,11 @@ define(function (require, exports) {
 
                 // notify bower project is ready
                 exports.trigger(PROJECT_READY);
+
+                // try to get check for dependencies updates
+                PackageManager.checkForUpdates().fail(function () {
+                    // TODO: handle situations when it fails not because network errors
+                });
             });
         });
     }
