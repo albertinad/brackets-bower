@@ -31,6 +31,7 @@ define(function (require, exports) {
     var _                    = brackets.getModule("thirdparty/lodash"),
         ProjectManager       = brackets.getModule("project/ProjectManager"),
         EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
+        DocumentManager      = brackets.getModule("document/DocumentManager"),
         PackageManager       = require("src/bower/PackageManager"),
         FileSystemHandler    = require("src/bower/FileSystemHandler"),
         BowerJsonManager     = require("src/bower/BowerJsonManager"),
@@ -55,7 +56,7 @@ define(function (require, exports) {
         ACTIVE_PATH_CHANGED: ACTIVE_PATH_CHANGED + namespace
     };
 
-    var REGEX_NODE_MODULES = /node_modules/,
+    var REGEX_NODE_MODULES     = /node_modules/,
         REGEX_BOWER_COMPONENTS = /bower_components/;
 
     EventDispatcher.makeEventDispatcher(exports);
@@ -323,8 +324,27 @@ define(function (require, exports) {
     }
 
     /**
-     * Update the BwerProject instance active path. Reload ConfigurationManager,
-     * BowerJsonManager and FileSystemHandler to be aware of this changes.
+     * Set the current active path to the BowerProject instance. Exclude node_modules
+     * and bower_components folders.
+     * @param {string} path The active path to set.
+     */
+    function _setActivePath(path) {
+        // exclude bower_components and node_modules folders
+        if (path.match(REGEX_NODE_MODULES) || path.match(REGEX_BOWER_COMPONENTS)) {
+            // do not set it as active path
+            return;
+        }
+
+        _bowerProject.activePath = path;
+
+        exports.trigger(ACTIVE_PATH_CHANGED, path, _bowerProject.shortActivePath);
+
+        _configureBowerProject();
+    }
+
+    /**
+     * Update the BowerProject instance active path when it is selected from the Project Tree.
+     * Reload ConfigurationManager, BowerJsonManager and FileSystemHandler to be aware of this changes.
      * @param {string} activePath Full path.
      */
     function updateCwdToSelection() {
@@ -342,20 +362,13 @@ define(function (require, exports) {
             activePath = selectedItem.parentPath;
         }
 
-        // exclude bower_components and node_modules folders
-        if (activePath.match(REGEX_NODE_MODULES) ||
-            activePath.match(REGEX_BOWER_COMPONENTS)) {
-            // do not set it as active path
-            return;
-        }
-
-        _bowerProject.activePath = activePath;
-
-        exports.trigger(ACTIVE_PATH_CHANGED, activePath, _bowerProject.shortActivePath);
-
-        _configureBowerProject();
+        _setActivePath(activePath);
     }
 
+    /**
+     * Callback for when the project is opened. Gets the current project and starts
+     * applying the configuration for Bower.
+     */
     function _projectOpen() {
         // get the current/active project
         var project = ProjectManager.getProjectRoot();
@@ -368,6 +381,10 @@ define(function (require, exports) {
         exports.trigger(ACTIVE_PATH_CHANGED, "", "");
     }
 
+    /**
+     * Initialization function. It must be called only once. It configures the current project
+     * if any and setup the event listeners for ProjectManager and DocumentManager events.
+     */
     function initialize() {
         _projectOpen();
 
@@ -375,6 +392,13 @@ define(function (require, exports) {
 
         ProjectManager.on("projectClose", function () {
             FileSystemHandler.stopListenToFileSystem();
+        });
+
+        DocumentManager.on("fileNameChange", function (event, oldName, newName) {
+            if (_bowerProject && _bowerProject.activePath === oldName) {
+                // the active folder was renamed, update it
+                _setActivePath(newName);
+            }
         });
     }
 
