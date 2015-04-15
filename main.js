@@ -86,8 +86,8 @@ define(function (require, exports, module) {
         panelController.initialize(EXTENSION_NAME, controllersMap);
     }
 
-    function _setAsBowerCwd() {
-        ProjectManager.updateCwdToSelection();
+    function _updateBowerCwd() {
+        ProjectManager.updateActiveDirToSelection();
     }
 
     function init() {
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
             // setup command for project tree files
             projectMenu = Menus.getContextMenu(Menus.ContextMenuIds.PROJECT_MENU);
 
-            CommandManager.register("Set as Bower cwd", CMD_SET_BOWER_CWD, _setAsBowerCwd);
+            CommandManager.register(Strings.TITLE_SET_CWD, CMD_SET_BOWER_CWD, _updateBowerCwd);
 
             projectMenu.addMenuDivider();
             projectMenu.addMenuItem(CMD_SET_BOWER_CWD);

@@ -45,7 +45,7 @@ define(function (require, exports) {
         DEPENDENCIES_ADDED   = "bowerProjectDepsAdded",
         DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved",
         DEPENDENCY_UPDATED   = "bowerProjectDepUpdated",
-        ACTIVE_PATH_CHANGED  = "bowerActivePathChanged";
+        ACTIVE_DIR_CHANGED   = "bowerActiveDirChanged";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
@@ -53,7 +53,7 @@ define(function (require, exports) {
         DEPENDENCIES_ADDED: DEPENDENCIES_ADDED + namespace,
         DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace,
         DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace,
-        ACTIVE_PATH_CHANGED: ACTIVE_PATH_CHANGED + namespace
+        ACTIVE_DIR_CHANGED: ACTIVE_DIR_CHANGED + namespace
     };
 
     var REGEX_NODE_MODULES     = /node_modules/,
@@ -70,9 +70,9 @@ define(function (require, exports) {
         /** @private */
         this._rootPath = rootPath;
         /** @private */
-        this._activePath = null;
+        this._activeDir = null;
         /** @private */
-        this._shortActivePath = null;
+        this._shortActiveDir = null;
         /** @private */
         this._packages = {};
     }
@@ -89,30 +89,30 @@ define(function (require, exports) {
         }
     });
 
-    Object.defineProperty(BowerProject.prototype, "activePath", {
-        set: function (activePath) {
-            this._activePath = activePath;
+    Object.defineProperty(BowerProject.prototype, "activeDir", {
+        set: function (activeDir) {
+            this._activeDir = activeDir;
 
             // calculate shortPath
-            if (this._activePath === this._rootPath) {
-                this._shortActivePath = "";
+            if (this._activeDir === this._rootPath) {
+                this._shortActiveDir = "";
             } else {
-                this._shortActivePath = this._activePath.slice(this._rootPath.length);
+                this._shortActiveDir = this._activeDir.slice(this._rootPath.length);
             }
         },
         get: function () {
-            return this._activePath;
+            return this._activeDir;
         }
     });
 
-    Object.defineProperty(BowerProject.prototype, "shortActivePath", {
+    Object.defineProperty(BowerProject.prototype, "shortActiveDir", {
         get: function () {
-            return this._shortActivePath;
+            return this._shortActiveDir;
         }
     });
 
     BowerProject.prototype.getPath = function () {
-        return (this._activePath || this._rootPath);
+        return (this._activeDir || this._rootPath);
     };
 
     /**
@@ -328,16 +328,16 @@ define(function (require, exports) {
      * and bower_components folders.
      * @param {string} path The active path to set.
      */
-    function _setActivePath(path) {
+    function _setActiveDir(path) {
         // exclude bower_components and node_modules folders
         if (path.match(REGEX_NODE_MODULES) || path.match(REGEX_BOWER_COMPONENTS)) {
             // do not set it as active path
             return;
         }
 
-        _bowerProject.activePath = path;
+        _bowerProject.activeDir = path;
 
-        exports.trigger(ACTIVE_PATH_CHANGED, path, _bowerProject.shortActivePath);
+        exports.trigger(ACTIVE_DIR_CHANGED, path, _bowerProject.shortActiveDir);
 
         _configureBowerProject();
     }
@@ -345,24 +345,24 @@ define(function (require, exports) {
     /**
      * Update the BowerProject instance active path when it is selected from the Project Tree.
      * Reload ConfigurationManager, BowerJsonManager and FileSystemHandler to be aware of this changes.
-     * @param {string} activePath Full path.
+     * @param {string} activeDir Full path.
      */
-    function updateCwdToSelection() {
+    function updateActiveDirToSelection() {
         if (_bowerProject === null) {
             return;
         }
 
         var selectedItem = ProjectManager.getSelectedItem(),
-            activePath;
+            activeDir;
 
         // get the cwd according to selection
         if (selectedItem.isDirectory) {
-            activePath = selectedItem.fullPath;
+            activeDir = selectedItem.fullPath;
         } else {
-            activePath = selectedItem.parentPath;
+            activeDir = selectedItem.parentPath;
         }
 
-        _setActivePath(activePath);
+        _setActiveDir(activeDir);
     }
 
     /**
@@ -378,7 +378,7 @@ define(function (require, exports) {
         _configureBowerProject();
 
         // by default on project open, the default active path is set to project root path
-        exports.trigger(ACTIVE_PATH_CHANGED, "", "");
+        exports.trigger(ACTIVE_DIR_CHANGED, "", "");
     }
 
     /**
@@ -395,16 +395,22 @@ define(function (require, exports) {
         });
 
         DocumentManager.on("fileNameChange", function (event, oldName, newName) {
-            if (_bowerProject && _bowerProject.activePath === oldName) {
+            if (_bowerProject && _bowerProject.activeDir === oldName) {
                 // the active folder was renamed, update it
-                _setActivePath(newName);
+                _setActiveDir(newName);
+            }
+        });
+
+        DocumentManager.on("pathDeleted", function (event, fullPath) {
+            if (_bowerProject && _bowerProject.activeDir === fullPath) {
+                _setActiveDir(_bowerProject.rootPath);
             }
         });
     }
 
-    exports.initialize             = initialize;
-    exports.getProject             = getProject;
-    exports.getProjectDependencies = getProjectDependencies;
-    exports.updateCwdToSelection   = updateCwdToSelection;
-    exports.Events                 = Events;
+    exports.initialize                 = initialize;
+    exports.getProject                 = getProject;
+    exports.getProjectDependencies     = getProjectDependencies;
+    exports.updateActiveDirToSelection = updateActiveDirToSelection;
+    exports.Events                     = Events;
 });

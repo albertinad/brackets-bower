@@ -60,7 +60,7 @@ define(function (require, exports, module) {
         /** @private */
         this._$loading = null;
         /** @private */
-        this._$activePathLabel = null;
+        this._$activeDirLabel = null;
 
         /** @private */
         this._currentStatusClass = "default";
@@ -82,7 +82,7 @@ define(function (require, exports, module) {
         this._$loading = $("#brackets-bower-panel-loading");
         this._$header = this._$panel.find(".bower-panel-header");
         this._$commands = this._$header.find(".bower-commands-group");
-        this._$activePathLabel = $("#bower-active-path");
+        this._$activeDirLabel = $("#bower-active-path");
         this._$bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
 
         this._$bowerIcon.appendTo("#main-toolbar .buttons");
@@ -178,10 +178,10 @@ define(function (require, exports, module) {
     };
 
     /**
-     * @param {string} activePath
+     * @param {string} shortPath
      */
-    PanelView.prototype.onActivePathChanged = function (shortPath) {
-        this._$activePathLabel.text(shortPath);
+    PanelView.prototype.onActiveDirChanged = function (shortPath) {
+        this._$activeDirLabel.text(shortPath);
     };
 
     /**

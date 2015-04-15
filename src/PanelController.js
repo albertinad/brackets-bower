@@ -93,8 +93,8 @@ define(function (require, exports, module) {
         ProjectManager.on(Events.PROJECT_LOADING, this._disable.bind(this));
         ProjectManager.on(Events.PROJECT_READY, this._enable.bind(this));
 
-        ProjectManager.on(Events.ACTIVE_PATH_CHANGED, function (event, fullPath, shortPath) {
-            that._view.onActivePathChanged(shortPath);
+        ProjectManager.on(Events.ACTIVE_DIR_CHANGED, function (event, fullPath, shortPath) {
+            that._view.onActiveDirChanged(shortPath);
         });
     };
 

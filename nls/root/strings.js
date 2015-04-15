@@ -29,7 +29,7 @@ define({
     "TITLE_WARNING": "Bower Warning",
     "TITLE_SHORTCUT": "Install from Bower...",
     "TITLE_QUICK_OPEN": "Install from Bower",
-    "TITLE_SET_CWD": "Set as Bower cwd",
+    "TITLE_SET_CWD": "Set as Bower active directory",
     "TITLE_CONFIG": "Configuration",
     "TITLE_DEPENDENCIES": "Dependencies",
     "TITLE_SETTINGS": "Bower Settings",
