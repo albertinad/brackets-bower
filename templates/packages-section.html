@@ -12,36 +12,36 @@
 <!-- packages loaded -->
 {{^loading}} {{#existsDependencies}}
 <table class="bottom-panel-table table table-striped table-condensed">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Latest Version</th>
-            <th>Extraneous</th>
-            <th>Installed</th>
-            <th>Development</th>
-        </tr>
-    </thead>
     <tbody>
         {{#dependencies}}
         <tr data-bower-dependency="{{ name }}">
             <td>
                 <div class="bower-row-item">{{ name }}</div>
-            </td>
-            <td>
+
                 <div class="bower-row-item">{{ version }}</div>
-            </td>
-            <td>
+
                 <div class="bower-row-item {{ #hasUpdates }}bower-update{{ /hasUpdates }}">{{ latestVersion }}</div>
-            </td>
-            <td>
-                <div class="bower-row-item">{{ extraneous }}</div>
-            </td>
-            <td>
-                <div class="bower-row-item">{{ isInstalled }}</div>
-            </td>
-            <td>
-                <div class="bower-row-item">{{ isDevDependency }}</div>
+
+                {{ #extraneous }}
+                <div class="bower-row-item">
+                    <div class="bower-pkg-warning">Extraneous</div>
+                </div>
+                {{ /extraneous }}
+
+                {{ ^isInstalled }}
+                <div class="bower-row-item">
+                    <div class="bower-pkg-warning">Missing</div>
+                </div>
+                {{ /isInstalled }}
+
+                <div class="bower-row-item">
+                    {{ #isDevDependency }}
+                    <div class="bower-pkg-dev">Prod</div>
+                    {{ /isDevDependency }}
+                    {{ ^isDevDependency }}
+                    <div class="bower-pkg-prod">Dev</div>
+                    {{ /isDevDependency }}
+                </div>
             </td>
             <td>
                 <div class="controls bower-row-item">
