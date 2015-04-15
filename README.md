@@ -50,9 +50,6 @@ configuration to automatically save the installed package to the existing bower.
 The bower.json file is always created with default data or with current dependencies if any. This also works when you create the
 file outside the extension using the file system.
 
-* Known issue: when creating the file without using the Bower Panel, you need to close the recently created file in the working set and
-re-open it to see the default file content. This issue will be fixed for the next version.
-
 ### .bowerrc
 
 The extension automatically detects if the .bowerrc file exists in the root project.
