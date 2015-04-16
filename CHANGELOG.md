@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.6
+* Change Bower active directory using the Project Tree contextual menu:
+    - Set the selected directory or file directory as the active path for Bower
+    - Reloads the dependencies found in the selected directory
+* UI improvements on listing project packages information.
+* Supporting offline mode of bower list when loading project dependencies.
+* i18n: italian translations by [Denisov21](https://github.com/Denisov21)
+* Updating bower to latest stable version.
+
 ## v0.2.5
 * Bug fixing:
     - Better handling of BowerJson instance when updating packages from dependencies/devDependencies.

@@ -170,10 +170,16 @@
 
 .bower-row-item .bower-pkg-warning,
 .bower-row-item .bower-pkg-dev,
-.bower-row-item .bower-pkg-prod {
+.bower-row-item .bower-pkg-prod,
+.bower-row-item .bower-pkg-latest-version {
     border-radius: 5px;
-    padding: 1px 10px;
-    text-transform: uppercase;
+    padding: 0 10px;
+    text-transform: lowercase;
+}
+
+.bower-row-item .bower-pkg-latest-version {
+    background-color: #3b9b3b;
+    color: #ffffff;
 }
 
 .bower-row-item .bower-pkg-warning {
@@ -182,13 +188,22 @@
 }
 
 .bower-row-item .bower-pkg-dev {
-    background-color: #e6af46;
+    background-color: #d9a45a;
     color: #ffffff;
 }
 
 .bower-row-item .bower-pkg-prod {
-    background-color: #3b9b3b;
+    background-color: #55b589;
     color: #ffffff;
+}
+
+.bower-row-item.bower-pkg-name {
+    padding-right: 15px;
+}
+
+.bower-row-item.bower-pkg-name .bower-text-m {
+    display: inline-block;
+    padding-right: 5px;
 }
 
 /* configuration files: .bowerrc and bower.json */
