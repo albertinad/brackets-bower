@@ -56,13 +56,13 @@ module.exports = function (grunt) {
                     "nls/**",
                     "node/**",
                     "src/**",
-                    "tests/**",
                     "templates/**",
                     "LICENSE",
                     "*.js",
                     "*.json",
                     "*.css",
-                    "*.md"
+                    "*.md",
+                    "!unittests.js"
                 ],
                 dest: "<%= pkg.name %>-<%= pkg.version %>.zip",
                 compression: "DEFLATE"
