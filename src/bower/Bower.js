@@ -28,6 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
+    var BowerErrors = require("src/bower/BowerErrors");
+
     var bowerDomain;
 
     /**
@@ -56,7 +58,7 @@ define(function (require, exports) {
 
                 deferred.resolve(result);
             }).fail(function (error) {
-                deferred.reject(error);
+                deferred.reject(BowerErrors.getError(error));
             });
 
         return deferred.promise();
@@ -76,7 +78,7 @@ define(function (require, exports) {
 
             deferred.resolve(result);
         }).fail(function (error) {
-            deferred.reject(error);
+            deferred.reject(BowerErrors.getError(error));
         });
 
         return deferred.promise();
@@ -86,14 +88,30 @@ define(function (require, exports) {
      * @param {object} config
      */
     function prune(config) {
-        return bowerDomain.exec("prune", config);
+        var deferred = new $.Deferred();
+
+        bowerDomain.exec("prune", config).then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
     }
 
     /**
      * @param {object} config
      */
     function list(config) {
-        return bowerDomain.exec("list", config);
+        var deferred = new $.Deferred();
+
+        bowerDomain.exec("list", config).then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -102,14 +120,21 @@ define(function (require, exports) {
      * @param {object} config
      */
     function uninstall(names, options, config) {
+        var deferred = new $.Deferred();
+
         options = options || {};
 
         if (!Array.isArray(names)) {
             names = [names];
         }
 
-        // TODO save should be stored in Preferences
-        return bowerDomain.exec("uninstall", names, options, config);
+        bowerDomain.exec("uninstall", names, options, config).then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -117,11 +142,19 @@ define(function (require, exports) {
      * @param {object} config
      */
     function update(names, config) {
+        var deferred = new $.Deferred();
+
         if (!Array.isArray(names)) {
             names = [names];
         }
 
-        return bowerDomain.exec("update", names, config);
+        bowerDomain.exec("update", names, config).then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -129,14 +162,30 @@ define(function (require, exports) {
      * @param {object} config
      */
     function info(name, config) {
-        return bowerDomain.exec("info", name, config);
+        var deferred = new $.Deferred();
+
+        bowerDomain.exec("info", name, config).then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
     }
 
     /**
      * @param {object} config
      */
     function search(config) {
-        return bowerDomain.exec("search", config);
+        var deferred = new $.Deferred();
+
+        bowerDomain.exec("search", config).then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -144,21 +193,23 @@ define(function (require, exports) {
      * @param {object} config
      */
     function listCache(config) {
-        var promise = bowerDomain.exec("listCache", config);
+        var deferred = new $.Deferred();
 
-        // the packages returned from "bower cache list" doesn't have
-        // the "name" property, so we added it
-        promise.then(function (pkgs) {
+        bowerDomain.exec("listCache", config).then(function (pkgs) {
+            // the packages returned from "bower cache list" doesn't have
+            // the "name" property, so we added it
             pkgs.forEach(function (item) {
                 var name = item.pkgMeta.name;
 
                 item.name = name;
             });
 
-            return pkgs;
+            deferred.resolve(pkgs);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
         });
 
-        return promise;
+        return deferred.promise();
     }
 
     /**

@@ -29,7 +29,7 @@ maxerr: 50, node: true */
 
     var DOMAIN_NAME = "bower-test";
 
-    var errorMessage = "BowerDomainMock error message";
+    var bowerError;
 
     var defaultCommandExecution = {
         resultType: "success",
@@ -65,7 +65,7 @@ maxerr: 50, node: true */
         if (resultType === "success") {
             cb(null, result);
         } else {
-            cb(errorMessage, null);
+            cb(bowerError, null);
         }
     }
 
@@ -115,7 +115,7 @@ maxerr: 50, node: true */
 
             cb(null, result);
         } else {
-            cb(errorMessage, null);
+            cb(bowerError, null);
         }
     }
 
@@ -141,7 +141,7 @@ maxerr: 50, node: true */
 
             cb(null, result);
         } else {
-            cb(errorMessage, null);
+            cb(bowerError, null);
         }
     }
 
@@ -165,7 +165,7 @@ maxerr: 50, node: true */
         if (resultType === "success" && bowerJsonExists) {
             cb(null, result);
         } else {
-            cb(errorMessage, null);
+            cb(bowerError, null);
         }
     }
 
@@ -187,7 +187,7 @@ maxerr: 50, node: true */
         if (resultType === "success") {
             cb(null, result);
         } else {
-            cb(errorMessage, null);
+            cb(bowerError, null);
         }
     }
 
@@ -209,7 +209,7 @@ maxerr: 50, node: true */
         if (resultType === "success" && name) {
             cb(null, result);
         } else {
-            cb(errorMessage, null);
+            cb(bowerError, null);
         }
     }
 
@@ -233,6 +233,9 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(DOMAIN_NAME, "setTestData", _setTestData, false);
         domainManager.registerCommand(DOMAIN_NAME, "resetTestData", _resetTestData, false);
+
+        bowerError = new Error("BowerDomainMock error message");
+        bowerError.code = "BOWER_DOMAIN_MOCK_ERROR";
     }
 
     exports.init = init;

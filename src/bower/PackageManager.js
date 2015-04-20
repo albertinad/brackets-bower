@@ -33,7 +33,9 @@ define(function (require, exports) {
         ProjectManager       = require("src/bower/ProjectManager"),
         PackageFactory       = require("src/bower/PackageFactory"),
         ConfigurationManager = require("src/bower/ConfigurationManager"),
-        BowerJsonManager     = require("src/bower/BowerJsonManager");
+        BowerJsonManager     = require("src/bower/BowerJsonManager"),
+        Errors               = require("src/utils/Errors"),
+        createError          = require("src/utils/CreateError");
 
     var PRODUCTION_DEPENDENCY = 0,
         DEVELOPMENT_DEPENDENCY = 1;
@@ -53,8 +55,8 @@ define(function (require, exports) {
             }
 
             deferred.resolve(packageInfo);
-        }).fail(function (err) {
-            deferred.reject(err);
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred;
@@ -131,7 +133,7 @@ define(function (require, exports) {
             project;
 
         if (!existsBowerJson) {
-            return deferred.reject();
+            return deferred.reject(createError(Errors.NO_BOWER_JSON));
         }
 
         config = ConfigurationManager.getConfiguration();
@@ -144,12 +146,12 @@ define(function (require, exports) {
                 project.addPackages(packagesArray);
 
                 deferred.resolve(result);
-            }).fail(function () {
-                deferred.reject();
+            }).fail(function (error) {
+                deferred.reject(error);
             });
 
-        }).fail(function () {
-            deferred.reject();
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred;
@@ -162,7 +164,7 @@ define(function (require, exports) {
             config;
 
         if (!existsBowerJson) {
-            return deferred.reject();
+            return deferred.reject(createError(Errors.NO_BOWER_JSON));
         }
 
         config = ConfigurationManager.getConfiguration();
@@ -173,8 +175,8 @@ define(function (require, exports) {
             project.removePackages(pkgNames);
 
             deferred.resolve(pkgNames);
-        }).fail(function () {
-            deferred.reject();
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred;
@@ -193,8 +195,8 @@ define(function (require, exports) {
             var pkg = project.removePackages(Object.keys(uninstalled));
 
             deferred.resolve(pkg);
-        }).fail(function (err) {
-            deferred.reject(err);
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred;
@@ -216,8 +218,8 @@ define(function (require, exports) {
             project.setPackages(packagesArray);
 
             deferred.resolve(packagesArray);
-        }).fail(function (err) {
-            deferred.reject(err);
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred;
@@ -235,9 +237,13 @@ define(function (require, exports) {
             bowerJson;
 
         // force bower.json to exists before updating
+        if (!BowerJsonManager.existsBowerJson()) {
+            return deferred.reject(createError(Errors.NO_BOWER_JSON));
+        }
+
         // check if the selected package exists
-        if (!BowerJsonManager.existsBowerJson() || !pkg) {
-            return deferred.reject();
+        if (!pkg) {
+            return deferred.reject(createError(Errors.PKG_NOT_INSTALLED));
         }
 
         bowerJson = BowerJsonManager.getBowerJson();
@@ -287,8 +293,8 @@ define(function (require, exports) {
             project.setPackages(packagesArray);
 
             deferred.resolve(packagesArray);
-        }).fail(function (err) {
-            deferred.reject(err);
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred;

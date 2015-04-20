@@ -4,7 +4,6 @@
     "version": "0.2.5",
     "dependencies": {
         "bower": "~1.4.1",
-        "bower-config": "~0.6.1",
-        "log4js": "0.6.22"
+        "bower-config": "~0.6.1"
     }
 }
