@@ -34,8 +34,7 @@ define(function (require, exports) {
         PackageFactory       = require("src/bower/PackageFactory"),
         ConfigurationManager = require("src/bower/ConfigurationManager"),
         BowerJsonManager     = require("src/bower/BowerJsonManager"),
-        Errors               = require("src/utils/Errors"),
-        createError          = require("src/utils/CreateError");
+        ErrorUtils           = require("src/utils/ErrorUtils");
 
     var PRODUCTION_DEPENDENCY = 0,
         DEVELOPMENT_DEPENDENCY = 1;
@@ -133,7 +132,7 @@ define(function (require, exports) {
             project;
 
         if (!existsBowerJson) {
-            return deferred.reject(createError(Errors.NO_BOWER_JSON));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
         config = ConfigurationManager.getConfiguration();
@@ -164,7 +163,7 @@ define(function (require, exports) {
             config;
 
         if (!existsBowerJson) {
-            return deferred.reject(createError(Errors.NO_BOWER_JSON));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
         config = ConfigurationManager.getConfiguration();
@@ -238,12 +237,12 @@ define(function (require, exports) {
 
         // force bower.json to exists before updating
         if (!BowerJsonManager.existsBowerJson()) {
-            return deferred.reject(createError(Errors.NO_BOWER_JSON));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
         // check if the selected package exists
         if (!pkg) {
-            return deferred.reject(createError(Errors.PKG_NOT_INSTALLED));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED));
         }
 
         bowerJson = BowerJsonManager.getBowerJson();

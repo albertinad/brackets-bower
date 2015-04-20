@@ -29,8 +29,7 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var Errors      = require("src/utils/Errors"),
-        createError = require("src/utils/CreateError");
+    var ErrorUtils = require("src/utils/ErrorUtils");
 
     /**
      * @param {object} originalError
@@ -44,46 +43,46 @@ define(function (require, exports) {
 
         switch (originalCode) {
         case "ENOENT":
-            code = Errors.NO_BOWER_JSON;
+            code = ErrorUtils.NO_BOWER_JSON;
             break;
         case "ENOTINS":
-            code = Errors.PKG_NOT_INSTALLED;
+            code = ErrorUtils.PKG_NOT_INSTALLED;
             break;
         case "ECONFLICT":
-            code = Errors.INTERACTIVE_DISABLED;
+            code = ErrorUtils.INTERACTIVE_DISABLED;
             break;
         case "ENORESOLVER":
-            code = Errors.SRC_RESOLVER_NOT_FOUND;
+            code = ErrorUtils.SRC_RESOLVER_NOT_FOUND;
             break;
         case "ENOTFOUND":
-            code = Errors.SRC_NOT_FOUND;
+            code = ErrorUtils.SRC_NOT_FOUND;
             break;
         case "ENORESTARGET":
-            code = Errors.CANT_FOUND_TARGET;
+            code = ErrorUtils.CANT_FOUND_TARGET;
             break;
         case "EINVEND":
-            code = Errors.SRC_NOT_VALID_GITHUB_URL;
+            code = ErrorUtils.SRC_NOT_VALID_GITHUB_URL;
             break;
         case "ECMDERR":
-            code = Errors.CMD_EXE;
+            code = ErrorUtils.CMD_EXE;
             break;
         case "ENOGIT":
-            code = Errors.GIT_NOT_INSTALLED;
+            code = ErrorUtils.GIT_NOT_INSTALLED;
             break;
         case "ENOSVN":
-            code = Errors.SVN_NOT_FOUND;
+            code = ErrorUtils.SVN_NOT_FOUND;
             break;
         case "EHTTP":
-            code = Errors.HTTP_DOWNLOAD_FAIL;
+            code = ErrorUtils.HTTP_DOWNLOAD_FAIL;
             break;
         case "EINCOMPLETE":
-            code = Errors.DONWLOAD_INCOMPLETE;
+            code = ErrorUtils.DONWLOAD_INCOMPLETE;
             break;
         default:
-            code = Errors.UNKNOWN_ERROR;
+            code = ErrorUtils.UNKNOWN_ERROR;
         }
 
-        error = createError(code, originalError);
+        error = ErrorUtils.createError(code, originalError);
 
         console.log("[brackets-bower-error]");
         console.log(originalError);
