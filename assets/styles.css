@@ -59,14 +59,20 @@
     font-weight: bold;
 }
 
-/* error dialog */
+/* notification dialog */
 
-#bower-error-dialog[data-severity-type=warning] .modal-header {
+#bower-notification-dialog[data-severity-type=warning] .modal-header {
     background-color: #e3b551;
 }
 
-#bower-error-dialog[data-severity-type=warning] .dialog-title {
+#bower-notification-dialog[data-severity-type=warning] .dialog-title {
     color: #fff;
+}
+
+#bower-notification-dialog .bower-dialog-summary,
+#bower-notification-dialog .bower-dialog-note {
+    font-size: 18px;
+    font-weight: 400;
 }
 
 /* status bar */

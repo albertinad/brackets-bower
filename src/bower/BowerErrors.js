@@ -49,7 +49,7 @@ define(function (require, exports) {
             code = ErrorUtils.PKG_NOT_INSTALLED;
             break;
         case "ECONFLICT":
-            code = ErrorUtils.INTERACTIVE_DISABLED;
+            code = ErrorUtils.CONFLICT;
             break;
         case "ENORESOLVER":
             code = ErrorUtils.SRC_RESOLVER_NOT_FOUND;

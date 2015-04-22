@@ -36,13 +36,21 @@ define(function (require, exports, module) {
         WARNING: "warning"
     };
 
-    function showWarning(title, description) {
+    var BTN_OK    = "ok",
+        BTN_CLOSE = "close";
+
+    /**
+     * @param {string} summary
+     * @param {string} highlight
+     */
+    function showWarning(summary, highlight) {
         var dialog,
             dialogTemplate = Mustache.render(dialogHTML, {
-                Strings: Strings,
                 severity: errorSeverity.WARNING,
-                title: title,
-                description: description
+                title: Strings.TITLE_WARNING,
+                summary: summary,
+                highlight: highlight,
+                buttons: [{ id: BTN_CLOSE, text: Strings.TEXT_CLOSE }]
             });
 
         dialog = Dialogs.showModalDialogUsingTemplate(dialogTemplate);
@@ -50,5 +58,38 @@ define(function (require, exports, module) {
         dialog.done();
     }
 
-    exports.showWarning = showWarning;
+    /**
+     * @param {string} title
+     * @param {object} options
+     * @return {Dialog}
+     */
+    function showOkCancel(title, options) {
+        var dialogTemplate,
+            templateOptions = {
+                title: title,
+                summary: options.summary || null,
+                description: options.description || null,
+                highlight: options.highlight || null,
+                note: options.note || null
+            };
+
+        if (options.buttons) {
+            templateOptions.buttons = options.buttons;
+        } else {
+            // default buttons
+            templateOptions.buttons = [
+                { id: BTN_CLOSE, text: Strings.TEXT_CLOSE },
+                { id: BTN_OK, text: Strings.TEXT_OK }
+            ];
+        }
+
+        dialogTemplate = Mustache.render(dialogHTML, templateOptions);
+
+        return Dialogs.showModalDialogUsingTemplate(dialogTemplate);
+    }
+
+    exports.showWarning  = showWarning;
+    exports.showOkCancel = showOkCancel;
+    exports.BTN_CLOSE    = BTN_CLOSE;
+    exports.BTN_OK       = BTN_OK;
 });

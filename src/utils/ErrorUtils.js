@@ -37,7 +37,7 @@ define(function (require, exports, module) {
         GIT_NOT_INSTALLED        = 6,
         SVN_NOT_INSTALLED        = 7,
         CMD_EXE                  = 8,
-        INTERACTIVE_DISABLED     = 9,
+        CONFLICT                 = 9,
         HTTP_DOWNLOAD_FAIL       = 10,
         DOWNLOAD_INCOMPLETE      = 11,
         UNKNOWN_ERROR            = 12;
@@ -68,7 +68,7 @@ define(function (require, exports, module) {
     exports.GIT_NOT_INSTALLED        = GIT_NOT_INSTALLED;
     exports.SVN_NOT_INSTALLED        = SVN_NOT_INSTALLED;
     exports.CMD_EXE                  = CMD_EXE;
-    exports.INTERACTIVE_DISABLED     = INTERACTIVE_DISABLED;
+    exports.CONFLICT                 = CONFLICT;
     exports.HTTP_DOWNLOAD_FAIL       = HTTP_DOWNLOAD_FAIL;
     exports.DOWNLOAD_INCOMPLETE      = DOWNLOAD_INCOMPLETE;
     exports.UNKNOWN_ERROR            = UNKNOWN_ERROR;

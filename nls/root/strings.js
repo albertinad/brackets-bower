@@ -49,6 +49,7 @@ define({
     "TEXT_CLOSE": "Close",
     "TEXT_CANCEL": "Cancel",
     "TEXT_SAVE": "Save",
+    "TEXT_OK": "OK",
     "TEXT_RELOAD_DEFAULTS": "Reload defaults",
     "TEXT_SETTINGS_RELOAD_TIME": "Time to fetch and reload the Bower Registry",
     "TEXT_SETTINGS_RELOAD_TIME_UNIT": "(m)",
@@ -64,5 +65,8 @@ define({
     "STATUS_SUCCESS_INSTALLING": "Packages installed",
     "STATUS_SUCCESS_EXECUTING_COMMAND": "Command \"{0}\" executed",
     "STATUS_NO_PACKAGES_INSTALLED": "There isn't any package to install",
-    "ERROR_RELOAD_TIME_VALUE": "* The time must be greater than {0} minutes"
+    "ERROR_RELOAD_TIME_VALUE": "* The time must be greater than {0} minutes",
+    "TITLE_ERROR_UNINSTALLING": "Error uninstalling Bower package",
+    "SUMMARY_ERROR_UNINSTALLING_DEPENDANTS": "The package \"{0}\" has dependants packages",
+    "NOTE_QUESTION_CONTINUE_UNINSTALLING": "Do you still want to uninstall it?"
 });

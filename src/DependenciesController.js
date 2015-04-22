@@ -28,10 +28,14 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var ProjectManager   = require("src/bower/ProjectManager"),
-        PackageManager   = require("src/bower/PackageManager"),
-        BowerJsonManager = require("src/bower/BowerJsonManager"),
-        DependenciesView = require("src/views/DependenciesView");
+    var StringUtils        = brackets.getModule("utils/StringUtils"),
+        ProjectManager     = require("src/bower/ProjectManager"),
+        PackageManager     = require("src/bower/PackageManager"),
+        BowerJsonManager   = require("src/bower/BowerJsonManager"),
+        DependenciesView   = require("src/views/DependenciesView"),
+        ErrorUtils         = require("src/utils/ErrorUtils"),
+        NotificationDialog = require("src/dialogs/NotificationDialog"),
+        Strings            = require("strings");
 
     /**
      * @constructor
@@ -126,12 +130,51 @@ define(function (require, exports, module) {
 
     /**
      * Uninstall the selected package.
+     * @param {string} name
+     * @param {boolean=} force
      */
-    DependenciesController.prototype.uninstall = function (name) {
-        PackageManager.uninstall(name).fail(function (error) {
-            // TODO warn the user
-            console.log(error);
+    DependenciesController.prototype.uninstall = function (name, force) {
+        var that = this;
+
+        if (typeof force !== "boolean") {
+            force = false;
+        }
+
+        PackageManager.uninstall(name, force).fail(function (error) {
+            that._onUninstallFailed(name, error);
         });
+    };
+
+    /**
+     * @private
+     */
+    DependenciesController.prototype._onUninstallFailed = function (name, error) {
+        var that = this;
+
+        if (error.code === ErrorUtils.CONFLICT) {
+            var dependants = error.originalError.data.dependants,
+                dataList = [],
+                dialog;
+
+            dependants.forEach(function (pkg) {
+                dataList.push("# " + pkg.pkgMeta.name + "\n");
+            });
+
+            var options = {
+                summary: StringUtils.format(Strings.SUMMARY_ERROR_UNINSTALLING_DEPENDANTS, name),
+                highlight: dataList.join("").trim(),
+                note: Strings.NOTE_QUESTION_CONTINUE_UNINSTALLING,
+            };
+
+            dialog = NotificationDialog.showOkCancel(Strings.TITLE_ERROR_UNINSTALLING, options);
+
+            dialog.done(function (buttonId) {
+                if (buttonId === NotificationDialog.BTN_OK) {
+                    // force uninstalling
+                    that.uninstall(name, true);
+                }
+            });
+        }
     };
 
     /**

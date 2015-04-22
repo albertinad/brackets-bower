@@ -1,14 +1,29 @@
-<div id="bower-error-dialog" class="modal" data-severity-type={{severity}}>
+<div id="bower-notification-dialog" class="modal" {{ #severity }}data-severity-type={{severity}} {{ /severity }}>
     <div class="modal-header">
-        <h1 class="dialog-title">{{ Strings.TITLE_WARNING }}</h1>
+        <h1 class="dialog-title">{{ title }}</h1>
     </div>
 
     <div class="modal-body table-striped tab-content">
-        <h3>{{ title }}</h3>
-        <pre>{{ description }}</pre>
+        {{ #summary }}
+        <h3 class="bower-dialog-summary">{{ summary }}</h3>
+        {{ /summary }}
+
+        {{ #description }}
+        <div>{{ description }}</div>
+        {{ /description }}
+
+        {{ #highlight }}
+        <pre>{{ highlight }}</pre>
+        {{ /highlight }}
+
+        {{ #note }}
+        <h3 class="bower-dialog-note">{{ note }}</h3>
+        {{ /note }}
     </div>
 
     <div class="modal-footer">
-        <button data-button-id="close" class="btn primary dialog-button">{{ Strings.TEXT_CLOSE }}</button>
+        {{ #buttons }}
+        <button data-button-id="{{ id }}" class="btn primary dialog-button">{{ text }}</button>
+        {{ /buttons}}
     </div>
 </div>

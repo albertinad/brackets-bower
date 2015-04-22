@@ -181,7 +181,13 @@ define(function (require, exports) {
         return deferred;
     }
 
-    function uninstall(name) {
+    /**
+     * Uninstall the given package by its name. To force uninstalling the package,
+     * true must be passed as the second parameter.
+     * @param {string} name Existent package to uninstall.
+     * @param {boolean} force Force uninstalling the given package.
+     */
+    function uninstall(name, force) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
@@ -189,6 +195,8 @@ define(function (require, exports) {
                 save: true,
                 saveDev: true
             };
+
+        config.force = (typeof force === "boolean") ? force : false;
 
         Bower.uninstall(name, options, config).then(function (uninstalled) {
             var pkg = project.removePackages(Object.keys(uninstalled));

@@ -36,12 +36,12 @@ define(function (require, exports, module) {
         AppInit           = brackets.getModule("utils/AppInit");
 
     // local modules
-    var Bower          = require("src/bower/Bower"),
-        GitChecker     = require("src/utils/GitChecker"),
-        ProjectManager = require("src/bower/ProjectManager"),
-        QuickInstall   = require("src/QuickInstall"),
-        ErrorDialog    = require("src/dialogs/ErrorDialog"),
-        Strings        = require("strings"),
+    var Bower              = require("src/bower/Bower"),
+        GitChecker         = require("src/utils/GitChecker"),
+        ProjectManager     = require("src/bower/ProjectManager"),
+        QuickInstall       = require("src/QuickInstall"),
+        NotificationDialog = require("src/dialogs/NotificationDialog"),
+        Strings            = require("strings"),
 
     // controllers
         PanelController         = require("src/PanelController"),
@@ -123,7 +123,7 @@ define(function (require, exports, module) {
             GitChecker.findGitOnSystem().fail(function () {
                 panelController.updateStatus(PanelController.WARNING);
 
-                ErrorDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
+                NotificationDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
             });
 
             ProjectManager.initialize();
