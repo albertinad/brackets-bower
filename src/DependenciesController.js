@@ -152,17 +152,17 @@ define(function (require, exports, module) {
         var that = this;
 
         if (error.code === ErrorUtils.CONFLICT) {
-            var dependants = error.originalError.data.dependants,
+            var dependants = error.dependants,
                 dataList = [],
                 dialog;
 
-            dependants.forEach(function (pkg) {
-                dataList.push("# " + pkg.pkgMeta.name + "\n");
+            dependants.forEach(function (name) {
+                dataList.push("# " + name);
             });
 
             var options = {
                 summary: StringUtils.format(Strings.SUMMARY_ERROR_UNINSTALLING_DEPENDANTS, name),
-                highlight: dataList.join("").trim(),
+                highlight: dataList.join("\n"),
                 note: Strings.NOTE_QUESTION_CONTINUE_UNINSTALLING,
             };
 

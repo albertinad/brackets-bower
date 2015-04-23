@@ -34,8 +34,6 @@ define(function (require, exports, module) {
     /**
      * Constructor function for Bower package instances.
      * @param {string} name
-     * @param {string} version
-     * @param {string} latestVersion
      * @constructor
      */
     function Package(name) {
@@ -312,10 +310,29 @@ define(function (require, exports, module) {
         return pkg;
     }
 
-    exports.createPackages = createPackages;
-    exports.createPackage  = createPackage;
-    exports.createInfo     = createInfo;
+    /**
+     * Parse the given raw packages array and returns an array of packages names.
+     * @param {array} rawPackagesArray
+     * @return {array}
+     */
+    function getPackagesName(rawPackagesArray) {
+        var names = [];
 
+        rawPackagesArray.forEach(function (rawPackage) {
+            var meta = rawPackage.pkgMeta;
+
+            if (meta && meta.name) {
+                names.push(meta.name);
+            }
+        });
+
+        return names;
+    }
+
+    exports.createPackages  = createPackages;
+    exports.createPackage   = createPackage;
+    exports.createInfo      = createInfo;
+    exports.getPackagesName = getPackagesName;
     // tests
-    exports._Package = Package;
+    exports._Package        = Package;
 });

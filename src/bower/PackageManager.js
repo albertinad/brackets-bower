@@ -203,6 +203,22 @@ define(function (require, exports) {
 
             deferred.resolve(pkg);
         }).fail(function (error) {
+            // check if there's a conflict error when uninstalling, in that case
+            // parse the data to get an array of packages names in conflict
+            if (error.code === ErrorUtils.CONFLICT) {
+                var originalError = error.originalError,
+                    data = (originalError || originalError.data) ? originalError.data : null,
+                    dependants;
+
+                if (data && data.dependants) {
+                    dependants = PackageFactory.getPackagesName(data.dependants);
+                } else {
+                    dependants = [];
+                }
+
+                error.dependants = dependants;
+            }
+
             deferred.reject(error);
         });
 
