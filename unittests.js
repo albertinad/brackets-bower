@@ -149,8 +149,9 @@ define(function (require, exports, module) {
                 runs(function () {
                     expect(error).not.toBeNull();
                     expect(error).toBeDefined();
-                    expect(typeof error).toBe("string");
-                    expect(error).toEqual("BowerDomainMock error message");
+                    expect(error.code).not.toBeNull();
+                    expect(error.code).toBeDefined();
+                    expect(typeof error.code).toBe("number");
                     expect(bowerDomain.exec.calls.length).toEqual(1);
                     expect(bowerDomain.exec).toHaveBeenCalledWith("search", config);
                     expect(resultPromise.state()).toEqual("rejected");
@@ -306,7 +307,9 @@ define(function (require, exports, module) {
                 });
 
                 runs(function () {
-                    expect(error).toEqual("BowerDomainMock error message");
+                    expect(error.code).not.toBeNull();
+                    expect(error.code).toBeDefined();
+                    expect(typeof error.code).toBe("number");
 
                     expect(bowerDomain.exec.calls.length).toEqual(1);
                     expect(bowerDomain.exec).toHaveBeenCalledWith("install", null, {}, config);
@@ -467,7 +470,9 @@ define(function (require, exports, module) {
                 waitsForFail(resultPromise, "prune command was executed with failure");
 
                 runs(function () {
-                    expect(commandResult).toEqual("BowerDomainMock error message");
+                    expect(commandResult.code).not.toBeNull();
+                    expect(commandResult.code).toBeDefined();
+                    expect(typeof commandResult.code).toBe("number");
                     expect(bowerDomain.exec.calls.length).toEqual(1);
                     expect(bowerDomain.exec).toHaveBeenCalledWith("prune", config);
                     expect(resultPromise.state()).toEqual("rejected");
