@@ -32,12 +32,14 @@ define(function (require, exports) {
     var ErrorUtils = require("src/utils/ErrorUtils");
 
     /**
-     * @param {object} originalError
+     * @param {object} wrappedError
      * @return {Error}
      * @private
      */
-    function getError(originalError) {
-        var originalCode = (originalError) ? originalError.code : "UNKNOWN_ERROR_CODE",
+    function getError(wrappedError) {
+        var originalError = wrappedError.error,
+            message = wrappedError.message,
+            originalCode = (originalError) ? originalError.code : "UNKNOWN_ERROR_CODE",
             code,
             error;
 
@@ -82,7 +84,7 @@ define(function (require, exports) {
             code = ErrorUtils.UNKNOWN_ERROR;
         }
 
-        error = ErrorUtils.createError(code, originalError);
+        error = ErrorUtils.createError(code, message, originalError);
 
         console.log("[brackets-bower-error]");
         console.log(originalError);

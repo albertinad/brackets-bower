@@ -27,6 +27,7 @@
 define({
     "TITLE_BOWER": "Bower",
     "TITLE_WARNING": "Bower Warning",
+    "TITLE_ERROR": "Bower Error",
     "TITLE_SHORTCUT": "Install from Bower...",
     "TITLE_QUICK_OPEN": "Install from Bower",
     "TITLE_SET_CWD": "Set as Bower active directory",
@@ -51,7 +52,7 @@ define({
     "TEXT_SAVE": "Save",
     "TEXT_OK": "OK",
     "TEXT_RELOAD_DEFAULTS": "Reload defaults",
-    "TEXT_SETTINGS_RELOAD_TIME": "Time to fetch and reload the Bower Registry",
+    "TEXT_SETTINGS_RELOAD_TIME": "Time to reload the Bower registry",
     "TEXT_SETTINGS_RELOAD_TIME_UNIT": "(m)",
     "TEXT_SETTINGS_SAVE_PACKAGES": "Save packages installed using QuickInstall to bower.json",
     "GIT_NOT_FOUND_TITLE": "Git wasn't found on your system",
@@ -68,5 +69,6 @@ define({
     "ERROR_RELOAD_TIME_VALUE": "* The time must be greater than {0} minutes",
     "TITLE_ERROR_UNINSTALLING": "Error uninstalling Bower package",
     "SUMMARY_ERROR_UNINSTALLING_DEPENDANTS": "The package \"{0}\" has dependants packages",
-    "NOTE_QUESTION_CONTINUE_UNINSTALLING": "Do you still want to uninstall it?"
+    "NOTE_QUESTION_CONTINUE_UNINSTALLING": "Are you sure you want to uninstall it?",
+    "SUMMARY_ERROR": "Oops! An error ocurred."
 });

@@ -35,6 +35,18 @@ maxerr: 50, node: true */
     var DOMAIN_NAME = "bower";
 
     /**
+     * @param {object} error
+     * @return {object}
+     * @private
+     */
+    function _getError(error) {
+        return {
+            error: error,
+            message: error.message || null
+        };
+    }
+
+    /**
      * Returns a list of all package names from bower. Might take nontrivial time to complete.
      * @param {object} config Key-value object to specify optional configuration.
      * @param {function(?string, ?Array.<{name: string, url: string}>)} cb Callback to receive
@@ -48,7 +60,7 @@ maxerr: 50, node: true */
                 cb(null, data);
             })
             .on("error", function (error) {
-                cb(error, null);
+                cb(_getError(error), null);
             });
     }
 
@@ -84,7 +96,7 @@ maxerr: 50, node: true */
                 cb(null, installedPackages);
             })
             .on("error", function (error) {
-                cb(error, null);
+                cb(_getError(error), null);
             });
     }
 
@@ -101,7 +113,7 @@ maxerr: 50, node: true */
                 cb(null, uninstalledPackages);
             })
             .on("error", function (error) {
-                cb(error, null);
+                cb(_getError(error), null);
             });
     }
 
@@ -115,7 +127,7 @@ maxerr: 50, node: true */
                 cb(null, removedPackages);
             })
             .on("error", function (error) {
-                cb(error, null);
+                cb(_getError(error), null);
             });
     }
 
@@ -133,7 +145,7 @@ maxerr: 50, node: true */
                 cb(null, result);
             })
             .on("error", function (error) {
-                cb(error, null);
+                cb(_getError(error), null);
             });
     }
 
@@ -149,7 +161,7 @@ maxerr: 50, node: true */
                 cb(null, result);
             })
             .on("error", function (error) {
-                cb(error, null);
+                cb(_getError(error), null);
             });
     }
 
@@ -163,7 +175,7 @@ maxerr: 50, node: true */
                 cb(null, result);
             })
             .on("error", function (error) {
-                cb(error, null);
+                cb(_getError(error), null);
             });
     }
 

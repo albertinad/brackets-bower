@@ -59,6 +59,23 @@ define(function (require, exports, module) {
     }
 
     /**
+     * @param {string}
+     */
+    function showError(highlight) {
+        var dialog,
+            dialogTemplate = Mustache.render(dialogHTML, {
+                title: Strings.TITLE_ERROR,
+                summary: Strings.SUMMARY_ERROR,
+                highlight: highlight,
+                buttons: [{ id: BTN_CLOSE, text: Strings.TEXT_CLOSE }]
+            });
+
+        dialog = Dialogs.showModalDialogUsingTemplate(dialogTemplate);
+
+        dialog.done();
+    }
+
+    /**
      * @param {string} title
      * @param {object} options
      * @return {Dialog}
@@ -89,6 +106,7 @@ define(function (require, exports, module) {
     }
 
     exports.showWarning  = showWarning;
+    exports.showError    = showError;
     exports.showOkCancel = showOkCancel;
     exports.BTN_CLOSE    = BTN_CLOSE;
     exports.BTN_OK       = BTN_OK;

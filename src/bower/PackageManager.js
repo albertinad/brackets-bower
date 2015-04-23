@@ -209,29 +209,6 @@ define(function (require, exports) {
         return deferred;
     }
 
-    function loadProjectDependencies() {
-        var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration(),
-            project = ProjectManager.getProject();
-
-        config.offline = true;
-
-        Bower.list(config).then(function (result) {
-
-            // create the package model
-            return PackageFactory.createPackages(result.dependencies);
-        }).then(function (packagesArray) {
-
-            project.setPackages(packagesArray);
-
-            deferred.resolve(packagesArray);
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred;
-    }
-
     /**
      * @param {string} name
      * @param {version=} version
@@ -271,24 +248,59 @@ define(function (require, exports) {
         return deferred;
     }
 
+    /**
+     * Search the registry for packages using the current configuration.
+     */
     function search() {
-        var config = ConfigurationManager.getConfiguration();
-
-        return Bower.search(config);
+        return Bower.search(ConfigurationManager.getConfiguration());
     }
 
+    /**
+     * Get the cached packages using the current configuration.
+     */
     function listCache() {
-        var config = ConfigurationManager.getConfiguration();
-
-        return Bower.listCache(config);
+        return Bower.listCache(ConfigurationManager.getConfiguration());
     }
 
+    /**
+     * Get the current installed packages and updates if they have, using
+     * the current configuration.
+     */
     function list() {
-        var config = ConfigurationManager.getConfiguration();
-
-        return Bower.list(config);
+        return Bower.list(ConfigurationManager.getConfiguration());
     }
 
+    /**
+     * Load the packages for the current project.
+     */
+    function loadProjectDependencies() {
+        var deferred = new $.Deferred(),
+            config = ConfigurationManager.getConfiguration(),
+            project = ProjectManager.getProject();
+
+        config.offline = true;
+
+        Bower.list(config).then(function (result) {
+
+            // create the package model
+            return PackageFactory.createPackages(result.dependencies);
+        }).then(function (packagesArray) {
+
+            project.setPackages(packagesArray);
+
+            deferred.resolve(packagesArray);
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred;
+    }
+
+    /**
+     * Check for packages updates based on the current installed packages.
+     * If the packages have upates, update the information from the current
+     * project installed packages.
+     */
     function checkForUpdates() {
         var deferred = new $.Deferred();
 

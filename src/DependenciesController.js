@@ -186,8 +186,7 @@ define(function (require, exports, module) {
         PackageManager.update(name).then(function () {
             that.loadProjectPackages();
         }).fail(function (error) {
-            // TODO warn the user
-            console.log(error);
+            NotificationDialog.showError(error.message);
         });
     };
 

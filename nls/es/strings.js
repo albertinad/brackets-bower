@@ -27,6 +27,7 @@
 define({
     "TITLE_BOWER": "Bower",
     "TITLE_WARNING": "Advertencia de Bower",
+    "TITLE_ERROR": "Error de Bower",
     "TITLE_SHORTCUT": "Instalar desde Bower...",
     "TITLE_QUICK_OPEN": "Instalar desde Bower",
     "TITLE_SET_CWD": "Establecer como directorio activo de Bower",
@@ -49,7 +50,10 @@ define({
     "TEXT_CLOSE": "Cerrar",
     "TEXT_CANCEL": "Cancelar",
     "TEXT_SAVE": "Guardar",
+    "TEXT_OK": "OK",
     "TEXT_RELOAD_DEFAULTS": "Recargar defaults",
+    "TEXT_SETTINGS_RELOAD_TIME": "Tiempo en recargar el registro de Bower",
+    "TEXT_SETTINGS_SAVE_PACKAGES": "Guardar paquetes instalados con QuickInstall en el archivo bower.json",
     "GIT_NOT_FOUND_TITLE": "No se encontró Git en su sistema",
     "GIT_NOT_FOUND_DESCRIPTION": "La extensión Brackets-bower buscó a Git en el PATH del sistema.\n\nBower require tener instalado Git y configurado en la variable PATH del sistema, \npara descargar e instalar algunos paquetes.\nBrackets-bower puede no funcionar correctamente.",
     "STATUS_EXECUTING_COMMAND": "Ejectuando comando \"{0}\"",
@@ -57,5 +61,9 @@ define({
     "STATUS_SUCCESS_INSTALLING": "Paquetes instalados",
     "STATUS_SUCCESS_EXECUTING_COMMAND": "Comando \"{0}\" ejecutado",
     "STATUS_NO_PACKAGES_INSTALLED": "No hay ningún paquete para instalar",
-    "ERROR_RELOAD_TIME_VALUE": "* El tiempo debe ser mayor a {0} minutos"
+    "ERROR_RELOAD_TIME_VALUE": "* El tiempo debe ser mayor a {0} minutos",
+    "TITLE_ERROR_UNINSTALLING": "Error al desinstalar una dependencia de Bower",
+    "SUMMARY_ERROR_UNINSTALLING_DEPENDANTS": "El paquete \"{0}\" tiene paquetes dependientes",
+    "NOTE_QUESTION_CONTINUE_UNINSTALLING": "¿Está seguro que desea desinstalar el paquete?",
+    "SUMMARY_ERROR": "Oops! Ocurrió un error."
 });

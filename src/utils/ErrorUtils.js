@@ -43,17 +43,16 @@ define(function (require, exports, module) {
         UNKNOWN_ERROR            = 12;
 
     /**
-     * @param {number}
-     * @param {Error=} originalError
+     * @param {number} code
+     * @param {string=} message
+     * @param {object=} originalError
      */
-    function createError(code, originalError) {
+    function createError(code, message, originalError) {
         var error = new Error();
 
         error.code = code;
-
-        if (originalError) {
-            error.originalError = originalError;
-        }
+        error.message = message || null;
+        error.originalError = originalError || null;
 
         return error;
     }

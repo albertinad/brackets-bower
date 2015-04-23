@@ -35,6 +35,8 @@ define(function (require, exports, module) {
         ProjectManager      = require("src/bower/ProjectManager"),
         PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),
+        NotificationDialog  = require("src/dialogs/NotificationDialog"),
+        ErrorUtils          = require("src/utils/ErrorUtils"),
         Strings             = require("strings");
 
     /**
@@ -213,9 +215,13 @@ define(function (require, exports, module) {
                 resultMessage = Strings.STATUS_NO_PACKAGES_INSTALLED;
             }
 
-        }).fail(function () {
+        }).fail(function (error) {
 
-            resultMessage = StringUtils.format(Strings.STATUS_ERROR_EXECUTING_COMMAND, commandKey);
+            if (error.code === ErrorUtils.NO_BOWER_JSON) {
+                resultMessage = StringUtils.format(Strings.STATUS_ERROR_EXECUTING_COMMAND, commandKey);
+            } else {
+                NotificationDialog.showError(error.message);
+            }
 
         }).always(function () {
 
