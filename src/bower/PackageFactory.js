@@ -44,6 +44,8 @@ define(function (require, exports, module) {
         /** @private */
         this._latestVersion = null;
         /** @private */
+        this._versions = [];
+        /** @private */
         this._extraneous = false;
         /** @private */
         this._isInstalled = true;
@@ -72,6 +74,15 @@ define(function (require, exports, module) {
         },
         get: function () {
             return this._latestVersion;
+        }
+    });
+
+    Object.defineProperty(Package.prototype, "versions", {
+        set: function (versions) {
+            this._versions = versions;
+        },
+        get: function () {
+            return this._versions;
         }
     });
 
@@ -132,6 +143,10 @@ define(function (require, exports, module) {
         if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
                 bowerJsonDeps.devDependencies[name]) {
             pkg.isDevDependency = true;
+        }
+
+        if (data.versions && data.versions.length !== 0) {
+            pkg.versions = data.versions;
         }
 
         return pkg;
