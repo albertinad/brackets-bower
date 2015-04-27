@@ -62,9 +62,6 @@ define(function (require, exports) {
         case "ENORESTARGET":
             code = ErrorUtils.CANT_FOUND_TARGET;
             break;
-        case "EINVEND":
-            code = ErrorUtils.SRC_NOT_VALID_GITHUB_URL;
-            break;
         case "ECMDERR":
             code = ErrorUtils.CMD_EXE;
             break;

@@ -28,19 +28,18 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var NO_BOWER_JSON            = 0,
-        PKG_NOT_INSTALLED        = 1,
-        SRC_NOT_FOUND            = 2,
-        SRC_RESOLVER_NOT_FOUND   = 3,
-        CANT_FOUND_TARGET        = 4,
-        SRC_NOT_VALID_GITHUB_URL = 5,
-        GIT_NOT_INSTALLED        = 6,
-        SVN_NOT_INSTALLED        = 7,
-        CMD_EXE                  = 8,
-        CONFLICT                 = 9,
-        HTTP_DOWNLOAD_FAIL       = 10,
-        DOWNLOAD_INCOMPLETE      = 11,
-        UNKNOWN_ERROR            = 12;
+    var NO_BOWER_JSON          = 0,
+        PKG_NOT_INSTALLED      = 1,
+        SRC_NOT_FOUND          = 2,
+        SRC_RESOLVER_NOT_FOUND = 3,
+        CANT_FOUND_TARGET      = 4,
+        GIT_NOT_INSTALLED      = 5,
+        SVN_NOT_INSTALLED      = 6,
+        CMD_EXE                = 7,
+        CONFLICT               = 8,
+        HTTP_DOWNLOAD_FAIL     = 9,
+        DOWNLOAD_INCOMPLETE    = 10,
+        UNKNOWN_ERROR          = 11;
 
     /**
      * @param {number} code
@@ -57,18 +56,17 @@ define(function (require, exports, module) {
         return error;
     }
 
-    exports.createError              = createError;
-    exports.NO_BOWER_JSON            = NO_BOWER_JSON;
-    exports.PKG_NOT_INSTALLED        = PKG_NOT_INSTALLED;
-    exports.SRC_NOT_FOUND            = SRC_NOT_FOUND;
-    exports.SRC_RESOLVER_NOT_FOUND   = SRC_RESOLVER_NOT_FOUND;
-    exports.CANT_FOUND_TARGET        = CANT_FOUND_TARGET;
-    exports.SRC_NOT_VALID_GITHUB_URL = SRC_NOT_VALID_GITHUB_URL;
-    exports.GIT_NOT_INSTALLED        = GIT_NOT_INSTALLED;
-    exports.SVN_NOT_INSTALLED        = SVN_NOT_INSTALLED;
-    exports.CMD_EXE                  = CMD_EXE;
-    exports.CONFLICT                 = CONFLICT;
-    exports.HTTP_DOWNLOAD_FAIL       = HTTP_DOWNLOAD_FAIL;
-    exports.DOWNLOAD_INCOMPLETE      = DOWNLOAD_INCOMPLETE;
-    exports.UNKNOWN_ERROR            = UNKNOWN_ERROR;
+    exports.createError            = createError;
+    exports.NO_BOWER_JSON          = NO_BOWER_JSON;
+    exports.PKG_NOT_INSTALLED      = PKG_NOT_INSTALLED;
+    exports.SRC_NOT_FOUND          = SRC_NOT_FOUND;
+    exports.SRC_RESOLVER_NOT_FOUND = SRC_RESOLVER_NOT_FOUND;
+    exports.CANT_FOUND_TARGET      = CANT_FOUND_TARGET;
+    exports.GIT_NOT_INSTALLED      = GIT_NOT_INSTALLED;
+    exports.SVN_NOT_INSTALLED      = SVN_NOT_INSTALLED;
+    exports.CMD_EXE                = CMD_EXE;
+    exports.CONFLICT               = CONFLICT;
+    exports.HTTP_DOWNLOAD_FAIL     = HTTP_DOWNLOAD_FAIL;
+    exports.DOWNLOAD_INCOMPLETE    = DOWNLOAD_INCOMPLETE;
+    exports.UNKNOWN_ERROR          = UNKNOWN_ERROR;
 });
