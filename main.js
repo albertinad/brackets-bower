@@ -94,7 +94,7 @@ define(function (require, exports, module) {
         var path        = ExtensionUtils.getModulePath(module, "/node/BowerDomain"),
             bowerDomain = new NodeDomain("bower", path);
 
-        ExtensionUtils.loadStyleSheet(module, "assets/fonts/octicon.css");
+        ExtensionUtils.loadStyleSheet(module, "assets/octicon.css");
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
         Bower.setDomain(bowerDomain);

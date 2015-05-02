@@ -23,7 +23,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global define */
 
 define(function (require, exports) {
     "use strict";
@@ -38,7 +38,7 @@ define(function (require, exports) {
             directory: "bower_components",
             registry: "https://bower.herokuapp.com",
             interactive: null
-        }
+        };
     }
 
     function getConfiguration() {

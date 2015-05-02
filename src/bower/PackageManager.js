@@ -41,6 +41,11 @@ define(function (require, exports) {
 
     EventDispatcher.makeEventDispatcher(exports);
 
+    /**
+     * Get detailed information about the given package.
+     * @param {string} name Package name to get detailed information.
+     * @return {$.Deferred}
+     */
     function info(name) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration();
@@ -67,6 +72,7 @@ define(function (require, exports) {
      * @param {string|null} version The package version.
      * @param {number} type Specify if the package to install is a dependency or devDependency.
      * @param {boolean} save Save or not the package to the bower.json file.
+     * @return {$.Deferred}
      */
     function install(name, version, type, save) {
         var deferred = new $.Deferred(),
@@ -124,6 +130,7 @@ define(function (require, exports) {
      * First checks if the bower.json file is available for the
      * current project, if so, it continues with the dependencies
      * installation, otherwhise, it rejects the promise.
+     * @return {$.Deferred}
      */
     function installFromBowerJson() {
         var deferred = new $.Deferred(),
@@ -156,6 +163,10 @@ define(function (require, exports) {
         return deferred;
     }
 
+    /**
+     * Remove extraneous packages according to the bower.json packages definition.
+     * @return {$.Deferred}
+     */
     function prune() {
         var deferred = new $.Deferred(),
             existsBowerJson = BowerJsonManager.existsBowerJson(),
@@ -186,6 +197,7 @@ define(function (require, exports) {
      * true must be passed as the second parameter.
      * @param {string} name Existent package to uninstall.
      * @param {boolean} force Force uninstalling the given package.
+     * @return {$.Deferred}
      */
     function uninstall(name, force) {
         var deferred = new $.Deferred(),
@@ -228,6 +240,7 @@ define(function (require, exports) {
     /**
      * @param {string} name
      * @param {version=} version
+     * @return {$.Deferred}
      */
     function update(name, version) {
         var deferred = new $.Deferred(),
@@ -266,6 +279,7 @@ define(function (require, exports) {
 
     /**
      * Search the registry for packages using the current configuration.
+     * @return {$.Deferred}
      */
     function search() {
         return Bower.search(ConfigurationManager.getConfiguration());
@@ -273,6 +287,7 @@ define(function (require, exports) {
 
     /**
      * Get the cached packages using the current configuration.
+     * @return {$.Deferred}
      */
     function listCache() {
         return Bower.listCache(ConfigurationManager.getConfiguration());
@@ -281,6 +296,7 @@ define(function (require, exports) {
     /**
      * Get the current installed packages and updates if they have, using
      * the current configuration.
+     * @return {$.Deferred}
      */
     function list() {
         return Bower.list(ConfigurationManager.getConfiguration());
@@ -288,6 +304,7 @@ define(function (require, exports) {
 
     /**
      * Load the packages for the current project.
+     * @return {$.Deferred}
      */
     function loadProjectDependencies() {
         var deferred = new $.Deferred(),
@@ -316,6 +333,7 @@ define(function (require, exports) {
      * Check for packages updates based on the current installed packages.
      * If the packages have upates, update the information from the current
      * project installed packages.
+     * @return {$.Deferred}
      */
     function checkForUpdates() {
         var deferred = new $.Deferred();
