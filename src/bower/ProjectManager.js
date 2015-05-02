@@ -302,22 +302,22 @@ define(function (require, exports) {
         exports.trigger(PROJECT_LOADING);
 
         // load bowerrc if any
-        ConfigurationManager.loadBowerRc(_bowerProject);
+        ConfigurationManager.loadBowerRc(_bowerProject).always(function () {
+            // load bower.json if any
+            BowerJsonManager.loadBowerJson(_bowerProject).always(function () {
 
-        // load bower.json if any
-        BowerJsonManager.loadBowerJson(_bowerProject).always(function () {
+                // start loading project dependencies
+                PackageManager.loadProjectDependencies().always(function () {
 
-            // start loading project dependencies
-            PackageManager.loadProjectDependencies().always(function () {
+                    FileSystemHandler.startListenToFileSystem(_bowerProject);
 
-                FileSystemHandler.startListenToFileSystem(_bowerProject);
+                    // notify bower project is ready
+                    exports.trigger(PROJECT_READY);
 
-                // notify bower project is ready
-                exports.trigger(PROJECT_READY);
-
-                // try to get check for dependencies updates
-                PackageManager.checkForUpdates().fail(function () {
-                    // TODO: handle situations when it fails not because network errors
+                    // try to get check for dependencies updates
+                    PackageManager.checkForUpdates().fail(function () {
+                        // TODO: handle situations when it fails not because network errors
+                    });
                 });
             });
         });

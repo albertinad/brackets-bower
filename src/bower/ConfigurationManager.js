@@ -34,6 +34,7 @@ define(function (require, exports) {
         BowerRc               = require("src/bower/metadata/BowerRc"),
         Bower                 = require("src/bower/Bower"),
         BracketsConfiguration = require("src/bower/configuration/BracketsConfiguration"),
+        DefaultConfiguration  = require("src/bower/configuration/DefaultConfiguration"),
         FileSystemHandler     = require("src/bower/FileSystemHandler"),
         FileUtils             = require("src/utils/FileUtils");
 
@@ -109,7 +110,7 @@ define(function (require, exports) {
         if (_bowerRc !== null) {
             config = _bowerRc.Data;
         } else {
-            config = {};
+            config = DefaultConfiguration.getConfiguration();
         }
 
         config = _.extend(config, BracketsConfiguration.getConfiguration());
@@ -136,20 +137,40 @@ define(function (require, exports) {
     }
 
     function loadBowerRc(project) {
+        var deferred = new $.Deferred();
+
         if (project) {
             var path = project.getPath();
 
             findBowerRc(path).then(function () {
                 _bowerRc = new BowerRc(path);
+
+                Bower.getConfiguration(_bowerRc.AbsolutePath)
+                    .then(function (configuration) {
+                        _bowerRc.Data = configuration;
+                    })
+                    .fail(function () {
+                        // do not handle error
+                    });
             }).fail(function () {
                 _bowerRc = null;
             }).always(function () {
                 _notifyBowerRcReloaded();
+
+                if (_bowerRc) {
+                    deferred.resolve();
+                } else {
+                    deferred.reject();
+                }
             });
         } else {
             _bowerRc = null;
             _notifyBowerRcReloaded();
+
+            deferred.reject();
         }
+
+        return deferred;
     }
 
     function _onBowerRcCreated() {
@@ -181,6 +202,7 @@ define(function (require, exports) {
         var Events = FileSystemHandler.Events;
 
         BracketsConfiguration.init();
+        DefaultConfiguration.init();
 
         BracketsConfiguration.on(BracketsConfiguration.Events.CHANGED, function (configuration) {
             if (_bowerRc !== null) {
