@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.7
+* Error handling
+* Checking conflicts when uninstalling packages with dependants packages
+* Bug fixing
+
 ## v0.2.6
 * Change Bower active directory using the Project Tree contextual menu:
     - Set the selected directory or file directory as the active path for Bower
