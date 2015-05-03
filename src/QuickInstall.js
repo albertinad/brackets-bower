@@ -33,7 +33,6 @@ define(function (require, exports, module) {
         StringUtils    = brackets.getModule("utils/StringUtils");
 
     var StatusBarController = require("src/StatusBarController").Controller,
-        QuickSearchSpinner  = require("src/QuickSearchSpinner").create(),
         PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),
         Strings             = require("strings");
@@ -43,9 +42,62 @@ define(function (require, exports, module) {
         packages,
         packageListPromise,
         installPromise,
+        _spinner,
         _latestQuery,
         _lastFetchTime,
         _isFetching = false;
+
+    /**
+     * @constructor
+     */
+    function QuickSearchSpinner() {
+        /** @private **/
+        this._templateHtml = "<div class='spinner spin'></div>";
+        /** @private **/
+        this._$spinner = null;
+    }
+
+    QuickSearchSpinner.prototype.show = function () {
+        // Bit of a hack that we know the actual element here.
+        var $quickOpenInput = $("#quickOpenSearch"),
+            $parent = $quickOpenInput.parent(),
+            $label = $parent.find("span.find-dialog-label"),
+            inputOffset = $quickOpenInput.offset(),
+            inputWidth = $quickOpenInput.outerWidth(),
+            inputHeight = $quickOpenInput.outerHeight(),
+            parentOffset = $parent.offset(),
+            parentWidth = $parent.outerWidth(),
+            parentPosition = $parent.position(),
+
+            // This calculation is a little nasty because the parent modal bar isn't actually position: relative,
+            // so we both have to account for the input's offset within the modal bar as well as the modal bar's
+            // position within its offset parent.
+            spinnerTop = parentPosition.top + inputOffset.top - parentOffset.top + (inputHeight / 2) - 7,
+
+            spinnerRight = (parentOffset.left + parentWidth) - (inputOffset.left + inputWidth) + 14;
+
+        if ($label) {
+            $label.css({
+                right: "40px"
+            });
+        }
+
+        this._$spinner = $(this._templateHtml);
+
+        this._$spinner.css({
+            position: "absolute",
+            top: spinnerTop + "px",
+            right: spinnerRight + "px"
+        });
+
+        this._$spinner.appendTo($parent);
+    };
+
+    QuickSearchSpinner.prototype.hide = function () {
+        if (this._$spinner) {
+            this._$spinner.remove();
+        }
+    };
 
     function _installNext() {
         if (installPromise || queue.length === 0) {
@@ -168,7 +220,7 @@ define(function (require, exports, module) {
 
                 packageListPromise = new $.Deferred();
 
-                QuickSearchSpinner.show();
+                _spinner.show();
 
                 var statusId = StatusBarController.post(message, true);
 
@@ -184,7 +236,7 @@ define(function (require, exports, module) {
                         packageListPromise.reject();
                     })
                     .always(function () {
-                        QuickSearchSpinner.hide();
+                        _spinner.hide();
                         StatusBarController.update(statusId, message, false);
                         StatusBarController.remove(statusId);
                     });
@@ -235,7 +287,7 @@ define(function (require, exports, module) {
         }
     }
 
-    function init(domainPath) {
+    function init() {
         QuickOpen.addQuickOpenPlugin({
             name: "installFromBower",
             languageIds: [],
@@ -244,6 +296,8 @@ define(function (require, exports, module) {
             itemSelect: _itemSelect,
             label: Strings.TITLE_QUICK_OPEN
         });
+
+        _spinner = new QuickSearchSpinner();
     }
 
     exports.init           = init;
