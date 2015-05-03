@@ -82,6 +82,10 @@ define(function (require, exports) {
             options = {},
             isProduction;
 
+        if (!project) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
         if (version && (version.trim() !== "")) {
             packageName += "#" + version;
         }
@@ -135,15 +139,18 @@ define(function (require, exports) {
     function installFromBowerJson() {
         var deferred = new $.Deferred(),
             existsBowerJson = BowerJsonManager.existsBowerJson(),
-            config,
-            project;
+            project = ProjectManager.getProject(),
+            config;
+
+        if (!project) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
         if (!existsBowerJson) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
         config = ConfigurationManager.getConfiguration();
-        project = ProjectManager.getProject();
 
         Bower.install(config).then(function (result) {
             // create the package model for the packages list
@@ -172,6 +179,10 @@ define(function (require, exports) {
             existsBowerJson = BowerJsonManager.existsBowerJson(),
             project = ProjectManager.getProject(),
             config;
+
+        if (!project) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
         if (!existsBowerJson) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
@@ -207,6 +218,10 @@ define(function (require, exports) {
                 save: true,
                 saveDev: true
             };
+
+        if (!project) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
         config.force = (typeof force === "boolean") ? force : false;
 
@@ -250,6 +265,10 @@ define(function (require, exports) {
             project = ProjectManager.getProject(),
             pkg = project.getPackageByName(name),
             bowerJson;
+
+        if (!project) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
         // force bower.json to exists before updating
         if (!BowerJsonManager.existsBowerJson()) {
@@ -313,6 +332,10 @@ define(function (require, exports) {
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject();
 
+        if (!project) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
         config.offline = true;
 
         Bower.list(config).then(function (result) {
@@ -338,13 +361,17 @@ define(function (require, exports) {
      * @return {$.Deferred}
      */
     function checkForUpdates() {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            project = ProjectManager.getProject();
+
+        if (!project) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
         list().then(function (result) {
 
             return PackageFactory.createPackages(result.dependencies);
         }).then(function (packagesArray) {
-            var project = ProjectManager.getProject();
             project.setPackages(packagesArray);
 
             deferred.resolve(packagesArray);

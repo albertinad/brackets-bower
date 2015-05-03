@@ -39,7 +39,8 @@ define(function (require, exports, module) {
         CONFLICT               = 8,
         HTTP_DOWNLOAD_FAIL     = 9,
         DOWNLOAD_INCOMPLETE    = 10,
-        UNKNOWN_ERROR          = 11;
+        UNKNOWN_ERROR          = 11,
+        NO_PROJECT             = 12;
 
     /**
      * @param {number} code
@@ -69,4 +70,5 @@ define(function (require, exports, module) {
     exports.HTTP_DOWNLOAD_FAIL     = HTTP_DOWNLOAD_FAIL;
     exports.DOWNLOAD_INCOMPLETE    = DOWNLOAD_INCOMPLETE;
     exports.UNKNOWN_ERROR          = UNKNOWN_ERROR;
+    exports.NO_PROJECT             = NO_PROJECT;
 });
