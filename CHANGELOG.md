@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.8
+* Fixing packages list after installing from bower.json, to display only direct dependencies.
+* Adding bower default configuration based on bower-config.
+
 ## v0.2.7
 * Error handling
 * Checking conflicts when uninstalling packages with dependants packages
