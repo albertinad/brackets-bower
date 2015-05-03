@@ -41,6 +41,10 @@ define(function (require, exports) {
         };
     }
 
+    /**
+     * Get the default configuration.
+     * @return {object} configuration object
+     */
     function getConfiguration() {
         return _configuration;
     }

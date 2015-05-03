@@ -238,8 +238,10 @@ define(function (require, exports) {
     }
 
     /**
-     * @param {string} name
-     * @param {version=} version
+     * Update the given package to the given version if any, otherwise it will update it
+     * to the latest available version.
+     * @param {string} name Name of the package to update.
+     * @param {version=} version Version to update to. If empty, it will update it to the latest version.
      * @return {$.Deferred}
      */
     function update(name, version) {

@@ -153,6 +153,29 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Check if the given dependency name is defined in bower json dependencies.
+     * @param {string} name
+     * @param {object} bowerJsonDependencies
+     */
+    Package.isInBowerJsonDeps = function (name, bowerJsonDependencies) {
+        if (!bowerJsonDependencies) {
+            return false;
+        }
+
+        if (bowerJsonDependencies.dependencies &&
+            bowerJsonDependencies.dependencies[name]) {
+            return true;
+        }
+
+        if (bowerJsonDependencies.devDependencies &&
+            bowerJsonDependencies.devDependencies[name]) {
+            return true;
+        }
+
+        return false;
+    };
+
+    /**
      * Check if the current package version has latest versions.
      * @return {boolean} isLatest True if it has latest version, otherwhise, false.
      */
@@ -270,9 +293,13 @@ define(function (require, exports, module) {
         }).always(function () {
 
             pkgsName.forEach(function (name) {
-                var pkg = Package.fromRawData(name, packages[name], deps);
+                var pkg;
 
-                pkgs.push(pkg);
+                if (Package.isInBowerJsonDeps(name, deps)) {
+                    pkg = Package.fromRawData(name, packages[name], deps);
+
+                    pkgs.push(pkg);
+                }
             });
 
             deferred.resolve(pkgs);
