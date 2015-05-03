@@ -61,7 +61,8 @@ module.exports = function (grunt) {
                     "*.js",
                     "*.json",
                     "*.css",
-                    "*.md",
+                    "!*.md",
+                    "!gruntfile.js",
                     "!unittests.js"
                 ],
                 dest: "<%= pkg.name %>-<%= pkg.version %>.zip",
