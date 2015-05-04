@@ -23,10 +23,12 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global define, brackets */
 
 define(function (require, exports) {
     "use strict";
+
+    var _ = brackets.getModule("thirdparty/lodash");
 
     var _configuration;
 
@@ -46,7 +48,7 @@ define(function (require, exports) {
      * @return {object} configuration object
      */
     function getConfiguration() {
-        return _configuration;
+        return _.clone(_configuration, true);
     }
 
     exports.init             = init;

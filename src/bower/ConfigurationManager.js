@@ -119,7 +119,7 @@ define(function (require, exports) {
             config.cwd = project.getPath();
         }
 
-        return config;
+        return _.clone(config, true);
     }
 
     /**

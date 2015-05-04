@@ -23,12 +23,13 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global define, brackets */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerMetadata = require("src/bower/metadata/BowerMetadata");
+    var _             = brackets.getModule("thirdparty/lodash"),
+        BowerMetadata = require("src/bower/metadata/BowerMetadata");
 
     /**
      * Configuration file constructor.
@@ -48,7 +49,7 @@ define(function (require, exports, module) {
 
     Object.defineProperty(BowerRc.prototype, "Data", {
         get: function () {
-            return this._data;
+            return _.clone(this._data, true);
         },
         set: function (data) {
             this._data = data;

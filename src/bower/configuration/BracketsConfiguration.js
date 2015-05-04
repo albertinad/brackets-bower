@@ -28,7 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
+    var _                  = brackets.getModule("thirdparty/lodash"),
+        PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
         EventDispatcher    = brackets.getModule("utils/EventDispatcher");
 
     var _configuration = {},
@@ -80,7 +81,7 @@ define(function (require, exports) {
     }
 
     function getConfiguration() {
-        return _configuration;
+        return _.clone(_configuration, true);
     }
 
     function init() {
