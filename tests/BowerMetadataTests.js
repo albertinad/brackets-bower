@@ -102,7 +102,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.dependencies).length).toBe(0);
@@ -151,7 +151,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).not.toBeDefined();
                     expect(Object.keys(content.dependencies).length).toBe(2);
@@ -204,7 +204,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(2);
@@ -270,7 +270,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.dependencies).length).toBe(2);
@@ -318,7 +318,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).not.toBeDefined();
                     expect(Object.keys(content.dependencies).length).toBe(1);
@@ -349,7 +349,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).not.toBeDefined();
                     expect(Object.keys(content.dependencies).length).toBe(1);
@@ -393,7 +393,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
@@ -424,7 +424,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
@@ -468,7 +468,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).not.toBeDefined();
                     expect(Object.keys(content.dependencies).length).toBe(1);
@@ -499,7 +499,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).not.toBeDefined();
                     expect(Object.keys(content.dependencies).length).toBe(1);
@@ -545,7 +545,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
@@ -576,7 +576,7 @@ define(function (require, exports, module) {
                     expect(content).not.toBeNull();
                     expect(content).toBeDefined();
 
-                    expect(content.name).toBe("test-app");
+                    expect(content.name).toBe(projectName);
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
