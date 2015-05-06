@@ -22,7 +22,7 @@
  */
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, expect, beforeEach, afterEach, beforeFirst, afterLast, waitsForDone, waitsForFail,
+/*global define, describe, it, expect, afterEach, beforeFirst, afterLast, waitsForDone, waitsForFail,
 runs, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
@@ -31,7 +31,8 @@ define(function (require, exports, module) {
     var SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
 
     describe("BracketsBower - Metadata", function () {
-        var tempDir = SpecRunnerUtils.getTempDirectory(),
+        var tempDir = SpecRunnerUtils.getTempDirectory() + "/",
+            projectName = "test-app",
             testWindow;
 
         beforeFirst(function () {
@@ -45,23 +46,16 @@ define(function (require, exports, module) {
 
                 waitsForDone(folderPromise, "waiting for test project to be opened");
             });
-        });
 
-        beforeEach(function () {
             runs(function () {
                 SpecRunnerUtils.createTempDirectory();
                 SpecRunnerUtils.loadProjectInTestWindow(tempDir);
             });
         });
 
-        afterEach(function () {
-            runs(function () {
-                SpecRunnerUtils.removeTempDirectory();
-            });
-        });
-
         afterLast(function () {
             runs(function () {
+                SpecRunnerUtils.removeTempDirectory();
                 SpecRunnerUtils.closeTestWindow();
             });
         });
@@ -70,8 +64,14 @@ define(function (require, exports, module) {
             var BowerJson = require("src/bower/metadata/BowerJson"),
                 Package = require("src/bower/PackageFactory")._Package;
 
+            afterEach(function () {
+                runs(function () {
+                    SpecRunnerUtils.remove(tempDir + "bower.json");
+                });
+            });
+
             it("should create a BowerJson object with default content", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     content;
 
                 runs(function () {
@@ -111,7 +111,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerJson object with the given content (only dependencies)", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     pkg1 = new Package("dep1"),
                     pkg2 = new Package("dep2"),
                     packages = [],
@@ -162,7 +162,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerJson object with the given content (only devDependencies)", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     pkg1 = new Package("dep1"),
                     pkg2 = new Package("dep2"),
                     packages = [],
@@ -215,7 +215,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerJson object with the given content (dependencies and devDependencies)", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     pkg1 = new Package("dep1"),
                     pkg2 = new Package("dep2"),
                     pkg3 = new Package("dep3"),
@@ -285,7 +285,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version for a dependency when it exists", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     pkg1 = new Package("dep1"),
                     newVersion = "2.0.0",
                     packages = [],
@@ -359,7 +359,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version for a devDependency when it exists", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     pkg1 = new Package("dep1"),
                     newVersion = "2.0.0",
                     packages = [],
@@ -434,7 +434,7 @@ define(function (require, exports, module) {
             });
 
             it("should not update the version for a dependency when it doesn't exists", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     pkg1 = new Package("dep1"),
                     nonDepName = "nonDep",
                     nonDepVersion = "2.0.0",
@@ -510,7 +510,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version for a devDependency it exists", function () {
-                var bowerJson = new BowerJson(tempDir + "/", "test-app"), // TODO check this
+                var bowerJson = new BowerJson(tempDir, projectName),
                     pkg1 = new Package("dep1"),
                     nonDepName = "nonDep",
                     nonDepVersion = "2.0.0",
@@ -590,8 +590,14 @@ define(function (require, exports, module) {
         describe("BowerRc", function () {
             var BowerRc = require("src/bower/metadata/BowerRc");
 
-            it("should create a BowerJson object with default content", function () {
-                var bowerRc = new BowerRc(tempDir + "/", "test-app"), // TODO check this
+            afterEach(function () {
+                runs(function () {
+                    SpecRunnerUtils.remove(tempDir + ".bowerrc");
+                });
+            });
+
+            it("should create a BowerRc object with default content", function () {
+                var bowerRc = new BowerRc(tempDir, projectName),
                     content;
 
                 runs(function () {
