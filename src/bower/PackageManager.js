@@ -109,18 +109,22 @@ define(function (require, exports) {
 
         // install the given package
         Bower.installPackage(packageName, options, config).then(function (result) {
-            // get only the direct dependency
-            var data = result.packages[name],
-                pkg = PackageFactory.createPackage(name, data, !isProduction);
+            if (result.count !== 0) {
+                // get only the direct dependency
+                var data = result.packages[name],
+                    pkg = PackageFactory.createPackage(name, data, !isProduction);
 
-            info(name).then(function (packageInfo) {
-                // update the package latestVersion
-                pkg.latestVersion = packageInfo.latestVersion;
-            }).always(function () {
-                project.addPackages([pkg]);
+                info(name).then(function (packageInfo) {
+                    // update the package latestVersion
+                    pkg.latestVersion = packageInfo.latestVersion;
+                }).always(function () {
+                    project.addPackages([pkg]);
 
+                    deferred.resolve(result);
+                });
+            } else {
                 deferred.resolve(result);
-            });
+            }
 
         }).fail(function (error) {
             deferred.reject(error);

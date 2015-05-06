@@ -316,6 +316,10 @@ define(function (require, exports, module) {
      * @return {Package}
      */
     function createPackage(packageName, rawData, isDev) {
+        if (!rawData) {
+            return null;
+        }
+
         var pkg = Package.fromRawData(packageName, rawData);
 
         pkg.isDevDependency = isDev;
