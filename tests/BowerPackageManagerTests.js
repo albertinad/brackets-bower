@@ -35,6 +35,7 @@ define(function (require, exports, module) {
         var PackageManager = require("src/bower/PackageManager"),
             Bower = require("src/bower/Bower"),
             tempDir = SpecRunnerUtils.getTempDirectory(),
+            defaultTimeout = 5000,
             ExtensionUtils,
             testWindow,
             bowerDomain;
@@ -49,7 +50,7 @@ define(function (require, exports, module) {
                     folderPromise.resolve();
                 });
 
-                waitsForDone(folderPromise, "waiting for test project to be opened");
+                waitsForDone(folderPromise, "waiting for test project to be opened", defaultTimeout);
             });
 
             runs(function () {
@@ -100,7 +101,7 @@ define(function (require, exports, module) {
                     resultPromise.reject();
                 });
 
-                waitsForDone(resultPromise, "listCache was successfully executed");
+                waitsForDone(resultPromise, "listCache was successfully executed", defaultTimeout);
             });
 
             runs(function () {
@@ -132,7 +133,7 @@ define(function (require, exports, module) {
                     resultPromise.reject();
                 });
 
-                waitsForDone(resultPromise, "search was successfully executed");
+                waitsForDone(resultPromise, "search was successfully executed", defaultTimeout);
             });
 
             runs(function () {
@@ -164,7 +165,7 @@ define(function (require, exports, module) {
                     resultPromise.reject();
                 });
 
-                waitsForDone(resultPromise, "listCache was successfully executed");
+                waitsForDone(resultPromise, "listCache was successfully executed", defaultTimeout);
             });
 
             runs(function () {
@@ -191,7 +192,7 @@ define(function (require, exports, module) {
                     resultPromise.reject();
                 });
 
-                waitsForFail(resultPromise, "info was rejected");
+                waitsForFail(resultPromise, "info was rejected", defaultTimeout);
             });
 
             runs(function () {
@@ -216,7 +217,7 @@ define(function (require, exports, module) {
                     resultPromise.reject();
                 });
 
-                waitsForDone(resultPromise, "info was successfully executed");
+                waitsForDone(resultPromise, "info was successfully executed", defaultTimeout);
             });
 
             runs(function () {
