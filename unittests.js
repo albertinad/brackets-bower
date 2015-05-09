@@ -34,5 +34,6 @@ define(function (require, exports, module) {
     require("tests/PreferencesTests");
     require("tests/BowerMetadataTests");
     require("tests/BowerPackageManagerTests");
+    require("tests/PackageFactoryTests");
     require("tests/BowerDomainTests");
 });

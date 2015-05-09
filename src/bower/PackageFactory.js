@@ -32,6 +32,45 @@ define(function (require, exports, module) {
         BowerJsonManager = require("src/bower/BowerJsonManager");
 
     /**
+     * Package dependency constructor function.
+     * @controller
+     */
+    function PackageDependency(name, version, endpoint, homepage) {
+        /** @private */
+        this._name = name;
+        /** @private */
+        this._version = version;
+        /** @private */
+        this._endpoint = endpoint;
+        /** @private */
+        this._homepage = homepage;
+    }
+
+    Object.defineProperty(PackageDependency.prototype, "name", {
+        get: function () {
+            return this._name;
+        }
+    });
+
+    Object.defineProperty(PackageDependency.prototype, "version", {
+        get: function () {
+            return this._version;
+        }
+    });
+
+    Object.defineProperty(PackageDependency.prototype, "endpoint", {
+        get: function () {
+            return this._endpoint;
+        }
+    });
+
+    Object.defineProperty(PackageDependency.prototype, "homepage", {
+        get: function () {
+            return this._homepage;
+        }
+    });
+
+    /**
      * Constructor function for Bower package instances.
      * @param {string} name
      * @constructor
@@ -51,6 +90,14 @@ define(function (require, exports, module) {
         this._isInstalled = true;
         /** @private */
         this._isDevDependency = false;
+        /** @private */
+        this._dependencies = [];
+        /** @private */
+        this._description = null;
+        /** @private */
+        this._homepage = null;
+        /** @private */
+        this._source = null;
     }
 
     Object.defineProperty(Package.prototype, "name", {
@@ -113,6 +160,52 @@ define(function (require, exports, module) {
         }
     });
 
+    Object.defineProperty(Package.prototype, "dependencies", {
+        set: function (dependencies) {
+            this._dependencies = dependencies;
+        },
+        get: function () {
+            return this._dependencies;
+        }
+    });
+
+    Object.defineProperty(Package.prototype, "description", {
+        set: function (description) {
+            this._description = description;
+        },
+        get: function () {
+            return this._description;
+        }
+    });
+
+    Object.defineProperty(Package.prototype, "homepage", {
+        set: function (homepage) {
+            this._homepage = homepage;
+        },
+        get: function () {
+            return this._homepage;
+        }
+    });
+
+    Object.defineProperty(Package.prototype, "source", {
+        set: function (source) {
+            this._source = source;
+        },
+        get: function () {
+            return this._source;
+        }
+    });
+
+    /**
+     * @param {PackageDependency} dependency
+     */
+    Package.prototype.addDependency = function (dependency) {
+        if (dependency) {
+            // TODO not add existent
+            this._dependencies.push(dependency);
+        }
+    };
+
     /**
      * Create package from raw data.
      * @param {string} name
@@ -124,8 +217,22 @@ define(function (require, exports, module) {
         var pkg = new Package(name),
             meta = data.pkgMeta;
 
-        if (meta && meta.version !== undefined) {
-            pkg.version = meta.version;
+        if (meta) {
+            if (meta.version) {
+                pkg.version = meta.version;
+            }
+
+            if (meta._source) {
+                pkg.source = meta._source;
+            }
+
+            if (meta.homepage) {
+                pkg.homepage = meta.homepage;
+            }
+
+            if (meta.description) {
+                pkg.description = meta.description;
+            }
         }
 
         if (data.update && data.update.latest) {
@@ -138,6 +245,19 @@ define(function (require, exports, module) {
 
         if (data.extraneous) {
             pkg.extraneous = true;
+        }
+
+        if (data.dependencies) {
+            _.forEach(data.dependencies, function (dependency, name) {
+                var endpoint = dependency.endpoint,
+                    version = (endpoint !== undefined) ? endpoint.target : "",
+                    metadata = dependency.pkgMeta,
+                    source = (metadata) ? metadata._source : "";
+
+                console.log(endpoint);
+
+                pkg.addDependency(new PackageDependency(name, version, source));
+            });
         }
 
         if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
@@ -163,12 +283,12 @@ define(function (require, exports, module) {
         }
 
         if (bowerJsonDependencies.dependencies &&
-            bowerJsonDependencies.dependencies[name]) {
+                bowerJsonDependencies.dependencies[name]) {
             return true;
         }
 
         if (bowerJsonDependencies.devDependencies &&
-            bowerJsonDependencies.devDependencies[name]) {
+                bowerJsonDependencies.devDependencies[name]) {
             return true;
         }
 
@@ -240,9 +360,6 @@ define(function (require, exports, module) {
     });
 
     Object.defineProperty(PackageInfo.prototype, "dependencies", {
-        set: function (dependencies) {
-            this._dependencies = dependencies;
-        },
         get: function () {
             return this._dependencies;
         }
@@ -276,6 +393,45 @@ define(function (require, exports, module) {
     });
 
     /**
+     * @param {PackageDependency} dependency
+     */
+    PackageInfo.prototype.addDependency = function (dependency) {
+        if (dependency) {
+            // TODO not add existent
+            this._dependencies.push(dependency);
+        }
+    };
+
+    /**
+     * @param {object} rawData
+     * @return {PackageInfo}
+     */
+    PackageInfo.fromRawData = function (rawData) {
+        var latest = rawData.latest,
+            latestVersion = latest.version,
+            pkg = new PackageInfo(rawData.name, latestVersion, rawData.versions);
+
+        _.forEach(latest.dependencies, function (version, name) {
+            // TODO get homepage?
+            pkg.addDependency(new PackageDependency(name, version, ''));
+        });
+
+        if (latest.keywords) {
+            pkg.keywords = latest.keywords;
+        }
+
+        if (latest.homepage) {
+            pkg.homepage = latest.homepage;
+        }
+
+        if (latest.description) {
+            pkg.description = latest.description;
+        }
+
+        return pkg;
+    };
+
+    /**
      * Create an array of Package instances from the raw data given as arguments.
      * @param {object} packages
      * @return {Array}
@@ -287,16 +443,20 @@ define(function (require, exports, module) {
             deps = null;
 
         // get all the dependencies defined in bower.json if any
+        // TODO add an option to avoid this
         BowerJsonManager.getDependencies().then(function (data) {
 
             deps = data;
         }).always(function () {
 
             pkgsName.forEach(function (name) {
-                var pkg;
+                var pkg,
+                    pkgRawData;
 
                 if (Package.isInBowerJsonDeps(name, deps)) {
-                    pkg = Package.fromRawData(name, packages[name], deps);
+                    pkgRawData = packages[name];
+
+                    pkg = Package.fromRawData(name, pkgRawData, deps);
 
                     pkgs.push(pkg);
                 }
@@ -329,31 +489,15 @@ define(function (require, exports, module) {
 
     /**
      * Create a PackageInfo instance from the raw data.
-     * @param {object} infoData
+     * @param {object} rawData
      * @return {PackageInfo}
      */
-    function createInfo(infoData) {
-        var latest = infoData.latest,
-            latestVersion = latest.version,
-            pkg = new PackageInfo(infoData.name, latestVersion, infoData.versions);
-
-        _.forEach(latest.dependencies, function (version, name) {
-            pkg.dependencies.push({ name: name, version: version });
-        });
-
-        if (latest.keywords) {
-            pkg.keywords = latest.keywords;
+    function createInfo(rawData) {
+        if (!rawData) {
+            return null;
         }
 
-        if (latest.homepage) {
-            pkg.homepage = latest.homepage;
-        }
-
-        if (latest.description) {
-            pkg.description = latest.description;
-        }
-
-        return pkg;
+        return PackageInfo.fromRawData(rawData);
     }
 
     /**
@@ -380,5 +524,7 @@ define(function (require, exports, module) {
     exports.createInfo      = createInfo;
     exports.getPackagesName = getPackagesName;
     // tests
-    exports._Package        = Package;
+    exports._Package           = Package;
+    exports._PackageDependency = PackageDependency;
+    exports._PackageInfo       = PackageInfo;
 });

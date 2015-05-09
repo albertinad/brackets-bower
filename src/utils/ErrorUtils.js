@@ -40,7 +40,8 @@ define(function (require, exports, module) {
         HTTP_DOWNLOAD_FAIL     = 9,
         DOWNLOAD_INCOMPLETE    = 10,
         UNKNOWN_ERROR          = 11,
-        NO_PROJECT             = 12;
+        NO_PROJECT             = 12,
+        EMALFORMED             = 13;
 
     /**
      * @param {number} code
