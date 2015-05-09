@@ -252,7 +252,13 @@ define(function (require, exports, module) {
                 var endpoint = dependency.endpoint,
                     version = (endpoint !== undefined) ? endpoint.target : "",
                     metadata = dependency.pkgMeta,
-                    source = (metadata) ? metadata._source : "";
+                    source;
+
+                if (metadata && metadata._source) {
+                    source = metadata._source;
+                } else {
+                    source = "";
+                }
 
                 console.log(endpoint);
 
