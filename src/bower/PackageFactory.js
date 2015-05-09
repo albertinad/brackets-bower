@@ -419,7 +419,7 @@ define(function (require, exports, module) {
 
         _.forEach(latest.dependencies, function (version, name) {
             // TODO get homepage?
-            pkg.addDependency(new PackageDependency(name, version, ''));
+            pkg.addDependency(new PackageDependency(name, version, ""));
         });
 
         if (latest.keywords) {
@@ -440,11 +440,30 @@ define(function (require, exports, module) {
     /**
      * Create an array of Package instances from the raw data given as arguments.
      * @param {object} packages
+     * @param {object|null} deps
      * @return {Array}
      */
-    function createPackages(packages) {
+    function createPackages(packages, deps) {
+        var pkgsName = Object.keys(packages),
+            pkgs = [];
+
+        pkgsName.forEach(function (name) {
+            var pkgRawData = packages[name],
+                pkg = Package.fromRawData(name, pkgRawData, deps);
+
+            pkgs.push(pkg);
+        });
+
+        return pkgs;
+    }
+
+    /**
+     * Create an array of Packages instances that are tracked in the bower.json file.
+     * @param {object} packages
+     * @return {$.Promise}
+     */
+    function createTrackedPackages(packages) {
         var deferred = new $.Deferred(),
-            pkgsName = Object.keys(packages),
             pkgs = [],
             deps = null;
 
@@ -454,6 +473,8 @@ define(function (require, exports, module) {
 
             deps = data;
         }).always(function () {
+
+            var pkgsName = Object.keys(packages);
 
             pkgsName.forEach(function (name) {
                 var pkg,
@@ -525,10 +546,11 @@ define(function (require, exports, module) {
         return names;
     }
 
-    exports.createPackages  = createPackages;
-    exports.createPackage   = createPackage;
-    exports.createInfo      = createInfo;
-    exports.getPackagesName = getPackagesName;
+    exports.createPackages        = createPackages;
+    exports.createPackage         = createPackage;
+    exports.createTrackedPackages = createTrackedPackages;
+    exports.createInfo            = createInfo;
+    exports.getPackagesName       = getPackagesName;
     // tests
     exports._Package           = Package;
     exports._PackageDependency = PackageDependency;

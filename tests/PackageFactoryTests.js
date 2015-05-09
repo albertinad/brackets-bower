@@ -66,44 +66,25 @@ define(function (require, exports, module) {
 
         it("should get an array of Package objects for the raw data", function () {
             var data = require("text!tests/utils/data/install.packages.json"),
-                rawData = JSON.parse(data);
+                rawData = JSON.parse(data),
+                packages = PackageFactory.createPackages(rawData);
 
-            var packages;
+            expect(packages).not.toBeNull();
+            expect(packages).toBeDefined();
+            expect(Array.isArray(packages)).toEqual(true);
 
-            runs(function () {
-                var deferred = new testWindow.$.Deferred();
-
-                PackageFactory.createPackages(rawData)
-                    .then(function (result) {
-                        packages = result;
-
-                        deferred.resolve();
-                    })
-                    .fail(function () {
-                        deferred.reject();
-                    });
-
-                waitsForDone(deferred, "Getting packages from the raw data", defaultTimeout);
-            });
-
-            runs(function () {
-                expect(packages).not.toBeNull();
-                expect(packages).toBeDefined();
-                expect(Array.isArray(packages)).toEqual(true);
-
-                packages.forEach(function (pkg) {
-                    expect(pkg.name).toBeDefined();
-                    expect(pkg.version).toBeDefined();
-                    expect(pkg.latestVersion).toBeDefined();
-                    expect(pkg.versions).toBeDefined();
-                    expect(pkg.extraneous).toBeDefined();
-                    expect(pkg.isInstalled).toBeDefined();
-                    expect(pkg.isDevDependency).toBeDefined();
-                    expect(pkg.dependencies).toBeDefined();
-                    expect(pkg.description).toBeDefined();
-                    expect(pkg.home).toBeDefined();
-                    expect(pkg.source).toBeDefined();
-                });
+            packages.forEach(function (pkg) {
+                expect(pkg.name).toBeDefined();
+                expect(pkg.version).toBeDefined();
+                expect(pkg.latestVersion).toBeDefined();
+                expect(pkg.versions).toBeDefined();
+                expect(pkg.extraneous).toBeDefined();
+                expect(pkg.isInstalled).toBeDefined();
+                expect(pkg.isDevDependency).toBeDefined();
+                expect(pkg.dependencies).toBeDefined();
+                expect(pkg.description).toBeDefined();
+                expect(pkg.homepage).toBeDefined();
+                expect(pkg.source).toBeDefined();
             });
         });
 

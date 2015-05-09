@@ -158,7 +158,7 @@ define(function (require, exports) {
 
         Bower.install(config).then(function (result) {
             // create the package model for the packages list
-            PackageFactory.createPackages(result.packages).then(function (packagesArray) {
+            PackageFactory.createTrackedPackages(result.packages).then(function (packagesArray) {
 
                 project.addPackages(packagesArray);
 
@@ -345,8 +345,7 @@ define(function (require, exports) {
         Bower.list(config).then(function (result) {
 
             // create the package model
-            return PackageFactory.createPackages(result.dependencies);
-        }).then(function (packagesArray) {
+            var packagesArray = PackageFactory.createPackages(result.dependencies);
 
             project.setPackages(packagesArray);
 
@@ -374,8 +373,8 @@ define(function (require, exports) {
 
         list().then(function (result) {
 
-            return PackageFactory.createPackages(result.dependencies);
-        }).then(function (packagesArray) {
+            var packagesArray = PackageFactory.createPackages(result.dependencies);
+
             project.setPackages(packagesArray);
 
             deferred.resolve(packagesArray);
