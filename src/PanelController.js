@@ -211,7 +211,7 @@ define(function (require, exports, module) {
 
         commandFn().then(function (result) {
 
-            if (result && result.count === 0) {
+            if (!result) {
                 resultMessage = Strings.STATUS_NO_PACKAGES_INSTALLED;
             }
 

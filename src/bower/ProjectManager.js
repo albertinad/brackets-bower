@@ -185,14 +185,11 @@ define(function (require, exports) {
     };
 
     /**
-     * Update the current version of the given package by name.
-     * @param {string} name The package name of the package to update.
-     * @param {string} version The new version of the package.
+     * Update the given package.
+     * @param {Package} pkg
      */
-    BowerProject.prototype.updatePackageVersion = function (name, version) {
-        var pkg = this.getPackageByName(name);
-
-        pkg.version = version;
+    BowerProject.prototype.updatePackage = function (pkg) {
+        this._packages[pkg.name] = pkg;
 
         exports.trigger(DEPENDENCY_UPDATED, pkg);
     };

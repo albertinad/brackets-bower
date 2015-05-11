@@ -120,10 +120,10 @@ define(function (require, exports) {
                 }).always(function () {
                     project.addPackages([pkg]);
 
-                    deferred.resolve(result);
+                    deferred.resolve(pkg);
                 });
             } else {
-                deferred.resolve(result);
+                deferred.resolve(null);
             }
 
         }).fail(function (error) {
@@ -162,7 +162,7 @@ define(function (require, exports) {
 
                 project.addPackages(packagesArray);
 
-                deferred.resolve(result);
+                deferred.resolve(packagesArray);
             }).fail(function (error) {
                 deferred.reject(error);
             });
@@ -288,12 +288,16 @@ define(function (require, exports) {
         version = version || pkg.latestVersion;
 
         bowerJson.updatePackageVersion(name, version).then(function () {
-            return Bower.update(name, config);
-        }).then(function () {
-            // update model
-            project.updatePackageVersion(name, version);
 
-            deferred.resolve();
+            return Bower.update(name, config);
+        }).then(function (result) {
+            // update model
+            var rawData = result[name],
+                updatedPkg = PackageFactory.createPackage(name, rawData, pkg.isDevDependency);
+
+            project.updatePackage(updatedPkg);
+
+            deferred.resolve(updatedPkg);
         }).fail(function (error) {
 
             deferred.reject(error);
