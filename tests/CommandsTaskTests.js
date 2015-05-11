@@ -22,40 +22,16 @@
  */
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, expect, beforeEach, afterEach, beforeFirst, afterLast, waitsForDone, waitsForFail,
-runs, $, brackets, waitsFor */
+/*global define, describe, it, expect, beforeEach, afterEach, waitsForDone, waitsForFail,
+runs, $, waitsFor */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
-
     describe("BracketsBower - CommandsTask", function () {
         var CommandsTask = require("src/bower/CommandsTask"),
-            tempDir = SpecRunnerUtils.getTempDirectory(),
             defaultTimeout = 10000,
-            commandsTask,
-            ExtensionUtils,
-            testWindow;
-
-        beforeFirst(function () {
-            runs(function () {
-                var folderPromise = new $.Deferred();
-
-                SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
-                    testWindow = w;
-                    ExtensionUtils = testWindow.brackets.test.ExtensionUtils;
-                    folderPromise.resolve();
-                });
-
-                waitsForDone(folderPromise, "waiting for test project to be opened", defaultTimeout);
-            });
-
-            runs(function () {
-                SpecRunnerUtils.createTempDirectory();
-                SpecRunnerUtils.loadProjectInTestWindow(tempDir);
-            });
-        });
+            commandsTask;
 
         beforeEach(function () {
             commandsTask = new CommandsTask();
@@ -65,13 +41,6 @@ define(function (require, exports, module) {
             commandsTask = null;
         });
 
-        afterLast(function () {
-            runs(function () {
-                SpecRunnerUtils.removeTempDirectory();
-                SpecRunnerUtils.closeTestWindow();
-            });
-        });
-
         it("should execute a single successful task without arguments", function () {
             var resultPromise,
                 data;
@@ -79,7 +48,7 @@ define(function (require, exports, module) {
             function someTask() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.resolve("some value");
                 }, 1000);
 
@@ -112,7 +81,7 @@ define(function (require, exports, module) {
             function someTask() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.reject("some value");
                 }, 1000);
 
@@ -147,7 +116,7 @@ define(function (require, exports, module) {
             function task1() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.resolve("task1");
                 }, 100);
 
@@ -157,7 +126,7 @@ define(function (require, exports, module) {
             function task2() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.resolve(3);
                 }, 150);
 
@@ -167,7 +136,7 @@ define(function (require, exports, module) {
             function task3() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.resolve(true);
                 }, 500);
 
@@ -232,7 +201,7 @@ define(function (require, exports, module) {
             function task1() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.reject("task1");
                 }, 500);
 
@@ -242,7 +211,7 @@ define(function (require, exports, module) {
             function task2() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.resolve(3);
                 }, 3000);
 
@@ -252,7 +221,7 @@ define(function (require, exports, module) {
             function task3() {
                 var deferred = new $.Deferred();
 
-                testWindow.setTimeout(function () {
+                window.setTimeout(function () {
                     deferred.resolve(true);
                 }, 100);
 

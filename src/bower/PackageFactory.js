@@ -201,7 +201,6 @@ define(function (require, exports, module) {
      */
     Package.prototype.addDependency = function (dependency) {
         if (dependency) {
-            // TODO not add existent
             this._dependencies.push(dependency);
         }
     };
@@ -403,7 +402,6 @@ define(function (require, exports, module) {
      */
     PackageInfo.prototype.addDependency = function (dependency) {
         if (dependency) {
-            // TODO not add existent
             this._dependencies.push(dependency);
         }
     };
@@ -468,7 +466,6 @@ define(function (require, exports, module) {
             deps = null;
 
         // get all the dependencies defined in bower.json if any
-        // TODO add an option to avoid this
         BowerJsonManager.getDependencies().then(function (data) {
 
             deps = data;
