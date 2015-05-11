@@ -28,9 +28,11 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var BowerErrors = require("src/bower/BowerErrors");
+    var BowerErrors  = require("src/bower/BowerErrors"),
+        CommandsTask = require("src/bower/CommandsTask");
 
-    var bowerDomain;
+    var bowerDomain,
+        commandsTask = new CommandsTask();
 
     /**
      * @param {NodeDomain} domain
@@ -45,21 +47,25 @@ define(function (require, exports) {
      * @param {object} config
      */
     function installPackage(packageName, options, config) {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            taskPromise,
+            args;
 
         options = options || {};
 
-        bowerDomain.exec("install", [packageName], options, config)
-            .then(function (installedPackages) {
-                var result = {
-                    count: Object.keys(installedPackages).length,
-                    packages: installedPackages
-                };
+        args = ["install", [packageName], options, config];
 
-                deferred.resolve(result);
-            }).fail(function (error) {
-                deferred.reject(BowerErrors.getError(error));
-            });
+        taskPromise = commandsTask.addTask(bowerDomain.exec, args, bowerDomain);
+
+        taskPromise.then(function (installedPackages) {
+            var result = {
+                count: Object.keys(installedPackages).length,
+                packages: installedPackages
+            };
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
 
         return deferred.promise();
     }
@@ -68,9 +74,10 @@ define(function (require, exports) {
      * @param {object} config
      */
     function install(config) {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            taskPromise = commandsTask.addTask(bowerDomain.exec, ["install", null, {}, config], bowerDomain);
 
-        bowerDomain.exec("install", null, {}, config).then(function (installedPackages) {
+        taskPromise.then(function (installedPackages) {
             var result = {
                 count: Object.keys(installedPackages).length,
                 packages: installedPackages
@@ -88,9 +95,59 @@ define(function (require, exports) {
      * @param {object} config
      */
     function prune(config) {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            taskPromise = commandsTask.addTask(bowerDomain.exec, ["prune", config], bowerDomain);
 
-        bowerDomain.exec("prune", config).then(function (result) {
+        taskPromise.then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * @param {string|array} names
+     * @param {object} options
+     * @param {object} config
+     */
+    function uninstall(names, options, config) {
+        var deferred = new $.Deferred(),
+            taskPromise;
+
+        options = options || {};
+
+        if (!Array.isArray(names)) {
+            names = [names];
+        }
+
+        taskPromise = commandsTask.addTask(bowerDomain.exec, ["uninstall", names, options, config], bowerDomain);
+
+        taskPromise.then(function (result) {
+            deferred.resolve(result);
+        }).fail(function (error) {
+            deferred.reject(BowerErrors.getError(error));
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * @param {string|array} names
+     * @param {object} config
+     */
+    function update(names, config) {
+        var deferred = new $.Deferred(),
+            taskPromise;
+
+        if (!Array.isArray(names)) {
+            names = [names];
+        }
+
+        taskPromise = commandsTask.addTask(bowerDomain.exec, ["update", names, config], bowerDomain);
+
+        taskPromise.then(function (result) {
             deferred.resolve(result);
         }).fail(function (error) {
             deferred.reject(BowerErrors.getError(error));
@@ -115,41 +172,22 @@ define(function (require, exports) {
     }
 
     /**
-     * @param {string|array} names
-     * @param {object} options
+     * Get the packages information from the bower cache.
      * @param {object} config
      */
-    function uninstall(names, options, config) {
+    function listCache(config) {
         var deferred = new $.Deferred();
 
-        options = options || {};
+        bowerDomain.exec("listCache", config).then(function (pkgs) {
+            // the packages returned from "bower cache list" doesn't have
+            // the "name" property, so we added it
+            pkgs.forEach(function (item) {
+                var name = item.pkgMeta.name;
 
-        if (!Array.isArray(names)) {
-            names = [names];
-        }
+                item.name = name;
+            });
 
-        bowerDomain.exec("uninstall", names, options, config).then(function (result) {
-            deferred.resolve(result);
-        }).fail(function (error) {
-            deferred.reject(BowerErrors.getError(error));
-        });
-
-        return deferred.promise();
-    }
-
-    /**
-     * @param {string|array} names
-     * @param {object} config
-     */
-    function update(names, config) {
-        var deferred = new $.Deferred();
-
-        if (!Array.isArray(names)) {
-            names = [names];
-        }
-
-        bowerDomain.exec("update", names, config).then(function (result) {
-            deferred.resolve(result);
+            deferred.resolve(pkgs);
         }).fail(function (error) {
             deferred.reject(BowerErrors.getError(error));
         });
@@ -181,30 +219,6 @@ define(function (require, exports) {
 
         bowerDomain.exec("search", config).then(function (result) {
             deferred.resolve(result);
-        }).fail(function (error) {
-            deferred.reject(BowerErrors.getError(error));
-        });
-
-        return deferred.promise();
-    }
-
-    /**
-     * Get the packages information from the bower cache.
-     * @param {object} config
-     */
-    function listCache(config) {
-        var deferred = new $.Deferred();
-
-        bowerDomain.exec("listCache", config).then(function (pkgs) {
-            // the packages returned from "bower cache list" doesn't have
-            // the "name" property, so we added it
-            pkgs.forEach(function (item) {
-                var name = item.pkgMeta.name;
-
-                item.name = name;
-            });
-
-            deferred.resolve(pkgs);
         }).fail(function (error) {
             deferred.reject(BowerErrors.getError(error));
         });

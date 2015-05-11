@@ -113,7 +113,7 @@ define(function (require, exports, module) {
 
         installPromise = PackageManager.install(pkgName, null, dependencyType, save);
 
-        installPromise.done(function (result) {
+        installPromise.then(function (result) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
             StatusBarController.remove(statusId);
 
@@ -190,7 +190,7 @@ define(function (require, exports, module) {
             }
 
             return PackageManager.search();
-        }).done(function (pkgs) {
+        }).then(function (pkgs) {
             packages = _getSortedPackages(pkgs);
 
             result.resolve();

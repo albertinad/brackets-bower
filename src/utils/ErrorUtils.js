@@ -40,8 +40,8 @@ define(function (require, exports, module) {
         HTTP_DOWNLOAD_FAIL     = 9,
         DOWNLOAD_INCOMPLETE    = 10,
         UNKNOWN_ERROR          = 11,
-        NO_PROJECT             = 12;
-    // TODO add this EMALFORMED
+        NO_PROJECT             = 12,
+        EMALFORMED             = 13;
 
     /**
      * @param {number} code
@@ -72,4 +72,5 @@ define(function (require, exports, module) {
     exports.DOWNLOAD_INCOMPLETE    = DOWNLOAD_INCOMPLETE;
     exports.UNKNOWN_ERROR          = UNKNOWN_ERROR;
     exports.NO_PROJECT             = NO_PROJECT;
+    exports.EMALFORMED             = EMALFORMED;
 });
