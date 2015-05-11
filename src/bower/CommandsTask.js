@@ -131,5 +131,9 @@ define(function (require, exports, module) {
         });
     };
 
+    CommandsTask.prototype._count = function () {
+        return this._tasksQueue.length;
+    };
+
     module.exports = CommandsTask;
 });
