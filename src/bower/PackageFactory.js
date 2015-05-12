@@ -259,8 +259,6 @@ define(function (require, exports, module) {
                     source = "";
                 }
 
-                console.log(endpoint);
-
                 pkg.addDependency(new PackageDependency(name, version, source));
             });
         }

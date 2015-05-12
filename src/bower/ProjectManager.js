@@ -130,13 +130,23 @@ define(function (require, exports) {
      * @param {Array} packagesArray
      */
     BowerProject.prototype.addPackages = function (packagesArray) {
-        var that = this;
+        var that = this,
+            packagesInstalled = [],
+            packagesUpdated = [];
 
         packagesArray.forEach(function (pkg) {
+            if (that._packages[pkg.name]) {
+                packagesUpdated.push(pkg);
+            } else {
+                packagesInstalled.push(pkg);
+            }
+
             that._packages[pkg.name] = pkg;
         });
 
         exports.trigger(DEPENDENCIES_ADDED);
+
+        return { installed: packagesInstalled, updated: packagesUpdated };
     };
 
     /**

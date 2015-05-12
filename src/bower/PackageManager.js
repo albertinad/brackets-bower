@@ -198,15 +198,30 @@ define(function (require, exports) {
         config = ConfigurationManager.getConfiguration();
 
         Bower.install(config).then(function (result) {
-            // create the package model for the packages list
-            PackageFactory.createTrackedPackages(result.packages).then(function (packagesArray) {
+            var total = result.count,
+                installResult = {
+                    total: total
+                };
 
-                project.addPackages(packagesArray);
+            if (total !== 0) {
+                // create the package model for the packages list
+                PackageFactory.createTrackedPackages(result.packages).then(function (packagesArray) {
 
-                deferred.resolve(packagesArray);
-            }).fail(function (error) {
-                deferred.reject(error);
-            });
+                    var pkgsData = project.addPackages(packagesArray);
+
+                    installResult.installed = pkgsData.installed;
+                    installResult.updated = pkgsData.updated;
+
+                    deferred.resolve(installResult);
+                }).fail(function (error) {
+                    deferred.reject(error);
+                });
+            } else {
+                installResult.installed = [];
+                installResult.updated = [];
+
+                deferred.resolve(installResult);
+            }
 
         }).fail(function (error) {
             deferred.reject(error);
