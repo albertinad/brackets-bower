@@ -285,7 +285,8 @@ define(function (require, exports) {
         }
 
         bowerJson = BowerJsonManager.getBowerJson();
-        version = version || pkg.latestVersion;
+
+        version = "~" + (version || pkg.latestVersion);
 
         bowerJson.updatePackageVersion(name, version).then(function () {
 
