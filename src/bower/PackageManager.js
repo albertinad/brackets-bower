@@ -303,14 +303,18 @@ define(function (require, exports) {
      * Update the given package to the given version if any, otherwise it will update it
      * to the latest available version.
      * @param {string} name Name of the package to update.
-     * @param {version=} version Version to update to. If empty, it will update it to the latest version.
+     * @param {data} options Options to install the package.
+     *      version {string|null}: Version to update to. If empty, it will update it to the latest version.
+     *      versionType {number}: The version type to use, following semver conventions.
+     *      type {number}: update the package type: dependency or devDependency.
      * @return {$.Deferred}
      */
-    function update(name, version) {
+    function update(name, data) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
             pkg = project.getPackageByName(name),
+            version,
             bowerJson;
 
         if (!project) {
@@ -329,7 +333,20 @@ define(function (require, exports) {
 
         bowerJson = BowerJsonManager.getBowerJson();
 
-        version = TILDE + (version || pkg.latestVersion);
+        data = data || {};
+
+        // prepare giveng version if any
+        version = _getVersion(data.version, data.versionType);
+
+        if (!version) {
+            version = TILDE + (version || pkg.latestVersion);
+        }
+
+        // prepare default values when needed
+        // TODO support changing from production <-> development
+        //if (typeof data.type !== "number") {
+        //    data.type = PRODUCTION_DEPENDENCY;
+        //}
 
         bowerJson.updatePackageVersion(name, version).then(function () {
 
