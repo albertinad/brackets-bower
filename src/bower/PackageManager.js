@@ -58,18 +58,16 @@ define(function (require, exports) {
         var fullVersion;
 
         if (version && (version.trim() !== "")) {
-            fullVersion += "#";
-
             switch (type) {
             case VersionOptions.TILDE:
-                fullVersion += TILDE;
+                fullVersion = TILDE + version;
                 break;
             case VersionOptions.CARET:
-                fullVersion += CARET;
+                fullVersion = CARET + version;
                 break;
+            default:
+                fullVersion = version;
             }
-
-            fullVersion += type;
         }
 
         return fullVersion;
@@ -138,7 +136,7 @@ define(function (require, exports) {
         version = _getVersion(data.version, data.versionType);
 
         if (version) {
-            packageName += version;
+            packageName += "#" + version;
         }
 
         // setup options
@@ -339,7 +337,8 @@ define(function (require, exports) {
         version = _getVersion(data.version, data.versionType);
 
         if (!version) {
-            version = TILDE + (version || pkg.latestVersion);
+            // if any specific version was requested, update to the latest available version
+            version = TILDE + pkg.latestVersion;
         }
 
         // prepare default values when needed
