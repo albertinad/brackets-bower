@@ -37,9 +37,43 @@ define(function (require, exports) {
         ErrorUtils           = require("src/utils/ErrorUtils");
 
     var PRODUCTION_DEPENDENCY = 0,
-        DEVELOPMENT_DEPENDENCY = 1;
+        DEVELOPMENT_DEPENDENCY = 1,
+        VersionOptions = {
+            TILDE: 0,
+            CARET: 1,
+            FIXED: 2
+        };
+
+    var TILDE = "~",
+        CARET = "^";
 
     EventDispatcher.makeEventDispatcher(exports);
+
+    /**
+     * @param {string} options
+     * @param {number} type
+     * @private
+     */
+    function _getVersion(version, type) {
+        var fullVersion;
+
+        if (version && (version.trim() !== "")) {
+            fullVersion += "#";
+
+            switch (type) {
+            case VersionOptions.TILDE:
+                fullVersion += TILDE;
+                break;
+            case VersionOptions.CARET:
+                fullVersion += CARET;
+                break;
+            }
+
+            fullVersion += type;
+        }
+
+        return fullVersion;
+    }
 
     /**
      * Get detailed information about the given package.
@@ -69,42 +103,51 @@ define(function (require, exports) {
     /**
      * Install the given package and udpate the project model.
      * @param {string} name The package name to install.
-     * @param {string|null} version The package version.
-     * @param {number} type Specify if the package to install is a dependency or devDependency.
-     * @param {boolean} save Save or not the package to the bower.json file.
+     * @param {data} options Options to install the package.
+     *      version {string|null}: The package version.
+     *      versionType {number}: The version type to use, following semver conventions.
+     *      type {number}: Specify if the package to install is a dependency or devDependency.
+     *      save {boolean}: Save or not the package to the bower.json file.
      * @return {$.Deferred}
      */
-    function install(name, version, type, save) {
+    function install(name, data) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
             packageName = name,
             options = {},
+            version,
             isProduction;
 
         if (!project) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
-        if (version && (version.trim() !== "")) {
-            packageName += "#" + version;
-        }
+        data = data || {};
 
         // prepare default values when needed
-        if (type === undefined || type === null) {
-            type = PRODUCTION_DEPENDENCY;
+        if (typeof data.type !== "number") {
+            data.type = PRODUCTION_DEPENDENCY;
         }
 
-        if (save === undefined || type === null) {
-            save = false;
+        if (typeof data.save !== "boolean") {
+            data.save = false;
         }
 
-        isProduction = (type === PRODUCTION_DEPENDENCY);
+        // prepare package name with version if any
+        version = _getVersion(data.version, data.versionType);
+
+        if (version) {
+            packageName += version;
+        }
+
+        // setup options
+        isProduction = (data.type === PRODUCTION_DEPENDENCY);
 
         if (isProduction) {
-            options.save = save;
+            options.save = data.save;
         } else {
-            options.saveDev = save;
+            options.saveDev = data.save;
         }
 
         // install the given package
@@ -286,7 +329,7 @@ define(function (require, exports) {
 
         bowerJson = BowerJsonManager.getBowerJson();
 
-        version = "~" + (version || pkg.latestVersion);
+        version = TILDE + (version || pkg.latestVersion);
 
         bowerJson.updatePackageVersion(name, version).then(function () {
 
@@ -403,4 +446,5 @@ define(function (require, exports) {
     exports.checkForUpdates         = checkForUpdates;
     exports.PRODUCTION_DEPENDENCY   = PRODUCTION_DEPENDENCY;
     exports.DEVELOPMENT_DEPENDENCY  = DEVELOPMENT_DEPENDENCY;
+    exports.VersionOptions          = VersionOptions;
 });

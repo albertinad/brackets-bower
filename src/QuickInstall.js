@@ -108,10 +108,12 @@ define(function (require, exports, module) {
             installingMsg = StringUtils.format(Strings.STATUS_INSTALLING_PKG, pkgName),
             statusId      = StatusBarController.post(installingMsg, true);
 
-        var save           = Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE),
-            dependencyType = PackageManager.PRODUCTION_DEPENDENCY;
+        var installOptions = {
+            save: Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE),
+            type: PackageManager.PRODUCTION_DEPENDENCY
+        };
 
-        installPromise = PackageManager.install(pkgName, null, dependencyType, save);
+        installPromise = PackageManager.install(pkgName, installOptions);
 
         installPromise.then(function (result) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
