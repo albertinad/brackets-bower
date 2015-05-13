@@ -35,13 +35,13 @@ define(function (require, exports, module) {
      * Package dependency constructor function.
      * @controller
      */
-    function PackageDependency(name, version, endpoint, homepage) {
+    function PackageDependency(name, version, source, homepage) {
         /** @private */
         this._name = name;
         /** @private */
         this._version = version;
         /** @private */
-        this._endpoint = endpoint;
+        this._source = source;
         /** @private */
         this._homepage = homepage;
     }
@@ -58,9 +58,9 @@ define(function (require, exports, module) {
         }
     });
 
-    Object.defineProperty(PackageDependency.prototype, "endpoint", {
+    Object.defineProperty(PackageDependency.prototype, "source", {
         get: function () {
-            return this._endpoint;
+            return this._source;
         }
     });
 
