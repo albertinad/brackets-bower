@@ -83,9 +83,6 @@ define(function (require, exports) {
 
         error = ErrorUtils.createError(code, message, originalError);
 
-        console.log("[brackets-bower-error]");
-        console.log(originalError);
-
         return error;
     }
 

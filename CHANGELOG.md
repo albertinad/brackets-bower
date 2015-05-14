@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.10
+* Bower commands that modifies the project structure are executed in a queue.
+* Updating Package model with dependency detailed information.
+* Use tilde as default when installing/udpating a package.
+* Tests clean up.
+* Bug fixing.
+
 ## v0.2.9
 * Fixing configuration being overrided.
 
