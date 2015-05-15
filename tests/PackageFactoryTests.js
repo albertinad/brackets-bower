@@ -95,7 +95,7 @@ define(function (require, exports, module) {
                     expect(pkg.versions).toBeDefined();
                     expect(pkg.extraneous).toBeDefined();
                     expect(pkg.isInstalled).toBeDefined();
-                    expect(pkg.isDevDependency).toBeDefined();
+                    expect(pkg.dependencyType).toBeDefined();
                     expect(pkg.dependencies).toBeDefined();
                     expect(pkg.description).toBeDefined();
                     expect(pkg.homepage).toBeDefined();

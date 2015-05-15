@@ -163,7 +163,7 @@ define(function (require, exports, module) {
             var name = pkg.name,
                 version = pkg.version;
 
-            if (!pkg.isDevDependency) {
+            if (pkg.isProductionDependency()) {
                 pkgMeta.dependencies[name] = version;
             } else {
                 addToDevDeps(name, version);

@@ -33,6 +33,7 @@ define(function (require, exports, module) {
     describe("BracketsBower - Metadata", function () {
         var tempDir = SpecRunnerUtils.getTempDirectory() + "/",
             projectName = "test-app",
+            defaultTimeout = 5000,
             testWindow;
 
         beforeFirst(function () {
@@ -62,7 +63,8 @@ define(function (require, exports, module) {
 
         describe("BowerJson", function () {
             var BowerJson = require("src/bower/metadata/BowerJson"),
-                Package = require("src/bower/PackageFactory")._Package;
+                Package = require("src/bower/PackageFactory")._Package,
+                DependencyType = require("src/bower/PackageOptions").DependencyType;
 
             afterEach(function () {
                 runs(function () {
@@ -77,7 +79,7 @@ define(function (require, exports, module) {
                 runs(function () {
                     var promise = bowerJson.create();
 
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -126,7 +128,7 @@ define(function (require, exports, module) {
                 runs(function () {
                     var promise = bowerJson.create(packages);
 
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -169,9 +171,9 @@ define(function (require, exports, module) {
                     content;
 
                 pkg1.version = "1.0.0";
-                pkg1.isDevDependency = true;
+                pkg1.dependencyType = DependencyType.DEVELOPMENT;
                 pkg2.version = "1.1.0";
-                pkg2.isDevDependency = true;
+                pkg2.dependencyType = DependencyType.DEVELOPMENT;
 
                 packages.push(pkg1);
                 packages.push(pkg2);
@@ -179,7 +181,7 @@ define(function (require, exports, module) {
                 runs(function () {
                     var promise = bowerJson.create(packages);
 
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -230,11 +232,11 @@ define(function (require, exports, module) {
                 pkg4.version = "1.1.0";
                 pkg5.version = "1.1.0";
 
-                pkg1.isDevDependency = false;
-                pkg2.isDevDependency = true;
-                pkg3.isDevDependency = false;
-                pkg4.isDevDependency = true;
-                pkg5.isDevDependency = true;
+                pkg1.dependencyType = DependencyType.PRODUCTION;
+                pkg2.dependencyType = DependencyType.DEVELOPMENT;
+                pkg3.dependencyType = DependencyType.PRODUCTION;
+                pkg4.dependencyType = DependencyType.DEVELOPMENT;
+                pkg5.dependencyType = DependencyType.DEVELOPMENT;
 
                 packages.push(pkg1);
                 packages.push(pkg2);
@@ -245,7 +247,7 @@ define(function (require, exports, module) {
                 runs(function () {
                     var promise = bowerJson.create(packages);
 
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -298,7 +300,7 @@ define(function (require, exports, module) {
                 // create bower.json content
                 runs(function () {
                     var promise = bowerJson.create(packages);
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -366,14 +368,14 @@ define(function (require, exports, module) {
                     content;
 
                 pkg1.version = "1.0.0";
-                pkg1.isDevDependency = true;
+                pkg1.dependencyType = DependencyType.DEVELOPMENT;
 
                 packages.push(pkg1);
 
                 // create bower.json content
                 runs(function () {
                     var promise = bowerJson.create(packages);
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -448,7 +450,7 @@ define(function (require, exports, module) {
                 // create bower.json content
                 runs(function () {
                     var promise = bowerJson.create(packages);
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -518,14 +520,14 @@ define(function (require, exports, module) {
                     content;
 
                 pkg1.version = "1.0.0";
-                pkg1.isDevDependency = true;
+                pkg1.dependencyType = DependencyType.DEVELOPMENT;
 
                 packages.push(pkg1);
 
                 // create bower.json content
                 runs(function () {
                     var promise = bowerJson.create(packages);
-                    waitsForDone(promise, "bower.json file created", 3000);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
                 });
 
                 runs(function () {
@@ -603,7 +605,7 @@ define(function (require, exports, module) {
                 runs(function () {
                     var promise = bowerRc.create();
 
-                    waitsForDone(promise, ".bowerrc file created", 3000);
+                    waitsForDone(promise, ".bowerrc file created", defaultTimeout);
                 });
 
                 runs(function () {

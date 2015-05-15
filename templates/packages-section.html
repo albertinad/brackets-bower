@@ -40,12 +40,12 @@
                 {{ /isInstalled }}
 
                 <div class="bower-row-item">
-                    {{ #isDevDependency }}
-                    <div class="bower-pkg-dev">Dev</div>
-                    {{ /isDevDependency }}
-                    {{ ^isDevDependency }}
+                    {{ #isProductionDependency }}
                     <div class="bower-pkg-prod">Prod</div>
-                    {{ /isDevDependency }}
+                    {{ /isProductionDependency }}
+                    {{ ^isProductionDependency }}
+                    <div class="bower-pkg-dev">Dev</div>
+                    {{ /isProductionDependency }}
                 </div>
             </td>
             <td>

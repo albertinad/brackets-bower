@@ -33,6 +33,7 @@ define(function (require, exports, module) {
         StringUtils    = brackets.getModule("utils/StringUtils");
 
     var StatusBarController = require("src/StatusBarController").Controller,
+        DependencyType      = require("src/bower/PackageOptions").DependencyType,
         PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),
         Strings             = require("strings");
@@ -110,7 +111,7 @@ define(function (require, exports, module) {
 
         var installOptions = {
             save: Preferences.get(Preferences.settings.QUICK_INSTALL_SAVE),
-            type: PackageManager.PRODUCTION_DEPENDENCY
+            type: DependencyType.PRODUCTION
         };
 
         installPromise = PackageManager.install(pkgName, installOptions);

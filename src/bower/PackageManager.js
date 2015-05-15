@@ -32,17 +32,13 @@ define(function (require, exports) {
         Bower                = require("src/bower/Bower"),
         ProjectManager       = require("src/bower/ProjectManager"),
         PackageFactory       = require("src/bower/PackageFactory"),
+        PackageOptions       = require("src/bower/PackageOptions"),
         ConfigurationManager = require("src/bower/ConfigurationManager"),
         BowerJsonManager     = require("src/bower/BowerJsonManager"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
-    var PRODUCTION_DEPENDENCY = 0,
-        DEVELOPMENT_DEPENDENCY = 1,
-        VersionOptions = {
-            TILDE: 0,
-            CARET: 1,
-            FIXED: 2
-        };
+    var DependencyType = PackageOptions.DependencyType,
+        VersionOptions = PackageOptions.VersionOptions;
 
     var TILDE = "~",
         CARET = "^";
@@ -86,8 +82,8 @@ define(function (require, exports) {
             var packageInfo = PackageFactory.createInfo(result),
                 project = ProjectManager.getProject();
 
-            if (project) {
-                packageInfo.isInstalled = project.hasPackage(name);
+            if (project && project.hasPackage(name)) {
+                packageInfo.installedPackage = project.getPackageByName(name);
             }
 
             deferred.resolve(packageInfo);
@@ -114,8 +110,7 @@ define(function (require, exports) {
             project = ProjectManager.getProject(),
             packageName = name,
             options = {},
-            version,
-            isProduction;
+            version;
 
         if (!project) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
@@ -125,7 +120,7 @@ define(function (require, exports) {
 
         // prepare default values when needed
         if (typeof data.type !== "number") {
-            data.type = PRODUCTION_DEPENDENCY;
+            data.type = DependencyType.PRODUCTION;
         }
 
         if (typeof data.save !== "boolean") {
@@ -140,9 +135,7 @@ define(function (require, exports) {
         }
 
         // setup options
-        isProduction = (data.type === PRODUCTION_DEPENDENCY);
-
-        if (isProduction) {
+        if (data.type === DependencyType.PRODUCTION) {
             options.save = data.save;
         } else {
             options.saveDev = data.save;
@@ -152,8 +145,8 @@ define(function (require, exports) {
         Bower.installPackage(packageName, options, config).then(function (result) {
             if (result.count !== 0) {
                 // get only the direct dependency
-                var data = result.packages[name],
-                    pkg = PackageFactory.createPackage(name, data, !isProduction);
+                var rawData = result.packages[name],
+                    pkg = PackageFactory.createPackage(name, rawData, data.type);
 
                 info(name).then(function (packageInfo) {
                     // update the package latestVersion
@@ -359,7 +352,7 @@ define(function (require, exports) {
         // prepare default values when needed
         // TODO support changing from production <-> development
         //if (typeof data.type !== "number") {
-        //    data.type = PRODUCTION_DEPENDENCY;
+        //    data.type = DependencyType.PRODUCTION;
         //}
 
         bowerJson.updatePackageVersion(name, version).then(function () {
@@ -368,7 +361,7 @@ define(function (require, exports) {
         }).then(function (result) {
             // update model
             var rawData = result[name],
-                updatedPkg = PackageFactory.createPackage(name, rawData, pkg.isDevDependency);
+                updatedPkg = PackageFactory.createPackage(name, rawData, pkg.dependencyType);
 
             project.updatePackage(updatedPkg);
 
@@ -474,7 +467,5 @@ define(function (require, exports) {
     exports.list                    = list;
     exports.loadProjectDependencies = loadProjectDependencies;
     exports.checkForUpdates         = checkForUpdates;
-    exports.PRODUCTION_DEPENDENCY   = PRODUCTION_DEPENDENCY;
-    exports.DEVELOPMENT_DEPENDENCY  = DEVELOPMENT_DEPENDENCY;
     exports.VersionOptions          = VersionOptions;
 });

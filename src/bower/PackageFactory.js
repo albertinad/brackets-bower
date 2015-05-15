@@ -29,7 +29,8 @@ define(function (require, exports, module) {
     "use strict";
 
     var _                = brackets.getModule("thirdparty/lodash"),
-        BowerJsonManager = require("src/bower/BowerJsonManager");
+        BowerJsonManager = require("src/bower/BowerJsonManager"),
+        DependencyType   = require("src/bower/PackageOptions").DependencyType;
 
     /**
      * Package dependency constructor function.
@@ -89,7 +90,7 @@ define(function (require, exports, module) {
         /** @private */
         this._isInstalled = true;
         /** @private */
-        this._isDevDependency = false;
+        this._dependencyType = DependencyType.PRODUCTION;
         /** @private */
         this._dependencies = [];
         /** @private */
@@ -151,12 +152,12 @@ define(function (require, exports, module) {
         }
     });
 
-    Object.defineProperty(Package.prototype, "isDevDependency", {
-        set: function (isDevDependency) {
-            this._isDevDependency = isDevDependency;
+    Object.defineProperty(Package.prototype, "dependencyType", {
+        set: function (dependencyType) {
+            this._dependencyType = dependencyType;
         },
         get: function () {
-            return this._isDevDependency;
+            return this._dependencyType;
         }
     });
 
@@ -265,7 +266,7 @@ define(function (require, exports, module) {
 
         if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
                 bowerJsonDeps.devDependencies[name]) {
-            pkg.isDevDependency = true;
+            pkg.dependencyType = DependencyType.DEVELOPMENT;
         }
 
         if (data.versions && data.versions.length !== 0) {
@@ -323,6 +324,14 @@ define(function (require, exports, module) {
         return hasLatest;
     };
 
+    Package.prototype.isDevDependency = function () {
+        return (this._dependencyType === DependencyType.DEVELOPMENT);
+    };
+
+    Package.prototype.isProductionDependency = function () {
+        return (this._dependencyType === DependencyType.PRODUCTION);
+    };
+
     /**
      * Constructor function for Bower package information instances.
      * @constructor
@@ -342,6 +351,8 @@ define(function (require, exports, module) {
         this._homepage = "";
         /** @private */
         this._description = "";
+        /** @private */
+        this._installedPackage = null;
     }
 
     Object.defineProperty(PackageInfo.prototype, "name", {
@@ -394,6 +405,20 @@ define(function (require, exports, module) {
             return this._description;
         }
     });
+
+    Object.defineProperty(PackageInfo.prototype, "installedPackage", {
+        /** @param {Package} */
+        set: function (installedPackage) {
+            this._installedPackage = installedPackage;
+        },
+        get: function () {
+            return this._installedPackage;
+        }
+    });
+
+    PackageInfo.prototype.isInstalled = function () {
+        return (this._installedPackage !== null && this._installedPackage !== undefined);
+    };
 
     /**
      * @param {PackageDependency} dependency
@@ -503,17 +528,16 @@ define(function (require, exports, module) {
      * Create an instance of Package from the raw data given as arguments.
      * @param {string} packageName
      * @param {object} rawData
-     * @param {boolean} isDev
+     * @param {number} dependencyType
      * @return {Package}
      */
-    function createPackage(packageName, rawData, isDev) {
+    function createPackage(packageName, rawData, dependencyType) {
         if (!rawData) {
             return null;
         }
 
         var pkg = Package.fromRawData(packageName, rawData);
-
-        pkg.isDevDependency = isDev;
+        pkg.dependencyType = dependencyType;
 
         return pkg;
     }
@@ -555,6 +579,7 @@ define(function (require, exports, module) {
     exports.createTrackedPackages = createTrackedPackages;
     exports.createInfo            = createInfo;
     exports.getPackagesName       = getPackagesName;
+
     // tests
     exports._Package           = Package;
     exports._PackageDependency = PackageDependency;
