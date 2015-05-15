@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.11
+* Fixing bug when loading project dependencies.
+
 ## v0.2.10
 * Bower commands that modifies the project structure are executed in a queue.
 * Updating Package model with dependency detailed information.
