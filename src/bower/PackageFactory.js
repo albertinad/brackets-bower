@@ -436,21 +436,31 @@ define(function (require, exports, module) {
     /**
      * Create an array of Package instances from the raw data given as arguments.
      * @param {object} packages
-     * @param {object|null} deps
      * @return {Array}
      */
-    function createPackages(packages, deps) {
-        var pkgsName = Object.keys(packages),
-            pkgs = [];
+    function createPackages(packages) {
+        var deferred = new $.Deferred(),
+            deps = null;
 
-        pkgsName.forEach(function (name) {
-            var pkgRawData = packages[name],
-                pkg = Package.fromRawData(name, pkgRawData, deps);
+        // get all the dependencies defined in bower.json if any
+        BowerJsonManager.getDependencies().then(function (data) {
+            deps = data;
+        }).always(function () {
 
-            pkgs.push(pkg);
+            var pkgsName = Object.keys(packages),
+                pkgs = [];
+
+            pkgsName.forEach(function (name) {
+                var pkgRawData = packages[name],
+                    pkg = Package.fromRawData(name, pkgRawData, deps);
+
+                pkgs.push(pkg);
+            });
+
+            deferred.resolve(pkgs);
         });
 
-        return pkgs;
+        return deferred;
     }
 
     /**
@@ -465,7 +475,6 @@ define(function (require, exports, module) {
 
         // get all the dependencies defined in bower.json if any
         BowerJsonManager.getDependencies().then(function (data) {
-
             deps = data;
         }).always(function () {
 

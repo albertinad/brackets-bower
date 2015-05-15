@@ -422,10 +422,9 @@ define(function (require, exports) {
         config.offline = true;
 
         Bower.list(config).then(function (result) {
-
             // create the package model
-            var packagesArray = PackageFactory.createPackages(result.dependencies);
-
+            return PackageFactory.createPackages(result.dependencies);
+        }).then(function (packagesArray) {
             project.setPackages(packagesArray);
 
             deferred.resolve(packagesArray);
@@ -452,8 +451,8 @@ define(function (require, exports) {
 
         list().then(function (result) {
 
-            var packagesArray = PackageFactory.createPackages(result.dependencies);
-
+            return PackageFactory.createPackages(result.dependencies);
+        }).then(function (packagesArray) {
             project.setPackages(packagesArray);
 
             deferred.resolve(packagesArray);
