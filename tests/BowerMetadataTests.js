@@ -33,7 +33,7 @@ define(function (require, exports, module) {
     describe("BracketsBower - Metadata", function () {
         var tempDir = SpecRunnerUtils.getTempDirectory() + "/",
             projectName = "test-app",
-            defaultTimeout = 5000,
+            defaultTimeout = 10000,
             testWindow;
 
         beforeFirst(function () {
@@ -92,7 +92,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 runs(function () {
@@ -141,7 +141,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 runs(function () {
@@ -194,7 +194,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 runs(function () {
@@ -210,6 +210,7 @@ define(function (require, exports, module) {
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(2);
+                    expect(Object.keys(content.dependencies).length).toBe(0);
 
                     expect(content.devDependencies[pkg1.name]).toBe(pkg1.version);
                     expect(content.devDependencies[pkg2.name]).toBe(pkg2.version);
@@ -260,7 +261,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 runs(function () {
@@ -312,7 +313,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -330,8 +331,8 @@ define(function (require, exports, module) {
 
                 // update package version in bower.json
                 runs(function () {
-                    var promise = bowerJson.updatePackageVersion(pkg1.name, newVersion);
-                    waitsForDone(promise, "package version updated in bower.json");
+                    var promise = bowerJson.updatePackageInfo(pkg1.name, { version: newVersion });
+                    waitsForDone(promise, "package version updated in bower.json", defaultTimeout);
                 });
 
                 runs(function () {
@@ -343,7 +344,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -387,7 +388,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -399,14 +400,15 @@ define(function (require, exports, module) {
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
+                    expect(Object.keys(content.dependencies).length).toBe(0);
 
                     expect(content.devDependencies[pkg1.name]).toBe(pkg1.version);
                 });
 
                 // update package version in bower.json
                 runs(function () {
-                    var promise = bowerJson.updatePackageVersion(pkg1.name, newVersion);
-                    waitsForDone(promise, "package version updated in bower.json");
+                    var promise = bowerJson.updatePackageInfo(pkg1.name, { version: newVersion });
+                    waitsForDone(promise, "package version updated in bower.json", defaultTimeout);
                 });
 
                 runs(function () {
@@ -418,7 +420,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -430,6 +432,7 @@ define(function (require, exports, module) {
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
+                    expect(Object.keys(content.dependencies).length).toBe(0);
 
                     expect(content.devDependencies[pkg1.name]).toBe(newVersion);
                 });
@@ -462,7 +465,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -480,8 +483,8 @@ define(function (require, exports, module) {
 
                 // update package version in bower.json
                 runs(function () {
-                    var promise = bowerJson.updatePackageVersion(nonDepName, nonDepVersion);
-                    waitsForFail(promise, "package version not updated in bower.json");
+                    var promise = bowerJson.updatePackageInfo(nonDepName, { version: nonDepVersion });
+                    waitsForFail(promise, "package version not updated in bower.json", defaultTimeout);
                 });
 
                 runs(function () {
@@ -493,7 +496,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -539,7 +542,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -551,13 +554,14 @@ define(function (require, exports, module) {
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
+                    expect(Object.keys(content.dependencies).length).toBe(0);
 
                     expect(content.devDependencies[pkg1.name]).toBe(pkg1.version);
                 });
 
                 // update package version in bower.json
                 runs(function () {
-                    var promise = bowerJson.updatePackageVersion(nonDepName, nonDepVersion);
+                    var promise = bowerJson.updatePackageInfo(nonDepName, { version: nonDepVersion });
                     waitsForFail(promise, "package version not updated in bower.json");
                 });
 
@@ -570,7 +574,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 // check
@@ -582,11 +586,447 @@ define(function (require, exports, module) {
                     expect(content.dependencies).toBeDefined();
                     expect(content.devDependencies).toBeDefined();
                     expect(Object.keys(content.devDependencies).length).toBe(1);
+                    expect(Object.keys(content.dependencies).length).toBe(0);
 
                     expect(content.devDependencies[pkg1.name]).toBe(pkg1.version);
                     expect(content.devDependencies[pkg1.name]).not.toBe(nonDepVersion);
                 });
             });
+
+            it("should not update the package info when updated any data is provided", function () {
+                var bowerJson = new BowerJson(tempDir, projectName),
+                    pkg1 = new Package("dep1"),
+                    depName = "pkg1",
+                    packages = [],
+                    content;
+
+                pkg1.version = "1.0.0";
+
+                packages.push(pkg1);
+
+                // create bower.json content
+                runs(function () {
+                    var promise = bowerJson.create(packages);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).not.toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+
+                    expect(content.dependencies[pkg1.name]).toBe(pkg1.version);
+                });
+
+                // update package version in bower.json
+                runs(function () {
+                    var promise = bowerJson.updatePackageInfo(depName);
+                    waitsForFail(promise, "package version not updated in bower.json", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).not.toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+
+                    expect(content.dependencies[pkg1.name]).toBe(pkg1.version);
+                });
+            });
+
+            it("should not update the package info when updated data is empty", function () {
+                var bowerJson = new BowerJson(tempDir, projectName),
+                    pkg1 = new Package("dep1"),
+                    depName = "pkg1",
+                    packages = [],
+                    content;
+
+                pkg1.version = "1.0.0";
+
+                packages.push(pkg1);
+
+                // create bower.json content
+                runs(function () {
+                    var promise = bowerJson.create(packages);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).not.toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+
+                    expect(content.dependencies[pkg1.name]).toBe(pkg1.version);
+                });
+
+                // update package version in bower.json
+                runs(function () {
+                    var promise = bowerJson.updatePackageInfo(depName, {});
+                    waitsForFail(promise, "package version not updated in bower.json", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).not.toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+
+                    expect(content.dependencies[pkg1.name]).toBe(pkg1.version);
+                });
+            });
+
+            it("should update the dependency type from 'PRODUCTION' to 'DEVELOPMENT'", function () {
+                var bowerJson = new BowerJson(tempDir, projectName),
+                    pkg1 = new Package("dep1"),
+                    packages = [],
+                    content;
+
+                pkg1.version = "1.0.0";
+
+                packages.push(pkg1);
+
+                // create bower.json content
+                runs(function () {
+                    var promise = bowerJson.create(packages);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).not.toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+
+                    expect(content.dependencies[pkg1.name]).toBe(pkg1.version);
+                });
+
+                // update package version in bower.json
+                runs(function () {
+                    var promise = bowerJson.updatePackageInfo(pkg1.name, { dependencyType: DependencyType.DEVELOPMENT });
+                    waitsForDone(promise, "package dependency updated in bower.json", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(0);
+                    expect(Object.keys(content.devDependencies).length).toBe(1);
+
+                    expect(content.devDependencies[pkg1.name]).toBe(pkg1.version);
+                });
+            });
+
+            it("should update the dependency type from 'DEVELOPMENT' to 'PRODUCTION'", function () {
+                var bowerJson = new BowerJson(tempDir, projectName),
+                    pkg1 = new Package("dep1"),
+                    packages = [],
+                    content;
+
+                pkg1.version = "1.0.0";
+                pkg1.dependencyType = DependencyType.DEVELOPMENT;
+
+                packages.push(pkg1);
+
+                // create bower.json content
+                runs(function () {
+                    var promise = bowerJson.create(packages);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).toBeDefined();
+                    expect(Object.keys(content.devDependencies).length).toBe(1);
+                    expect(Object.keys(content.dependencies).length).toBe(0);
+
+                    expect(content.devDependencies[pkg1.name]).toBe(pkg1.version);
+                });
+
+                // update package version in bower.json
+                runs(function () {
+                    var promise = bowerJson.updatePackageInfo(pkg1.name, { dependencyType: DependencyType.PRODUCTION });
+                    waitsForDone(promise, "package dependency updated in bower.json", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+                    expect(Object.keys(content.devDependencies).length).toBe(0);
+
+                    expect(content.dependencies[pkg1.name]).toBe(pkg1.version);
+                });
+            });
+
+            it("should update the version and dependency type for a dependency when it exists", function () {
+                var bowerJson = new BowerJson(tempDir, projectName),
+                    pkg1 = new Package("dep1"),
+                    newVersion = "2.0.0",
+                    packages = [],
+                    content;
+
+                pkg1.version = "1.0.0";
+
+                packages.push(pkg1);
+
+                // create bower.json content
+                runs(function () {
+                    var promise = bowerJson.create(packages);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).not.toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+
+                    expect(content.dependencies[pkg1.name]).toBe(pkg1.version);
+                });
+
+                // update package version in bower.json
+                runs(function () {
+                    var updatedData = {
+                        version: newVersion,
+                        dependencyType: DependencyType.DEVELOPMENT
+                    };
+                    var promise = bowerJson.updatePackageInfo(pkg1.name, updatedData);
+                    waitsForDone(promise, "package version updated in bower.json", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).toBeDefined();
+                    expect(Object.keys(content.dependencies).length).toBe(0);
+                    expect(Object.keys(content.devDependencies).length).toBe(1);
+
+                    expect(content.devDependencies[pkg1.name]).toBe(newVersion);
+                });
+            });
+
+            it("should update the version and dependency type for a devDependency when it exists", function () {
+                var bowerJson = new BowerJson(tempDir, projectName),
+                    pkg1 = new Package("dep1"),
+                    newVersion = "2.0.0",
+                    packages = [],
+                    content;
+
+                pkg1.version = "1.0.0";
+                pkg1.dependencyType = DependencyType.DEVELOPMENT;
+
+                packages.push(pkg1);
+
+                // create bower.json content
+                runs(function () {
+                    var promise = bowerJson.create(packages);
+                    waitsForDone(promise, "bower.json file created", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).toBeDefined();
+                    expect(Object.keys(content.devDependencies).length).toBe(1);
+                    expect(Object.keys(content.dependencies).length).toBe(0);
+
+                    expect(content.devDependencies[pkg1.name]).toBe(pkg1.version);
+                });
+
+                // update package version in bower.json
+                runs(function () {
+                    var updatedData = {
+                        version: newVersion,
+                        dependencyType: DependencyType.PRODUCTION
+                    };
+                    var promise = bowerJson.updatePackageInfo(pkg1.name, updatedData);
+                    waitsForDone(promise, "package version updated in bower.json", defaultTimeout);
+                });
+
+                runs(function () {
+                    var deferred = new $.Deferred();
+                    bowerJson.read().then(function (res) {
+                        content = JSON.parse(res);
+                        deferred.resolve();
+                    }).fail(function (err) {
+                        deferred.reject(err);
+                    });
+
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
+                });
+
+                // check
+                runs(function () {
+                    expect(content).not.toBeNull();
+                    expect(content).toBeDefined();
+
+                    expect(content.name).toBe(projectName);
+                    expect(content.dependencies).toBeDefined();
+                    expect(content.devDependencies).toBeDefined();
+                    expect(Object.keys(content.devDependencies).length).toBe(0);
+                    expect(Object.keys(content.dependencies).length).toBe(1);
+
+                    expect(content.dependencies[pkg1.name]).toBe(newVersion);
+                });
+            });
+
         });
 
         describe("BowerRc", function () {
@@ -618,7 +1058,7 @@ define(function (require, exports, module) {
                         deferred.reject(err);
                     });
 
-                    waitsForDone(deferred.promise(), "read content");
+                    waitsForDone(deferred.promise(), "read content", defaultTimeout);
                 });
 
                 runs(function () {

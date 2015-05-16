@@ -350,20 +350,29 @@ define(function (require, exports) {
         }
 
         // prepare default values when needed
-        // TODO support changing from production <-> development
-        //if (typeof data.type !== "number") {
-        //    data.type = DependencyType.PRODUCTION;
-        //}
+        if (typeof data.type !== "number") {
+            data.type = DependencyType.PRODUCTION;
+        }
 
-        bowerJson.updatePackageVersion(name, version).then(function () {
+        var updateData = {
+            version: version
+        };
+
+        if (pkg.dependencyType !== data.type) {
+            updateData.dependencyType = data.type;
+        }
+
+        bowerJson.updatePackageInfo(name, updateData).then(function () {
 
             return Bower.update(name, config);
         }).then(function (result) {
             // update model
             var rawData = result[name],
-                updatedPkg = PackageFactory.createPackage(name, rawData, pkg.dependencyType);
+                updatedPkg = PackageFactory.createPackage(name, rawData, data.type);
 
-            project.updatePackage(updatedPkg);
+            if (updatedPkg) {
+                project.updatePackage(updatedPkg);
+            }
 
             deferred.resolve(updatedPkg);
         }).fail(function (error) {

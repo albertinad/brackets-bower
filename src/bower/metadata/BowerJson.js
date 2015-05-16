@@ -28,7 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerMetadata = require("src/bower/metadata/BowerMetadata");
+    var BowerMetadata  = require("src/bower/metadata/BowerMetadata"),
+        DependencyType = require("src/bower/PackageOptions").DependencyType;
 
     /**
      * Bower json file constructor.
@@ -97,32 +98,53 @@ define(function (require, exports, module) {
     };
 
     /**
-     * Update the package version for the given dependency name.
-     * @param {string} name The package name to update the version.
-     * @param {string} version The version to upgrade.
+     * Update the given package data: version and/or dependency type.
+     * @param {object} data Key-value object containing the package data to update.
      * @return {$.Deferred}
      */
-    BowerJson.prototype.updatePackageVersion = function (name, version) {
+    BowerJson.prototype.updatePackageInfo = function (name, data) {
         var that = this,
-            deferred = new $.Deferred();
+            deferred = new $.Deferred(),
+            version,
+            dependencyType;
+
+        if (!data) {
+            // there's nothing to update
+            return deferred.reject();
+        }
+
+        version = data.version;
+        dependencyType = data.dependencyType;
+
+        if (!version && (typeof dependencyType !== "number")) {
+            // there's nothing to update
+            return deferred.reject();
+        }
 
         this.read().then(function (result) {
 
             var content = JSON.parse(result),
                 deps = content.dependencies,
                 devDeps = content.devDependencies,
-                newContent,
-                exists = false;
+                currentDeps,
+                newContent;
 
+            // get the current dependencies object where the package belongs
             if (deps && deps[name]) {
-                deps[name] = version;
-                exists = true;
+                currentDeps = deps;
             } else if (devDeps && devDeps[name]) {
-                devDeps[name] = version;
-                exists = true;
+                currentDeps = devDeps;
             }
 
-            if (exists) {
+            if (currentDeps) {
+                // update version
+                if (version) {
+                    currentDeps[name] = version;
+                }
+
+                // update dependency type
+                that._updateDependencyType(name, dependencyType, content, currentDeps);
+
                 newContent = JSON.stringify(content, null, 4);
 
                 return that.saveContent(newContent);
@@ -138,6 +160,30 @@ define(function (require, exports, module) {
         });
 
         return deferred;
+    };
+
+    BowerJson.prototype._updateDependencyType = function (name, type, content, currentDeps) {
+        if (typeof type === "number") {
+            if (type === DependencyType.PRODUCTION) {
+
+                if (!content.dependencies) {
+                    content.dependencies = {};
+                }
+
+                content.dependencies[name] = currentDeps[name];
+
+                delete currentDeps[name];
+            } else if (type === DependencyType.DEVELOPMENT) {
+
+                if (!content.devDependencies) {
+                    content.devDependencies = {};
+                }
+
+                content.devDependencies[name] = currentDeps[name];
+
+                delete currentDeps[name];
+            }
+        }
     };
 
     /**
