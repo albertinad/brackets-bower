@@ -407,8 +407,8 @@ define(function (require, exports) {
 
                 info(name).then(function (packageInfo) {
                     // update the package latestVersion
-                    pkg.latestVersion = packageInfo.latestVersion;
-                    pkg.versions = packageInfo.versions;
+                    updatedPkg.latestVersion = packageInfo.latestVersion;
+                    updatedPkg.versions = packageInfo.versions;
                 }).always(function () {
                     project.updatePackage(updatedPkg);
 
