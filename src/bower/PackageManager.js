@@ -399,7 +399,7 @@ define(function (require, exports) {
             return Bower.update(name, config);
         }).then(function (result) {
             // update model
-            var dependencyType = updateData.dependencyType || pkg.dependencyType,
+            var dependencyType = updateData.dependencyType || pkg.dependencyType, // if dependencyType was not updated, use current pkg value
                 updatedPkg = PackageFactory.createPackage(name, result[name], dependencyType);
 
             if (updatedPkg) {
