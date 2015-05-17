@@ -30,7 +30,9 @@ define(function (require, exports, module) {
 
     var _                = brackets.getModule("thirdparty/lodash"),
         BowerJsonManager = require("src/bower/BowerJsonManager"),
-        DependencyType   = require("src/bower/PackageOptions").DependencyType;
+        PackageOptions   = require("src/bower/PackageOptions");
+
+    var DependencyType   = PackageOptions.DependencyType;
 
     /**
      * Package dependency constructor function.
@@ -538,7 +540,7 @@ define(function (require, exports, module) {
 
         var pkg = Package.fromRawData(packageName, rawData);
 
-        if (dependencyType) {
+        if (PackageOptions.isValidDependencyType(dependencyType)) {
             pkg.dependencyType = dependencyType;
         }
 
