@@ -198,6 +198,7 @@ define(function (require, exports) {
                 info(name).then(function (packageInfo) {
                     // update the package latestVersion
                     pkg.latestVersion = packageInfo.latestVersion;
+                    pkg.versions = packageInfo.versions;
                 }).always(function () {
                     project.addPackages([pkg]);
 
@@ -403,9 +404,17 @@ define(function (require, exports) {
                 updatedPkg = PackageFactory.createPackage(name, result[name], dependencyType);
 
             if (updatedPkg) {
-                project.updatePackage(updatedPkg);
 
-                deferred.resolve(updatedPkg);
+                info(name).then(function (packageInfo) {
+                    // update the package latestVersion
+                    pkg.latestVersion = packageInfo.latestVersion;
+                    pkg.versions = packageInfo.versions;
+                }).always(function () {
+                    project.updatePackage(updatedPkg);
+
+                    deferred.resolve(updatedPkg);
+                });
+
             } else if (updateData.dependencyType !== undefined) { // check if dependencyType was an updated property
 
                 // TODO pkg notifies project manager that a property has changed
