@@ -70,6 +70,53 @@ define(function (require, exports) {
     }
 
     /**
+     * @param {Package} pkg
+     * @param {object} data Values to update the package properties.
+     *      version {string|null}: Version to update to. If empty, it will update it to the latest version.
+     *      versionType {number}: The version type to use, following semver conventions.
+     *      type {number}: update the package type: dependency or devDependency.
+     * @private
+     */
+    function _getUpdateDataForPackage(pkg, data) {
+        var updateData,
+            updateVersion,
+            dependencyType;
+
+        if (!data) {
+            data = {};
+        }
+
+        dependencyType = data.type;
+
+        function addToUpdateData(dataKey, value) {
+            if (!updateData) {
+                updateData = {};
+            }
+
+            updateData[dataKey] = value;
+        }
+
+        updateVersion = _getVersion(data.version, data.versionType);
+
+        if (!updateVersion) {
+            // if any specific version was requested, update to the latest available version
+            updateVersion = TILDE + pkg.latestVersion;
+        }
+
+        // version
+        if (pkg.version !== updateVersion) {
+            addToUpdateData("version", updateVersion);
+        }
+
+        // dependency type
+        if (PackageOptions.isValidDependencyType(dependencyType) && pkg.dependencyType !== dependencyType) {
+            addToUpdateData("dependencyType", dependencyType);
+        }
+
+        return updateData;
+    }
+
+    /**
      * Get detailed information about the given package.
      * @param {string} name Package name to get detailed information.
      * @return {$.Deferred}
@@ -319,9 +366,9 @@ define(function (require, exports) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
-            pkg = project.getPackageByName(name),
-            version,
-            bowerJson;
+            pkg,
+            bowerJson,
+            updateData;
 
         if (!project) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
@@ -332,34 +379,19 @@ define(function (require, exports) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
+        pkg = project.getPackageByName(name);
+        bowerJson = BowerJsonManager.getBowerJson();
+
         // check if the selected package exists
         if (!pkg) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED));
         }
 
-        bowerJson = BowerJsonManager.getBowerJson();
+        // get package data to update
+        updateData = _getUpdateDataForPackage(pkg, data);
 
-        data = data || {};
-
-        // prepare giveng version if any
-        version = _getVersion(data.version, data.versionType);
-
-        if (!version) {
-            // if any specific version was requested, update to the latest available version
-            version = TILDE + pkg.latestVersion;
-        }
-
-        // prepare default values when needed
-        if (typeof data.type !== "number") {
-            data.type = DependencyType.PRODUCTION;
-        }
-
-        var updateData = {
-            version: version
-        };
-
-        if (pkg.dependencyType !== data.type) {
-            updateData.dependencyType = data.type;
+        if (!updateData || Object.keys(updateData) === 0) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA));
         }
 
         bowerJson.updatePackageInfo(name, updateData).then(function () {
@@ -367,14 +399,21 @@ define(function (require, exports) {
             return Bower.update(name, config);
         }).then(function (result) {
             // update model
-            var rawData = result[name],
-                updatedPkg = PackageFactory.createPackage(name, rawData, data.type);
+            var updatedPkg = PackageFactory.createPackage(name, result[name], updateData.dependencyType);
 
             if (updatedPkg) {
                 project.updatePackage(updatedPkg);
-            }
 
-            deferred.resolve(updatedPkg);
+                deferred.resolve(updatedPkg);
+            } else if (updateData.dependencyType !== undefined) {
+
+                pkg.dependencyType = updateData.dependencyType;
+
+                deferred.resolve(pkg);
+            } else {
+
+                deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED));
+            }
         }).fail(function (error) {
 
             deferred.reject(error);
@@ -382,6 +421,8 @@ define(function (require, exports) {
 
         return deferred;
     }
+
+    window.bowerUpdate = update;
 
     /**
      * Search the registry for packages using the current configuration.

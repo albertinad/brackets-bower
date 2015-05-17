@@ -41,7 +41,9 @@ define(function (require, exports, module) {
         DOWNLOAD_INCOMPLETE    = 10,
         UNKNOWN_ERROR          = 11,
         NO_PROJECT             = 12,
-        EMALFORMED             = 13;
+        EMALFORMED             = 13,
+        EUPDATE_NO_DATA        = 14,
+        EUPDATE_NO_PKG_UPDATED = 15;
 
     /**
      * @param {number} code
@@ -73,4 +75,6 @@ define(function (require, exports, module) {
     exports.UNKNOWN_ERROR          = UNKNOWN_ERROR;
     exports.NO_PROJECT             = NO_PROJECT;
     exports.EMALFORMED             = EMALFORMED;
+    exports.EUPDATE_NO_DATA        = EUPDATE_NO_DATA;
+    exports.EUPDATE_NO_PKG_UPDATED = EUPDATE_NO_PKG_UPDATED;
 });

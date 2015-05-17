@@ -163,26 +163,35 @@ define(function (require, exports, module) {
     };
 
     BowerJson.prototype._updateDependencyType = function (name, type, content, currentDeps) {
-        if (typeof type === "number") {
-            if (type === DependencyType.PRODUCTION) {
 
-                if (!content.dependencies) {
-                    content.dependencies = {};
-                }
+        if (type === DependencyType.PRODUCTION) {
 
-                content.dependencies[name] = currentDeps[name];
-
-                delete currentDeps[name];
-            } else if (type === DependencyType.DEVELOPMENT) {
-
-                if (!content.devDependencies) {
-                    content.devDependencies = {};
-                }
-
-                content.devDependencies[name] = currentDeps[name];
-
-                delete currentDeps[name];
+            if (content.dependencies && content.dependencies[name]) {
+                // the package is already a production dependency
+                return;
             }
+
+            if (!content.dependencies) {
+                content.dependencies = {};
+            }
+
+            content.dependencies[name] = currentDeps[name];
+
+            delete currentDeps[name];
+        } else if (type === DependencyType.DEVELOPMENT) {
+
+            if (content.devDependencies && content.devDependencies[name]) {
+                // the package is already a development dependency
+                return;
+            }
+
+            if (!content.devDependencies) {
+                content.devDependencies = {};
+            }
+
+            content.devDependencies[name] = currentDeps[name];
+
+            delete currentDeps[name];
         }
     };
 

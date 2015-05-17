@@ -537,7 +537,10 @@ define(function (require, exports, module) {
         }
 
         var pkg = Package.fromRawData(packageName, rawData);
-        pkg.dependencyType = dependencyType;
+
+        if (dependencyType) {
+            pkg.dependencyType = dependencyType;
+        }
 
         return pkg;
     }

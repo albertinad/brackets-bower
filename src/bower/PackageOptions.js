@@ -39,6 +39,17 @@ define(function (require, exports, module) {
         FIXED: 2
     };
 
-    exports.DependencyType = DependencyType;
-    exports.VersionOptions = VersionOptions;
+    function isValidDependencyType(type) {
+        return (type === DependencyType.DEVELOPMENT || type === DependencyType.PRODUCTION);
+    }
+
+    function isValidVersion(version) {
+        return (version === VersionOptions.TILDE || version === VersionOptions.CARET ||
+                version === VersionOptions.FIXED);
+    }
+
+    exports.DependencyType        = DependencyType;
+    exports.VersionOptions        = VersionOptions;
+    exports.isValidDependencyType = isValidDependencyType;
+    exports.isValidVersion        = isValidVersion;
 });
