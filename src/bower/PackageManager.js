@@ -406,7 +406,7 @@ define(function (require, exports) {
                 project.updatePackage(updatedPkg);
 
                 deferred.resolve(updatedPkg);
-            } else if (updateData.dependencyType !== undefined) {
+            } else if (updateData.dependencyType !== undefined) { // check if dependencyType was an updated property
 
                 // TODO pkg notifies project manager that a property has changed
                 pkg.dependencyType = updateData.dependencyType;
