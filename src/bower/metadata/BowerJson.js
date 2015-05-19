@@ -39,7 +39,10 @@ define(function (require, exports, module) {
     function BowerJson(path, appName) {
         BowerMetadata.call(this, "bower.json", path);
 
+        /** @private */
         this._appName = appName;
+        /** @private*/
+        this._dependencies = null;
     }
 
     BowerJson.prototype = Object.create(BowerMetadata.prototype);
@@ -162,6 +165,9 @@ define(function (require, exports, module) {
         return deferred;
     };
 
+    /**
+     * @private
+     */
     BowerJson.prototype._updateDependencyType = function (name, type, content, currentDeps) {
 
         if (type === DependencyType.PRODUCTION) {

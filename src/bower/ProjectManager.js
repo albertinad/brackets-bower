@@ -327,6 +327,17 @@ define(function (require, exports) {
                             // TODO: handle when it fails not because network errors
                         });
                     });
+
+
+                    // TODO
+                    BowerJsonManager.on(BowerJsonManager.Events.BOWER_JSON_CHANGED, function () {
+                        PackageManager.loadProjectDependencies().always(function () {
+                            // try to get check for dependencies updates
+                            PackageManager.checkForUpdates().fail(function () {
+                                // do not handle errors
+                            });
+                        });
+                    });
                 } else {
                     FileSystemHandler.stopListenToFileSystem();
                     // notify bower project is ready

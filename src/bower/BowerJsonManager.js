@@ -38,10 +38,12 @@ define(function (require, exports) {
     var _bowerJson = null;
 
     var namespace = ".albertinad.bracketsbower",
-        BOWER_JSON_RELOADED = "bowerjsonReloaded";
+        BOWER_JSON_RELOADED = "bowerjsonReloaded",
+        BOWER_JSON_CHANGED  = "bowerjsonChanged";
 
     var Events = {
-        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace
+        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace,
+        BOWER_JSON_CHANGED: BOWER_JSON_CHANGED + namespace
     };
 
     EventDispatcher.makeEventDispatcher(exports);
@@ -145,6 +147,14 @@ define(function (require, exports) {
         exports.trigger(BOWER_JSON_RELOADED);
     }
 
+    /**
+     * Notify when the content of the bower.json has changed.
+     * @private
+     */
+    function _notifyBowerJsonChanged() {
+        exports.trigger(BOWER_JSON_CHANGED);
+    }
+
     function loadBowerJson(project) {
         var deferred = new $.Deferred();
 
@@ -215,11 +225,21 @@ define(function (require, exports) {
         _notifyBowerJsonReloaded();
     }
 
+    function _onBowerJsonChanged() {
+        if (_bowerJson) {
+            // TODO load new content
+            // TODO check with previous content if anything changed
+            // TODO if actually something changed, notify it
+            _notifyBowerJsonChanged();
+        }
+    }
+
     AppInit.appReady(function () {
         var Events = FileSystemHandler.Events;
 
         FileSystemHandler.on(Events.BOWER_JSON_CREATED, _onBowerJsonCreated);
         FileSystemHandler.on(Events.BOWER_JSON_DELETED, _onBowerJsonDeleted);
+        FileSystemHandler.on(Events.BOWER_JSON_CHANGED, _onBowerJsonChanged);
     });
 
     exports.loadBowerJson   = loadBowerJson;

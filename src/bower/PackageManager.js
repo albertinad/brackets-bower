@@ -435,8 +435,6 @@ define(function (require, exports) {
         return deferred;
     }
 
-    window.bowerUpdate = update;
-
     /**
      * Search the registry for packages using the current configuration.
      * @return {$.Deferred}

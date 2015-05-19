@@ -23,7 +23,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global define, brackets */
 
 define(function (require, exports, module) {
     "use strict";
@@ -51,7 +51,8 @@ define(function (require, exports, module) {
     }
 
     DependenciesController.prototype.initialize = function ($section) {
-        var that = this;
+        var that = this,
+            Events = ProjectManager.Events;
 
         this._view = new DependenciesView(this);
 
@@ -61,13 +62,19 @@ define(function (require, exports, module) {
             that._onBowerJsonReloadedCallback();
         });
 
-        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_ADDED, function () {
+        ProjectManager.on(Events.DEPENDENCIES_ADDED, function () {
             if (that._isPanelActive()) {
                 that.loadProjectPackages();
             }
         });
 
-        ProjectManager.on(ProjectManager.Events.DEPENDENCIES_REMOVED, function (event, pkgs) {
+        ProjectManager.on(Events.DEPENDENCY_UPDATED, function () {
+            if (that._isPanelActive()) {
+                that.loadProjectPackages();
+            }
+        });
+
+        ProjectManager.on(Events.DEPENDENCIES_REMOVED, function (event, pkgs) {
             if (that._isPanelActive()) {
                 pkgs.forEach(function (pkg) {
                     that._view.onDependecyRemoved(pkg.name);
@@ -163,7 +170,7 @@ define(function (require, exports, module) {
             var options = {
                 summary: StringUtils.format(Strings.SUMMARY_ERROR_UNINSTALLING_DEPENDANTS, name),
                 highlight: dataList.join("\n"),
-                note: Strings.NOTE_QUESTION_CONTINUE_UNINSTALLING,
+                note: Strings.NOTE_QUESTION_CONTINUE_UNINSTALLING
             };
 
             dialog = NotificationDialog.showOkCancel(Strings.TITLE_ERROR_UNINSTALLING, options);
@@ -181,11 +188,7 @@ define(function (require, exports, module) {
      * Update the selected package.
      */
     DependenciesController.prototype.update = function (name) {
-        var that = this;
-
-        PackageManager.update(name).then(function () {
-            that.loadProjectPackages();
-        }).fail(function (error) {
+        PackageManager.update(name).fail(function (error) {
             NotificationDialog.showError(error.message);
         });
     };
