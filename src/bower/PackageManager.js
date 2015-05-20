@@ -246,17 +246,13 @@ define(function (require, exports) {
 
             if (total !== 0) {
                 // create the package model for the packages list
-                PackageFactory.createTrackedPackages(result.packages).then(function (packagesArray) {
+                var packagesArray = PackageFactory.createTrackedPackages(result.packages),
+                    pkgsData = project.addPackages(packagesArray);
 
-                    var pkgsData = project.addPackages(packagesArray);
+                installResult.installed = pkgsData.installed;
+                installResult.updated = pkgsData.updated;
 
-                    installResult.installed = pkgsData.installed;
-                    installResult.updated = pkgsData.updated;
-
-                    deferred.resolve(installResult);
-                }).fail(function (error) {
-                    deferred.reject(error);
-                });
+                deferred.resolve(installResult);
             } else {
                 installResult.installed = [];
                 installResult.updated = [];
@@ -460,11 +456,7 @@ define(function (require, exports) {
         return Bower.list(ConfigurationManager.getConfiguration());
     }
 
-    /**
-     * Load the packages for the current project.
-     * @return {$.Deferred}
-     */
-    function loadProjectDependencies() {
+    function listProjectDependencies() {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject();
@@ -479,8 +471,6 @@ define(function (require, exports) {
             // create the package model
             return PackageFactory.createPackages(result.dependencies);
         }).then(function (packagesArray) {
-            project.setPackages(packagesArray);
-
             deferred.resolve(packagesArray);
         }).fail(function (error) {
             deferred.reject(error);
@@ -526,7 +516,7 @@ define(function (require, exports) {
     exports.search                  = search;
     exports.listCache               = listCache;
     exports.list                    = list;
-    exports.loadProjectDependencies = loadProjectDependencies;
+    exports.listProjectDependencies = listProjectDependencies;
     exports.checkForUpdates         = checkForUpdates;
     exports.VersionOptions          = VersionOptions;
 });

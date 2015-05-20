@@ -36,8 +36,6 @@ define(function (require, exports, module) {
             ExtensionUtils,
             testWindow;
 
-        // BowerJsonManager.getDependencies().
-
         beforeFirst(function () {
             runs(function () {
                 var folderPromise = new $.Deferred();
@@ -67,9 +65,9 @@ define(function (require, exports, module) {
         it("should get an array of Package objects for the raw data", function () {
             var data = require("text!tests/utils/data/install.packages.json"),
                 rawData = JSON.parse(data),
-                packages;
+                packages = PackageFactory.createPackages(rawData);
 
-            runs(function () {
+            /*runs(function () {
                 var pkgDeferred = new $.Deferred();
 
                 PackageFactory.createPackages(rawData).then(function (result) {
@@ -81,7 +79,7 @@ define(function (require, exports, module) {
                 });
 
                 waitsForDone(pkgDeferred, "Packages loaded", defaultTimeout);
-            });
+            });*/
 
             runs(function () {
                 expect(packages).not.toBeNull();

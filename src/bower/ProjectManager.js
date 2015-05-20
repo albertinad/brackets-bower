@@ -297,6 +297,16 @@ define(function (require, exports) {
         return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
     }
 
+    function _onBowerJsonDepsChanged() {
+        PackageManager.listProjectDependencies().then(function (packagesArray) {
+            var currentPackages = getProjectDependencies();
+
+            if (currentPackages.length !== packagesArray.length) {
+                _bowerProject.setPackages(packagesArray);
+            }
+        });
+    }
+
     /**
      * Initialization sequence when the project changes. Notifies that the
      * BowerProject instance is loading. Load the current project dependencies
@@ -315,29 +325,25 @@ define(function (require, exports) {
 
                 if (_bowerProject !== null) {
                     // start loading project dependencies
-                    PackageManager.loadProjectDependencies().always(function () {
+                    PackageManager.listProjectDependencies().then(function (packagesArray) {
 
-                        FileSystemHandler.startListenToFileSystem(_bowerProject);
-
-                        // notify bower project is ready
-                        exports.trigger(PROJECT_READY);
+                        _bowerProject.setPackages(packagesArray);
 
                         // try to get check for dependencies updates
                         PackageManager.checkForUpdates().fail(function () {
                             // TODO: handle when it fails not because network errors
                         });
+                    }).fail(function () {
+                        // do not handle failure
+                    }).always(function () {
+
+                        FileSystemHandler.startListenToFileSystem(_bowerProject);
+
+                        // notify bower project is ready
+                        exports.trigger(PROJECT_READY);
                     });
 
-
-                    // TODO
-                    BowerJsonManager.on(BowerJsonManager.Events.BOWER_JSON_CHANGED, function () {
-                        PackageManager.loadProjectDependencies().always(function () {
-                            // try to get check for dependencies updates
-                            PackageManager.checkForUpdates().fail(function () {
-                                // do not handle errors
-                            });
-                        });
-                    });
+                    BowerJsonManager.on(BowerJsonManager.Events.BOWER_JSON_CHANGED, _onBowerJsonDepsChanged);
                 } else {
                     FileSystemHandler.stopListenToFileSystem();
                     // notify bower project is ready
@@ -406,6 +412,33 @@ define(function (require, exports) {
     }
 
     /**
+     * @private
+     */
+    function _projectClose() {
+        FileSystemHandler.stopListenToFileSystem();
+        BowerJsonManager.off(BowerJsonManager.Events.BOWER_JSON_CHANGED, _onBowerJsonDepsChanged);
+    }
+
+    /**
+     * @private
+     */
+    function _fileNameChange(event, oldName, newName) {
+        if (_bowerProject && _bowerProject.activeDir === oldName) {
+            // the active folder was renamed, update it
+            _setActiveDir(newName);
+        }
+    }
+
+    /**
+     * @private
+     */
+    function _pathDeleted(event, fullPath) {
+        if (_bowerProject && _bowerProject.activeDir === fullPath) {
+            _setActiveDir(_bowerProject.rootPath);
+        }
+    }
+
+    /**
      * Initialization function. It must be called only once. It configures the current project
      * if any and setup the event listeners for ProjectManager and DocumentManager events.
      */
@@ -413,23 +446,10 @@ define(function (require, exports) {
         _projectOpen();
 
         ProjectManager.on("projectOpen", _projectOpen);
+        ProjectManager.on("projectClose", _projectClose);
 
-        ProjectManager.on("projectClose", function () {
-            FileSystemHandler.stopListenToFileSystem();
-        });
-
-        DocumentManager.on("fileNameChange", function (event, oldName, newName) {
-            if (_bowerProject && _bowerProject.activeDir === oldName) {
-                // the active folder was renamed, update it
-                _setActiveDir(newName);
-            }
-        });
-
-        DocumentManager.on("pathDeleted", function (event, fullPath) {
-            if (_bowerProject && _bowerProject.activeDir === fullPath) {
-                _setActiveDir(_bowerProject.rootPath);
-            }
-        });
+        DocumentManager.on("fileNameChange", _fileNameChange);
+        DocumentManager.on("pathDeleted", _pathDeleted);
     }
 
     exports.initialize                 = initialize;

@@ -23,12 +23,13 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global $, define */
+/*global $, define, brackets */
 
 define(function (require, exports, module) {
     "use strict";
 
-    var BowerMetadata  = require("src/bower/metadata/BowerMetadata"),
+    var _              = brackets.getModule("thirdparty/lodash"),
+        BowerMetadata  = require("src/bower/metadata/BowerMetadata"),
         DependencyType = require("src/bower/PackageOptions").DependencyType;
 
     /**
@@ -42,7 +43,7 @@ define(function (require, exports, module) {
         /** @private */
         this._appName = appName;
         /** @private*/
-        this._dependencies = null;
+        this._deps = {};
     }
 
     BowerJson.prototype = Object.create(BowerMetadata.prototype);
@@ -50,11 +51,15 @@ define(function (require, exports, module) {
     BowerJson.prototype.parentClass = BowerMetadata.prototype;
 
     BowerJson.prototype.create = function (data) {
-        var deferred = new $.Deferred(),
+        var that = this,
+            deferred = new $.Deferred(),
             pkgMeta = (Array.isArray(data)) ? this._createPackageMetadata(data) : this._getDefaultData(),
             content = JSON.stringify(pkgMeta, null, 4);
 
         this.saveContent(content).then(function () {
+            // cache the dependencies
+            that._updateDependencies(pkgMeta);
+
             deferred.resolve();
         }).fail(function (error) {
             deferred.reject(error);
@@ -67,30 +72,26 @@ define(function (require, exports, module) {
      * Get the dependencies and devDependencies defined in the bower.json.
      * @param {$.Deferred}
      */
-    BowerJson.prototype.getAllDependencies = function () {
-        var deferred = new $.Deferred();
+    BowerJson.prototype._loadAllDependencies = function () {
+        var that = this,
+            deferred = new $.Deferred();
 
         this.read().then(function (result) {
-
             var content,
-                deps = {
-                    dependencies: {},
-                    devDependencies: {}
-                };
+                hasChanged;
 
             try {
                 content = JSON.parse(result);
+                hasChanged = that._hasDependenciesChanged(content);
 
-                if (content.dependencies) {
-                    deps.dependencies = content.dependencies;
+                if (hasChanged) {
+                    that._updateDependencies(content);
                 }
 
-                if (content.dependencies) {
-                    deps.devDependencies = content.devDependencies;
-                }
-
-                deferred.resolve(deps);
+                deferred.resolve(hasChanged);
             } catch (error) {
+                that._deps = {};
+
                 deferred.reject(error);
             }
         }).fail(function (error) {
@@ -98,6 +99,14 @@ define(function (require, exports, module) {
         });
 
         return deferred.promise();
+    };
+
+    /**
+     * Get the dependencies and devDependencies defined in the bower.json.
+     * @return {object}
+     */
+    BowerJson.prototype.getAllDependencies = function () {
+        return this._deps;
     };
 
     /**
@@ -245,6 +254,40 @@ define(function (require, exports, module) {
             dependencies: {},
             devDependencies: {}
         };
+    };
+
+    /**
+     * Check if exists any different between the given depenencies object and the current.
+     * @param {object} meta Object with the new dependencies and devDependencies configuration.
+     * @return {boolean} true if exists any difference, otherwise false.
+     * @private
+     */
+    BowerJson.prototype._hasDependenciesChanged = function (meta) {
+        var isProdNotEqual = !_.isEqual(meta.dependencies, this._deps.dependencies),
+            isDevNotEqual = !_.isEqual(meta.devDependencies, this._deps.devDependencies);
+
+        return (isProdNotEqual || isDevNotEqual);
+    };
+
+    /**
+     * Update the cached dependencies object with the given by parameters.
+     * @param {object} meta Object with the new dependencies and devDependencies configuration.
+     * @private
+     */
+    BowerJson.prototype._updateDependencies = function (meta) {
+        this._deps = {};
+
+        if (meta.dependencies) {
+            this._deps.dependencies = meta.dependencies;
+        } else {
+            this._deps.dependencies = {};
+        }
+
+        if (meta.devDependencies) {
+            this._deps.devDependencies = meta.devDependencies;
+        } else {
+            this._deps.devDependencies = {};
+        }
     };
 
     module.exports = BowerJson;

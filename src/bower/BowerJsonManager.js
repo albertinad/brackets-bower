@@ -121,7 +121,7 @@ define(function (require, exports) {
     }
 
     /**
-     * Open the bower.json in the editor, it it exists.
+     * Open the bower.json in the editor, if it exists.
      */
     function open() {
         if (_bowerJson !== null) {
@@ -165,6 +165,8 @@ define(function (require, exports) {
 
             findBowerJson(path).then(function () {
                 _bowerJson = new BowerJson(path, name);
+
+                return _bowerJson._loadAllDependencies();
             }).fail(function () {
                 _bowerJson = null;
             }).always(function () {
@@ -187,19 +189,13 @@ define(function (require, exports) {
     }
 
     function getDependencies() {
-        var deferred = new $.Deferred();
+        var deps = null;
 
         if (_bowerJson) {
-            _bowerJson.getAllDependencies().then(function (data) {
-                deferred.resolve(data);
-            }).fail(function (err) {
-                deferred.reject(err);
-            });
-        } else {
-            deferred.reject();
+            deps = _bowerJson.getAllDependencies();
         }
 
-        return deferred;
+        return deps;
     }
 
     /**
@@ -227,10 +223,13 @@ define(function (require, exports) {
 
     function _onBowerJsonChanged() {
         if (_bowerJson) {
-            // TODO load new content
-            // TODO check with previous content if anything changed
-            // TODO if actually something changed, notify it
-            _notifyBowerJsonChanged();
+            _bowerJson._loadAllDependencies().then(function (updated) {
+                if (updated) {
+                    _notifyBowerJsonChanged();
+                }
+            }).fail(function () {
+                // do nothing
+            });
         }
     }
 

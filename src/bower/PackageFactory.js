@@ -23,7 +23,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, $, brackets */
+/*global define, brackets */
 
 define(function (require, exports, module) {
     "use strict";
@@ -466,64 +466,44 @@ define(function (require, exports, module) {
      * @return {Array}
      */
     function createPackages(packages) {
-        var deferred = new $.Deferred(),
-            deps = null;
+        var deps = BowerJsonManager.getDependencies(),
+            pkgsName = Object.keys(packages),
+            pkgs = [];
 
-        // get all the dependencies defined in bower.json if any
-        BowerJsonManager.getDependencies().then(function (data) {
-            deps = data;
-        }).always(function () {
+        pkgsName.forEach(function (name) {
+            var pkgRawData = packages[name],
+                pkg = Package.fromRawData(name, pkgRawData, deps);
 
-            var pkgsName = Object.keys(packages),
-                pkgs = [];
-
-            pkgsName.forEach(function (name) {
-                var pkgRawData = packages[name],
-                    pkg = Package.fromRawData(name, pkgRawData, deps);
-
-                pkgs.push(pkg);
-            });
-
-            deferred.resolve(pkgs);
+            pkgs.push(pkg);
         });
 
-        return deferred;
+        return pkgs;
     }
 
     /**
      * Create an array of Packages instances that are tracked in the bower.json file.
      * @param {object} packages
-     * @return {$.Promise}
+     * @return {Array}
      */
     function createTrackedPackages(packages) {
-        var deferred = new $.Deferred(),
-            pkgs = [],
-            deps = null;
+        var deps = BowerJsonManager.getDependencies(),
+            pkgsName = Object.keys(packages),
+            pkgs = [];
 
-        // get all the dependencies defined in bower.json if any
-        BowerJsonManager.getDependencies().then(function (data) {
-            deps = data;
-        }).always(function () {
+        pkgsName.forEach(function (name) {
+            var pkg,
+                pkgRawData;
 
-            var pkgsName = Object.keys(packages);
+            if (Package.isInBowerJsonDeps(name, deps)) {
+                pkgRawData = packages[name];
 
-            pkgsName.forEach(function (name) {
-                var pkg,
-                    pkgRawData;
+                pkg = Package.fromRawData(name, pkgRawData, deps);
 
-                if (Package.isInBowerJsonDeps(name, deps)) {
-                    pkgRawData = packages[name];
-
-                    pkg = Package.fromRawData(name, pkgRawData, deps);
-
-                    pkgs.push(pkg);
-                }
-            });
-
-            deferred.resolve(pkgs);
+                pkgs.push(pkg);
+            }
         });
 
-        return deferred;
+        return pkgs;
     }
 
     /**
