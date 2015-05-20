@@ -34,14 +34,18 @@ define(function (require, exports, module) {
 
     /**
      * Bower json file constructor.
-     * @param {path} path
+     * @param {string} path
+     * @param {string} appName
+     * @param {Project} project
      * @constructor
      */
-    function BowerJson(path, appName) {
+    function BowerJson(path, appName, project) {
         BowerMetadata.call(this, "bower.json", path);
 
         /** @private */
         this._appName = appName;
+        /** @private */
+        this._project = project;
         /** @private*/
         this._deps = {};
     }
@@ -172,6 +176,18 @@ define(function (require, exports, module) {
         });
 
         return deferred;
+    };
+
+    BowerJson.prototype.onContentChanged = function () {
+        var that = this;
+        this._loadAllDependencies().then(function (updated) {
+            if (updated) {
+                //_notifyBowerJsonChanged();
+                that._project.notifyBowerJsonChanged();
+            }
+        }).fail(function () {
+            // do nothing
+        });
     };
 
     /**

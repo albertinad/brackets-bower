@@ -35,15 +35,11 @@ define(function (require, exports) {
         FileSystemHandler = require("src/bower/FileSystemHandler"),
         BowerJson         = require("src/bower/metadata/BowerJson");
 
-    var _bowerJson = null;
-
     var namespace = ".albertinad.bracketsbower",
-        BOWER_JSON_RELOADED = "bowerjsonReloaded",
-        BOWER_JSON_CHANGED  = "bowerjsonChanged";
+        BOWER_JSON_RELOADED = "bowerjsonReloaded";
 
     var Events = {
-        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace,
-        BOWER_JSON_CHANGED: BOWER_JSON_CHANGED + namespace
+        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace
     };
 
     EventDispatcher.makeEventDispatcher(exports);
@@ -51,33 +47,33 @@ define(function (require, exports) {
     /**
      * Create the bower.json file at the given absolute path. If any path is provided,
      * it use the current active project as the default absolute path.
-     * @param {string=} path The absolute path where to create the bower.json file.
      */
-    function createBowerJson(path) {
-        var project = ProjectManager.getProject(),
-            appName = (project) ? project.name : null,
-            deferred = new $.Deferred();
+    function createBowerJson() {
+        var deferred = new $.Deferred(),
+            project = ProjectManager.getProject(),
+            bowerJson,
+            appName,
+            path;
 
-        // TODO use regex
-        // TODO validate path
-        if (!path || path.trim() === "") {
-            if (project) {
-                path = project.getPath();
-            } else {
-                return deferred.reject();
-            }
+        if (!project) {
+            return deferred.reject();
         }
 
-        _bowerJson = new BowerJson(path, appName);
+        appName = project.name;
+        path = project.getPath();
 
-        _bowerJson.create().always(function () {
+        bowerJson = new BowerJson(path, appName, project);
+
+        bowerJson.create().always(function () {
             // create bowerJson file with existent data,
             // if not, use the default configuration
-            return _bowerJson.create(project.getPackagesArray());
+            return bowerJson.create(project.getPackagesArray());
         }).then(function () {
-            deferred.resolve();
+            project.activeBowerJson = bowerJson;
+
+            deferred.resolve(bowerJson);
         }).fail(function (error) {
-            _bowerJson = null;
+            bowerJson = null;
 
             deferred.reject(error);
         });
@@ -89,17 +85,25 @@ define(function (require, exports) {
      * Deletes the active bower.json file if it exists.
      */
     function removeBowerJson() {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            project = ProjectManager.getProject(),
+            bowerJson;
 
-        if (_bowerJson !== null) {
-            _bowerJson.remove().done(function () {
-                _bowerJson = null;
-
-                deferred.resolve();
-            });
-        } else {
-            deferred.resolve();
+        if (!project) {
+            return deferred.reject();
         }
+
+        bowerJson = project.activeBowerJson;
+
+        if (bowerJson === null) {
+            return deferred.resolve();
+        }
+
+        bowerJson.remove().always(function () {
+            project.activeBowerJson = null;
+
+            deferred.resolve();
+        });
 
         return deferred;
     }
@@ -110,22 +114,31 @@ define(function (require, exports) {
      * @returns {BowerJson} Current active BowerJson object.
      */
     function getBowerJson() {
-        return _bowerJson;
+        var project = ProjectManager.getProject();
+
+        return (project) ? project.activeBowerJson : null;
     }
 
     /**
      * @returns {boolean}
      */
     function existsBowerJson() {
-        return (_bowerJson !== null);
+        var project = ProjectManager.getProject();
+
+        return (project &&  project.activeBowerJson !== null);
     }
 
     /**
      * Open the bower.json in the editor, if it exists.
      */
     function open() {
-        if (_bowerJson !== null) {
-            FileUtils.openInEditor(_bowerJson.AbsolutePath);
+        var project = ProjectManager.getProject(),
+            bowerJson;
+
+        if (project && project.activeBowerJson) {
+            bowerJson = project.activeBowerJson;
+
+            FileUtils.openInEditor(bowerJson.AbsolutePath);
         }
     }
 
@@ -135,7 +148,7 @@ define(function (require, exports) {
      * @param {string} path
      * @return {$.Deferred}
      */
-    function findBowerJson(path) {
+    function _findBowerJson(path) {
         return FileUtils.exists(path + "bower.json");
     }
 
@@ -147,39 +160,36 @@ define(function (require, exports) {
         exports.trigger(BOWER_JSON_RELOADED);
     }
 
-    /**
-     * Notify when the content of the bower.json has changed.
-     * @private
-     */
-    function _notifyBowerJsonChanged() {
-        exports.trigger(BOWER_JSON_CHANGED);
-    }
-
     function loadBowerJson(project) {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            bowerJson;
 
         // search for the bower.json file if it exists
         if (project) {
             var path = project.getPath(),
                 name = project.name;
 
-            findBowerJson(path).then(function () {
-                _bowerJson = new BowerJson(path, name);
+            _findBowerJson(path).then(function () {
+                bowerJson = new BowerJson(path, name);
 
-                return _bowerJson._loadAllDependencies();
+                return bowerJson._loadAllDependencies();
             }).fail(function () {
-                _bowerJson = null;
+                bowerJson = null;
             }).always(function () {
                 _notifyBowerJsonReloaded();
 
-                if (_bowerJson) {
+                project.activeBowerJson = bowerJson;
+
+                if (bowerJson) {
                     deferred.resolve();
                 } else {
                     deferred.reject();
                 }
             });
         } else {
-            _bowerJson = null;
+            bowerJson = null;
+            project.activeBowerJson = null;
+
             _notifyBowerJsonReloaded();
 
             deferred.reject();
@@ -189,13 +199,9 @@ define(function (require, exports) {
     }
 
     function getDependencies() {
-        var deps = null;
+        var project = ProjectManager.getProject();
 
-        if (_bowerJson) {
-            deps = _bowerJson.getAllDependencies();
-        }
-
-        return deps;
+        return (project) ? project.getBowerJsonDependencies() : null;
     }
 
     /**
@@ -203,7 +209,9 @@ define(function (require, exports) {
      * @private
      */
     function _onBowerJsonCreated() {
-        if (_bowerJson !== null) {
+        var project = ProjectManager.getProject();
+
+        if (project.activeBowerJson !== null) {
             return;
         }
 
@@ -217,19 +225,23 @@ define(function (require, exports) {
      * @private
      */
     function _onBowerJsonDeleted() {
-        _bowerJson = null;
-        _notifyBowerJsonReloaded();
+        var project = ProjectManager.getProject();
+
+        if (project) {
+            project.activeBowerJson = null;
+
+            _notifyBowerJsonReloaded();
+        }
     }
 
     function _onBowerJsonChanged() {
-        if (_bowerJson) {
-            _bowerJson._loadAllDependencies().then(function (updated) {
-                if (updated) {
-                    _notifyBowerJsonChanged();
-                }
-            }).fail(function () {
-                // do nothing
-            });
+        var project = ProjectManager.getProject(),
+            bowerJson;
+
+        if (project && project.activeBowerJson) {
+            bowerJson = project.activeBowerJson;
+
+            bowerJson.onContentChanged();
         }
     }
 
@@ -245,7 +257,6 @@ define(function (require, exports) {
     exports.getBowerJson    = getBowerJson;
     exports.createBowerJson = createBowerJson;
     exports.removeBowerJson = removeBowerJson;
-    exports.findBowerJson   = findBowerJson;
     exports.existsBowerJson = existsBowerJson;
     exports.getDependencies = getDependencies;
     exports.open            = open;

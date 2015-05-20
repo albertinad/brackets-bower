@@ -39,17 +39,42 @@ define(function (require, exports, module) {
         FIXED: 2
     };
 
+    var Status = {
+        INSTALLED: 0,
+        MISSING: 1,
+        NOT_TRACKED: 2
+    };
+
+    /**
+     * @param {number} type
+     * @return {boolean}
+     */
     function isValidDependencyType(type) {
         return (type === DependencyType.DEVELOPMENT || type === DependencyType.PRODUCTION);
     }
 
+    /**
+     * @param {number} type
+     * @return {boolean}
+     */
     function isValidVersion(version) {
         return (version === VersionOptions.TILDE || version === VersionOptions.CARET ||
                 version === VersionOptions.FIXED);
     }
 
+    /**
+     * @param {number} type
+     * @return {boolean}
+     */
+    function isValidStatus(status) {
+        return (status === Status.INSTALLED || status === Status.MISSING ||
+                status === Status.NOT_TRACKED);
+    }
+
     exports.DependencyType        = DependencyType;
     exports.VersionOptions        = VersionOptions;
+    exports.Status                = Status;
     exports.isValidDependencyType = isValidDependencyType;
     exports.isValidVersion        = isValidVersion;
+    exports.isValidStatus         = isValidStatus;
 });

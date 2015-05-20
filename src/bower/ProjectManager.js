@@ -28,14 +28,14 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var _                    = brackets.getModule("thirdparty/lodash"),
-        ProjectManager       = brackets.getModule("project/ProjectManager"),
+    var ProjectManager       = brackets.getModule("project/ProjectManager"),
         EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
         DocumentManager      = brackets.getModule("document/DocumentManager"),
         PackageManager       = require("src/bower/PackageManager"),
         FileSystemHandler    = require("src/bower/FileSystemHandler"),
         BowerJsonManager     = require("src/bower/BowerJsonManager"),
-        ConfigurationManager = require("src/bower/ConfigurationManager");
+        ConfigurationManager = require("src/bower/ConfigurationManager"),
+        BowerProject         = require("src/bower/project/Project");
 
     var _bowerProject;
 
@@ -62,215 +62,6 @@ define(function (require, exports) {
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
-     * @constructor
-     */
-    function BowerProject(name, rootPath) {
-        /** @private */
-        this._name = name;
-        /** @private */
-        this._rootPath = rootPath;
-        /** @private */
-        this._activeDir = null;
-        /** @private */
-        this._shortActiveDir = null;
-        /** @private */
-        this._packages = {};
-    }
-
-    Object.defineProperty(BowerProject.prototype, "name", {
-        get: function () {
-            return this._name;
-        }
-    });
-
-    Object.defineProperty(BowerProject.prototype, "rootPath", {
-        get: function () {
-            return this._rootPath;
-        }
-    });
-
-    Object.defineProperty(BowerProject.prototype, "activeDir", {
-        set: function (activeDir) {
-            this._activeDir = activeDir;
-
-            // calculate shortPath
-            if (this._activeDir === this._rootPath) {
-                this._shortActiveDir = "";
-            } else {
-                this._shortActiveDir = this._activeDir.slice(this._rootPath.length);
-            }
-        },
-        get: function () {
-            return this._activeDir;
-        }
-    });
-
-    Object.defineProperty(BowerProject.prototype, "shortActiveDir", {
-        get: function () {
-            return this._shortActiveDir;
-        }
-    });
-
-    BowerProject.prototype.getPath = function () {
-        return (this._activeDir || this._rootPath);
-    };
-
-    /**
-     * Set the packages.
-     * @param {Array} packagesArray
-     */
-    BowerProject.prototype.setPackages = function (packagesArray) {
-        this._packages = {};
-
-        this.addPackages(packagesArray);
-    };
-
-    /**
-     * Add project packages.
-     * @param {Array} packagesArray
-     */
-    BowerProject.prototype.addPackages = function (packagesArray) {
-        var that = this,
-            packagesInstalled = [],
-            packagesUpdated = [];
-
-        packagesArray.forEach(function (pkg) {
-            if (that._packages[pkg.name]) {
-                packagesUpdated.push(pkg);
-            } else {
-                packagesInstalled.push(pkg);
-            }
-
-            that._packages[pkg.name] = pkg;
-        });
-
-        exports.trigger(DEPENDENCIES_ADDED);
-
-        return { installed: packagesInstalled, updated: packagesUpdated };
-    };
-
-    /**
-     * Remove packages by its name.
-     * @param {Array} names
-     */
-    BowerProject.prototype.removePackages = function (names) {
-        var that = this,
-            removedPkgs = [];
-
-        names.forEach(function (name) {
-            var pkg = that._packages[name];
-
-            if (pkg) {
-                removedPkgs.push(pkg);
-
-                delete that._packages[name];
-            }
-        });
-
-        exports.trigger(DEPENDENCIES_REMOVED, removedPkgs);
-    };
-
-    /**
-     * Get the package by the given name;
-     * @param {string} name
-     * @return {object}
-     */
-    BowerProject.prototype.getPackageByName = function (name) {
-        return this._packages[name];
-    };
-
-    /**
-     * Get the current packages array.
-     * @private
-     * @returns {Array} packages
-     */
-    BowerProject.prototype.getPackagesArray = function () {
-        var packagesArray = [];
-
-        _.forEach(this._packages, function (pkg, pkgName) {
-            packagesArray.push(pkg);
-        });
-
-        return packagesArray;
-    };
-
-    /**
-     * Update the given package.
-     * @param {Package} pkg
-     */
-    BowerProject.prototype.updatePackage = function (pkg) {
-        this._packages[pkg.name] = pkg;
-
-        exports.trigger(DEPENDENCY_UPDATED, pkg);
-    };
-
-    /**
-     * Check if the project has dependencies.
-     * @return {boolean}
-     */
-    BowerProject.prototype.hasPackages = function () {
-        return (Object.keys(this._packages).length !== 0);
-    };
-
-    /**
-     * Check if the given package is installed for the project.
-     * @return {boolean}
-     */
-    BowerProject.prototype.hasPackage = function (name) {
-        var pkg = this._packages[name];
-
-        return (pkg && pkg.isInstalled);
-    };
-
-    /**
-     * Check if there is some uninstalled package. An uninstalled package
-     * is the one that is defined in the bower.json but is not installed
-     * in the libraries folder.
-     * @return {boolean}
-     */
-    BowerProject.prototype.hasUninstalledPackages = function () {
-        var hasUninstalled = _.some(this._packages, function (pkg) {
-            return pkg.isInstalled;
-        });
-
-        return hasUninstalled;
-    };
-
-    /**
-     * Check if there is some extraneous package. An extraneous package is the
-     * one that is installed (available at the libraries folder) but is not
-     * defined in the bower.json file.
-     * @return {boolean}
-     */
-    BowerProject.prototype.hasExtraPackages = function () {
-        var hasExtraneous = _.some(this._packages, function (pkg) {
-            return pkg.extraneous;
-        });
-
-        return hasExtraneous;
-    };
-
-    /**
-     * Get the project uninstalled packages.
-     * @return {Array}
-     */
-    BowerProject.prototype.getUninstalledPackages = function () {
-        return _.filter(this._packages, function (pkg) {
-            return !pkg.isInstalled;
-        });
-    };
-
-    /**
-     * Get the project extraneous packages.
-     * @return {Array}
-     */
-    BowerProject.prototype.getExtraneousPackages = function () {
-        return _.filter(this._packages, function (pkg) {
-            return pkg.extraneous;
-        });
-    };
-
-    /**
      * Create a BowerProject instance as a proxy of the current project.
      * @param {object} project Current active project.
      */
@@ -278,7 +69,7 @@ define(function (require, exports) {
         var name = project.name,
             rootPath = project.fullPath;
 
-        return new BowerProject(name, rootPath);
+        return new BowerProject(name, rootPath, exports);
     }
 
     /**
@@ -295,16 +86,6 @@ define(function (require, exports) {
      */
     function getProjectDependencies() {
         return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
-    }
-
-    function _onBowerJsonDepsChanged() {
-        PackageManager.listProjectDependencies().then(function (packagesArray) {
-            var currentPackages = getProjectDependencies();
-
-            if (currentPackages.length !== packagesArray.length) {
-                _bowerProject.setPackages(packagesArray);
-            }
-        });
     }
 
     /**
@@ -342,8 +123,6 @@ define(function (require, exports) {
                         // notify bower project is ready
                         exports.trigger(PROJECT_READY);
                     });
-
-                    BowerJsonManager.on(BowerJsonManager.Events.BOWER_JSON_CHANGED, _onBowerJsonDepsChanged);
                 } else {
                     FileSystemHandler.stopListenToFileSystem();
                     // notify bower project is ready
@@ -395,6 +174,18 @@ define(function (require, exports) {
         _setActiveDir(activeDir);
     }
 
+    function notifyDependenciesAdded(result) {
+        exports.trigger(DEPENDENCIES_ADDED, result);
+    }
+
+    function notifyDependenciesRemoved(removedPkgs) {
+        exports.trigger(DEPENDENCIES_REMOVED, removedPkgs);
+    }
+
+    function notifyDependencyUpdated(pkg) {
+        exports.trigger(DEPENDENCY_UPDATED, pkg);
+    }
+
     /**
      * Callback for when the project is opened. Gets the current project and starts
      * applying the configuration for Bower.
@@ -416,7 +207,6 @@ define(function (require, exports) {
      */
     function _projectClose() {
         FileSystemHandler.stopListenToFileSystem();
-        BowerJsonManager.off(BowerJsonManager.Events.BOWER_JSON_CHANGED, _onBowerJsonDepsChanged);
     }
 
     /**
@@ -456,5 +246,8 @@ define(function (require, exports) {
     exports.getProject                 = getProject;
     exports.getProjectDependencies     = getProjectDependencies;
     exports.updateActiveDirToSelection = updateActiveDirToSelection;
+    exports.notifyDependenciesAdded    = notifyDependenciesAdded;
+    exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
+    exports.notifyDependencyUpdated    = notifyDependencyUpdated;
     exports.Events                     = Events;
 });

@@ -88,9 +88,7 @@ define(function (require, exports, module) {
         /** @private */
         this._versions = [];
         /** @private */
-        this._extraneous = false;
-        /** @private */
-        this._isInstalled = true;
+        this._status = PackageOptions.Status.INSTALLED;
         /** @private */
         this._dependencyType = DependencyType.PRODUCTION;
         /** @private */
@@ -136,21 +134,12 @@ define(function (require, exports, module) {
         }
     });
 
-    Object.defineProperty(Package.prototype, "extraneous", {
-        set: function (extraneous) {
-            this._extraneous = extraneous;
+    Object.defineProperty(Package.prototype, "status", {
+        set: function (status) {
+            this._status = status;
         },
         get: function () {
-            return this._extraneous;
-        }
-    });
-
-    Object.defineProperty(Package.prototype, "isInstalled", {
-        set: function (isInstalled) {
-            this._isInstalled = isInstalled;
-        },
-        get: function () {
-            return this._isInstalled;
+            return this._status;
         }
     });
 
@@ -209,6 +198,74 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Check if the current package version has latest versions.
+     * @return {boolean} isLatest True if it has latest version, otherwhise, false.
+     */
+    Package.prototype.hasUpdates = function () {
+        if (!this._version || !this._latestVersion) {
+            return false;
+        }
+
+        var current = this._version.split("."),
+            latest = this._latestVersion.split("."),
+            hasLatest = false;
+
+        current.some(function (value, index) {
+            var numberValue = parseInt(value, 0),
+                numberLatest = parseInt(latest[index], 0);
+
+            hasLatest = (numberLatest > numberValue);
+
+            return hasLatest;
+        });
+
+        return hasLatest;
+    };
+
+    /**
+     * @return {boolean}
+     */
+    Package.prototype.isDevDependency = function () {
+        return (this._dependencyType === DependencyType.DEVELOPMENT);
+    };
+
+    /**
+     * @return {boolean}
+     */
+    Package.prototype.isProductionDependency = function () {
+        return (this._dependencyType === DependencyType.PRODUCTION);
+    };
+
+    /**
+     * @return {boolean}
+     */
+    Package.prototype.isInstalled = function () {
+        return (this._status === PackageOptions.Status.INSTALLED);
+    };
+
+    /**
+     * @return {boolean}
+     */
+    Package.prototype.isMissing = function () {
+        return (this._status === PackageOptions.Status.MISSING);
+    };
+
+    /**
+     * @return {boolean}
+     */
+    Package.prototype.isNotTracked = function () {
+        // bower "extraneous" definition
+        return (this._status === PackageOptions.Status.NOT_TRACKED);
+    };
+
+    /**
+     * @param {Package} pkg
+     */
+    Package.prototype.isEqualTo = function (pkg) {
+        return (this._dependencyType === pkg.dependencyType && this._status === pkg.status);
+    };
+
+    /**
      * Create package from raw data.
      * @param {string} name
      * @param {object} data
@@ -242,11 +299,9 @@ define(function (require, exports, module) {
         }
 
         if (data.missing) {
-            pkg.isInstalled = false;
-        }
-
-        if (data.extraneous) {
-            pkg.extraneous = true;
+            pkg.status = PackageOptions.Status.MISSING;
+        } else if (data.extraneous) {
+            pkg.status = PackageOptions.Status.NOT_TRACKED;
         }
 
         if (data.dependencies) {
@@ -299,39 +354,6 @@ define(function (require, exports, module) {
         }
 
         return false;
-    };
-
-    /**
-     * Check if the current package version has latest versions.
-     * @return {boolean} isLatest True if it has latest version, otherwhise, false.
-     */
-    Package.prototype.hasUpdates = function () {
-        if (!this._version || !this._latestVersion) {
-            return false;
-        }
-
-        var current = this._version.split("."),
-            latest = this._latestVersion.split("."),
-            hasLatest = false;
-
-        current.some(function (value, index) {
-            var numberValue = parseInt(value, 0),
-                numberLatest = parseInt(latest[index], 0);
-
-            hasLatest = (numberLatest > numberValue);
-
-            return hasLatest;
-        });
-
-        return hasLatest;
-    };
-
-    Package.prototype.isDevDependency = function () {
-        return (this._dependencyType === DependencyType.DEVELOPMENT);
-    };
-
-    Package.prototype.isProductionDependency = function () {
-        return (this._dependencyType === DependencyType.PRODUCTION);
     };
 
     /**

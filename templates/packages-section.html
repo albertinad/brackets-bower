@@ -27,17 +27,17 @@
                 </div>
                 {{ /hasUpdates }}
 
-                {{ #extraneous }}
+                {{ #isNotTracked }}
                 <div class="bower-row-item">
-                    <div class="bower-pkg-warning">Extraneous</div>
+                    <div class="bower-pkg-warning">Not Tracked</div>
                 </div>
-                {{ /extraneous }}
+                {{ /isNotTracked }}
 
-                {{ ^isInstalled }}
+                {{ #isMissing }}
                 <div class="bower-row-item">
                     <div class="bower-pkg-warning">Missing</div>
                 </div>
-                {{ /isInstalled }}
+                {{ /isMissing }}
 
                 <div class="bower-row-item">
                     {{ #isProductionDependency }}
