@@ -32,10 +32,10 @@ define(function (require, exports) {
         EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
         DocumentManager      = brackets.getModule("document/DocumentManager"),
         PackageManager       = require("src/bower/PackageManager"),
-        FileSystemHandler    = require("src/bower/FileSystemHandler"),
-        BowerJsonManager     = require("src/bower/BowerJsonManager"),
-        ConfigurationManager = require("src/bower/ConfigurationManager"),
-        BowerProject         = require("src/bower/project/Project");
+        FileSystemHandler    = require("src/project/FileSystemHandler"),
+        BowerJsonManager     = require("src/project/BowerJsonManager"),
+        ConfigurationManager = require("src/configuration/ConfigurationManager"),
+        BowerProject         = require("src/project/Project");
 
     var _bowerProject;
 

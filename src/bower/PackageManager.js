@@ -30,11 +30,11 @@ define(function (require, exports) {
 
     var EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
         Bower                = require("src/bower/Bower"),
-        ProjectManager       = require("src/bower/ProjectManager"),
-        PackageFactory       = require("src/bower/PackageFactory"),
+        ProjectManager       = require("src/project/ProjectManager"),
+        PackageFactory       = require("src/project/PackageFactory"),
         PackageOptions       = require("src/bower/PackageOptions"),
-        ConfigurationManager = require("src/bower/ConfigurationManager"),
-        BowerJsonManager     = require("src/bower/BowerJsonManager"),
+        ConfigurationManager = require("src/configuration/ConfigurationManager"),
+        BowerJsonManager     = require("src/project/BowerJsonManager"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
     var DependencyType = PackageOptions.DependencyType,

@@ -29,10 +29,10 @@ define(function (require, exports, module) {
     "use strict";
 
     var StringUtils        = brackets.getModule("utils/StringUtils"),
-        ProjectManager     = require("src/bower/ProjectManager"),
+        ProjectManager     = require("src/project/ProjectManager"),
         PackageManager     = require("src/bower/PackageManager"),
-        BowerJsonManager   = require("src/bower/BowerJsonManager"),
-        DependenciesView   = require("src/views/DependenciesView"),
+        BowerJsonManager   = require("src/project/BowerJsonManager"),
+        DependenciesView   = require("src/panel/views/DependenciesView"),
         ErrorUtils         = require("src/utils/ErrorUtils"),
         NotificationDialog = require("src/dialogs/NotificationDialog"),
         Strings            = require("strings");

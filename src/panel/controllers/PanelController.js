@@ -29,10 +29,10 @@ define(function (require, exports, module) {
     "use strict";
 
     var StringUtils         = brackets.getModule("utils/StringUtils"),
-        PanelView           = require("src/views/PanelView"),
-        StatusBarController = require("src/StatusBarController").Controller,
+        PanelView           = require("src/panel/views/PanelView"),
+        StatusBarController = require("src/panel/controllers/StatusBarController").Controller,
         SettingsDialog      = require("src/dialogs/SettingsDialog"),
-        ProjectManager      = require("src/bower/ProjectManager"),
+        ProjectManager      = require("src/project/ProjectManager"),
         PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),
         NotificationDialog  = require("src/dialogs/NotificationDialog"),

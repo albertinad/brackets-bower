@@ -9,8 +9,8 @@ define(function (require, exports, module) {
     describe("BracketsBower - Status Bar", function () {
 
         describe("Bower Status Bar Controller", function () {
-            var StatusBarController = require("src/StatusBarController")._StatusBarController,
-                Status = require("src/StatusBarController")._Status,
+            var StatusBarController = require("src/panel/controllers/StatusBarController")._StatusBarController,
+                Status = require("src/panel/controllers/StatusBarController")._Status,
                 statusBarController,
                 StatusTypes,
                 mockView;
@@ -181,8 +181,8 @@ define(function (require, exports, module) {
         });
 
         describe("Bower Status Bar View", function () {
-            var StatusBarView = require("src/views/StatusBarView"),
-                Status = require("src/StatusBarController")._Status,
+            var StatusBarView = require("src/panel/views/StatusBarView"),
+                Status = require("src/panel/controllers/StatusBarController")._Status,
                 statusBarView,
                 StatusTypes,
                 mockController = {
@@ -421,8 +421,8 @@ define(function (require, exports, module) {
         });
 
         describe("Bower Status Bar", function () {
-            var StatusBarController = require("src/StatusBarController")._StatusBarController,
-                StatusBarView = require("src/views/StatusBarView"),
+            var StatusBarController = require("src/panel/controllers/StatusBarController")._StatusBarController,
+                StatusBarView = require("src/panel/views/StatusBarView"),
                 statusBarController,
                 statusBarView,
                 StatusTypes;

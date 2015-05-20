@@ -32,7 +32,7 @@ define(function (require, exports, module) {
         StringMatch    = brackets.getModule("utils/StringMatch"),
         StringUtils    = brackets.getModule("utils/StringUtils");
 
-    var StatusBarController = require("src/StatusBarController").Controller,
+    var StatusBarController = require("src/panel/controllers/StatusBarController").Controller,
         DependencyType      = require("src/bower/PackageOptions").DependencyType,
         PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),

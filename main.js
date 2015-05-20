@@ -38,15 +38,15 @@ define(function (require, exports, module) {
     // local modules
     var Bower              = require("src/bower/Bower"),
         GitChecker         = require("src/utils/GitChecker"),
-        ProjectManager     = require("src/bower/ProjectManager"),
+        ProjectManager     = require("src/project/ProjectManager"),
         QuickInstall       = require("src/QuickInstall"),
         NotificationDialog = require("src/dialogs/NotificationDialog"),
         Strings            = require("strings"),
 
     // controllers
-        PanelController         = require("src/PanelController"),
-        ConfigurationController = require("src/ConfigurationController"),
-        DependenciesController  = require("src/DependenciesController");
+        PanelController         = require("src/panel/controllers/PanelController"),
+        ConfigurationController = require("src/panel/controllers/ConfigurationController"),
+        DependenciesController  = require("src/panel/controllers/DependenciesController");
 
     var EXTENSION_NAME         = "albertinad.bracketsbower",
         CMD_QUICK_INSTALL      = EXTENSION_NAME + ".installFromBower",

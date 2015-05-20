@@ -28,8 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var ConfigurationView    = require("src/views/ConfigurationView"),
-        ConfigurationManager = require("src/bower/ConfigurationManager");
+    var ConfigurationView    = require("src/panel/views/ConfigurationView"),
+        ConfigurationManager = require("src/configuration/ConfigurationManager");
 
     /**
      * ConfigurationController constructor. Controller for the bowerrc configuration view.

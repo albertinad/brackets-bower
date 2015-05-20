@@ -29,7 +29,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var _                = brackets.getModule("thirdparty/lodash"),
-        BowerJsonManager = require("src/bower/BowerJsonManager"),
+        BowerJsonManager = require("src/project/BowerJsonManager"),
         PackageOptions   = require("src/bower/PackageOptions");
 
     var DependencyType   = PackageOptions.DependencyType;

@@ -29,7 +29,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var _             = brackets.getModule("thirdparty/lodash"),
-        BowerMetadata = require("src/bower/metadata/BowerMetadata");
+        BowerMetadata = require("src/metadata/BowerMetadata");
 
     /**
      * Configuration file constructor.

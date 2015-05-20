@@ -62,8 +62,8 @@ define(function (require, exports, module) {
         });
 
         describe("BowerJson", function () {
-            var BowerJson = require("src/bower/metadata/BowerJson"),
-                Package = require("src/bower/PackageFactory")._Package,
+            var BowerJson = require("src/metadata/BowerJson"),
+                Package = require("src/project/PackageFactory")._Package,
                 DependencyType = require("src/bower/PackageOptions").DependencyType;
 
             afterEach(function () {
@@ -1413,7 +1413,7 @@ define(function (require, exports, module) {
         });
 
         describe("BowerRc", function () {
-            var BowerRc = require("src/bower/metadata/BowerRc");
+            var BowerRc = require("src/metadata/BowerRc");
 
             afterEach(function () {
                 runs(function () {

@@ -30,12 +30,12 @@ define(function (require, exports) {
 
     var _                     = brackets.getModule("thirdparty/lodash"),
         EventDispatcher       = brackets.getModule("utils/EventDispatcher"),
-        ProjectManager        = require("src/bower/ProjectManager"),
-        BowerRc               = require("src/bower/metadata/BowerRc"),
+        ProjectManager        = require("src/project/ProjectManager"),
+        BowerRc               = require("src/metadata/BowerRc"),
         Bower                 = require("src/bower/Bower"),
-        BracketsConfiguration = require("src/bower/configuration/BracketsConfiguration"),
-        DefaultConfiguration  = require("src/bower/configuration/DefaultConfiguration"),
-        FileSystemHandler     = require("src/bower/FileSystemHandler"),
+        BracketsConfiguration = require("src/configuration/BracketsConfiguration"),
+        DefaultConfiguration  = require("src/configuration/DefaultConfiguration"),
+        FileSystemHandler     = require("src/project/FileSystemHandler"),
         FileUtils             = require("src/utils/FileUtils");
 
     var _bowerRc  = null;

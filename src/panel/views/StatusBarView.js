@@ -28,7 +28,7 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var templateHtml = require("text!../../templates/status-bar.html");
+    var templateHtml = require("text!templates/status-bar.html");
 
     /**
      * StatusBar view constructor function.

@@ -30,7 +30,7 @@ define(function (require, exports, module) {
     var SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
 
     describe("BracketsBower - PackageFactory", function () {
-        var PackageFactory = require("src/bower/PackageFactory"),
+        var PackageFactory = require("src/project/PackageFactory"),
             tempDir = SpecRunnerUtils.getTempDirectory(),
             defaultTimeout = 5000,
             ExtensionUtils,

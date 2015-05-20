@@ -29,7 +29,7 @@ define(function (require, exports) {
     "use strict";
 
     var AppInit       = brackets.getModule("utils/AppInit"),
-        StatusBarView = require("src/views/StatusBarView");
+        StatusBarView = require("src/panel/views/StatusBarView");
 
     /**
      * Status model.

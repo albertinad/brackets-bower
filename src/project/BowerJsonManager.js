@@ -31,9 +31,9 @@ define(function (require, exports) {
     var AppInit           = brackets.getModule("utils/AppInit"),
         EventDispatcher   = brackets.getModule("utils/EventDispatcher"),
         FileUtils         = require("src/utils/FileUtils"),
-        ProjectManager    = require("src/bower/ProjectManager"),
-        FileSystemHandler = require("src/bower/FileSystemHandler"),
-        BowerJson         = require("src/bower/metadata/BowerJson");
+        ProjectManager    = require("src/project/ProjectManager"),
+        FileSystemHandler = require("src/project/FileSystemHandler"),
+        BowerJson         = require("src/metadata/BowerJson");
 
     var namespace = ".albertinad.bracketsbower",
         BOWER_JSON_RELOADED = "bowerjsonReloaded";
