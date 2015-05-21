@@ -23,7 +23,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global define, $, brackets */
 
 define(function (require, exports, module) {
     "use strict";
@@ -260,6 +260,10 @@ define(function (require, exports, module) {
         });
     };
 
+    BowerProject.prototype.hasBowerJson = function () {
+        return (this._activeBowerJson !== null);
+    };
+
     BowerProject.prototype.getBowerJsonDependencies = function () {
         var deps = null;
 
@@ -268,6 +272,41 @@ define(function (require, exports, module) {
         }
 
         return deps;
+    };
+
+    BowerProject.prototype.bowerJsonLoaded = function (bowerJson) {
+        this._activeBowerJson = bowerJson;
+
+        this.notifyBowerJsonChanged();
+    };
+
+    /**
+     * Remove the current active BowerJson if any.
+     * @return {$.Deferred}
+     */
+    BowerProject.prototype.removeBowerJson = function () {
+        var that = this,
+            deferred = new $.Deferred();
+
+        if (this._activeBowerJson === null) {
+            return deferred.resolve();
+        }
+
+        this._activeBowerJson.remove().always(function () {
+            that._activeBowerJson = null;
+
+            that.notifyBowerJsonChanged();
+
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    };
+
+    BowerProject.prototype.bowerJsonChanged = function () {
+        if (this._activeBowerJson) {
+            this._activeBowerJson.onContentChanged();
+        }
     };
 
     BowerProject.prototype.notifyBowerJsonChanged = function () {

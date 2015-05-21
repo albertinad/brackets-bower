@@ -34,7 +34,6 @@ define(function (require, exports) {
         PackageFactory       = require("src/project/PackageFactory"),
         PackageOptions       = require("src/bower/PackageOptions"),
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
-        BowerJsonManager     = require("src/project/BowerJsonManager"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
     var DependencyType = PackageOptions.DependencyType,
@@ -224,7 +223,6 @@ define(function (require, exports) {
      */
     function installFromBowerJson() {
         var deferred = new $.Deferred(),
-            existsBowerJson = BowerJsonManager.existsBowerJson(),
             project = ProjectManager.getProject(),
             config;
 
@@ -232,7 +230,7 @@ define(function (require, exports) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
-        if (!existsBowerJson) {
+        if (!project.hasBowerJson()) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
@@ -273,7 +271,6 @@ define(function (require, exports) {
      */
     function prune() {
         var deferred = new $.Deferred(),
-            existsBowerJson = BowerJsonManager.existsBowerJson(),
             project = ProjectManager.getProject(),
             config;
 
@@ -281,7 +278,7 @@ define(function (require, exports) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
-        if (!existsBowerJson) {
+        if (!project.hasBowerJson()) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
@@ -372,12 +369,12 @@ define(function (require, exports) {
         }
 
         // force bower.json to exists before updating
-        if (!BowerJsonManager.existsBowerJson()) {
+        if (!project.hasBowerJson()) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
         pkg = project.getPackageByName(name);
-        bowerJson = BowerJsonManager.getBowerJson();
+        bowerJson = project.activeBowerJson;
 
         // check if the selected package exists
         if (!pkg) {
