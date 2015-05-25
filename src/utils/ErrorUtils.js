@@ -28,22 +28,23 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var NO_BOWER_JSON          = 0,
-        PKG_NOT_INSTALLED      = 1,
-        SRC_NOT_FOUND          = 2,
-        SRC_RESOLVER_NOT_FOUND = 3,
-        CANT_FOUND_TARGET      = 4,
-        GIT_NOT_INSTALLED      = 5,
-        SVN_NOT_INSTALLED      = 6,
-        CMD_EXE                = 7,
-        CONFLICT               = 8,
-        HTTP_DOWNLOAD_FAIL     = 9,
-        DOWNLOAD_INCOMPLETE    = 10,
-        UNKNOWN_ERROR          = 11,
-        NO_PROJECT             = 12,
-        EMALFORMED             = 13,
-        EUPDATE_NO_DATA        = 14,
-        EUPDATE_NO_PKG_UPDATED = 15;
+    var NO_BOWER_JSON             = 0,
+        PKG_NOT_INSTALLED         = 1,
+        SRC_NOT_FOUND             = 2,
+        SRC_RESOLVER_NOT_FOUND    = 3,
+        CANT_FOUND_TARGET         = 4,
+        GIT_NOT_INSTALLED         = 5,
+        SVN_NOT_INSTALLED         = 6,
+        CMD_EXE                   = 7,
+        CONFLICT                  = 8,
+        HTTP_DOWNLOAD_FAIL        = 9,
+        DOWNLOAD_INCOMPLETE       = 10,
+        UNKNOWN_ERROR             = 11,
+        NO_PROJECT                = 12,
+        EMALFORMED                = 13,
+        EUPDATE_NO_DATA           = 14,
+        EUPDATE_NO_PKG_UPDATED    = 15,
+        EINSTALL_NO_PKG_INSTALLED = 16;
 
     /**
      * @param {number} code
@@ -77,4 +78,5 @@ define(function (require, exports, module) {
     exports.EMALFORMED             = EMALFORMED;
     exports.EUPDATE_NO_DATA        = EUPDATE_NO_DATA;
     exports.EUPDATE_NO_PKG_UPDATED = EUPDATE_NO_PKG_UPDATED;
+    exports.EINSTALL_NO_PKG_INSTALLED = EINSTALL_NO_PKG_INSTALLED;
 });

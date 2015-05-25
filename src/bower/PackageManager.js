@@ -28,7 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
+    var _                    = brackets.getModule("thirdparty/lodash"),
+        EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
         Bower                = require("src/bower/Bower"),
         ProjectManager       = require("src/project/ProjectManager"),
         PackageFactory       = require("src/project/PackageFactory"),
@@ -69,6 +70,25 @@ define(function (require, exports) {
     }
 
     /**
+     * @param {string} name
+     * @param {string} version
+     * @param {number} type
+     * @return {string} packageName
+     * @private
+     */
+    function _getPackageVersionToInstall(name, version, type) {
+        // prepare package name with version if any
+        var packageVersion = _getVersion(version, type),
+            packageName = name;
+
+        if (version) {
+            packageName += "#" + packageVersion;
+        }
+
+        return packageName;
+    }
+
+    /**
      * @param {Package} pkg
      * @param {object} data Values to update the package properties.
      *      version {string|null}: Version to update to. If empty, it will update it to the latest version.
@@ -97,13 +117,13 @@ define(function (require, exports) {
 
         updateVersion = _getVersion(data.version, data.versionType);
 
-        if (!updateVersion) {
+        if (!updateVersion && pkg.latestVersion) {
             // if any specific version was requested, update to the latest available version
             updateVersion = TILDE + pkg.latestVersion;
         }
 
         // version
-        if (pkg.version !== updateVersion) {
+        if (updateVersion && (pkg.version !== updateVersion)) {
             addToUpdateData("version", updateVersion);
         }
 
@@ -113,6 +133,32 @@ define(function (require, exports) {
         }
 
         return updateData;
+    }
+
+    /**
+     * @param {object} data
+     * @private
+     */
+    function _getInstallOptions(data) {
+        var options = {};
+
+        // prepare default values when needed
+        if (typeof data.type !== "number") {
+            data.type = DependencyType.PRODUCTION;
+        }
+
+        if (typeof data.save !== "boolean") {
+            data.save = false;
+        }
+
+        // setup options
+        if (data.type === DependencyType.PRODUCTION) {
+            options.save = data.save;
+        } else {
+            options.saveDev = data.save;
+        }
+
+        return options;
     }
 
     /**
@@ -154,57 +200,51 @@ define(function (require, exports) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
-            packageName = name,
-            options = {},
-            version;
+            packageName,
+            options;
 
         if (!project) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
-        data = data || {};
-
-        // prepare default values when needed
-        if (typeof data.type !== "number") {
-            data.type = DependencyType.PRODUCTION;
+        if (!data) {
+            data = {};
         }
 
-        if (typeof data.save !== "boolean") {
-            data.save = false;
-        }
-
-        // prepare package name with version if any
-        version = _getVersion(data.version, data.versionType);
-
-        if (version) {
-            packageName += "#" + version;
-        }
-
-        // setup options
-        if (data.type === DependencyType.PRODUCTION) {
-            options.save = data.save;
-        } else {
-            options.saveDev = data.save;
-        }
+        packageName = _getPackageVersionToInstall(name, data.version, data.versionType);
+        options = _getInstallOptions(data);
 
         // install the given package
         Bower.installPackage(packageName, options, config).then(function (result) {
+            var pkg;
+
             if (result.count !== 0) {
-                // get only the direct dependency
-                var rawData = result.packages[name],
-                    pkg = PackageFactory.createPackage(name, rawData, data.type);
+                var pkgs = PackageFactory.createPackages(result.packages);
+
+                // find the direct installed package
+                pkg = _.find(pkgs, function (pkgObject) {
+                    return (pkgObject.name === name);
+                });
 
                 info(name).then(function (packageInfo) {
-                    // update the package latestVersion
-                    pkg.latestVersion = packageInfo.latestVersion;
-                    pkg.versions = packageInfo.versions;
+
+                    pkg.updateVersionInfo(packageInfo);
                 }).always(function () {
-                    project.addPackages([pkg]);
+                    project.addPackages(pkgs);
 
                     deferred.resolve(pkg);
                 });
             } else {
-                deferred.resolve(null);
+                // check if it is a previous installed package as a package dependency
+                pkg = project.getPackageDependencyByName(name);
+
+                if (pkg) {
+                    project.updatePackageDependencyToProject(name);
+
+                    deferred.resolve(pkg);
+                } else {
+                    deferred.reject(ErrorUtils.createError(ErrorUtils.EINSTALL_NO_PKG_INSTALLED));
+                }
             }
 
         }).fail(function (error) {
@@ -239,12 +279,13 @@ define(function (require, exports) {
         Bower.install(config).then(function (result) {
             var total = result.count,
                 installResult = {
-                    total: total
+                    total: total,
+                    installed: [],
+                    updated: []
                 };
 
             if (total !== 0) {
-                // create the package model for the packages list
-                var packagesArray = PackageFactory.createTrackedPackages(result.packages),
+                var packagesArray = PackageFactory.createPackages(result.packages),
                     pkgsData = project.addPackages(packagesArray);
 
                 installResult.installed = pkgsData.installed;
@@ -252,9 +293,6 @@ define(function (require, exports) {
 
                 deferred.resolve(installResult);
             } else {
-                installResult.installed = [];
-                installResult.updated = [];
-
                 deferred.resolve(installResult);
             }
 
@@ -285,11 +323,9 @@ define(function (require, exports) {
         config = ConfigurationManager.getConfiguration();
 
         Bower.prune(config).then(function (uninstalled) {
-            var pkgNames = Object.keys(uninstalled);
+            var result = project.removePackages(Object.keys(uninstalled));
 
-            project.removePackages(pkgNames);
-
-            deferred.resolve(pkgNames);
+            deferred.resolve(result);
         }).fail(function (error) {
             deferred.reject(error);
         });
@@ -320,9 +356,9 @@ define(function (require, exports) {
         config.force = (typeof force === "boolean") ? force : false;
 
         Bower.uninstall(name, options, config).then(function (uninstalled) {
-            var pkg = project.removePackages(Object.keys(uninstalled));
+            var pkgs = project.removePackages(Object.keys(uninstalled));
 
-            deferred.resolve(pkg);
+            deferred.resolve(pkgs);
         }).fail(function (error) {
             // check if there's a conflict error when uninstalling, in that case
             // parse the data to get an array of packages names in conflict
@@ -392,27 +428,29 @@ define(function (require, exports) {
 
             return Bower.update(name, config);
         }).then(function (result) {
-            // update model
-            // if dependencyType was not updated, use current pkg value
-            var dependencyType = (updateData.dependencyType !== undefined) ? updateData.dependencyType : pkg.dependencyType,
-                updatedPkg = PackageFactory.createPackage(name, result[name], dependencyType);
 
-            if (updatedPkg) {
+            if (result.packages) {
+                var pkgs = PackageFactory.createPackages(result.packages),
+                    updatedPkg;
+
+                // find the direct updated package
+                updatedPkg = _.find(pkgs, function (pkgObject) {
+                    return (pkgObject.name === name);
+                });
 
                 info(name).then(function (packageInfo) {
                     // update the package latestVersion
-                    updatedPkg.latestVersion = packageInfo.latestVersion;
-                    updatedPkg.versions = packageInfo.versions;
+                    updatedPkg.updateVersionInfo(packageInfo);
                 }).always(function () {
-                    project.updatePackage(updatedPkg);
+                    project.updatePackages(pkgs);
 
                     deferred.resolve(updatedPkg);
                 });
+            } else if (updateData.dependencyType !== undefined) {
+                // dependencyType was an updated property
 
-            } else if (updateData.dependencyType !== undefined) { // check if dependencyType was an updated property
-
-                // TODO pkg notifies project manager that a property has changed
                 pkg.dependencyType = updateData.dependencyType;
+
                 project.updatePackage(pkg);
 
                 deferred.resolve(pkg);
@@ -466,7 +504,7 @@ define(function (require, exports) {
 
         Bower.list(config).then(function (result) {
             // create the package model
-            return PackageFactory.createPackages(result.dependencies);
+            return PackageFactory.createPackagesDeep(result.dependencies);
         }).then(function (packagesArray) {
             deferred.resolve(packagesArray);
         }).fail(function (error) {
@@ -492,7 +530,7 @@ define(function (require, exports) {
 
         list().then(function (result) {
 
-            return PackageFactory.createPackages(result.dependencies);
+            return PackageFactory.createPackagesDeep(result.dependencies);
         }).then(function (packagesArray) {
             project.setPackages(packagesArray);
 

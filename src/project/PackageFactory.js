@@ -82,6 +82,8 @@ define(function (require, exports, module) {
         /** @private */
         this._name = name;
         /** @private */
+        this._isProjectDependency = true; // default
+        /** @private */
         this._version = null;
         /** @private */
         this._latestVersion = null;
@@ -188,6 +190,15 @@ define(function (require, exports, module) {
         }
     });
 
+    Object.defineProperty(Package.prototype, "isProjectDependency", {
+        set: function (isProjectDependency) {
+            this._isProjectDependency = isProjectDependency;
+        },
+        get: function () {
+            return this._isProjectDependency;
+        }
+    });
+
     /**
      * @param {PackageDependency} dependency
      */
@@ -220,6 +231,14 @@ define(function (require, exports, module) {
         });
 
         return hasLatest;
+    };
+
+    /**
+     * @param {PackageInfo} packageInfo
+     */
+    Package.prototype.updateVersionInfo = function (packageInfo) {
+        this._latestVersion = packageInfo.latestVersion;
+        this._versions = packageInfo.versions;
     };
 
     /**
@@ -263,6 +282,29 @@ define(function (require, exports, module) {
      */
     Package.prototype.isEqualTo = function (pkg) {
         return (this._dependencyType === pkg.dependencyType && this._status === pkg.status);
+    };
+
+    /**
+     * Check if the given dependency name is defined in bower json dependencies.
+     * @param {string} name
+     * @param {object} bowerJsonDependencies
+     */
+    Package.isInBowerJsonDeps = function (name, bowerJsonDependencies) {
+        if (!bowerJsonDependencies) {
+            return false;
+        }
+
+        if (bowerJsonDependencies.dependencies &&
+                bowerJsonDependencies.dependencies[name]) {
+            return true;
+        }
+
+        if (bowerJsonDependencies.devDependencies &&
+                bowerJsonDependencies.devDependencies[name]) {
+            return true;
+        }
+
+        return false;
     };
 
     /**
@@ -321,6 +363,12 @@ define(function (require, exports, module) {
             });
         }
 
+        if (bowerJsonDeps) {
+            pkg.isProjectDependency = Package.isInBowerJsonDeps(name, bowerJsonDeps);
+        } else {
+            pkg.isProjectDependency = true;
+        }
+
         if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
                 bowerJsonDeps.devDependencies[name]) {
             pkg.dependencyType = DependencyType.DEVELOPMENT;
@@ -331,29 +379,6 @@ define(function (require, exports, module) {
         }
 
         return pkg;
-    };
-
-    /**
-     * Check if the given dependency name is defined in bower json dependencies.
-     * @param {string} name
-     * @param {object} bowerJsonDependencies
-     */
-    Package.isInBowerJsonDeps = function (name, bowerJsonDependencies) {
-        if (!bowerJsonDependencies) {
-            return false;
-        }
-
-        if (bowerJsonDependencies.dependencies &&
-                bowerJsonDependencies.dependencies[name]) {
-            return true;
-        }
-
-        if (bowerJsonDependencies.devDependencies &&
-                bowerJsonDependencies.devDependencies[name]) {
-            return true;
-        }
-
-        return false;
     };
 
     /**
@@ -488,6 +513,10 @@ define(function (require, exports, module) {
      * @return {Array}
      */
     function createPackages(packages) {
+        if (!packages) {
+            return [];
+        }
+
         var deps = BowerJsonManager.getDependencies(),
             pkgsName = Object.keys(packages),
             pkgs = [];
@@ -503,29 +532,39 @@ define(function (require, exports, module) {
     }
 
     /**
-     * Create an array of Packages instances that are tracked in the bower.json file.
+     * Create an array of Package instances from the raw data given as arguments.
      * @param {object} packages
      * @return {Array}
      */
-    function createTrackedPackages(packages) {
+    function createPackagesDeep(packages) {
         var deps = BowerJsonManager.getDependencies(),
-            pkgsName = Object.keys(packages),
-            pkgs = [];
+            pkgData = {},
+            pkgs;
 
-        pkgsName.forEach(function (name) {
-            var pkg,
-                pkgRawData;
+        _parsePackagesRecursive(packages, deps, pkgData);
 
-            if (Package.isInBowerJsonDeps(name, deps)) {
-                pkgRawData = packages[name];
-
-                pkg = Package.fromRawData(name, pkgRawData, deps);
-
-                pkgs.push(pkg);
-            }
-        });
+        pkgs = _.values(pkgData);
 
         return pkgs;
+    }
+
+    function _parsePackagesRecursive(packages, deps, pkgs) {
+        var pkgsName = Object.keys(packages);
+
+        pkgsName.forEach(function (name) {
+            var pkgRawData = packages[name],
+                pkgDeps;
+
+            if (!pkgs[name]) {
+                pkgDeps = pkgRawData.dependencies;
+
+                pkgs[name] = Package.fromRawData(name, pkgRawData, deps);
+
+                if (pkgDeps && Object.keys(pkgDeps).length !== 0) {
+                    _parsePackagesRecursive(pkgDeps, deps, pkgs);
+                }
+            }
+        });
     }
 
     /**
@@ -581,14 +620,15 @@ define(function (require, exports, module) {
         return names;
     }
 
-    exports.createPackages        = createPackages;
-    exports.createPackage         = createPackage;
-    exports.createTrackedPackages = createTrackedPackages;
-    exports.createInfo            = createInfo;
-    exports.getPackagesName       = getPackagesName;
+    exports.createPackages     = createPackages;
+    exports.createPackagesDeep = createPackagesDeep;
+    exports.createPackage      = createPackage;
+    exports.createInfo         = createInfo;
+    exports.getPackagesName    = getPackagesName;
 
     // tests
-    exports._Package           = Package;
-    exports._PackageDependency = PackageDependency;
-    exports._PackageInfo       = PackageInfo;
+    exports._Package                = Package;
+    exports._PackageDependency      = PackageDependency;
+    exports._PackageInfo            = PackageInfo;
+    exports._parsePackagesRecursive = _parsePackagesRecursive;
 });

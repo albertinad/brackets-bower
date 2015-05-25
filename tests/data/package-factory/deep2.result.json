@@ -1,0 +1,164 @@
+{
+    "endpoint": {
+        "name": "brackets-bower",
+        "source": "/tests/brackets-bower/",
+        "target": "*"
+    },
+    "canonicalDir": "/tests/brackets-bower/",
+    "pkgMeta": {
+        "name": "brackets-bower",
+        "dependencies": {
+            "angular": "*",
+            "jquery": "*",
+            "sinon": "*",
+            "lodash": "*",
+            "jasmine": "*"
+        },
+        "devDependencies": {}
+    },
+    "dependencies": {
+        "angular": {
+            "endpoint": {
+                "name": "angular",
+                "source": "angular",
+                "target": "*"
+            },
+            "canonicalDir": "/tests/brackets-bower/bower_components/angular",
+            "pkgMeta": {
+                "name": "angular",
+                "version": "1.3.15",
+                "main": "./angular.js",
+                "ignore": [],
+                "dependencies": {},
+                "homepage": "https://github.com/angular/bower-angular",
+                "_release": "1.3.15",
+                "_resolution": {
+                    "type": "version",
+                    "tag": "v1.3.15",
+                    "commit": "ba7abcfa409ba852146e6ba206693cf7bac3e359"
+                },
+                "_source": "https://github.com/angular/bower-angular.git",
+                "_target": "*",
+                "_originalSource": "angular"
+            },
+            "dependencies": {},
+            "nrDependants": 1
+        },
+        "jasmine": {
+            "endpoint": {
+                "name": "jasmine",
+                "source": "jasmine",
+                "target": "*"
+            },
+            "canonicalDir": "/tests/brackets-bower/bower_components/jasmine",
+            "pkgMeta": {
+                "name": "jasmine-core",
+                "version": "2.3.4",
+                "homepage": "http://jasmine.github.io",
+                "authors": ["slackersoft <gregg@slackersoft.net>"],
+                "description": "Official packaging of Jasmine's core files",
+                "keywords": ["test", "jasmine", "tdd", "bdd"],
+                "license": "MIT",
+                "moduleType": "globals",
+                "main": "lib/jasmine-core/jasmine.js",
+                "ignore": ["**/.*", "dist", "grunt", "node_modules", "pkg", "release_notes", "spec", "src", "Gemfile", "Gemfile.lock", "Rakefile", "jasmine-core.gemspec", "*.sh", "*.py", "Gruntfile.js", "lib/jasmine-core.rb", "lib/jasmine-core/boot/", "lib/jasmine-core/spec", "lib/jasmine-core/version.rb", "lib/jasmine-core/*.py", "sauce_connect.log"],
+                "_release": "2.3.4",
+                "_resolution": {
+                    "type": "version",
+                    "tag": "v2.3.4",
+                    "commit": "651426b6583020e2f3fdae56d2873514963ba65e"
+                },
+                "_source": "https://github.com/pivotal/jasmine.git",
+                "_target": "*",
+                "_originalSource": "jasmine"
+            },
+            "dependencies": {},
+            "nrDependants": 1
+        },
+        "jquery": {
+            "endpoint": {
+                "name": "jquery",
+                "source": "jquery",
+                "target": "*"
+            },
+            "canonicalDir": "/tests/brackets-bower/bower_components/jquery",
+            "pkgMeta": {
+                "name": "jquery",
+                "version": "2.1.4",
+                "main": "dist/jquery.js",
+                "license": "MIT",
+                "ignore": ["**/.*", "build", "dist/cdn", "speed", "test", "*.md", "AUTHORS.txt", "Gruntfile.js", "package.json"],
+                "devDependencies": {
+                    "sizzle": "2.1.1-jquery.2.1.2",
+                    "requirejs": "2.1.10",
+                    "qunit": "1.14.0",
+                    "sinon": "1.8.1"
+                },
+                "keywords": ["jquery", "javascript", "library"],
+                "homepage": "https://github.com/jquery/jquery",
+                "_release": "2.1.4",
+                "_resolution": {
+                    "type": "version",
+                    "tag": "2.1.4",
+                    "commit": "7751e69b615c6eca6f783a81e292a55725af6b85"
+                },
+                "_source": "https://github.com/jquery/jquery.git",
+                "_target": "*",
+                "_originalSource": "jquery"
+            },
+            "dependencies": {},
+            "nrDependants": 1
+        },
+        "lodash": {
+            "endpoint": {
+                "name": "lodash",
+                "source": "lodash",
+                "target": "*"
+            },
+            "canonicalDir": "/tests/brackets-bower/bower_components/lodash",
+            "pkgMeta": {
+                "name": "lodash",
+                "version": "3.9.0",
+                "main": "lodash.js",
+                "ignore": [".*", "*.custom.*", "*.log", "*.map", "*.md", "lodash.src.js", "component.json", "package.json", "doc", "node_modules", "perf", "test", "vendor"],
+                "homepage": "https://github.com/lodash/lodash",
+                "_release": "3.9.0",
+                "_resolution": {
+                    "type": "version",
+                    "tag": "3.9.0",
+                    "commit": "aa92a48c9894d7f95227d88da0e75f7147e53124"
+                },
+                "_source": "https://github.com/lodash/lodash.git",
+                "_target": "*",
+                "_originalSource": "lodash"
+            },
+            "dependencies": {},
+            "nrDependants": 1
+        },
+        "sinon": {
+            "endpoint": {
+                "name": "sinon",
+                "source": "sinon",
+                "target": "*"
+            },
+            "canonicalDir": "/tests/brackets-bower/bower_components/sinon",
+            "pkgMeta": {
+                "name": "sinon",
+                "homepage": "https://github.com/cjohansen/Sinon.JS",
+                "version": "1.14.1",
+                "_release": "1.14.1",
+                "_resolution": {
+                    "type": "version",
+                    "tag": "v1.14.1",
+                    "commit": "18cc5699ac9929e341f85fae362d4056fcac6d6b"
+                },
+                "_source": "https://github.com/cjohansen/Sinon.JS.git",
+                "_target": "*",
+                "_originalSource": "sinon"
+            },
+            "dependencies": {},
+            "nrDependants": 1
+        }
+    },
+    "nrDependants": 0
+}

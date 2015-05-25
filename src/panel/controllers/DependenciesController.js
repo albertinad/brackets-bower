@@ -74,9 +74,11 @@ define(function (require, exports, module) {
             }
         });
 
-        ProjectManager.on(Events.DEPENDENCIES_REMOVED, function (event, pkgs) {
+        ProjectManager.on(Events.DEPENDENCIES_REMOVED, function (event, result) {
             if (that._isPanelActive()) {
-                pkgs.forEach(function (pkg) {
+                var projectPackages = result.packages;
+
+                projectPackages.forEach(function (pkg) {
                     that._view.onDependecyRemoved(pkg.name);
                 });
             }
