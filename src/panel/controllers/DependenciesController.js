@@ -74,12 +74,12 @@ define(function (require, exports, module) {
             }
         });
 
-        ProjectManager.on(Events.DEPENDENCIES_REMOVED, function (event, result) {
+        ProjectManager.on(Events.DEPENDENCIES_REMOVED, function (event, packages) {
             if (that._isPanelActive()) {
-                var projectPackages = result.packages;
-
-                projectPackages.forEach(function (pkg) {
-                    that._view.onDependecyRemoved(pkg.name);
+                packages.forEach(function (pkg) {
+                    if (pkg.isProjectDependency) {
+                        that._view.onDependecyRemoved(pkg.name);
+                    }
                 });
             }
         });

@@ -307,6 +307,18 @@ define(function (require, exports, module) {
         return false;
     };
 
+    Package.isProjectDirectDependency = function (name, status, bowerJsonDeps) {
+        var isDirectDependency;
+
+        if (status !==  PackageOptions.Status.INSTALLED) { // missing or extraneous
+            isDirectDependency = true;
+        } else {
+            isDirectDependency = (bowerJsonDeps) ? Package.isInBowerJsonDeps(name, bowerJsonDeps) : true;
+        }
+
+        return isDirectDependency;
+    };
+
     /**
      * Create package from raw data.
      * @param {string} name
@@ -363,11 +375,7 @@ define(function (require, exports, module) {
             });
         }
 
-        if (bowerJsonDeps) {
-            pkg.isProjectDependency = Package.isInBowerJsonDeps(name, bowerJsonDeps);
-        } else {
-            pkg.isProjectDependency = true;
-        }
+        pkg.isProjectDependency = Package.isProjectDirectDependency(name, pkg.status, bowerJsonDeps);
 
         if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
                 bowerJsonDeps.devDependencies[name]) {
@@ -507,6 +515,25 @@ define(function (require, exports, module) {
         return pkg;
     };
 
+    function _parsePackagesRecursive(packages, deps, pkgs) {
+        var pkgsName = Object.keys(packages);
+
+        pkgsName.forEach(function (name) {
+            var pkgRawData = packages[name],
+                pkgDeps;
+
+            if (!pkgs[name]) {
+                pkgDeps = pkgRawData.dependencies;
+
+                pkgs[name] = Package.fromRawData(name, pkgRawData, deps);
+
+                if (pkgDeps && Object.keys(pkgDeps).length !== 0) {
+                    _parsePackagesRecursive(pkgDeps, deps, pkgs);
+                }
+            }
+        });
+    }
+
     /**
      * Create an array of Package instances from the raw data given as arguments.
      * @param {object} packages
@@ -546,25 +573,6 @@ define(function (require, exports, module) {
         pkgs = _.values(pkgData);
 
         return pkgs;
-    }
-
-    function _parsePackagesRecursive(packages, deps, pkgs) {
-        var pkgsName = Object.keys(packages);
-
-        pkgsName.forEach(function (name) {
-            var pkgRawData = packages[name],
-                pkgDeps;
-
-            if (!pkgs[name]) {
-                pkgDeps = pkgRawData.dependencies;
-
-                pkgs[name] = Package.fromRawData(name, pkgRawData, deps);
-
-                if (pkgDeps && Object.keys(pkgDeps).length !== 0) {
-                    _parsePackagesRecursive(pkgDeps, deps, pkgs);
-                }
-            }
-        });
     }
 
     /**

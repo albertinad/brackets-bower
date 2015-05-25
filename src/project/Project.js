@@ -47,8 +47,6 @@ define(function (require, exports, module) {
         this._shortActiveDir = null;
         /** @private */
         this._packages = {};
-        /** @private */
-        this._packagesDependencies = {};
 
         /** @private */
         this._activeBowerJson = null;
@@ -107,7 +105,6 @@ define(function (require, exports, module) {
      */
     BowerProject.prototype.setPackages = function (packagesArray) {
         this._packages = {};
-        this._packagesDependencies = {};
 
         this.addPackages(packagesArray);
     };
@@ -125,18 +122,13 @@ define(function (require, exports, module) {
         packagesArray.forEach(function (pkg) {
             var name = pkg.name;
 
-            if (pkg.isProjectDependency) {
-                if (that._packages[name]) {
-                    packagesUpdated.push(pkg);
-                } else {
-                    packagesInstalled.push(pkg);
-                }
-
-                that._packages[name] = pkg;
+            if (that._packages[name]) {
+                packagesUpdated.push(pkg);
             } else {
-
-                that._packagesDependencies[name] = pkg;
+                packagesInstalled.push(pkg);
             }
+
+            that._packages[name] = pkg;
         });
 
         result = {
@@ -156,33 +148,21 @@ define(function (require, exports, module) {
      */
     BowerProject.prototype.removePackages = function (names) {
         var that = this,
-            result = {
-                packages: [],
-                dependencies: []
-            };
+            packages = [];
 
         names.forEach(function (name) {
             var pkg = that._packages[name];
 
             if (pkg) {
-                result.packages.push(pkg);
+                packages.push(pkg);
 
                 delete that._packages[name];
-            } else {
-                // check if it is a package dependency
-                pkg = that._packagesDependencies[name];
-
-                if (pkg) {
-                    result.dependencies.push(pkg);
-
-                    delete that._packagesDependencies[name];
-                }
             }
         });
 
-        this._packageManager.notifyDependenciesRemoved(result);
+        this._packageManager.notifyDependenciesRemoved(packages);
 
-        return result;
+        return packages;
     };
 
     /**
@@ -195,14 +175,6 @@ define(function (require, exports, module) {
     };
 
     /**
-     * @param {string} name
-     * @return {object}
-     */
-    BowerProject.prototype.getPackageDependencyByName = function (name) {
-        return this._packagesDependencies[name];
-    };
-
-    /**
      * Get the current packages array.
      * @private
      * @returns {Array} packages
@@ -210,23 +182,27 @@ define(function (require, exports, module) {
     BowerProject.prototype.getPackagesArray = function () {
         var packagesArray = [];
 
-        _.forEach(this._packages, function (pkg, pkgName) {
-            packagesArray.push(pkg);
+        _.forEach(this._packages, function (pkg) {
+            if (pkg.isProjectDependency) {
+                packagesArray.push(pkg);
+            }
         });
 
         return packagesArray;
     };
 
     /**
-     * Get the current dependant packages array.
+     * Get the current packages dependencies array.
      * @private
      * @returns {Array} packages
      */
     BowerProject.prototype.getPackagesDependenciesArray = function () {
         var packagesArray = [];
 
-        _.forEach(this._packagesDependencies, function (pkg, pkgName) {
-            packagesArray.push(pkg);
+        _.forEach(this._packages, function (pkg) {
+            if (!pkg.isProjectDependency) {
+                packagesArray.push(pkg);
+            }
         });
 
         return packagesArray;
@@ -265,7 +241,7 @@ define(function (require, exports, module) {
     BowerProject.prototype.hasPackage = function (name) {
         var pkg = this._packages[name];
 
-        return (pkg && pkg.isInstalled());
+        return (pkg && pkg.isInstalled()); // TODO only project packages?
     };
 
     /**
@@ -312,12 +288,12 @@ define(function (require, exports, module) {
      */
     BowerProject.prototype.getExtraneousPackages = function () {
         return _.filter(this._packages, function (pkg) {
-            return pkg.extraneous;
+            return pkg.isNotTracked();
         });
     };
 
     BowerProject.prototype.updatePackageDependencyToProject = function (name) {
-        var pkg = this._packagesDependencies[name];
+        var pkg = this._packages[name];
 
         if (pkg) {
             pkg.isProjectPackage = true;
