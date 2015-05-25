@@ -101,6 +101,8 @@ define(function (require, exports, module) {
         this._homepage = null;
         /** @private */
         this._source = null;
+        /** @private */
+        this._installationDir = null;
     }
 
     Object.defineProperty(Package.prototype, "name", {
@@ -196,6 +198,18 @@ define(function (require, exports, module) {
         },
         get: function () {
             return this._isProjectDependency;
+        }
+    });
+
+    /**
+     * Absolute path of the package installation directory.
+     */
+    Object.defineProperty(Package.prototype, "installationDir", {
+        set: function (installationDir) {
+            this._installationDir = installationDir;
+        },
+        get: function () {
+            return this._installationDir;
         }
     });
 
@@ -346,6 +360,10 @@ define(function (require, exports, module) {
             if (meta.description) {
                 pkg.description = meta.description;
             }
+        }
+
+        if (data.canonicalDir) {
+            pkg.installationDir = data.canonicalDir;
         }
 
         if (data.update && data.update.latest) {

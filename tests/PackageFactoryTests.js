@@ -84,6 +84,8 @@ define(function (require, exports, module) {
                     expect(pkg.description).toBeDefined();
                     expect(pkg.homepage).toBeDefined();
                     expect(pkg.source).toBeDefined();
+                    expect(pkg.installationDir).toBeDefined();
+                    expect(pkg.installationDir).not.toBeNull();
                 });
             });
         });
@@ -100,6 +102,7 @@ define(function (require, exports, module) {
             expect(pkg.version).toEqual("2.1.3");
             expect(pkg.dependencies.length).toEqual(0);
             expect(pkg.homepage).toEqual("https://github.com/jquery/jquery");
+            expect(pkg.installationDir).toEqual("/bowertestuser/bower_components/jQuery");
         });
 
         it("should get a Package instance for the raw data, with dependencies", function () {
@@ -114,6 +117,8 @@ define(function (require, exports, module) {
             expect(pkg.version).toEqual("3.3.4");
             expect(pkg.dependencies.length).not.toEqual(0);
             expect(pkg.homepage).toEqual("http://getbootstrap.com");
+            expect(pkg.installationDir).toBeDefined();
+            expect(pkg.installationDir).not.toBeNull();
         });
 
         it("should get an array of packages, with secondary dependencies, tracked as 'production' dependencies", function () {
@@ -135,6 +140,8 @@ define(function (require, exports, module) {
             result.forEach(function (pkg) {
                 expect(pkg).toBeDefined();
                 expect(pkg.isInstalled()).toEqual(true);
+                expect(pkg.installationDir).toBeDefined();
+                expect(pkg.installationDir).not.toBeNull();
 
                 switch (pkg.name) {
                 case "angular-aria":
@@ -219,6 +226,8 @@ define(function (require, exports, module) {
                 expect(pkg).toBeDefined();
                 expect(pkg.isInstalled()).toEqual(true);
                 expect(pkg.isProjectDependency).toEqual(true);
+                expect(pkg.installationDir).toBeDefined();
+                expect(pkg.installationDir).not.toBeNull();
 
                 switch (pkg.name) {
                 case "jquery":
@@ -276,30 +285,40 @@ define(function (require, exports, module) {
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProductionDependency()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(true);
+            expect(pkg1.installationDir).toBeDefined();
+            expect(pkg1.installationDir).not.toBeNull();
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("jquery");
             expect(pkg2.isInstalled()).toEqual(true);
             expect(pkg2.isProductionDependency()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.installationDir).toBeDefined();
+            expect(pkg2.installationDir).not.toBeNull();
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("sinon");
             expect(pkg3.isInstalled()).toEqual(true);
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.installationDir).toBeDefined();
+            expect(pkg3.installationDir).not.toBeNull();
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("lodash");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProductionDependency()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(true);
+            expect(pkg4.installationDir).toBeDefined();
+            expect(pkg4.installationDir).not.toBeNull();
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jasmine");
             expect(pkg5.isInstalled()).toEqual(true);
             expect(pkg5.isProductionDependency()).toEqual(true);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.installationDir).toBeDefined();
+            expect(pkg5.installationDir).not.toBeNull();
         });
 
         it("should get an array of packages, without n-level dependencies, tracked as 'development' dependencies", function () {
@@ -332,6 +351,8 @@ define(function (require, exports, module) {
             expect(pkg1.isDevDependency()).toEqual(true);
             expect(pkg1.isProductionDependency()).toEqual(false);
             expect(pkg1.isProjectDependency).toEqual(true);
+            expect(pkg1.installationDir).toBeDefined();
+            expect(pkg1.installationDir).not.toBeNull();
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("jquery");
@@ -339,6 +360,8 @@ define(function (require, exports, module) {
             expect(pkg2.isProductionDependency()).toEqual(false);
             expect(pkg2.isDevDependency()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.installationDir).toBeDefined();
+            expect(pkg2.installationDir).not.toBeNull();
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("sinon");
@@ -346,6 +369,8 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.installationDir).toBeDefined();
+            expect(pkg3.installationDir).not.toBeNull();
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("lodash");
@@ -353,6 +378,8 @@ define(function (require, exports, module) {
             expect(pkg4.isProductionDependency()).toEqual(false);
             expect(pkg4.isDevDependency()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(true);
+            expect(pkg4.installationDir).toBeDefined();
+            expect(pkg4.installationDir).not.toBeNull();
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jasmine");
@@ -360,6 +387,8 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isDevDependency()).toEqual(true);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.installationDir).toBeDefined();
+            expect(pkg5.installationDir).not.toBeNull();
         });
 
         it("should get an array of packages, without n-level dependencies, tracked as 'production' and 'development' dependencies", function () {
