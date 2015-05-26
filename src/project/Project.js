@@ -28,19 +28,18 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var _              = brackets.getModule("thirdparty/lodash"),
-        PackageManager = require("src/bower/PackageManager");
+    var _              = brackets.getModule("thirdparty/lodash");
 
     /**
      * @constructor
      */
-    function BowerProject(name, rootPath, packageManager) {
+    function BowerProject(name, rootPath, projectManager) {
         /** @private */
         this._name = name;
         /** @private */
         this._rootPath = rootPath;
         /** @private */
-        this._packageManager = packageManager;
+        this._projectManager = projectManager;
         /** @private */
         this._activeDir = null;
         /** @private */
@@ -136,7 +135,7 @@ define(function (require, exports, module) {
             updated: packagesUpdated
         };
 
-        this._packageManager.notifyDependenciesAdded(result);
+        this._projectManager.notifyDependenciesAdded(result);
 
         return result;
     };
@@ -160,7 +159,7 @@ define(function (require, exports, module) {
             }
         });
 
-        this._packageManager.notifyDependenciesRemoved(packages);
+        this._projectManager.notifyDependenciesRemoved(packages);
 
         return packages;
     };
@@ -215,7 +214,7 @@ define(function (require, exports, module) {
     BowerProject.prototype.updatePackage = function (pkg) {
         this._packages[pkg.name] = pkg;
 
-        this._packageManager.notifyDependencyUpdated(pkg);
+        this._projectManager.notifyDependencyUpdated(pkg);
     };
 
     BowerProject.prototype.updatePackages = function (pkgs) {
@@ -223,7 +222,7 @@ define(function (require, exports, module) {
             this._packages[pkg.name] = pkg;
         });
 
-        this._packageManager.notifyDependencyUpdated(pkgs);
+        this._projectManager.notifyDependencyUpdated(pkgs);
     };
 
     /**
@@ -355,7 +354,7 @@ define(function (require, exports, module) {
             projectPkg,
             currentPackages = that.getPackagesArray();
 
-        PackageManager.listProjectDependencies().then(function (packagesArray) {
+        this._projectManager.listProjectDependencies().then(function (packagesArray) {
 
             if (currentPackages.length !== packagesArray.length) {
                 that.setPackages(packagesArray);

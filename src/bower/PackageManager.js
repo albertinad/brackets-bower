@@ -485,61 +485,17 @@ define(function (require, exports) {
     /**
      * Get the current installed packages and updates if they have, using
      * the current configuration.
+     * @param {boolean=} offline True if offline mode is enabled, otherwhise false.
      * @return {$.Deferred}
      */
-    function list() {
-        return Bower.list(ConfigurationManager.getConfiguration());
-    }
+    function list(offline) {
+        var config = ConfigurationManager.getConfiguration();
 
-    function listProjectDependencies() {
-        var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration(),
-            project = ProjectManager.getProject();
-
-        if (!project) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        if (typeof offline === "boolean") {
+            config.offline = offline;
         }
 
-        config.offline = true;
-
-        Bower.list(config).then(function (result) {
-            // create the package model
-            return PackageFactory.createPackagesDeep(result.dependencies);
-        }).then(function (packagesArray) {
-            deferred.resolve(packagesArray);
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred;
-    }
-
-    /**
-     * Check for packages updates based on the current installed packages.
-     * If the packages have upates, update the information from the current
-     * project installed packages.
-     * @return {$.Deferred}
-     */
-    function checkForUpdates() {
-        var deferred = new $.Deferred(),
-            project = ProjectManager.getProject();
-
-        if (!project) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
-        list().then(function (result) {
-
-            return PackageFactory.createPackagesDeep(result.dependencies);
-        }).then(function (packagesArray) {
-            project.setPackages(packagesArray);
-
-            deferred.resolve(packagesArray);
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred;
+        return Bower.list(config);
     }
 
     exports.install                 = install;
@@ -551,7 +507,4 @@ define(function (require, exports) {
     exports.search                  = search;
     exports.listCache               = listCache;
     exports.list                    = list;
-    exports.listProjectDependencies = listProjectDependencies;
-    exports.checkForUpdates         = checkForUpdates;
-    exports.VersionOptions          = VersionOptions;
 });

@@ -23,7 +23,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global define, brackets, $ */
 
 define(function (require, exports) {
     "use strict";
@@ -32,10 +32,12 @@ define(function (require, exports) {
         EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
         DocumentManager      = brackets.getModule("document/DocumentManager"),
         PackageManager       = require("src/bower/PackageManager"),
+        PackageFactory       = require("src/project/PackageFactory"),
         FileSystemHandler    = require("src/project/FileSystemHandler"),
         BowerJsonManager     = require("src/project/BowerJsonManager"),
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
-        BowerProject         = require("src/project/Project");
+        BowerProject         = require("src/project/Project"),
+        ErrorUtils           = require("src/utils/ErrorUtils");
 
     var _bowerProject;
 
@@ -88,6 +90,51 @@ define(function (require, exports) {
         return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
     }
 
+    function listProjectDependencies() {
+        var deferred = new $.Deferred();
+
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        PackageManager.list(true).then(function (result) {
+            // create the package model
+            return PackageFactory.createPackagesDeep(result.dependencies);
+        }).then(function (packagesArray) {
+            deferred.resolve(packagesArray);
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred;
+    }
+
+    /**
+     * Check for packages updates based on the current installed packages.
+     * If the packages have upates, update the information from the current
+     * project installed packages.
+     * @return {$.Deferred}
+     */
+    function checkForUpdates() {
+        var deferred = new $.Deferred();
+
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        PackageManager.list().then(function (result) {
+
+            return PackageFactory.createPackagesDeep(result.dependencies);
+        }).then(function (packagesArray) {
+            _bowerProject.setPackages(packagesArray);
+
+            deferred.resolve(packagesArray);
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred;
+    }
     /**
      * Initialization sequence when the project changes. Notifies that the
      * BowerProject instance is loading. Load the current project dependencies
@@ -106,12 +153,12 @@ define(function (require, exports) {
 
                 if (_bowerProject !== null) {
                     // start loading project dependencies
-                    PackageManager.listProjectDependencies().then(function (packagesArray) {
+                    listProjectDependencies().then(function (packagesArray) {
 
                         _bowerProject.setPackages(packagesArray);
 
                         // try to get check for dependencies updates
-                        PackageManager.checkForUpdates().fail(function () {
+                        checkForUpdates().fail(function () {
                             // TODO: handle when it fails not because network errors
                         });
                     }).fail(function () {
@@ -246,6 +293,8 @@ define(function (require, exports) {
     exports.getProject                 = getProject;
     exports.getProjectDependencies     = getProjectDependencies;
     exports.updateActiveDirToSelection = updateActiveDirToSelection;
+    exports.listProjectDependencies    = listProjectDependencies;
+    exports.checkForUpdates            = checkForUpdates;
     exports.notifyDependenciesAdded    = notifyDependenciesAdded;
     exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
     exports.notifyDependencyUpdated    = notifyDependencyUpdated;
