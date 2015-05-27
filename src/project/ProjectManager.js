@@ -546,6 +546,4 @@ define(function (require, exports) {
     exports.Events                     = Events;
 
     exports.getDependencies = getDependencies; // TODO remove it
-
-    window.projectManager = exports;
 });
