@@ -22,8 +22,8 @@
  */
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, expect, afterEach, beforeFirst, afterLast, waitsForDone, waitsForFail,
-runs, $, brackets, waitsForDone */
+/*global define, describe, it, expect, afterEach, beforeEach, beforeFirst, afterLast, waitsForDone, waitsForFail,
+runs, jasmine, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
     "use strict";
@@ -64,7 +64,20 @@ define(function (require, exports, module) {
         describe("BowerJson", function () {
             var BowerJson = require("src/metadata/BowerJson"),
                 Package = require("src/project/PackageFactory")._Package,
-                DependencyType = require("src/bower/PackageOptions").DependencyType;
+                BowerProject = require("src/project/Project"),
+                DependencyType = require("src/bower/PackageOptions").DependencyType,
+                project;
+
+            beforeEach(function () {
+                var fakeProjectManager = jasmine.createSpyObj("fakeProjectManager", [
+                    "listProjectDependencies",
+                    "notifyDependenciesAdded",
+                    "notifyDependenciesRemoved",
+                    "notifyDependencyUpdated"
+                ]);
+
+                project = new BowerProject(projectName, tempDir, fakeProjectManager);
+            });
 
             afterEach(function () {
                 runs(function () {
@@ -73,7 +86,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerJson object with default content", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     content;
 
                 runs(function () {
@@ -113,7 +126,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerJson object with the given content (only dependencies)", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     pkg2 = new Package("dep2"),
                     packages = [],
@@ -164,7 +177,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerJson object with the given content (only devDependencies)", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     pkg2 = new Package("dep2"),
                     packages = [],
@@ -218,7 +231,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerJson object with the given content (dependencies and devDependencies)", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     pkg2 = new Package("dep2"),
                     pkg3 = new Package("dep3"),
@@ -288,7 +301,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version for a dependency when it exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     newVersion = "2.0.0",
                     packages = [],
@@ -362,7 +375,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version for a devDependency when it exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     newVersion = "2.0.0",
                     packages = [],
@@ -439,7 +452,7 @@ define(function (require, exports, module) {
             });
 
             it("should not update the version for a dependency when it doesn't exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     nonDepName = "nonDep",
                     nonDepVersion = "2.0.0",
@@ -515,7 +528,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version for a devDependency it exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     nonDepName = "nonDep",
                     nonDepVersion = "2.0.0",
@@ -594,7 +607,7 @@ define(function (require, exports, module) {
             });
 
             it("should not update the package info when updated any data is provided", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     depName = "pkg1",
                     packages = [],
@@ -656,7 +669,7 @@ define(function (require, exports, module) {
             });
 
             it("should not update the package info when updated data is empty", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     depName = "pkg1",
                     packages = [],
@@ -718,7 +731,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the dependency type from 'PRODUCTION' to 'DEVELOPMENT'", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     packages = [],
                     content;
@@ -792,7 +805,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the dependency type from 'PRODUCTION' to 'PRODUCTION'", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     packages = [],
                     content;
@@ -865,7 +878,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the dependency type from 'DEVELOPMENT' to 'PRODUCTION'", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     packages = [],
                     content;
@@ -941,7 +954,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the dependency type from 'DEVELOPMENT' to 'DEVELOPMENT'", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     packages = [],
                     content;
@@ -1017,7 +1030,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version and dependency type for a dependency when it exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     newVersion = "2.0.0",
                     packages = [],
@@ -1096,7 +1109,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version and dependency type for a devDependency when it exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     newVersion = "2.0.0",
                     packages = [],
@@ -1177,7 +1190,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version and dependency type for a dependency, multiple times when it exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     newVersion1 = "2.0.0",
                     newVersion2 = "3.0.0",
@@ -1294,7 +1307,7 @@ define(function (require, exports, module) {
             });
 
             it("should update the version and dependency type for a devDependency, multiple times when it exists", function () {
-                var bowerJson = new BowerJson(tempDir, projectName),
+                var bowerJson = new BowerJson(project),
                     pkg1 = new Package("dep1"),
                     newVersion1 = "2.0.0",
                     newVersion2 = "3.0.0",
@@ -1413,7 +1426,20 @@ define(function (require, exports, module) {
         });
 
         describe("BowerRc", function () {
-            var BowerRc = require("src/metadata/BowerRc");
+            var BowerRc = require("src/metadata/BowerRc"),
+                BowerProject = require("src/project/Project"),
+                project;
+
+            beforeEach(function () {
+                var fakeProjectManager = jasmine.createSpyObj("fakeProjectManager", [
+                    "listProjectDependencies",
+                    "notifyDependenciesAdded",
+                    "notifyDependenciesRemoved",
+                    "notifyDependencyUpdated"
+                ]);
+
+                project = new BowerProject(projectName, tempDir, fakeProjectManager);
+            });
 
             afterEach(function () {
                 runs(function () {
@@ -1422,7 +1448,7 @@ define(function (require, exports, module) {
             });
 
             it("should create a BowerRc object with default content", function () {
-                var bowerRc = new BowerRc(tempDir, projectName),
+                var bowerRc = new BowerRc(project),
                     content;
 
                 runs(function () {

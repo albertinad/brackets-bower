@@ -348,7 +348,7 @@ define(function (require, exports, module) {
         this._activeBowerJson.remove().always(function () {
             that._activeBowerJson = null;
 
-            that.notifyBowerJsonChanged();
+            that.bowerJsonChanged();
 
             deferred.resolve();
         });
@@ -356,13 +356,13 @@ define(function (require, exports, module) {
         return deferred.promise();
     };
 
-    BowerProject.prototype.bowerJsonChanged = function () {
+    BowerProject.prototype.onBowerJsonChanged = function () {
         if (this._activeBowerJson) {
             this._activeBowerJson.onContentChanged();
         }
     };
 
-    BowerProject.prototype.notifyBowerJsonChanged = function () {
+    BowerProject.prototype.bowerJsonChanged = function () {
         var that = this,
             currentPackages = that.getPackagesArray();
 

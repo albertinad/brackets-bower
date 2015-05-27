@@ -28,18 +28,18 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ProjectManager       = brackets.getModule("project/ProjectManager"),
+    var AppInit              = brackets.getModule("utils/AppInit"),
+        ProjectManager       = brackets.getModule("project/ProjectManager"),
         EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
         DocumentManager      = brackets.getModule("document/DocumentManager"),
         PackageManager       = require("src/bower/PackageManager"),
         PackageFactory       = require("src/project/PackageFactory"),
         FileSystemHandler    = require("src/project/FileSystemHandler"),
-        BowerJsonManager     = require("src/project/BowerJsonManager"),
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
         BowerProject         = require("src/project/Project"),
+        BowerJson            = require("src/metadata/BowerJson"),
+        FileUtils            = require("src/utils/FileUtils"),
         ErrorUtils           = require("src/utils/ErrorUtils");
-
-    var _bowerProject;
 
     var namespace            = ".albertinad.bracketsbower",
         PROJECT_LOADING      = "bowerProjectLoading",
@@ -47,7 +47,8 @@ define(function (require, exports) {
         DEPENDENCIES_ADDED   = "bowerProjectDepsAdded",
         DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved",
         DEPENDENCY_UPDATED   = "bowerProjectDepUpdated",
-        ACTIVE_DIR_CHANGED   = "bowerActiveDirChanged";
+        ACTIVE_DIR_CHANGED   = "bowerActiveDirChanged",
+        BOWER_JSON_RELOADED  = "bowerjsonReloaded";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
@@ -55,23 +56,156 @@ define(function (require, exports) {
         DEPENDENCIES_ADDED: DEPENDENCIES_ADDED + namespace,
         DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace,
         DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace,
-        ACTIVE_DIR_CHANGED: ACTIVE_DIR_CHANGED + namespace
+        ACTIVE_DIR_CHANGED: ACTIVE_DIR_CHANGED + namespace,
+        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace
     };
 
     var REGEX_NODE_MODULES     = /node_modules/,
         REGEX_BOWER_COMPONENTS = /bower_components/;
 
+    var _bowerProject;
+
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
-     * Create a BowerProject instance as a proxy of the current project.
-     * @param {object} project Current active project.
+     * Create the bower.json file at the given absolute path. If any path is provided,
+     * it use the current active project as the default absolute path.
      */
-    function _createBowerProject(project) {
-        var name = project.name,
-            rootPath = project.fullPath;
+    function createBowerJson() {
+        var deferred = new $.Deferred(),
+            bowerJson;
 
-        return new BowerProject(name, rootPath, exports);
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        bowerJson = new BowerJson(_bowerProject);
+
+        bowerJson.create(_bowerProject.getPackagesArray()).then(function () {
+            _bowerProject.activeBowerJson = bowerJson;
+
+            deferred.resolve();
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred;
+    }
+
+    /**
+     * Deletes the active bower.json file if it exists.
+     */
+    function removeBowerJson() {
+        if (!_bowerProject) {
+            var deferred = new $.Deferred();
+
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        return _bowerProject.removeBowerJson();
+    }
+
+    /**
+     * Get the current active BowerJson object. Null means there's
+     * no BowerJson for the project.
+     * @returns {BowerJson} Current active BowerJson object.
+     */
+    function getBowerJson() {
+        return (_bowerProject) ? _bowerProject.activeBowerJson : null;
+    }
+
+    /**
+     * Open the bower.json in the editor, if it exists.
+     */
+    function openBowerJson() {
+        var bowerJson;
+
+        if (_bowerProject && _bowerProject.activeBowerJson) {
+            bowerJson = _bowerProject.activeBowerJson;
+
+            FileUtils.openInEditor(bowerJson.AbsolutePath);
+        }
+    }
+
+    /**
+     * Notify when the bower.json was reloaded: created, modified or deleted.
+     * @private
+     */
+    function _notifyBowerJsonReloaded() {
+        exports.trigger(BOWER_JSON_RELOADED);
+    }
+
+    /**
+     * @private
+     */
+    function _loadBowerJson() {
+        var deferred = new $.Deferred(),
+            bowerJson;
+
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        BowerJson.findInPath(_bowerProject.getPath()).then(function () {
+            bowerJson = new BowerJson(_bowerProject);
+
+            return bowerJson._loadAllDependencies();
+        }).fail(function () {
+            bowerJson = null;
+        }).always(function () {
+
+            _bowerProject.activeBowerJson = bowerJson;
+
+            _notifyBowerJsonReloaded();
+
+            if (bowerJson) {
+                deferred.resolve();
+            } else {
+                deferred.reject();
+            }
+        });
+
+        return deferred;
+    }
+
+    function getDependencies() {
+        return (_bowerProject) ? _bowerProject.getBowerJsonDependencies() : null;
+    }
+
+    /**
+     * Callback for when the bower.json is created manually through the file system.
+     * @private
+     */
+    function _onBowerJsonCreated() {
+        if (_bowerProject && _bowerProject.hasBowerJson()) {
+            return;
+        }
+
+        createBowerJson().always(function () {
+            _notifyBowerJsonReloaded();
+        });
+    }
+
+    /**
+     * Callback for when the bower.json is deleted manually through the file system.
+     * @private
+     */
+    function _onBowerJsonDeleted() {
+        if (_bowerProject) {
+            _bowerProject.removeBowerJson().always(function () {
+                _notifyBowerJsonReloaded();
+            });
+        }
+    }
+
+    /**
+     * Callback for when the bower.json content has changed.
+     * @private
+     */
+    function _onBowerJsonChanged() {
+        if (_bowerProject) {
+            _bowerProject.onBowerJsonChanged();
+        }
     }
 
     /**
@@ -149,7 +283,7 @@ define(function (require, exports) {
         // load bowerrc if any
         ConfigurationManager.loadBowerRc(_bowerProject).always(function () {
             // load bower.json if any
-            BowerJsonManager.loadBowerJson(_bowerProject).always(function () {
+            _loadBowerJson().always(function () {
 
                 if (_bowerProject !== null) {
                     // start loading project dependencies
@@ -200,7 +334,7 @@ define(function (require, exports) {
 
     /**
      * Update the BowerProject instance active path when it is selected from the Project Tree.
-     * Reload ConfigurationManager, BowerJsonManager and FileSystemHandler to be aware of this changes.
+     * Reload ConfigurationManager, BowerInstance project and FileSystemHandler to be aware of this changes.
      * @param {string} activeDir Full path.
      */
     function updateActiveDirToSelection() {
@@ -219,60 +353,6 @@ define(function (require, exports) {
         }
 
         _setActiveDir(activeDir);
-    }
-
-    function notifyDependenciesAdded(result) {
-        exports.trigger(DEPENDENCIES_ADDED, result);
-    }
-
-    function notifyDependenciesRemoved(removedPkgs) {
-        exports.trigger(DEPENDENCIES_REMOVED, removedPkgs);
-    }
-
-    function notifyDependencyUpdated(pkg) {
-        exports.trigger(DEPENDENCY_UPDATED, pkg);
-    }
-
-    /**
-     * Callback for when the project is opened. Gets the current project and starts
-     * applying the configuration for Bower.
-     */
-    function _projectOpen() {
-        // get the current/active project
-        var project = ProjectManager.getProjectRoot();
-
-        _bowerProject = (project) ? _createBowerProject(project) : null;
-
-        _configureBowerProject();
-
-        // by default on project open, the default active path is set to project root path
-        exports.trigger(ACTIVE_DIR_CHANGED, "", "");
-    }
-
-    /**
-     * @private
-     */
-    function _projectClose() {
-        FileSystemHandler.stopListenToFileSystem();
-    }
-
-    /**
-     * @private
-     */
-    function _fileNameChange(event, oldName, newName) {
-        if (_bowerProject && _bowerProject.activeDir === oldName) {
-            // the active folder was renamed, update it
-            _setActiveDir(newName);
-        }
-    }
-
-    /**
-     * @private
-     */
-    function _pathDeleted(event, fullPath) {
-        if (_bowerProject && _bowerProject.activeDir === fullPath) {
-            _setActiveDir(_bowerProject.rootPath);
-        }
     }
 
     /**
@@ -294,8 +374,6 @@ define(function (require, exports) {
         if (!_bowerProject.hasBowerJson()) {
             ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON);
         }
-
-        // TODO
 
         packages = _bowerProject.getPackagesArray();
 
@@ -364,6 +442,58 @@ define(function (require, exports) {
     }
 
     /**
+     * Callback for when the project is opened. Gets the current project, create
+     * a BowerProject instance as a proxy of the current project and starts
+     * applying the configuration for Bower.
+     */
+    function _projectOpen() {
+        // get the current/active project
+        var project = ProjectManager.getProjectRoot(),
+            name,
+            rootPath;
+
+        if (project) {
+            name = project.name;
+            rootPath = project.fullPath;
+
+            _bowerProject = new BowerProject(name, rootPath, exports);
+        } else {
+            _bowerProject = null;
+        }
+
+        _configureBowerProject();
+
+        // by default on project open, the default active path is set to project root path
+        exports.trigger(ACTIVE_DIR_CHANGED, "", "");
+    }
+
+    /**
+     * @private
+     */
+    function _projectClose() {
+        FileSystemHandler.stopListenToFileSystem();
+    }
+
+    /**
+     * @private
+     */
+    function _fileNameChange(event, oldName, newName) {
+        if (_bowerProject && _bowerProject.activeDir === oldName) {
+            // the active folder was renamed, update it
+            _setActiveDir(newName);
+        }
+    }
+
+    /**
+     * @private
+     */
+    function _pathDeleted(event, fullPath) {
+        if (_bowerProject && _bowerProject.activeDir === fullPath) {
+            _setActiveDir(_bowerProject.rootPath);
+        }
+    }
+
+    /**
      * Initialization function. It must be called only once. It configures the current project
      * if any and setup the event listeners for ProjectManager and DocumentManager events.
      */
@@ -377,6 +507,26 @@ define(function (require, exports) {
         DocumentManager.on("pathDeleted", _pathDeleted);
     }
 
+    function notifyDependenciesAdded(result) {
+        exports.trigger(DEPENDENCIES_ADDED, result);
+    }
+
+    function notifyDependenciesRemoved(removedPkgs) {
+        exports.trigger(DEPENDENCIES_REMOVED, removedPkgs);
+    }
+
+    function notifyDependencyUpdated(pkg) {
+        exports.trigger(DEPENDENCY_UPDATED, pkg);
+    }
+
+    AppInit.appReady(function () {
+        var Events = FileSystemHandler.Events;
+
+        FileSystemHandler.on(Events.BOWER_JSON_CREATED, _onBowerJsonCreated);
+        FileSystemHandler.on(Events.BOWER_JSON_DELETED, _onBowerJsonDeleted);
+        FileSystemHandler.on(Events.BOWER_JSON_CHANGED, _onBowerJsonChanged);
+    });
+
     exports.initialize                 = initialize;
     exports.getProject                 = getProject;
     exports.getProjectDependencies     = getProjectDependencies;
@@ -386,10 +536,16 @@ define(function (require, exports) {
     exports.checkProjectStatus         = checkProjectStatus;
     exports.synchronizeWithBowerJson   = synchronizeWithBowerJson;
     exports.synchronizeWithProject     = synchronizeWithProject;
+    exports.getBowerJson               = getBowerJson;
+    exports.createBowerJson            = createBowerJson;
+    exports.removeBowerJson            = removeBowerJson;
+    exports.openBowerJson              = openBowerJson;
     exports.notifyDependenciesAdded    = notifyDependenciesAdded;
     exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
     exports.notifyDependencyUpdated    = notifyDependencyUpdated;
     exports.Events                     = Events;
+
+    exports.getDependencies = getDependencies; // TODO remove it
 
     window.projectManager = exports;
 });

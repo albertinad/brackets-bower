@@ -33,16 +33,15 @@ define(function (require, exports, module) {
     /**
      * Bower metadata  file constructor.
      * @param {string} fileName
-     * @param {string} projectPath
      * @param {BowerProject} project
      */
-    function BowerMetadata(fileName, projectPath, project) {
-        /** @private */
-        this._projectPath = projectPath;
+    function BowerMetadata(fileName, project) {
         /** @private */
         this._project = project;
         /** @private */
-        this._absolutePath = projectPath + fileName;
+        this._projectPath = this._project.getPath();
+        /** @private */
+        this._absolutePath = this._projectPath + fileName;
     }
 
     Object.defineProperty(BowerMetadata.prototype, "AbsolutePath", {

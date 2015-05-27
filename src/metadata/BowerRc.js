@@ -33,12 +33,11 @@ define(function (require, exports, module) {
 
     /**
      * Configuration file constructor.
-     * @param {string} path
      * @param {BowerProject} project
      * @constructor
      */
-    function BowerRc(path, project) {
-        BowerMetadata.call(this, ".bowerrc", path, project);
+    function BowerRc(project) {
+        BowerMetadata.call(this, ".bowerrc", project);
 
         /** @private */
         this._data = {};

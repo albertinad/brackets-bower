@@ -31,7 +31,6 @@ define(function (require, exports, module) {
     var StringUtils        = brackets.getModule("utils/StringUtils"),
         ProjectManager     = require("src/project/ProjectManager"),
         PackageManager     = require("src/bower/PackageManager"),
-        BowerJsonManager   = require("src/project/BowerJsonManager"),
         DependenciesView   = require("src/panel/views/DependenciesView"),
         ErrorUtils         = require("src/utils/ErrorUtils"),
         NotificationDialog = require("src/dialogs/NotificationDialog"),
@@ -58,7 +57,7 @@ define(function (require, exports, module) {
 
         this._view.initialize($section);
 
-        BowerJsonManager.on(BowerJsonManager.Events.BOWER_JSON_RELOADED, function () {
+        ProjectManager.on(Events.BOWER_JSON_RELOADED, function () {
             that._onBowerJsonReloadedCallback();
         });
 
@@ -92,7 +91,7 @@ define(function (require, exports, module) {
     DependenciesController.prototype.show = function () {
         this._isVisible = true;
 
-        this._view.show(BowerJsonManager.getBowerJson());
+        this._view.show(ProjectManager.getBowerJson());
     };
 
     /**
@@ -116,8 +115,8 @@ define(function (require, exports, module) {
     DependenciesController.prototype.createBowerJson = function () {
         var that = this;
 
-        BowerJsonManager.createBowerJson().done(function () {
-            var bowerJson = BowerJsonManager.getBowerJson();
+        ProjectManager.createBowerJson().done(function () {
+            var bowerJson = ProjectManager.getBowerJson();
 
             that._view.onBowerJsonCreated(bowerJson);
         });
@@ -127,14 +126,14 @@ define(function (require, exports, module) {
      * Delete the bower.json file.
      */
     DependenciesController.prototype.deleteBowerJson = function () {
-        BowerJsonManager.removeBowerJson().done(this._refreshBowerJsonUi.bind(this));
+        ProjectManager.removeBowerJson().done(this._refreshBowerJsonUi.bind(this));
     };
 
     /**
      * Open the current bower.json file in the editor.
      */
     DependenciesController.prototype.openBowerJson = function () {
-        BowerJsonManager.open();
+        ProjectManager.openBowerJson();
     };
 
     /**
@@ -208,7 +207,7 @@ define(function (require, exports, module) {
      * @private
      */
     DependenciesController.prototype._refreshBowerJsonUi = function () {
-        this._view.reloadBowerJson(BowerJsonManager.getBowerJson());
+        this._view.reloadBowerJson(ProjectManager.getBowerJson());
     };
 
     /**

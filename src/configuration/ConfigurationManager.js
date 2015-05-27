@@ -58,7 +58,7 @@ define(function (require, exports) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
-        _bowerRc = new BowerRc(currentProject.getPath(), currentProject);
+        _bowerRc = new BowerRc(currentProject);
 
         _bowerRc.create().then(function () {
             deferred.resolve();
@@ -134,10 +134,8 @@ define(function (require, exports) {
         var deferred = new $.Deferred();
 
         if (project) {
-            var path = project.getPath();
-
-            findBowerRc(path).then(function () {
-                _bowerRc = new BowerRc(path, project);
+            findBowerRc(project.getPath()).then(function () {
+                _bowerRc = new BowerRc(project);
 
                 Bower.getConfiguration(_bowerRc.AbsolutePath)
                     .then(function (configuration) {

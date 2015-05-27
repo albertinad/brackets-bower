@@ -30,7 +30,8 @@ define(function (require, exports, module) {
 
     var _              = brackets.getModule("thirdparty/lodash"),
         BowerMetadata  = require("src/metadata/BowerMetadata"),
-        DependencyType = require("src/bower/PackageOptions").DependencyType;
+        DependencyType = require("src/bower/PackageOptions").DependencyType,
+        FileUtils      = require("src/utils/FileUtils");
 
     /**
      * Bower json file constructor.
@@ -39,11 +40,11 @@ define(function (require, exports, module) {
      * @param {Project} project
      * @constructor
      */
-    function BowerJson(path, appName, project) {
-        BowerMetadata.call(this, "bower.json", path, project);
+    function BowerJson(project) {
+        BowerMetadata.call(this, "bower.json", project);
 
         /** @private */
-        this._appName = appName;
+        this._appName = this._project.name;
         /** @private*/
         this._deps = {};
     }
@@ -376,7 +377,17 @@ define(function (require, exports, module) {
     };
 
     BowerJson.prototype._notifyBowerJsonChanged = function () {
-        this._project.notifyBowerJsonChanged();
+        this._project.bowerJsonChanged();
+    };
+
+    /**
+     * Checks if the file exists in the given directory. If the directory
+     * is not set, the root project directory is taken as the default directory.
+     * @param {string} path
+     * @return {$.Deferred}
+     */
+    BowerJson.findInPath = function (path) {
+        return FileUtils.exists(path + "bower.json");
     };
 
     module.exports = BowerJson;

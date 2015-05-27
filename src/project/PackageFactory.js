@@ -29,7 +29,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var _                = brackets.getModule("thirdparty/lodash"),
-        BowerJsonManager = require("src/project/BowerJsonManager"),
+        ProjectManager   = require("src/project/ProjectManager"),
         PackageOptions   = require("src/bower/PackageOptions");
 
     var DependencyType   = PackageOptions.DependencyType;
@@ -562,7 +562,7 @@ define(function (require, exports, module) {
             return [];
         }
 
-        var deps = BowerJsonManager.getDependencies(),
+        var deps = ProjectManager.getDependencies(),
             pkgsName = Object.keys(packages),
             pkgs = [];
 
@@ -582,7 +582,7 @@ define(function (require, exports, module) {
      * @return {Array}
      */
     function createPackagesDeep(packages) {
-        var deps = BowerJsonManager.getDependencies(),
+        var deps = ProjectManager.getDependencies(),
             pkgData = {},
             pkgs;
 

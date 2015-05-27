@@ -31,7 +31,7 @@ define(function (require, exports, module) {
 
     describe("BracketsBower - PackageFactory", function () {
         var PackageFactory = require("src/project/PackageFactory"),
-            BowerJsonManager = require("src/project/BowerJsonManager"),
+            ProjectManager = require("src/project/ProjectManager"),
             tempDir = SpecRunnerUtils.getTempDirectory(),
             defaultTimeout = 5000,
             ExtensionUtils,
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
                 },
                 result;
 
-            spyOn(BowerJsonManager, "getDependencies").andReturn(deps);
+            spyOn(ProjectManager, "getDependencies").andReturn(deps);
 
             result = PackageFactory.createPackages(rawData);
 
@@ -171,7 +171,7 @@ define(function (require, exports, module) {
                 },
                 result;
 
-            spyOn(BowerJsonManager, "getDependencies").andReturn(deps);
+            spyOn(ProjectManager, "getDependencies").andReturn(deps);
 
             result = PackageFactory.createPackages(rawData);
 
@@ -216,7 +216,7 @@ define(function (require, exports, module) {
                 },
                 result;
 
-            spyOn(BowerJsonManager, "getDependencies").andReturn(deps);
+            spyOn(ProjectManager, "getDependencies").andReturn(deps);
 
             result = PackageFactory.createPackages(rawData);
 
