@@ -40,12 +40,10 @@ define(function (require, exports, module) {
      * @constructor
      */
     function BowerJson(path, appName, project) {
-        BowerMetadata.call(this, "bower.json", path);
+        BowerMetadata.call(this, "bower.json", path, project);
 
         /** @private */
         this._appName = appName;
-        /** @private */
-        this._project = project;
         /** @private*/
         this._deps = {};
     }
@@ -62,7 +60,7 @@ define(function (require, exports, module) {
 
         this.saveContent(content).then(function () {
             // cache the dependencies
-            that._updateDependencies(pkgMeta);
+            that._updateCacheDependencies(pkgMeta);
 
             deferred.resolve();
         }).fail(function (error) {
@@ -70,39 +68,6 @@ define(function (require, exports, module) {
         });
 
         return deferred;
-    };
-
-    /**
-     * Get the dependencies and devDependencies defined in the bower.json.
-     * @param {$.Deferred}
-     */
-    BowerJson.prototype._loadAllDependencies = function () {
-        var that = this,
-            deferred = new $.Deferred();
-
-        this.read().then(function (result) {
-            var content,
-                hasChanged;
-
-            try {
-                content = JSON.parse(result);
-                hasChanged = that._hasDependenciesChanged(content);
-
-                if (hasChanged) {
-                    that._updateDependencies(content);
-                }
-
-                deferred.resolve(hasChanged);
-            } catch (error) {
-                that._deps = {};
-
-                deferred.reject(error);
-            }
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
     };
 
     /**
@@ -163,7 +128,11 @@ define(function (require, exports, module) {
 
                 newContent = JSON.stringify(content, null, 4);
 
-                return that.saveContent(newContent);
+                return that.saveContent(newContent).then(function () {
+                    if (that._hasDependenciesChanged(content)) {
+                        that._updateCacheDependencies(content);
+                    }
+                });
             } else {
                 deferred.reject();
             }
@@ -178,16 +147,116 @@ define(function (require, exports, module) {
         return deferred;
     };
 
+    /**
+     * @param {object}
+     *        missing: packages to remove from bower.json
+     *        untracked: packages to add to bower.json to production dependencies.
+     */
+    BowerJson.prototype.syncDependencies = function (packagesData) {
+        // TODO
+        var that = this,
+            deferred = new $.Deferred(),
+            missing,
+            untracked;
+
+        if (!packagesData) {
+            // there's nothing to sync
+            return deferred.reject();
+        }
+
+        missing = packagesData.missing;
+        untracked = packagesData.untracked;
+
+        if (missing.length === 0 && untracked.length === 0) {
+            // there's nothing to update
+            return deferred.reject();
+        }
+
+        this.read().then(function (result) {
+
+            var content = JSON.parse(result),
+                deps = content.dependencies,
+                devDeps = content.devDependencies;
+
+            missing.forEach(function (pkg) {
+                var name = pkg.name;
+
+                if (deps && deps[name]) {
+                    delete deps[name];
+                } else if (devDeps && devDeps[name]) {
+                    delete devDeps[name];
+                }
+            });
+
+            untracked.forEach(function (pkg) {
+                var name = pkg.name;
+
+                if (!deps) {
+                    content.dependencies = {};
+                    deps = content.dependencies;
+                }
+
+                if (!deps[name]) {
+                    deps[name] = pkg.version || "*";
+                }
+            });
+
+            return that.saveContent(JSON.stringify(content, null, 4));
+
+        }).then(function () {
+
+            deferred.resolve();
+        }).fail(function (error) {
+
+            deferred.reject(error);
+        });
+
+        return deferred;
+    };
+
     BowerJson.prototype.onContentChanged = function () {
         var that = this;
+
         this._loadAllDependencies().then(function (updated) {
             if (updated) {
-                //_notifyBowerJsonChanged();
-                that._project.notifyBowerJsonChanged();
+                that._notifyBowerJsonChanged();
             }
         }).fail(function () {
             // do nothing
         });
+    };
+
+    /**
+     * Get the dependencies and devDependencies defined in the bower.json.
+     * @param {$.Deferred}
+     */
+    BowerJson.prototype._loadAllDependencies = function () {
+        var that = this,
+            deferred = new $.Deferred();
+
+        this.read().then(function (result) {
+            var content,
+                hasChanged;
+
+            try {
+                content = JSON.parse(result);
+                hasChanged = that._hasDependenciesChanged(content);
+
+                if (hasChanged) {
+                    that._updateCacheDependencies(content);
+                }
+
+                deferred.resolve(hasChanged);
+            } catch (error) {
+                that._deps = {};
+
+                deferred.reject(error);
+            }
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     };
 
     /**
@@ -290,7 +359,7 @@ define(function (require, exports, module) {
      * @param {object} meta Object with the new dependencies and devDependencies configuration.
      * @private
      */
-    BowerJson.prototype._updateDependencies = function (meta) {
+    BowerJson.prototype._updateCacheDependencies = function (meta) {
         this._deps = {};
 
         if (meta.dependencies) {
@@ -304,6 +373,10 @@ define(function (require, exports, module) {
         } else {
             this._deps.devDependencies = {};
         }
+    };
+
+    BowerJson.prototype._notifyBowerJsonChanged = function () {
+        this._project.notifyBowerJsonChanged();
     };
 
     module.exports = BowerJson;

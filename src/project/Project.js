@@ -291,11 +291,25 @@ define(function (require, exports, module) {
         });
     };
 
+    /**
+     * @param {string} name
+     */
     BowerProject.prototype.updatePackageDependencyToProject = function (name) {
         var pkg = this._packages[name];
 
         if (pkg) {
             pkg.isProjectPackage = true;
+        }
+    };
+
+    /**
+     * @param {object}
+     */
+    BowerProject.prototype.syncWithCurrentPackages = function (packages) {
+        if (this._activeBowerJson) {
+            return this._activeBowerJson.syncDependencies(packages);
+        } else {
+            return (new $.Deferred()).reject();
         }
     };
 
@@ -350,17 +364,16 @@ define(function (require, exports, module) {
 
     BowerProject.prototype.notifyBowerJsonChanged = function () {
         var that = this,
-            isAnyModification,
-            projectPkg,
             currentPackages = that.getPackagesArray();
 
         this._projectManager.listProjectDependencies().then(function (packagesArray) {
+            var isAnyModification;
 
             if (currentPackages.length !== packagesArray.length) {
                 that.setPackages(packagesArray);
             } else {
                 isAnyModification = _.some(packagesArray, function (pkg) {
-                    projectPkg = that.getPackageByName(pkg.name);
+                    var projectPkg = that.getPackageByName(pkg.name);
 
                     return !projectPkg.isEqualTo(pkg);
                 });

@@ -276,6 +276,94 @@ define(function (require, exports) {
     }
 
     /**
+     * Check the status of current project packages and validate it against
+     * the definition in bower.json file if any. Get the summary of missing
+     * packages and not tracked packages.
+     * @return {object}
+     */
+    function checkProjectStatus() {
+        var packages,
+            missing = [],
+            untracked = [],
+            status = 0; // TODO sync
+
+        if (!_bowerProject) {
+            ErrorUtils.createError(ErrorUtils.NO_PROJECT);
+        }
+
+        if (!_bowerProject.hasBowerJson()) {
+            ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON);
+        }
+
+        // TODO
+
+        packages = _bowerProject.getPackagesArray();
+
+        packages.forEach(function (pkg) {
+            if (pkg.isNotTracked()) {
+                untracked.push(pkg);
+            } else if (pkg.isMissing()) {
+                missing.push(pkg);
+            }
+        });
+
+        if (untracked.length !== 0 || missing.length !== 0) {
+            status = 1; // TODO out of sync
+        }
+
+        var result = {
+            status: status,
+            untracked: untracked,
+            missing: missing
+        };
+
+        return result;
+    }
+
+    /**
+     * Install the missing packages defined in bower.json file and uninstall
+     * those packages that are not tracked in the bower.json.
+     * @return {$.Promise}
+     */
+    function synchronizeWithBowerJson() {
+        var deferred = new $.Deferred(),
+            status = checkProjectStatus();
+
+        // uninstall untracked packages
+        PackageManager.prune().then(function () {
+
+            // install missing packages
+            if (status.missing.length !== 0) {
+                PackageManager.installFromBowerJson().then(function () {
+                    deferred.resolve();
+                });
+            } else {
+                deferred.resolve();
+            }
+
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * Add to bower.json file the extraneous installed packages and remove the
+     * missing packages from dependencies and devDependencies in bower.json file.
+     * @return {$.Promise}
+     */
+    function synchronizeWithProject() {
+        var status = checkProjectStatus(),
+            packages = {
+                untracked: status.untracked,
+                missing: status.missing
+            };
+
+        return _bowerProject.syncWithCurrentPackages(packages);
+    }
+
+    /**
      * Initialization function. It must be called only once. It configures the current project
      * if any and setup the event listeners for ProjectManager and DocumentManager events.
      */
@@ -295,8 +383,13 @@ define(function (require, exports) {
     exports.updateActiveDirToSelection = updateActiveDirToSelection;
     exports.listProjectDependencies    = listProjectDependencies;
     exports.checkForUpdates            = checkForUpdates;
+    exports.checkProjectStatus         = checkProjectStatus;
+    exports.synchronizeWithBowerJson   = synchronizeWithBowerJson;
+    exports.synchronizeWithProject     = synchronizeWithProject;
     exports.notifyDependenciesAdded    = notifyDependenciesAdded;
     exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
     exports.notifyDependencyUpdated    = notifyDependencyUpdated;
     exports.Events                     = Events;
+
+    window.projectManager = exports;
 });

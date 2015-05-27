@@ -36,7 +36,8 @@ define(function (require, exports) {
         BracketsConfiguration = require("src/configuration/BracketsConfiguration"),
         DefaultConfiguration  = require("src/configuration/DefaultConfiguration"),
         FileSystemHandler     = require("src/project/FileSystemHandler"),
-        FileUtils             = require("src/utils/FileUtils");
+        FileUtils             = require("src/utils/FileUtils"),
+        ErrorUtils            = require("src/utils/ErrorUtils");
 
     var _bowerRc  = null;
 
@@ -49,22 +50,15 @@ define(function (require, exports) {
 
     EventDispatcher.makeEventDispatcher(exports);
 
-    /**
-     * @param {string=} path
-     */
-    function createBowerRc(path) {
+    function createBowerRc() {
         var currentProject = ProjectManager.getProject(),
             deferred = new $.Deferred();
 
-        if (!path || path.trim() === "") {
-            if (currentProject) {
-                path = currentProject.getPath();
-            } else {
-                return deferred.reject();
-            }
+        if (!currentProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
-        _bowerRc = new BowerRc(path);
+        _bowerRc = new BowerRc(currentProject.getPath(), currentProject);
 
         _bowerRc.create().then(function () {
             deferred.resolve();
@@ -143,7 +137,7 @@ define(function (require, exports) {
             var path = project.getPath();
 
             findBowerRc(path).then(function () {
-                _bowerRc = new BowerRc(path);
+                _bowerRc = new BowerRc(path, project);
 
                 Bower.getConfiguration(_bowerRc.AbsolutePath)
                     .then(function (configuration) {
