@@ -35,9 +35,9 @@ define(function (require, exports) {
         PackageManager       = require("src/bower/PackageManager"),
         PackageFactory       = require("src/project/PackageFactory"),
         FileSystemHandler    = require("src/project/FileSystemHandler"),
-        ConfigurationManager = require("src/configuration/ConfigurationManager"),
         BowerProject         = require("src/project/Project"),
         BowerJson            = require("src/metadata/BowerJson"),
+        BowerRc              = require("src/metadata/BowerRc"),
         FileUtils            = require("src/utils/FileUtils"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
@@ -48,7 +48,8 @@ define(function (require, exports) {
         DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved",
         DEPENDENCY_UPDATED   = "bowerProjectDepUpdated",
         ACTIVE_DIR_CHANGED   = "bowerActiveDirChanged",
-        BOWER_JSON_RELOADED  = "bowerjsonReloaded";
+        BOWER_JSON_RELOADED  = "bowerjsonReloaded",
+        BOWERRC_RELOADED     = "bowerrcReloaded";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
@@ -57,7 +58,8 @@ define(function (require, exports) {
         DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace,
         DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace,
         ACTIVE_DIR_CHANGED: ACTIVE_DIR_CHANGED + namespace,
-        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace
+        BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace,
+        BOWERRC_RELOADED: BOWERRC_RELOADED + namespace
     };
 
     var REGEX_NODE_MODULES     = /node_modules/,
@@ -86,6 +88,8 @@ define(function (require, exports) {
 
             deferred.resolve();
         }).fail(function (error) {
+            _bowerProject.activeBowerJson = null;
+
             deferred.reject(error);
         });
 
@@ -172,40 +176,87 @@ define(function (require, exports) {
         return (_bowerProject) ? _bowerProject.getBowerJsonDependencies() : null;
     }
 
-    /**
-     * Callback for when the bower.json is created manually through the file system.
-     * @private
-     */
-    function _onBowerJsonCreated() {
-        if (_bowerProject && _bowerProject.hasBowerJson()) {
-            return;
+    function createBowerRc() {
+        var deferred = new $.Deferred(),
+            bowerRc;
+
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
-        createBowerJson().always(function () {
-            _notifyBowerJsonReloaded();
+        bowerRc = new BowerRc(_bowerProject);
+
+        bowerRc.create().then(function () {
+            _bowerProject.activeBowerRc = bowerRc;
+
+            deferred.resolve();
+        }).fail(function (error) {
+            _bowerProject.activeBowerRc = null;
+
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     }
 
-    /**
-     * Callback for when the bower.json is deleted manually through the file system.
-     * @private
-     */
-    function _onBowerJsonDeleted() {
-        if (_bowerProject) {
-            _bowerProject.removeBowerJson().always(function () {
-                _notifyBowerJsonReloaded();
-            });
+    function removeBowerRc() {
+        if (!_bowerProject) {
+            var deferred = new $.Deferred();
+
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        return _bowerProject.removeBowerRc();
+    }
+
+    function getBowerRc() {
+        return (_bowerProject) ? _bowerProject.activeBowerRc : null;
+    }
+
+    function openBowerRc() {
+        var bowerRc;
+
+        if (_bowerProject && _bowerProject.activeBowerRc) {
+            bowerRc = _bowerProject.activeBowerRc;
+
+            FileUtils.openInEditor(bowerRc.AbsolutePath);
         }
     }
 
     /**
-     * Callback for when the bower.json content has changed.
      * @private
      */
-    function _onBowerJsonChanged() {
-        if (_bowerProject) {
-            _bowerProject.onBowerJsonChanged();
+    function _notifyBowerRcReloaded() {
+        exports.trigger(BOWERRC_RELOADED);
+    }
+
+    function _loadBowerRc(project) {
+        var deferred = new $.Deferred(),
+            bowerRc;
+
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
+
+        BowerRc.findInPath(_bowerProject.getPath()).then(function () {
+            bowerRc = new BowerRc(project);
+
+            return bowerRc.loadConfiguration();
+        }).fail(function () {
+            bowerRc = null;
+        }).always(function () {
+            _bowerProject.activeBowerRc = bowerRc;
+
+            _notifyBowerRcReloaded();
+
+            if (bowerRc) {
+                deferred.resolve();
+            } else {
+                deferred.reject();
+            }
+        });
+
+        return deferred;
     }
 
     /**
@@ -281,7 +332,7 @@ define(function (require, exports) {
         exports.trigger(PROJECT_LOADING);
 
         // load bowerrc if any
-        ConfigurationManager.loadBowerRc(_bowerProject).always(function () {
+        _loadBowerRc().always(function () {
             // load bower.json if any
             _loadBowerJson().always(function () {
 
@@ -334,7 +385,7 @@ define(function (require, exports) {
 
     /**
      * Update the BowerProject instance active path when it is selected from the Project Tree.
-     * Reload ConfigurationManager, BowerInstance project and FileSystemHandler to be aware of this changes.
+     * Reload BowerProject instance and FileSystemHandler to be aware of this changes.
      * @param {string} activeDir Full path.
      */
     function updateActiveDirToSelection() {
@@ -522,9 +573,53 @@ define(function (require, exports) {
     AppInit.appReady(function () {
         var Events = FileSystemHandler.Events;
 
-        FileSystemHandler.on(Events.BOWER_JSON_CREATED, _onBowerJsonCreated);
-        FileSystemHandler.on(Events.BOWER_JSON_DELETED, _onBowerJsonDeleted);
-        FileSystemHandler.on(Events.BOWER_JSON_CHANGED, _onBowerJsonChanged);
+        // bower.json
+
+        FileSystemHandler.on(Events.BOWER_JSON_CREATED, function () {
+            if (_bowerProject && !_bowerProject.hasBowerJson()) {
+                createBowerJson().always(function () {
+                    _notifyBowerJsonReloaded();
+                });
+            }
+        });
+
+        FileSystemHandler.on(Events.BOWER_JSON_DELETED, function () {
+            if (_bowerProject) {
+                _bowerProject.removeBowerJson().always(function () {
+                    _notifyBowerJsonReloaded();
+                });
+            }
+        });
+
+        FileSystemHandler.on(Events.BOWER_JSON_CHANGED, function () {
+            if (_bowerProject) {
+                _bowerProject.onBowerJsonChanged();
+            }
+        });
+
+        // bowerrc
+
+        FileSystemHandler.on(Events.BOWER_BOWERRC_CREATED, function () {
+            if (_bowerProject && !_bowerProject.hasBowerRc()) {
+                createBowerRc().always(function () {
+                    _notifyBowerRcReloaded();
+                });
+            }
+        });
+
+        FileSystemHandler.on(Events.BOWER_BOWERRC_CHANGED, function () {
+            if (_bowerProject) {
+                _bowerProject.onBowerRcChanged();
+            }
+        });
+
+        FileSystemHandler.on(Events.BOWER_BOWERRC_DELETED, function () {
+            if (_bowerProject) {
+                _bowerProject.removeBowerRc().always(function () {
+                    _notifyBowerRcReloaded();
+                });
+            }
+        });
     });
 
     exports.initialize                 = initialize;
@@ -540,6 +635,10 @@ define(function (require, exports) {
     exports.createBowerJson            = createBowerJson;
     exports.removeBowerJson            = removeBowerJson;
     exports.openBowerJson              = openBowerJson;
+    exports.getBowerRc                 = getBowerRc;
+    exports.createBowerRc              = createBowerRc;
+    exports.removeBowerRc              = removeBowerRc;
+    exports.openBowerRc                = openBowerRc;
     exports.notifyDependenciesAdded    = notifyDependenciesAdded;
     exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
     exports.notifyDependencyUpdated    = notifyDependencyUpdated;

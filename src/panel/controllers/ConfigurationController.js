@@ -28,8 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var ConfigurationView    = require("src/panel/views/ConfigurationView"),
-        ConfigurationManager = require("src/configuration/ConfigurationManager");
+    var ConfigurationView = require("src/panel/views/ConfigurationView"),
+        ProjectManager    = require("src/project/ProjectManager");
 
     /**
      * ConfigurationController constructor. Controller for the bowerrc configuration view.
@@ -46,19 +46,19 @@ define(function (require, exports, module) {
     }
 
     ConfigurationController.prototype.initialize = function ($section) {
-        var Events = ConfigurationManager.Events;
+        var Events = ProjectManager.Events;
 
         this._view = new ConfigurationView(this);
 
         this._view.initialize($section);
 
-        ConfigurationManager.on(Events.BOWERRC_RELOADED, this._onConfigReloadedCallback.bind(this));
+        ProjectManager.on(Events.BOWERRC_RELOADED, this._onConfigReloadedCallback.bind(this));
     };
 
     ConfigurationController.prototype.show = function () {
         this._isVisible = true;
 
-        this._view.show(ConfigurationManager.getBowerRc());
+        this._view.show(ProjectManager.getBowerRc());
     };
 
     ConfigurationController.prototype.hide = function () {
@@ -68,7 +68,7 @@ define(function (require, exports, module) {
     };
 
     ConfigurationController.prototype._refreshUi = function () {
-        this._view.reload(ConfigurationManager.getBowerRc());
+        this._view.reload(ProjectManager.getBowerRc());
     };
 
     ConfigurationController.prototype._onConfigReloadedCallback = function () {
@@ -80,21 +80,17 @@ define(function (require, exports, module) {
     ConfigurationController.prototype.onCreate = function () {
         var that = this;
 
-        ConfigurationManager.createBowerRc().done(function () {
+        ProjectManager.createBowerRc().done(function () {
             that._refreshUi();
         });
     };
 
     ConfigurationController.prototype.onDelete = function () {
-        var that = this;
-
-        ConfigurationManager.removeBowerRc().done(function () {
-            that._refreshUi();
-        });
+        ProjectManager.removeBowerRc();
     };
 
     ConfigurationController.prototype.onSelected = function () {
-        ConfigurationManager.open();
+        ProjectManager.openBowerRc();
     };
 
     module.exports = ConfigurationController;

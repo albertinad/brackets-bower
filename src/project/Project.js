@@ -49,6 +49,8 @@ define(function (require, exports, module) {
 
         /** @private */
         this._activeBowerJson = null;
+        /** @private */
+        this._activeBowerRc = null;
     }
 
     Object.defineProperty(BowerProject.prototype, "name", {
@@ -91,6 +93,15 @@ define(function (require, exports, module) {
         },
         get: function () {
             return this._activeBowerJson;
+        }
+    });
+
+    Object.defineProperty(BowerProject.prototype, "activeBowerRc", {
+        set: function (activeBowerRc) {
+            this._activeBowerRc = activeBowerRc;
+        },
+        get: function () {
+            return this._activeBowerRc;
         }
     });
 
@@ -383,6 +394,40 @@ define(function (require, exports, module) {
                 }
             }
         });
+    };
+
+    BowerProject.prototype.hasBowerRc = function () {
+        return (this._activeBowerRc !== null);
+    };
+
+    /**
+     * Remove the current active BowerRc if any.
+     * @return {$.Deferred}
+     */
+    BowerProject.prototype.removeBowerRc = function () {
+        var that = this,
+            deferred = new $.Deferred();
+
+        if (this._activeBowerRc === null) {
+            return deferred.resolve();
+        }
+
+        this._activeBowerRc.remove().always(function () {
+            that._activeBowerRc = null;
+
+            // TODO that.bowerJsonChanged();
+
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    };
+
+    BowerProject.prototype.onBowerRcChanged = function () {
+        if (this._activeBowerRc) {
+            this._activeBowerRc.onContentChanged();
+        }
+
     };
 
     module.exports = BowerProject;

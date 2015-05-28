@@ -23,13 +23,15 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define, brackets */
+/*global $, define, brackets */
 
 define(function (require, exports, module) {
     "use strict";
 
     var _             = brackets.getModule("thirdparty/lodash"),
-        BowerMetadata = require("src/metadata/BowerMetadata");
+        BowerMetadata = require("src/metadata/BowerMetadata"),
+        Bower         = require("src/bower/Bower"),
+        FileUtils     = require("src/utils/FileUtils");
 
     /**
      * Configuration file constructor.
@@ -62,6 +64,30 @@ define(function (require, exports, module) {
         return this.saveContent(content);
     };
 
+    BowerRc.prototype.loadConfiguration = function () {
+        var that = this,
+            deferred = new $.Deferred();
+
+        Bower.getConfiguration(this.AbsolutePath)
+            .then(function (configuration) {
+                that.Data = configuration;
+
+                deferred.resolve();
+            })
+            .fail(function (error) {
+                deferred.reject(error);
+            });
+
+        return deferred.promise();
+    };
+
+    BowerRc.prototype.onContentChanged = function () {
+        return this.loadConfiguration();
+    };
+
+    /**
+     * @private
+     */
     BowerRc.prototype._defaultContent = function () {
         var defaultConfiguration = {
             directory: "bower_components/",
@@ -69,6 +95,16 @@ define(function (require, exports, module) {
         };
 
         return JSON.stringify(defaultConfiguration, null, 4);
+    };
+
+    /**
+     * Checks if the file exists in the given directory. If the directory
+     * is not set, the root project directory is taken as the default directory.
+     * @param {string} path
+     * @return {Promise}
+     */
+    BowerRc.findInPath = function (path) {
+        return FileUtils.exists(path + ".bowerrc");
     };
 
     module.exports = BowerRc;
