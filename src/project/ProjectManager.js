@@ -234,7 +234,7 @@ define(function (require, exports) {
     /**
      * @private
      */
-    function _loadBowerRc(project) {
+    function _loadBowerRc() {
         var deferred = new $.Deferred(),
             bowerRc;
 
@@ -243,7 +243,7 @@ define(function (require, exports) {
         }
 
         BowerRc.findInPath(_bowerProject.getPath()).then(function () {
-            bowerRc = new BowerRc(project);
+            bowerRc = new BowerRc(_bowerProject);
 
             return bowerRc.loadConfiguration();
         }).fail(function () {
