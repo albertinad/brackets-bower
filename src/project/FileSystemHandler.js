@@ -29,6 +29,7 @@ define(function (require, exports) {
     "use strict";
 
     var FileSystem      = brackets.getModule("filesystem/FileSystem"),
+        ProjectManager  = brackets.getModule("project/ProjectManager"),
         EventDispatcher = brackets.getModule("utils/EventDispatcher");
 
     var _bowerRcFile,
@@ -60,6 +61,12 @@ define(function (require, exports) {
 
     EventDispatcher.makeEventDispatcher(exports);
 
+    /**
+     * Check if the given path to the file is available in the the given files array.
+     * @param {Array} filesArray
+     * @param {string} filePath
+     * @private
+     */
     function _isFileByPathInArray(filesArray, filePath) {
         var result;
 
@@ -73,13 +80,13 @@ define(function (require, exports) {
     }
 
     /**
-     * When file system changes, check if the files changes belongs
-     * to the current project and check if those changes were related
-     * to the bower files. If that is the case, trigger an event
-     * according to the modification: "change", "create" and "delete".
+     * When file system changes, check if the files changes belongs to the current project
+     * and check if those changes were related to the bower files. If that is the case,
+     * trigger an event according to the modification: "change", "create" and "delete".
+     * @private
      */
     function _onFileSystemChange(event, entry, added, removed) {
-        if (!entry) {
+        if (!entry || !ProjectManager.isWithinProject(entry)) {
             return;
         }
 
@@ -119,6 +126,24 @@ define(function (require, exports) {
         }
     }
 
+    /**
+     * Stop listen to file system changes and clean up current state.
+     */
+    function stopListenToFileSystem() {
+        FileSystem.off("change.bower", _onFileSystemChange);
+
+        _bowerRcFile = null;
+        _bowerJsonFile = null;
+        _projectPathRegex = null;
+        _bowerConfigRegex = null;
+        _bowerJsonRegex = null;
+    }
+
+    /**
+     * Start listen to file system changes for the given project to detect changes related to
+     * bower.json and .bowerrc metadata files.
+     * @param {BowerProject} bowerProject
+     */
     function startListenToFileSystem(bowerProject) {
         stopListenToFileSystem();
 
@@ -134,16 +159,6 @@ define(function (require, exports) {
 
             FileSystem.on("change.bower", _onFileSystemChange);
         }
-    }
-
-    function stopListenToFileSystem() {
-        FileSystem.off("change.bower", _onFileSystemChange);
-
-        _bowerRcFile = null;
-        _bowerJsonFile = null;
-        _projectPathRegex = null;
-        _bowerConfigRegex = null;
-        _bowerJsonRegex = null;
     }
 
     exports.startListenToFileSystem = startListenToFileSystem;

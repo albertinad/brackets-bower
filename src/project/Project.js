@@ -324,8 +324,29 @@ define(function (require, exports, module) {
         }
     };
 
+    /**
+     * Check if the project has an active BowerJson.
+     * @return {boolean}
+     */
     BowerProject.prototype.hasBowerJson = function () {
         return (this._activeBowerJson !== null);
+    };
+
+    /**
+     * Check if the given path is the current active BowerJson.
+     * @param {string} bowerJsonPath The absolute path of the potential active bower.json file.
+     * @return {boolean}
+     */
+    BowerProject.prototype.isActiveBowerJson = function (bowerJsonPath) {
+        var isCurrentBowerJson;
+
+        if (this.hasBowerJson()) {
+            isCurrentBowerJson = (this._activeBowerJson.AbsolutePath === bowerJsonPath);
+        } else {
+            isCurrentBowerJson = false;
+        }
+
+        return isCurrentBowerJson;
     };
 
     BowerProject.prototype.bowerJsonLoaded = function (bowerJson) {
@@ -386,6 +407,10 @@ define(function (require, exports, module) {
         });
     };
 
+    /**
+     * Check if the project has an ative BowerRc.
+     * @return {boolean}
+     */
     BowerProject.prototype.hasBowerRc = function () {
         return (this._activeBowerRc !== null);
     };
