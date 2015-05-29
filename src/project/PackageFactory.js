@@ -533,6 +533,18 @@ define(function (require, exports, module) {
         return pkg;
     };
 
+    /**
+     * @private
+     */
+    function _getBowerJsonDependencies() {
+        var bowerJson = ProjectManager.getBowerJson();
+
+        return (bowerJson) ? bowerJson.getAllDependencies() : null;
+    }
+
+    /**
+     * @private
+     */
     function _parsePackagesRecursive(packages, deps, pkgs) {
         var pkgsName = Object.keys(packages);
 
@@ -562,7 +574,7 @@ define(function (require, exports, module) {
             return [];
         }
 
-        var deps = ProjectManager.getDependencies(),
+        var deps = _getBowerJsonDependencies(),
             pkgsName = Object.keys(packages),
             pkgs = [];
 
@@ -582,7 +594,7 @@ define(function (require, exports, module) {
      * @return {Array}
      */
     function createPackagesDeep(packages) {
-        var deps = ProjectManager.getDependencies(),
+        var deps = _getBowerJsonDependencies(),
             pkgData = {},
             pkgs;
 

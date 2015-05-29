@@ -328,16 +328,6 @@ define(function (require, exports, module) {
         return (this._activeBowerJson !== null);
     };
 
-    BowerProject.prototype.getBowerJsonDependencies = function () {
-        var deps = null;
-
-        if (this._activeBowerJson) {
-            deps = this._activeBowerJson.getAllDependencies();
-        }
-
-        return deps;
-    };
-
     BowerProject.prototype.bowerJsonLoaded = function (bowerJson) {
         this._activeBowerJson = bowerJson;
 

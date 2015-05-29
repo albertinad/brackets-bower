@@ -70,8 +70,7 @@ define(function (require, exports) {
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
-     * Create the bower.json file at the given absolute path. If any path is provided,
-     * it use the current active project as the default absolute path.
+     * Create the bower.json file.
      */
     function createBowerJson() {
         var deferred = new $.Deferred(),
@@ -172,10 +171,9 @@ define(function (require, exports) {
         return deferred;
     }
 
-    function getDependencies() {
-        return (_bowerProject) ? _bowerProject.getBowerJsonDependencies() : null;
-    }
-
+    /**
+     * Create the .bowerrc file for the current project.
+     */
     function createBowerRc() {
         var deferred = new $.Deferred(),
             bowerRc;
@@ -199,6 +197,9 @@ define(function (require, exports) {
         return deferred.promise();
     }
 
+    /**
+     * Remove the current .bowerrc file of the current project.
+     */
     function removeBowerRc() {
         if (!_bowerProject) {
             var deferred = new $.Deferred();
@@ -230,6 +231,9 @@ define(function (require, exports) {
         exports.trigger(BOWERRC_RELOADED);
     }
 
+    /**
+     * @private
+     */
     function _loadBowerRc(project) {
         var deferred = new $.Deferred(),
             bowerRc;
@@ -519,32 +523,6 @@ define(function (require, exports) {
     }
 
     /**
-     * @private
-     */
-    function _projectClose() {
-        FileSystemHandler.stopListenToFileSystem();
-    }
-
-    /**
-     * @private
-     */
-    function _fileNameChange(event, oldName, newName) {
-        if (_bowerProject && _bowerProject.activeDir === oldName) {
-            // the active folder was renamed, update it
-            _setActiveDir(newName);
-        }
-    }
-
-    /**
-     * @private
-     */
-    function _pathDeleted(event, fullPath) {
-        if (_bowerProject && _bowerProject.activeDir === fullPath) {
-            _setActiveDir(_bowerProject.rootPath);
-        }
-    }
-
-    /**
      * Initialization function. It must be called only once. It configures the current project
      * if any and setup the event listeners for ProjectManager and DocumentManager events.
      */
@@ -552,10 +530,23 @@ define(function (require, exports) {
         _projectOpen();
 
         ProjectManager.on("projectOpen", _projectOpen);
-        ProjectManager.on("projectClose", _projectClose);
 
-        DocumentManager.on("fileNameChange", _fileNameChange);
-        DocumentManager.on("pathDeleted", _pathDeleted);
+        ProjectManager.on("projectClose", function () {
+            FileSystemHandler.stopListenToFileSystem();
+        });
+
+        DocumentManager.on("fileNameChange", function (event, oldName, newName) {
+            if (_bowerProject && _bowerProject.activeDir === oldName) {
+                // the active folder was renamed, update it
+                _setActiveDir(newName);
+            }
+        });
+
+        DocumentManager.on("pathDeleted", function (event, fullPath) {
+            if (_bowerProject && _bowerProject.activeDir === fullPath) {
+                _setActiveDir(_bowerProject.rootPath);
+            }
+        });
     }
 
     function notifyDependenciesAdded(result) {
@@ -643,6 +634,4 @@ define(function (require, exports) {
     exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
     exports.notifyDependencyUpdated    = notifyDependencyUpdated;
     exports.Events                     = Events;
-
-    exports.getDependencies = getDependencies; // TODO remove it
 });
