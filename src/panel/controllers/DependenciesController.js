@@ -154,6 +154,33 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Update the selected package.
+     */
+    DependenciesController.prototype.update = function (name) {
+        PackageManager.update(name).fail(function (error) {
+            NotificationDialog.showError(error.message);
+        });
+    };
+
+    /**
+     * Remove the selected package from bower.json.
+     */
+    DependenciesController.prototype.removeFromBowerJson = function (name) {
+        ProjectManager.untrackPackage(name).fail(function (error) {
+            NotificationDialog.showError(error.message);
+        });
+    };
+
+    /**
+     * Add the selected package from bower.json.
+     */
+    DependenciesController.prototype.addToBowerJson = function (name) {
+        ProjectManager.trackPackage(name).fail(function (error) {
+            NotificationDialog.showError(error.message);
+        });
+    };
+
+    /**
      * @private
      */
     DependenciesController.prototype._onUninstallFailed = function (name, error) {
@@ -186,16 +213,8 @@ define(function (require, exports, module) {
     };
 
     /**
-     * Update the selected package.
-     */
-    DependenciesController.prototype.update = function (name) {
-        PackageManager.update(name).fail(function (error) {
-            NotificationDialog.showError(error.message);
-        });
-    };
-
-    /**
      * Callback for when the bower.json file is created or deleted.
+     * @private
      */
     DependenciesController.prototype._onBowerJsonReloadedCallback = function () {
         if (this._isPanelActive()) {

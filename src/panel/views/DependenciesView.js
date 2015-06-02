@@ -43,6 +43,14 @@ define(function (require, exports, module) {
         this._controller = controller;
         /** @private */
         this._$panel = null;
+
+        /** @private */
+        this._actions = {
+            uninstall: this._onActionDelete.bind(this),
+            update: this._onActionUpdate.bind(this),
+            track: this._onActionTrack.bind(this),
+            remove: this._onActionRemove.bind(this)
+        };
     }
 
     DependenciesView.prototype.initialize = function ($container) {
@@ -50,12 +58,16 @@ define(function (require, exports, module) {
 
         this._$panel = $container;
 
-        this._$panel.on("click", "[data-bower-installed-action='delete']", function () {
+        this._$panel.on("click", "[data-bower-installed-action]", function () {
             /*jshint validthis:true */
-            that._controller.uninstall($(this).data("name"));
-        }).on("click", "[data-bower-installed-action='update']", function () {
-            /*jshint validthis:true */
-            that._controller.update($(this).data("name"));
+            var $selectedItem = $(this),
+                action = $selectedItem.data("bower-installed-action"),
+                actionFn = that._actions[action];
+
+            if (typeof actionFn === "function") {
+                actionFn($selectedItem.data("name"));
+            }
+
         }).on("click", "[data-bower-json-action='create']", function (event) {
             event.stopPropagation();
 
@@ -164,6 +176,38 @@ define(function (require, exports, module) {
         } else {
             this.reloadPackages(null);
         }
+    };
+
+    /**
+     * @param {string} name Package name.
+     * @private
+     */
+    DependenciesView.prototype._onActionDelete = function (name) {
+        this._controller.uninstall(name);
+    };
+
+    /**
+     * @param {string} name Package name.
+     * @private
+     */
+    DependenciesView.prototype._onActionUpdate = function (name) {
+        this._controller.update(name);
+    };
+
+    /**
+     * @param {string} name Package name.
+     * @private
+     */
+    DependenciesView.prototype._onActionTrack = function (name) {
+        this._controller.addToBowerJson(name);
+    };
+
+    /**
+     * @param {string} name Package name.
+     * @private
+     */
+    DependenciesView.prototype._onActionRemove = function (name) {
+        this._controller.removeFromBowerJson(name);
     };
 
     /**

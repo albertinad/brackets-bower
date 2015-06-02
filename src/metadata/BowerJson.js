@@ -30,7 +30,7 @@ define(function (require, exports, module) {
 
     var _              = brackets.getModule("thirdparty/lodash"),
         BowerMetadata  = require("src/metadata/BowerMetadata"),
-        DependencyType = require("src/bower/PackageOptions").DependencyType,
+        DependencyType = require("src/bower/PackageUtils").DependencyType,
         FileUtils      = require("src/utils/FileUtils");
 
     /**
@@ -56,10 +56,9 @@ define(function (require, exports, module) {
     BowerJson.prototype.create = function (data) {
         var that = this,
             deferred = new $.Deferred(),
-            pkgMeta = (Array.isArray(data)) ? this._createPackageMetadata(data) : this._getDefaultData(),
-            content = JSON.stringify(pkgMeta, null, 4);
+            pkgMeta = (Array.isArray(data)) ? this._createPackageMetadata(data) : this._getDefaultData();
 
-        this.saveContent(content).then(function () {
+        this.saveContent(this._serialize(pkgMeta)).then(function () {
             // cache the dependencies
             that._updateCacheDependencies(pkgMeta);
 
@@ -108,8 +107,7 @@ define(function (require, exports, module) {
             var content = JSON.parse(result),
                 deps = content.dependencies,
                 devDeps = content.devDependencies,
-                currentDeps,
-                newContent;
+                currentDeps;
 
             // get the current dependencies object where the package belongs
             if (deps && deps[name]) {
@@ -127,9 +125,7 @@ define(function (require, exports, module) {
                 // update dependency type
                 that._updateDependencyType(name, dependencyType, content, currentDeps);
 
-                newContent = JSON.stringify(content, null, 4);
-
-                return that.saveContent(newContent).then(function () {
+                return that.saveContent(that._serialize(content)).then(function () {
                     if (that._hasDependenciesChanged(content)) {
                         that._updateCacheDependencies(content);
                     }
@@ -149,12 +145,59 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {string} name
+     * @param {string} version
+     */
+    BowerJson.prototype.addDependencyToProduction = function (name, version) {
+        return this._addDependency(name, version, true);
+    };
+
+    /**
+     * @param {string} name
+     * @param {string} version
+     */
+    BowerJson.prototype.addDependencyToDevelopment = function (name, version) {
+        return this._addDependency(name, version, false);
+    };
+
+    /**
+     * @param {string} name
+     */
+    BowerJson.prototype.removeDependency = function (name) {
+        var that = this,
+            deferred = new $.Deferred();
+
+        this.read().then(function (result) {
+
+            var content = JSON.parse(result),
+                deps = content.dependencies,
+                devDeps = content.devDependencies;
+
+            if (deps && deps[name]) {
+                delete deps[name];
+            } else if (devDeps && devDeps[name]) {
+                delete devDeps[name];
+            }
+
+            return that.saveContent(that._serialize(content));
+
+        }).then(function () {
+
+            deferred.resolve();
+        }).fail(function (error) {
+
+            deferred.reject(error);
+        });
+
+        return deferred;
+    };
+
+    /**
      * @param {object}
      *        missing: packages to remove from bower.json
      *        untracked: packages to add to bower.json to production dependencies.
      */
     BowerJson.prototype.syncDependencies = function (packagesData) {
-        // TODO
         var that = this,
             deferred = new $.Deferred(),
             missing,
@@ -202,7 +245,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            return that.saveContent(JSON.stringify(content, null, 4));
+            return that.saveContent(that._serialize(content));
 
         }).then(function () {
 
@@ -228,8 +271,47 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {string} name
+     * @param {string} version
+     * @param {boolean} isProduction
+     * @private
+     */
+    BowerJson.prototype._addDependency = function (name, version, isProduction) {
+        var that = this,
+            deferred = new $.Deferred();
+
+        this.read().then(function (result) {
+
+            var content = JSON.parse(result),
+                deps;
+
+            if (isProduction) {
+                deps = content.dependencies;
+            } else {
+                deps = content.devDependencies;
+            }
+
+            if (deps) {
+                deps[name] = version;
+            }
+
+            return that.saveContent(that._serialize(content));
+
+        }).then(function () {
+
+            deferred.resolve();
+        }).fail(function (error) {
+
+            deferred.reject(error);
+        });
+
+        return deferred;
+    };
+
+    /**
      * Get the dependencies and devDependencies defined in the bower.json.
      * @param {$.Deferred}
+     * @private
      */
     BowerJson.prototype._loadAllDependencies = function () {
         var that = this,
@@ -300,6 +382,7 @@ define(function (require, exports, module) {
      * Create the bower.json file content using the current project dependencies.
      * @param {Array} packages
      * @return {object}
+     * @private
      */
     BowerJson.prototype._createPackageMetadata = function (packages) {
         var pkgMeta = {
@@ -333,6 +416,7 @@ define(function (require, exports, module) {
     /**
      * Create the default bower.json content.
      * @return {object}
+     * @private
      */
     BowerJson.prototype._getDefaultData = function () {
         return {
@@ -376,8 +460,18 @@ define(function (require, exports, module) {
         }
     };
 
+    /**
+     * @private
+     */
     BowerJson.prototype._notifyBowerJsonChanged = function () {
         this._project.bowerJsonChanged();
+    };
+
+    /**
+     * @private
+     */
+    BowerJson.prototype._serialize = function (data) {
+        return JSON.stringify(data, null, 4);
     };
 
     /**

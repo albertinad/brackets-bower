@@ -33,133 +33,11 @@ define(function (require, exports) {
         Bower                = require("src/bower/Bower"),
         ProjectManager       = require("src/project/ProjectManager"),
         PackageFactory       = require("src/project/PackageFactory"),
-        PackageOptions       = require("src/bower/PackageOptions"),
+        PackageUtils         = require("src/bower/PackageUtils"),
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
-    var DependencyType = PackageOptions.DependencyType,
-        VersionOptions = PackageOptions.VersionOptions;
-
-    var TILDE = "~",
-        CARET = "^";
-
     EventDispatcher.makeEventDispatcher(exports);
-
-    /**
-     * @param {string} options
-     * @param {number} type
-     * @private
-     */
-    function _getVersion(version, type) {
-        var fullVersion;
-
-        if (version && (version.trim() !== "")) {
-            switch (type) {
-            case VersionOptions.TILDE:
-                fullVersion = TILDE + version;
-                break;
-            case VersionOptions.CARET:
-                fullVersion = CARET + version;
-                break;
-            default:
-                fullVersion = version;
-            }
-        }
-
-        return fullVersion;
-    }
-
-    /**
-     * @param {string} name
-     * @param {string} version
-     * @param {number} type
-     * @return {string} packageName
-     * @private
-     */
-    function _getPackageVersionToInstall(name, version, type) {
-        // prepare package name with version if any
-        var packageVersion = _getVersion(version, type),
-            packageName = name;
-
-        if (version) {
-            packageName += "#" + packageVersion;
-        }
-
-        return packageName;
-    }
-
-    /**
-     * @param {Package} pkg
-     * @param {object} data Values to update the package properties.
-     *      version {string|null}: Version to update to. If empty, it will update it to the latest version.
-     *      versionType {number}: The version type to use, following semver conventions.
-     *      type {number}: update the package type: dependency or devDependency.
-     * @private
-     */
-    function _getUpdateDataForPackage(pkg, data) {
-        var updateData,
-            updateVersion,
-            dependencyType;
-
-        if (!data) {
-            data = {};
-        }
-
-        dependencyType = data.type;
-
-        function addToUpdateData(dataKey, value) {
-            if (!updateData) {
-                updateData = {};
-            }
-
-            updateData[dataKey] = value;
-        }
-
-        updateVersion = _getVersion(data.version, data.versionType);
-
-        if (!updateVersion && pkg.latestVersion) {
-            // if any specific version was requested, update to the latest available version
-            updateVersion = TILDE + pkg.latestVersion;
-        }
-
-        // version
-        if (updateVersion && (pkg.version !== updateVersion)) {
-            addToUpdateData("version", updateVersion);
-        }
-
-        // dependency type
-        if (PackageOptions.isValidDependencyType(dependencyType) && pkg.dependencyType !== dependencyType) {
-            addToUpdateData("dependencyType", dependencyType);
-        }
-
-        return updateData;
-    }
-
-    /**
-     * @param {object} data
-     * @private
-     */
-    function _getInstallOptions(data) {
-        var options = {};
-
-        // prepare default values when needed
-        if (typeof data.type !== "number") {
-            data.type = DependencyType.PRODUCTION;
-        }
-
-        if (typeof data.save !== "boolean") {
-            data.save = false;
-        }
-
-        // setup options
-        if (data.type === DependencyType.PRODUCTION) {
-            options.save = data.save;
-        } else {
-            options.saveDev = data.save;
-        }
-
-        return options;
-    }
 
     /**
      * Get detailed information about the given package.
@@ -211,8 +89,8 @@ define(function (require, exports) {
             data = {};
         }
 
-        packageName = _getPackageVersionToInstall(name, data.version, data.versionType);
-        options = _getInstallOptions(data);
+        packageName = PackageUtils.getPackageVersionToInstall(name, data.version, data.versionType);
+        options = PackageUtils.getInstallOptions(data);
 
         // install the given package
         Bower.installPackage(packageName, options, config).then(function (result) {
@@ -418,7 +296,7 @@ define(function (require, exports) {
         }
 
         // get package data to update
-        updateData = _getUpdateDataForPackage(pkg, data);
+        updateData = PackageUtils.getUpdateDataForPackage(pkg, data);
 
         if (!updateData || Object.keys(updateData) === 0) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA));

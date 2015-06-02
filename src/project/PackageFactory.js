@@ -28,11 +28,11 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var _                = brackets.getModule("thirdparty/lodash"),
-        ProjectManager   = require("src/project/ProjectManager"),
-        PackageOptions   = require("src/bower/PackageOptions");
+    var _              = brackets.getModule("thirdparty/lodash"),
+        ProjectManager = require("src/project/ProjectManager"),
+        PackageUtils   = require("src/bower/PackageUtils");
 
-    var DependencyType   = PackageOptions.DependencyType;
+    var DependencyType = PackageUtils.DependencyType;
 
     /**
      * Package dependency constructor function.
@@ -90,7 +90,7 @@ define(function (require, exports, module) {
         /** @private */
         this._versions = [];
         /** @private */
-        this._status = PackageOptions.Status.INSTALLED;
+        this._status = PackageUtils.Status.INSTALLED;
         /** @private */
         this._dependencyType = DependencyType.PRODUCTION;
         /** @private */
@@ -273,14 +273,14 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     Package.prototype.isInstalled = function () {
-        return (this._status === PackageOptions.Status.INSTALLED);
+        return (this._status === PackageUtils.Status.INSTALLED);
     };
 
     /**
      * @return {boolean}
      */
     Package.prototype.isMissing = function () {
-        return (this._status === PackageOptions.Status.MISSING);
+        return (this._status === PackageUtils.Status.MISSING);
     };
 
     /**
@@ -288,7 +288,7 @@ define(function (require, exports, module) {
      */
     Package.prototype.isNotTracked = function () {
         // bower "extraneous" definition
-        return (this._status === PackageOptions.Status.NOT_TRACKED);
+        return (this._status === PackageUtils.Status.NOT_TRACKED);
     };
 
     /**
@@ -324,7 +324,7 @@ define(function (require, exports, module) {
     Package.isProjectDirectDependency = function (name, status, bowerJsonDeps) {
         var isDirectDependency;
 
-        if (status !==  PackageOptions.Status.INSTALLED) { // missing or extraneous
+        if (status !==  PackageUtils.Status.INSTALLED) { // missing or extraneous
             isDirectDependency = true;
         } else {
             isDirectDependency = (bowerJsonDeps) ? Package.isInBowerJsonDeps(name, bowerJsonDeps) : true;
@@ -371,9 +371,9 @@ define(function (require, exports, module) {
         }
 
         if (data.missing) {
-            pkg.status = PackageOptions.Status.MISSING;
+            pkg.status = PackageUtils.Status.MISSING;
         } else if (data.extraneous) {
-            pkg.status = PackageOptions.Status.NOT_TRACKED;
+            pkg.status = PackageUtils.Status.NOT_TRACKED;
         }
 
         if (data.dependencies) {
@@ -619,7 +619,7 @@ define(function (require, exports, module) {
 
         var pkg = Package.fromRawData(packageName, rawData);
 
-        if (PackageOptions.isValidDependencyType(dependencyType)) {
+        if (PackageUtils.isValidDependencyType(dependencyType)) {
             pkg.dependencyType = dependencyType;
         }
 

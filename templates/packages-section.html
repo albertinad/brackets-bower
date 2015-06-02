@@ -50,13 +50,29 @@
             </td>
             <td>
                 <div class="controls bower-row-item">
-                    <button class="btn btn-mini" data-bower-installed-action="delete" data-name="{{ name }}" title="{{Strings.COMMAND_UNINSTALL}}" {{ #isMissing }}disabled{{ /isMissing }}>
+                    <!-- uninstall -->
+                    <button class="btn btn-mini" data-bower-installed-action="uninstall" data-name="{{ name }}" title="{{Strings.COMMAND_UNINSTALL}}" {{ #isMissing }}disabled{{ /isMissing }}>
                         {{ Strings.COMMAND_UNINSTALL }}
                     </button>
 
+                    <!-- update -->
                     <button class="btn btn-mini" data-bower-installed-action="update" data-name="{{ name }}" title="{{Strings.COMMAND_UPDATE}}" {{ ^hasUpdates }}disabled{{ /hasUpdates }}>
                         {{ Strings.COMMAND_UPDATE }}
                     </button>
+
+                    {{ #isMissing }}
+                    <!-- remove -->
+                    <button class="btn btn-mini" data-bower-installed-action="remove" data-name="{{ name }}" title="{{Strings.REMOVE_FROM_BOWERJSON}}">
+                        {{ Strings.REMOVE_FROM_BOWERJSON }}
+                    </button>
+                    {{ /isMissing }}
+
+                    <!-- add to bower.json if any -->
+                    {{ #isNotTracked }}
+                    <button class="btn btn-mini" data-bower-installed-action="track" data-name="{{ name }}" title="{{Strings.TRACK_IN_BOWERJSON}}">
+                        {{Strings.TRACK_IN_BOWERJSON}}
+                    </button>
+                    {{ /isNotTracked }}
                 </div>
             </td>
         </tr>

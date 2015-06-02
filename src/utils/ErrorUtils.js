@@ -45,7 +45,8 @@ define(function (require, exports, module) {
         EUPDATE_NO_DATA           = 14,
         EUPDATE_NO_PKG_UPDATED    = 15,
         EINSTALL_NO_PKG_INSTALLED = 16,
-        ESYNC_NOTHING_TO_SYNC     = 17;
+        EINSTALL_NO_PKG           = 17,
+        ESYNC_NOTHING_TO_SYNC     = 18;
 
     /**
      * @param {number} code
@@ -80,5 +81,6 @@ define(function (require, exports, module) {
     exports.EUPDATE_NO_DATA        = EUPDATE_NO_DATA;
     exports.EUPDATE_NO_PKG_UPDATED = EUPDATE_NO_PKG_UPDATED;
     exports.EINSTALL_NO_PKG_INSTALLED = EINSTALL_NO_PKG_INSTALLED;
+    exports.EINSTALL_NO_PKG        = EINSTALL_NO_PKG;
     exports.ESYNC_NOTHING_TO_SYNC  = ESYNC_NOTHING_TO_SYNC;
 });

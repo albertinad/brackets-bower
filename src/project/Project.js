@@ -30,6 +30,7 @@ define(function (require, exports, module) {
 
     var _             = brackets.getModule("thirdparty/lodash"),
         ProjectStatus = require("src/project/ProjectStatus"),
+        PackageUtils  = require("src/bower/PackageUtils"),
         ErrorUtils    = require("src/utils/ErrorUtils");
 
     /**
@@ -333,6 +334,43 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {string} name Package name.
+     */
+    BowerProject.prototype.trackPackage = function (name) {
+        var pkg = this.getPackageByName(name),
+            version;
+
+        if (!this.hasBowerJson()) {
+            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+        }
+
+        if (!pkg) {
+            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+        }
+
+        version = PackageUtils.getVersion(pkg.version, PackageUtils.VersionOptions.CARET);
+
+        return this._activeBowerJson.addDependencyToProduction(pkg.name, version);
+    };
+
+    /**
+     * @param {string} name Package name.
+     */
+    BowerProject.prototype.untrackPackage = function (name) {
+        var pkg = this.getPackageByName(name);
+
+        if (!this.hasBowerJson()) {
+            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+        }
+
+        if (!pkg) {
+            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+        }
+
+        return this._activeBowerJson.removeDependency(pkg.name);
+    };
+
+    /**
      * @param {object}
      */
     BowerProject.prototype.syncWithCurrentPackages = function () {
@@ -372,6 +410,14 @@ define(function (require, exports, module) {
      */
     BowerProject.prototype.hasBowerJson = function () {
         return (this._activeBowerJson !== null);
+    };
+
+    /**
+     * Check if the project has an ative BowerRc.
+     * @return {boolean}
+     */
+    BowerProject.prototype.hasBowerRc = function () {
+        return (this._activeBowerRc !== null);
     };
 
     /**
@@ -420,12 +466,6 @@ define(function (require, exports, module) {
         return deferred.promise();
     };
 
-    BowerProject.prototype.onBowerJsonChanged = function () {
-        if (this.hasBowerJson()) {
-            this._activeBowerJson.onContentChanged();
-        }
-    };
-
     BowerProject.prototype.bowerJsonChanged = function () {
         var that = this,
             currentPackages = that.getPackagesArray();
@@ -450,14 +490,6 @@ define(function (require, exports, module) {
     };
 
     /**
-     * Check if the project has an ative BowerRc.
-     * @return {boolean}
-     */
-    BowerProject.prototype.hasBowerRc = function () {
-        return (this._activeBowerRc !== null);
-    };
-
-    /**
      * Remove the current active BowerRc if any.
      * @return {$.Deferred}
      */
@@ -478,16 +510,20 @@ define(function (require, exports, module) {
         return deferred.promise();
     };
 
+    BowerProject.prototype.onBowerJsonChanged = function () {
+        if (this.hasBowerJson()) {
+            this._activeBowerJson.onContentChanged();
+        }
+    };
+
     BowerProject.prototype.onBowerRcChanged = function () {
-        if (this._activeBowerRc) {
+        if (this.hasBowerRc()) {
             this._activeBowerRc.onContentChanged();
         }
-
     };
 
     BowerProject.prototype.onStatusChanged = function (status) {
         if (this.hasBowerJson()) {
-            console.log(status);
             this._projectManager.notifyProjectStatusChanged(status);
         }
     };

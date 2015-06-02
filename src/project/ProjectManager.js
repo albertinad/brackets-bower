@@ -415,7 +415,7 @@ define(function (require, exports) {
     /**
      * Check the status of current project packages and validate it against
      * the definition in bower.json file if any. Get the summary of missing
-     * packages and not tracked packages.
+     * packages and not tracked packages if any.
      * @return {object}
      */
     function checkProjectStatus() {
@@ -478,6 +478,28 @@ define(function (require, exports) {
         });
 
         return deferred.promise();
+    }
+
+    /**
+     * @param {string} name Project package name.
+     */
+    function trackPackage(name) {
+        if (!_bowerProject) {
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        return _bowerProject.trackPackage(name);
+    }
+
+    /**
+     * @param {string} name Project package name.
+     */
+    function untrackPackage(name) {
+        if (!_bowerProject) {
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
+
+        return _bowerProject.untrackPackage(name);
     }
 
     /**
@@ -610,6 +632,8 @@ define(function (require, exports) {
     exports.checkProjectStatus         = checkProjectStatus;
     exports.synchronizeWithBowerJson   = synchronizeWithBowerJson;
     exports.synchronizeWithProject     = synchronizeWithProject;
+    exports.trackPackage               = trackPackage;
+    exports.untrackPackage             = untrackPackage;
     exports.getBowerJson               = getBowerJson;
     exports.createBowerJson            = createBowerJson;
     exports.removeBowerJson            = removeBowerJson;

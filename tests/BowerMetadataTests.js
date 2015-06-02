@@ -65,7 +65,7 @@ define(function (require, exports, module) {
             var BowerJson = require("src/metadata/BowerJson"),
                 Package = require("src/project/PackageFactory")._Package,
                 BowerProject = require("src/project/Project"),
-                DependencyType = require("src/bower/PackageOptions").DependencyType,
+                DependencyType = require("src/bower/PackageUtils").DependencyType,
                 project;
 
             beforeEach(function () {

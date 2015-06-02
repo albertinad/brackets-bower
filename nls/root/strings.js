@@ -61,6 +61,8 @@ define({
     "COMMAND_PRUNE": "prune",
     "COMMAND_UNINSTALL": "uninstall",
     "COMMAND_UPDATE": "update",
+    "TRACK_IN_BOWERJSON": "add",
+    "REMOVE_FROM_BOWERJSON": "remove",
     "STATUS_EXECUTING_COMMAND": "Executing command \"{0}\"",
     "STATUS_ERROR_EXECUTING_COMMAND": "Error executing command \"{0}\"",
     "STATUS_SUCCESS_INSTALLING": "Packages installed",
