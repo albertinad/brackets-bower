@@ -72,17 +72,28 @@ define(function (require, exports) {
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
+     * Wrap a function to validate first if a BowerProject instance is available.
+     * @param {function} fn Function to wrap to add validation. It must return a
+     * promise.
+     * @return {$.Deferred}
+     * @private
+     */
+    function _wrap(fn) {
+        return function () {
+            if (!_bowerProject) {
+                return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+            }
+
+            return fn.call(arguments);
+        };
+    }
+
+    /**
      * Create the bower.json file.
      */
     function createBowerJson() {
         var deferred = new $.Deferred(),
-            bowerJson;
-
-        if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
-        bowerJson = new BowerJson(_bowerProject);
+            bowerJson = new BowerJson(_bowerProject);
 
         bowerJson.create(_bowerProject.getPackagesArray()).then(function () {
             _bowerProject.activeBowerJson = bowerJson;
@@ -101,12 +112,6 @@ define(function (require, exports) {
      * Deletes the active bower.json file if it exists.
      */
     function removeBowerJson() {
-        if (!_bowerProject) {
-            var deferred = new $.Deferred();
-
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         return _bowerProject.removeBowerJson();
     }
 
@@ -178,13 +183,7 @@ define(function (require, exports) {
      */
     function createBowerRc() {
         var deferred = new $.Deferred(),
-            bowerRc;
-
-        if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
-        bowerRc = new BowerRc(_bowerProject);
+            bowerRc = new BowerRc(_bowerProject);
 
         bowerRc.create().then(function () {
             _bowerProject.activeBowerRc = bowerRc;
@@ -203,12 +202,6 @@ define(function (require, exports) {
      * Remove the current .bowerrc file of the current project.
      */
     function removeBowerRc() {
-        if (!_bowerProject) {
-            var deferred = new $.Deferred();
-
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         return _bowerProject.removeBowerRc();
     }
 
@@ -284,10 +277,6 @@ define(function (require, exports) {
     function listProjectDependencies() {
         var deferred = new $.Deferred();
 
-        if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         PackageManager.list(true).then(function (result) {
             // create the package model
             return PackageFactory.createPackagesDeep(result.dependencies);
@@ -308,10 +297,6 @@ define(function (require, exports) {
      */
     function checkForUpdates() {
         var deferred = new $.Deferred();
-
-        if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
 
         PackageManager.list().then(function (result) {
 
@@ -419,7 +404,11 @@ define(function (require, exports) {
      * @return {object}
      */
     function checkProjectStatus() {
-        // TODO implement checkProjectStatus
+        var deferred = new $.Deferred();
+
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
     }
 
     /**
@@ -428,12 +417,6 @@ define(function (require, exports) {
      * @return {$.Promise}
      */
     function synchronizeWithBowerJson() {
-        var deferred = new $.Deferred();
-
-        if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         return _bowerProject.syncWithBowerJson();
     }
 
@@ -443,10 +426,6 @@ define(function (require, exports) {
      * @return {$.Promise}
      */
     function synchronizeWithProject() {
-        if (!_bowerProject) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         return _bowerProject.syncWithCurrentPackages();
     }
 
@@ -484,10 +463,6 @@ define(function (require, exports) {
      * @param {string} name Project package name.
      */
     function trackPackage(name) {
-        if (!_bowerProject) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         return _bowerProject.trackPackage(name);
     }
 
@@ -495,10 +470,6 @@ define(function (require, exports) {
      * @param {string} name Project package name.
      */
     function untrackPackage(name) {
-        if (!_bowerProject) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         return _bowerProject.untrackPackage(name);
     }
 
@@ -627,20 +598,20 @@ define(function (require, exports) {
     exports.getProject                 = getProject;
     exports.getProjectDependencies     = getProjectDependencies;
     exports.updateActiveDirToSelection = updateActiveDirToSelection;
-    exports.listProjectDependencies    = listProjectDependencies;
-    exports.checkForUpdates            = checkForUpdates;
     exports.checkProjectStatus         = checkProjectStatus;
-    exports.synchronizeWithBowerJson   = synchronizeWithBowerJson;
-    exports.synchronizeWithProject     = synchronizeWithProject;
-    exports.trackPackage               = trackPackage;
-    exports.untrackPackage             = untrackPackage;
+    exports.listProjectDependencies    = _wrap(listProjectDependencies);
+    exports.checkForUpdates            = _wrap(checkForUpdates);
+    exports.synchronizeWithBowerJson   = _wrap(synchronizeWithBowerJson);
+    exports.synchronizeWithProject     = _wrap(synchronizeWithProject);
+    exports.trackPackage               = _wrap(trackPackage);
+    exports.untrackPackage             = _wrap(untrackPackage);
+    exports.createBowerJson            = _wrap(createBowerJson);
+    exports.removeBowerJson            = _wrap(removeBowerJson);
+    exports.createBowerRc              = _wrap(createBowerRc);
+    exports.removeBowerRc              = _wrap(removeBowerRc);
     exports.getBowerJson               = getBowerJson;
-    exports.createBowerJson            = createBowerJson;
-    exports.removeBowerJson            = removeBowerJson;
-    exports.openBowerJson              = openBowerJson;
     exports.getBowerRc                 = getBowerRc;
-    exports.createBowerRc              = createBowerRc;
-    exports.removeBowerRc              = removeBowerRc;
+    exports.openBowerJson              = openBowerJson;
     exports.openBowerRc                = openBowerRc;
     exports.Events                     = Events;
 

@@ -111,8 +111,21 @@ define(function (require, exports, module) {
         }
     });
 
+    /**
+     * Get the bower project working directory, either the active directory
+     * if any or the projet root.
+     * @return {string}
+     */
     BowerProject.prototype.getPath = function () {
         return (this._activeDir || this._rootPath);
+    };
+
+    /**
+     * Get the current project status object.
+     * @return {ProjectStatus}
+     */
+    BowerProject.prototype.status = function () {
+        return this._status;
     };
 
     /**

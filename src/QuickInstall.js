@@ -120,11 +120,6 @@ define(function (require, exports, module) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);
             StatusBarController.remove(statusId);
 
-            // disabled for now...
-            //window.setTimeout(function () {
-            //    ProjectManager.showInTree(FileSystem.getDirectoryForPath(result.installationDir));
-            //}, 1000);
-
         }).fail(function (error) {
             // Make sure the user sees the error even if other packages get installed.
             failed.push(pkgName);
@@ -155,7 +150,6 @@ define(function (require, exports, module) {
     }
 
     function _match(query) {
-        // TODO: doesn't seem to work if no file is open. Bug in Quick Open?
         return (query.length > 0 && query.charAt(0) === "+");
     }
 
