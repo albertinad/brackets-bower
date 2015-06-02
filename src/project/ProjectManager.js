@@ -41,19 +41,21 @@ define(function (require, exports) {
         FileUtils            = require("src/utils/FileUtils"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
-    var namespace            = ".albertinad.bracketsbower",
-        PROJECT_LOADING      = "bowerProjectLoading",
-        PROJECT_READY        = "bowerProjectReady",
-        DEPENDENCIES_ADDED   = "bowerProjectDepsAdded",
-        DEPENDENCIES_REMOVED = "bowerProjectDepsRemoved",
-        DEPENDENCY_UPDATED   = "bowerProjectDepUpdated",
-        ACTIVE_DIR_CHANGED   = "bowerActiveDirChanged",
-        BOWER_JSON_RELOADED  = "bowerjsonReloaded",
-        BOWERRC_RELOADED     = "bowerrcReloaded";
+    var namespace              = ".albertinad.bracketsbower",
+        PROJECT_LOADING        = "bowerProjectLoading",
+        PROJECT_READY          = "bowerProjectReady",
+        PROJECT_STATUS_CHANGED = "bowerProjectStatusChanged",
+        DEPENDENCIES_ADDED     = "bowerProjectDepsAdded",
+        DEPENDENCIES_REMOVED   = "bowerProjectDepsRemoved",
+        DEPENDENCY_UPDATED     = "bowerProjectDepUpdated",
+        ACTIVE_DIR_CHANGED     = "bowerActiveDirChanged",
+        BOWER_JSON_RELOADED    = "bowerjsonReloaded",
+        BOWERRC_RELOADED       = "bowerrcReloaded";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
         PROJECT_READY: PROJECT_READY + namespace,
+        PROJECT_STATUS_CHANGED: PROJECT_STATUS_CHANGED + namespace,
         DEPENDENCIES_ADDED: DEPENDENCIES_ADDED + namespace,
         DEPENDENCIES_REMOVED: DEPENDENCIES_REMOVED + namespace,
         DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace,
@@ -417,40 +419,7 @@ define(function (require, exports) {
      * @return {object}
      */
     function checkProjectStatus() {
-        var packages,
-            missing = [],
-            untracked = [],
-            status = 0; // TODO sync
-
-        if (!_bowerProject) {
-            ErrorUtils.createError(ErrorUtils.NO_PROJECT);
-        }
-
-        if (!_bowerProject.hasBowerJson()) {
-            ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON);
-        }
-
-        packages = _bowerProject.getPackagesArray();
-
-        packages.forEach(function (pkg) {
-            if (pkg.isNotTracked()) {
-                untracked.push(pkg);
-            } else if (pkg.isMissing()) {
-                missing.push(pkg);
-            }
-        });
-
-        if (untracked.length !== 0 || missing.length !== 0) {
-            status = 1; // TODO out of sync
-        }
-
-        var result = {
-            status: status,
-            untracked: untracked,
-            missing: missing
-        };
-
-        return result;
+        // TODO implement checkProjectStatus
     }
 
     /**
@@ -459,26 +428,13 @@ define(function (require, exports) {
      * @return {$.Promise}
      */
     function synchronizeWithBowerJson() {
-        var deferred = new $.Deferred(),
-            status = checkProjectStatus();
+        var deferred = new $.Deferred();
 
-        // uninstall untracked packages
-        PackageManager.prune().then(function () {
+        if (!_bowerProject) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
-            // install missing packages
-            if (status.missing.length !== 0) {
-                PackageManager.installFromBowerJson().then(function () {
-                    deferred.resolve();
-                });
-            } else {
-                deferred.resolve();
-            }
-
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
+        return _bowerProject.syncWithBowerJson();
     }
 
     /**
@@ -487,13 +443,41 @@ define(function (require, exports) {
      * @return {$.Promise}
      */
     function synchronizeWithProject() {
-        var status = checkProjectStatus(),
-            packages = {
-                untracked: status.untracked,
-                missing: status.missing
-            };
+        if (!_bowerProject) {
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
-        return _bowerProject.syncWithCurrentPackages(packages);
+        return _bowerProject.syncWithCurrentPackages();
+    }
+
+    /**
+     * Synchronized the project dependencies with current bower.json by executing prune or install
+     * following the current status.
+     * NOTE: This function shouldn't be called from ProjectManager.
+     * @param {boolean} existsExtraneous
+     * @param {boolean} existsMissing
+     */
+    function syncDependenciesWithBowerJson(existsExtraneous, existsMissing) {
+        var deferred = new $.Deferred(),
+            deferredCmds = [];
+
+        if (existsExtraneous) {
+            // uninstall untracked packages
+            deferredCmds.push(PackageManager.prune);
+        }
+
+        if (existsMissing) {
+            // install missing packages
+            deferredCmds.push(PackageManager.installFromBowerJson);
+        }
+
+        $.when(deferredCmds).then(function () {
+            deferred.resolve();
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -559,6 +543,10 @@ define(function (require, exports) {
 
     function notifyDependencyUpdated(pkg) {
         exports.trigger(DEPENDENCY_UPDATED, pkg);
+    }
+
+    function notifyProjectStatusChanged(status) {
+        exports.trigger(PROJECT_STATUS_CHANGED, status);
     }
 
     AppInit.appReady(function () {
@@ -630,8 +618,11 @@ define(function (require, exports) {
     exports.createBowerRc              = createBowerRc;
     exports.removeBowerRc              = removeBowerRc;
     exports.openBowerRc                = openBowerRc;
+    exports.Events                     = Events;
+
     exports.notifyDependenciesAdded    = notifyDependenciesAdded;
     exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
     exports.notifyDependencyUpdated    = notifyDependencyUpdated;
-    exports.Events                     = Events;
+    exports.notifyProjectStatusChanged = notifyProjectStatusChanged;
+    exports.syncDependenciesWithBowerJson = syncDependenciesWithBowerJson;
 });

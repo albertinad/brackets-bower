@@ -28,7 +28,9 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var _              = brackets.getModule("thirdparty/lodash");
+    var _             = brackets.getModule("thirdparty/lodash"),
+        ProjectStatus = require("src/project/ProjectStatus"),
+        ErrorUtils    = require("src/utils/ErrorUtils");
 
     /**
      * @constructor
@@ -51,6 +53,9 @@ define(function (require, exports, module) {
         this._activeBowerJson = null;
         /** @private */
         this._activeBowerRc = null;
+
+        /** @private */
+        this._status = new ProjectStatus(this);
     }
 
     Object.defineProperty(BowerProject.prototype, "name", {
@@ -146,6 +151,8 @@ define(function (require, exports, module) {
             updated: packagesUpdated
         };
 
+        this._status.checkCurrentStatus();
+
         this._projectManager.notifyDependenciesAdded(result);
 
         return result;
@@ -170,9 +177,19 @@ define(function (require, exports, module) {
             }
         });
 
+        this._status.checkCurrentStatus();
+
         this._projectManager.notifyDependenciesRemoved(packages);
 
         return packages;
+    };
+
+    /**
+     * Get the current packages.
+     * @return {object}
+     */
+    BowerProject.prototype.getPackages = function () {
+        return this._packages;
     };
 
     /**
@@ -233,6 +250,8 @@ define(function (require, exports, module) {
             this._packages[pkg.name] = pkg;
         });
 
+        this._status.checkCurrentStatus();
+
         this._projectManager.notifyDependencyUpdated(pkgs);
     };
 
@@ -255,17 +274,17 @@ define(function (require, exports, module) {
     };
 
     /**
-     * Check if there is some uninstalled package. An uninstalled package
+     * Check if there is some not installed package. An uninstalled package
      * is the one that is defined in the bower.json but is not installed
      * in the libraries folder.
      * @return {boolean}
      */
-    BowerProject.prototype.hasUninstalledPackages = function () {
-        var hasUninstalled = _.some(this._packages, function (pkg) {
+    BowerProject.prototype.hasNotInstalledPackages = function () {
+        var hasNotInstalled = _.some(this._packages, function (pkg) {
             return pkg.isMissing();
         });
 
-        return hasUninstalled;
+        return hasNotInstalled;
     };
 
     /**
@@ -274,7 +293,7 @@ define(function (require, exports, module) {
      * defined in the bower.json file.
      * @return {boolean}
      */
-    BowerProject.prototype.hasExtraPackages = function () {
+    BowerProject.prototype.hasExtraneousPackages = function () {
         var hasExtraneous = _.some(this._packages, function (pkg) {
             return pkg.isNotTracked();
         });
@@ -286,7 +305,7 @@ define(function (require, exports, module) {
      * Get the project uninstalled packages.
      * @return {Array}
      */
-    BowerProject.prototype.getUninstalledPackages = function () {
+    BowerProject.prototype.getNotInstalledPackages = function () {
         return _.filter(this._packages, function (pkg) {
             return pkg.isMissing();
         });
@@ -316,11 +335,34 @@ define(function (require, exports, module) {
     /**
      * @param {object}
      */
-    BowerProject.prototype.syncWithCurrentPackages = function (packages) {
-        if (this._activeBowerJson) {
+    BowerProject.prototype.syncWithCurrentPackages = function () {
+        if (this.hasBowerJson()) {
+            var packages = this._status.getStatusSummary();
+
             return this._activeBowerJson.syncDependencies(packages);
         } else {
-            return (new $.Deferred()).reject();
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+        }
+    };
+
+    /**
+     * @param {object}
+     */
+    BowerProject.prototype.syncWithBowerJson = function () {
+        if (this.hasBowerJson()) {
+            var existsExtraneous,
+                existsMissing;
+
+            if (this._status.isSynced()) {
+                return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC));
+            }
+
+            existsExtraneous = this.hasExtraneousPackages();
+            existsMissing = this.hasNotInstalledPackages();
+
+            return this._projectManager.syncDependenciesWithBowerJson(existsExtraneous, existsMissing);
+        } else {
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
     };
 
@@ -379,7 +421,7 @@ define(function (require, exports, module) {
     };
 
     BowerProject.prototype.onBowerJsonChanged = function () {
-        if (this._activeBowerJson) {
+        if (this.hasBowerJson()) {
             this._activeBowerJson.onContentChanged();
         }
     };
@@ -430,8 +472,6 @@ define(function (require, exports, module) {
         this._activeBowerRc.remove().always(function () {
             that._activeBowerRc = null;
 
-            // TODO that.bowerJsonChanged();
-
             deferred.resolve();
         });
 
@@ -443,6 +483,13 @@ define(function (require, exports, module) {
             this._activeBowerRc.onContentChanged();
         }
 
+    };
+
+    BowerProject.prototype.onStatusChanged = function (status) {
+        if (this.hasBowerJson()) {
+            console.log(status);
+            this._projectManager.notifyProjectStatusChanged(status);
+        }
     };
 
     module.exports = BowerProject;
