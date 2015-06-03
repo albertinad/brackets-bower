@@ -149,9 +149,10 @@ define(function (require, exports, module) {
             result;
 
         packagesArray.forEach(function (pkg) {
-            var name = pkg.name;
+            var name = pkg.name,
+                currentPkg = that._packages[name];
 
-            if (that._packages[name]) {
+            if (currentPkg && currentPkg.isInstalled()) {
                 packagesUpdated.push(pkg);
             } else {
                 packagesInstalled.push(pkg);
