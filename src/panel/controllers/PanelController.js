@@ -57,7 +57,7 @@ define(function (require, exports, module) {
         this._activePanelkey = null;
     }
 
-    PanelController.STATUS_WARNING = "warning";
+    PanelController.STATUS_WARNING = PanelView.StatusStyles.WARNING;
 
     /**
      * Initialize the main controller. Instantiate the panel view and initializes the
@@ -94,6 +94,7 @@ define(function (require, exports, module) {
 
         ProjectManager.on(Events.PROJECT_LOADING, this._disable.bind(this));
         ProjectManager.on(Events.PROJECT_READY, this._enable.bind(this));
+        ProjectManager.on(Events.PROJECT_STATUS_CHANGED, this._onProjectStatusChanged.bind(this));
 
         ProjectManager.on(Events.ACTIVE_DIR_CHANGED, function (event, fullPath, shortPath) {
             that._view.onActiveDirChanged(shortPath);
@@ -235,6 +236,29 @@ define(function (require, exports, module) {
     /**
      * @private
      */
+    PanelController.prototype._onProjectStatusChanged = function () {
+        var project = ProjectManager.getProject(),
+            projectStatus,
+            statusType,
+            StatusStyles;
+
+        if (project) {
+            StatusStyles = PanelView.StatusStyles;
+            projectStatus = project.getStatus();
+
+            if (projectStatus.isSynced()) {
+                statusType = StatusStyles.DEFAULT;
+            } else {
+                statusType = StatusStyles.WARNING;
+            }
+
+            this.updateStatus(statusType);
+        }
+    };
+
+    /**
+     * @private
+     */
     PanelController.prototype._enable = function () {
         this._view.enable();
     };
@@ -244,6 +268,9 @@ define(function (require, exports, module) {
      */
     PanelController.prototype._disable = function () {
         this._view.disable();
+
+        // clean up previews states
+        this.updateStatus(PanelView.StatusStyles.DEFAULT);
     };
 
     /**

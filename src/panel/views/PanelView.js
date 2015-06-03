@@ -33,7 +33,7 @@ define(function (require, exports, module) {
         Strings          = require("strings"),
         panelTemplate    = require("text!templates/panel.html");
 
-    var statusStyles = {
+    var StatusStyles = {
         DEFAULT: "default",
         ACTIVE: "active",
         WARNING: "warning"
@@ -63,7 +63,7 @@ define(function (require, exports, module) {
         this._$activeDirLabel = null;
 
         /** @private */
-        this._currentStatusClass = "default";
+        this._currentStatusClass = StatusStyles.DEFAULT;
     }
 
     /**
@@ -104,12 +104,25 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @const
+     */
+    PanelView.StatusStyles = StatusStyles;
+
+    /**
      * Show the panel view.
      */
     PanelView.prototype.show = function () {
+        var status;
+
         Resizer.show(this._$panel);
 
-        this.updateIconStatus(statusStyles.ACTIVE);
+        if (this._currentStatusClass === StatusStyles.DEFAULT) {
+            status = StatusStyles.ACTIVE;
+        } else {
+            status = this._currentStatusClass;
+        }
+
+        this._internalUpdateIconStatus(status);
     };
 
     /**
@@ -118,7 +131,7 @@ define(function (require, exports, module) {
     PanelView.prototype.hide = function () {
         Resizer.hide(this._$panel);
 
-        this.updateIconStatus(this._currentStatusClass);
+        this._internalUpdateIconStatus(this._currentStatusClass);
     };
 
     /**
@@ -148,23 +161,40 @@ define(function (require, exports, module) {
     };
 
     /**
-     * Updates the bower icon class according to the status.
+     * Updates the bower icon class according to the status and save
+     * the given status as current one.
      * @param {string} status The status css class to set.
      */
     PanelView.prototype.updateIconStatus = function (status) {
+        this._currentStatusClass = status;
+
+        if (this._controller.isPanelActive() && this._currentStatusClass === StatusStyles.DEFAULT) {
+            // clients requests to update the panel icon when the panel is visible and in the default state
+            // replace the requested state by the active one.
+            status = StatusStyles.ACTIVE;
+        }
+
+        this._internalUpdateIconStatus(status);
+    };
+
+    /**
+     * Updates the bower icon class according to the status.
+     * @param {string} status The status css class to set.
+     * @private
+     */
+    PanelView.prototype._internalUpdateIconStatus = function (status) {
         var statusArray = [],
             availableStatus;
 
-        for (availableStatus in statusStyles) {
-            if (statusStyles.hasOwnProperty(availableStatus)) {
-                statusArray.push(statusStyles[availableStatus]);
+        for (availableStatus in StatusStyles) {
+            if (StatusStyles.hasOwnProperty(availableStatus)) {
+                statusArray.push(StatusStyles[availableStatus]);
             }
         }
 
         this._$bowerIcon.removeClass(statusArray.join(" "));
         this._$bowerIcon.addClass(status);
     };
-
     /**
      * Update the status selection of the panels buttons toolbar.
      * @param {string} panelKey

@@ -362,7 +362,7 @@ define(function (require, exports, module) {
             return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
-        version = PackageUtils.getVersion(pkg.version, PackageUtils.VersionOptions.CARET);
+        version = PackageUtils.getVersion(pkg.version, PackageUtils.VersionOptions.TILDE);
 
         return this._activeBowerJson.addDependencyToProduction(pkg.name, version);
     };
