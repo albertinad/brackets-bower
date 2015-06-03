@@ -109,7 +109,7 @@ define(function (require, exports, module) {
             status = ProjectStatus.Status.SYNCED;
         }
 
-        this._udpateStatusIfNeeded();
+        this._udpateStatusIfNeeded(status);
 
         var result = {
             status: this._status,

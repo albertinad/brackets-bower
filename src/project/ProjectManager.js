@@ -84,7 +84,7 @@ define(function (require, exports) {
                 return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
             }
 
-            return fn.call(arguments);
+            return fn.apply(null, arguments);
         };
     }
 
@@ -404,11 +404,24 @@ define(function (require, exports) {
      * @return {object}
      */
     function checkProjectStatus() {
-        var deferred = new $.Deferred();
-
         if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+            return null;
         }
+
+        var projectStatus = _bowerProject.getStatus(),
+            result;
+
+        projectStatus.checkCurrentStatus();
+
+        if (projectStatus.isOutOfSync()) {
+            result = projectStatus.getStatusSummary();
+        } else {
+            result = {
+                status: projectStatus.status()
+            };
+        }
+
+        return result;
     }
 
     /**

@@ -124,7 +124,7 @@ define(function (require, exports, module) {
      * Get the current project status object.
      * @return {ProjectStatus}
      */
-    BowerProject.prototype.status = function () {
+    BowerProject.prototype.getStatus = function () {
         return this._status;
     };
 
@@ -348,17 +348,18 @@ define(function (require, exports, module) {
 
     /**
      * @param {string} name Package name.
+     * @return {$.Deferred}
      */
     BowerProject.prototype.trackPackage = function (name) {
         var pkg = this.getPackageByName(name),
             version;
 
         if (!this.hasBowerJson()) {
-            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
         if (!pkg) {
-            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
         version = PackageUtils.getVersion(pkg.version, PackageUtils.VersionOptions.CARET);
