@@ -436,7 +436,7 @@ define(function (require, exports) {
      * @param {boolean} existsExtraneous
      * @param {boolean} existsMissing
      */
-    function syncDependenciesWithBowerJson(existsExtraneous, existsMissing) {
+    function syncDependenciesWithBowerJson(existsExtraneous, existsBowerJsonChanges) {
         var deferred = new $.Deferred(),
             deferredCmds = [];
 
@@ -445,7 +445,7 @@ define(function (require, exports) {
             deferredCmds.push(PackageManager.prune);
         }
 
-        if (existsMissing) {
+        if (existsBowerJsonChanges) {
             // install missing packages
             deferredCmds.push(PackageManager.installFromBowerJson);
         }

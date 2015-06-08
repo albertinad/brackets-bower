@@ -421,16 +421,16 @@ define(function (require, exports, module) {
     BowerProject.prototype.syncWithBowerJson = function () {
         if (this.hasBowerJson()) {
             var existsExtraneous,
-                existsMissing;
+                existsBowerJsonChanges;
 
             if (this._status.isSynced()) {
                 return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC));
             }
 
             existsExtraneous = this.hasExtraneousPackages();
-            existsMissing = this.hasNotInstalledPackages();
+            existsBowerJsonChanges = this.hasNotInstalledPackages() || this.hasPackagesVersionOutOfSync();
 
-            return this._projectManager.syncDependenciesWithBowerJson(existsExtraneous, existsMissing);
+            return this._projectManager.syncDependenciesWithBowerJson(existsExtraneous, existsBowerJsonChanges);
         } else {
             return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }

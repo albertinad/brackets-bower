@@ -103,9 +103,9 @@ define(function (require, exports, module) {
      */
     ProjectStatus.prototype.getStatusSummary = function () {
         var packages = this._bowerProject.getPackages(),
-            missing,
-            untracked,
-            versionOutOfSync,
+            missing = [],
+            untracked = [],
+            versionOutOfSync = [],
             status;
 
         _.forEach(packages, function (pkg) {
