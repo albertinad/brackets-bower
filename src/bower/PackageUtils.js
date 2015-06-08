@@ -99,6 +99,23 @@ define(function (require, exports, module) {
     }
 
     /**
+     * Get the default semver version for the given version.
+     * @param {string} version
+     * @return {string}
+     */
+    function getDefaultSemverVersion(version) {
+        var semverVersion;
+
+        if (version) {
+            semverVersion = getVersion(version, VersionOptions.TILDE);
+        } else {
+            semverVersion = "*";
+        }
+
+        return semverVersion;
+    }
+
+    /**
      * @param {string} name
      * @param {string} version
      * @param {number} type
@@ -191,6 +208,7 @@ define(function (require, exports, module) {
     }
 
     exports.getVersion                 = getVersion;
+    exports.getDefaultSemverVersion    = getDefaultSemverVersion;
     exports.getPackageVersionToInstall = getPackageVersionToInstall;
     exports.getInstallOptions          = getInstallOptions;
     exports.getUpdateDataForPackage    = getUpdateDataForPackage;
