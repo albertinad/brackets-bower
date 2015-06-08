@@ -13,12 +13,11 @@ module.exports = function (grunt) {
         jshint: {
             all: {
                 src: [
-                    "**/*.js",
-                    "!**/node_modules/**/*.js",
-                    "!**/bower_components/**/*.js"
+                    "**/*.js"
                 ],
                 options: {
-                    jshintrc: ".jshintrc"
+                    jshintrc: ".jshintrc",
+                    jshintignore: ".jshintignore"
                 }
             }
         },
@@ -42,7 +41,8 @@ module.exports = function (grunt) {
             src: [
                 "**/*.js",
                 "!**/node_modules/**/*.js",
-                "!**/bower_components/**/*.js"
+                "!**/bower_components/**/*.js",
+                "!thirdparty/**/*.js"
             ],
             options: {
                 config: ".jscs.json"
@@ -57,6 +57,7 @@ module.exports = function (grunt) {
                     "node/**",
                     "src/**",
                     "templates/**",
+                    "thirdparty/**",
                     "LICENSE",
                     "*.js",
                     "*.json",

@@ -317,6 +317,23 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Check if there is some installed package with a different version defined
+     * in the bower.json file.
+     * @return {boolean} True if some package is found, false otherwhise.
+     */
+    BowerProject.prototype.hasPackagesVersionOutOfSync = function () {
+        var hasVersionOutOfSync = false;
+
+        if (this.hasBowerJson()) {
+            hasVersionOutOfSync = _.some(this._packages, function (pkg) {
+                return !pkg.isVersionInSync();
+            });
+        }
+
+        return hasVersionOutOfSync;
+    };
+
+    /**
      * Get the project uninstalled packages.
      * @return {Array}
      */

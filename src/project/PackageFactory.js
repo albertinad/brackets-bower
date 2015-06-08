@@ -30,7 +30,8 @@ define(function (require, exports, module) {
 
     var _              = brackets.getModule("thirdparty/lodash"),
         ProjectManager = require("src/project/ProjectManager"),
-        PackageUtils   = require("src/bower/PackageUtils");
+        PackageUtils   = require("src/bower/PackageUtils"),
+        semver         = require("semver");
 
     var DependencyType = PackageUtils.DependencyType;
 
@@ -88,6 +89,8 @@ define(function (require, exports, module) {
         /** @private */
         this._latestVersion = null;
         /** @private */
+        this._bowerJsonVersion = null;
+        /** @private */
         this._versions = [];
         /** @private */
         this._status = PackageUtils.Status.INSTALLED;
@@ -135,6 +138,15 @@ define(function (require, exports, module) {
         },
         get: function () {
             return this._versions;
+        }
+    });
+
+    Object.defineProperty(Package.prototype, "bowerJsonVersion", {
+        set: function (bowerJsonVersion) {
+            this._bowerJsonVersion = bowerJsonVersion;
+        },
+        get: function () {
+            return this._bowerJsonVersion;
         }
     });
 
@@ -248,6 +260,23 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Check if the current installed version is in sync with the defined version in
+     * the bower.json if any.
+     * @return {boolean} True if is in sync or any bower.json is available, otherwhise false.
+     */
+    Package.prototype.isVersionInSync = function () {
+        var isInSync;
+
+        if ((this._bowerJsonVersion !== null) && (semver.validRange(this._bowerJsonVersion) !== null)) {
+            isInSync = semver.satisfies(this._version, this._bowerJsonVersion);
+        } else {
+            isInSync = true;
+        }
+
+        return isInSync;
+    };
+
+    /**
      * @param {PackageInfo} packageInfo
      */
     Package.prototype.updateVersionInfo = function (packageInfo) {
@@ -295,7 +324,9 @@ define(function (require, exports, module) {
      * @param {Package} pkg
      */
     Package.prototype.isEqualTo = function (pkg) {
-        return (this._dependencyType === pkg.dependencyType && this._status === pkg.status);
+        return (this._dependencyType === pkg.dependencyType &&
+                this._status === pkg.status &&
+                this._bowerJsonVersion === pkg.bowerJsonVersion);
     };
 
     /**
@@ -331,6 +362,32 @@ define(function (require, exports, module) {
         }
 
         return isDirectDependency;
+    };
+
+    /**
+     * Check if the given dependency name is defined in bower json dependencies.
+     * @param {string} name
+     * @param {object} bowerJsonDependencies
+     * @return {string}
+     */
+    Package.getBowerJsonVersion = function (name, bowerJsonDependencies) {
+        var version = null;
+
+        if (!bowerJsonDependencies) {
+            return version;
+        }
+
+        if (bowerJsonDependencies.dependencies &&
+                bowerJsonDependencies.dependencies[name]) {
+
+            version = bowerJsonDependencies.dependencies[name];
+        } else if (bowerJsonDependencies.devDependencies &&
+                bowerJsonDependencies.devDependencies[name]) {
+
+            version = bowerJsonDependencies.devDependencies[name];
+        }
+
+        return version;
     };
 
     /**
@@ -394,6 +451,8 @@ define(function (require, exports, module) {
         }
 
         pkg.isProjectDependency = Package.isProjectDirectDependency(name, pkg.status, bowerJsonDeps);
+
+        pkg.bowerJsonVersion = Package.getBowerJsonVersion(name, bowerJsonDeps);
 
         if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
                 bowerJsonDeps.devDependencies[name]) {

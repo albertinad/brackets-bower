@@ -23,10 +23,12 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global define, brackets */
 
 define(function (require, exports, module) {
     "use strict";
+
+    var _ = brackets.getModule("thirdparty/lodash");
 
     /**
      * @param {BowerProject} bowerProject
@@ -84,9 +86,10 @@ define(function (require, exports, module) {
     ProjectStatus.prototype.checkCurrentStatus = function () {
         var hasMissingPkgs = this._bowerProject.hasNotInstalledPackages(),
             hasExtraPkgs = this._bowerProject.hasExtraneousPackages(),
+            versionsOutOfSync = this._bowerProject.hasPackagesVersionOutOfSync(),
             currentStatus;
 
-        if (hasMissingPkgs || hasExtraPkgs) {
+        if (hasMissingPkgs || hasExtraPkgs || versionsOutOfSync) {
             currentStatus = ProjectStatus.Status.OUT_OF_SYNC;
         } else {
             currentStatus = ProjectStatus.Status.SYNCED;
@@ -99,11 +102,26 @@ define(function (require, exports, module) {
      * @return {object}
      */
     ProjectStatus.prototype.getStatusSummary = function () {
-        var missing = this._bowerProject.getNotInstalledPackages(),
-            untracked = this._bowerProject.getExtraneousPackages(),
+        var packages = this._bowerProject.getPackages(),
+            missing,
+            untracked,
+            versionOutOfSync,
             status;
 
-        if (untracked.length !== 0 || missing.length !== 0) {
+        _.forEach(packages, function (pkg) {
+            if (pkg.isNotTracked()) {
+
+                untracked.push(pkg);
+            } else if (pkg.isMissing()) {
+
+                missing.push(pkg);
+            } else if (!pkg.isVersionInSync()) {
+
+                versionOutOfSync.push(pkg);
+            }
+        });
+
+        if (untracked.length !== 0 || missing.length !== 0 || versionOutOfSync.length !== 0) {
             status = ProjectStatus.Status.OUT_OF_SYNC;
         } else {
             status = ProjectStatus.Status.SYNCED;
@@ -114,7 +132,8 @@ define(function (require, exports, module) {
         var result = {
             status: this._status,
             untracked: untracked,
-            missing: missing
+            missing: missing,
+            versionOutOfSync: versionOutOfSync
         };
 
         return result;
