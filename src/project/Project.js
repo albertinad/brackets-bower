@@ -326,7 +326,7 @@ define(function (require, exports, module) {
 
         if (this.hasBowerJson()) {
             hasVersionOutOfSync = _.some(this._packages, function (pkg) {
-                return !pkg.isVersionInSync();
+                return (pkg.isInstalled() && !pkg.isVersionInSync());
             });
         }
 
