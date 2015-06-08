@@ -196,12 +196,14 @@ define(function (require, exports, module) {
      * @param {object}
      *        missing: packages to remove from bower.json
      *        untracked: packages to add to bower.json to production dependencies.
+     *        versionOutOfSync: packages to update version in bower.json.
      */
     BowerJson.prototype.syncDependencies = function (packagesData) {
         var that = this,
             deferred = new $.Deferred(),
             missing,
-            untracked;
+            untracked,
+            versionOutOfSync;
 
         if (!packagesData) {
             // there's nothing to sync
@@ -210,8 +212,9 @@ define(function (require, exports, module) {
 
         missing = packagesData.missing;
         untracked = packagesData.untracked;
+        versionOutOfSync = packagesData.versionOutOfSync;
 
-        if (missing.length === 0 && untracked.length === 0) {
+        if (missing.length === 0 && untracked.length === 0 && versionOutOfSync.length === 0) {
             // there's nothing to update
             return deferred.reject();
         }
@@ -243,6 +246,27 @@ define(function (require, exports, module) {
                 if (!deps[name]) {
                     deps[name] = pkg.version || "*";
                 }
+            });
+
+            versionOutOfSync.forEach(function (pkg) {
+                var name = pkg.name,
+                    deps;
+
+                if (pkg.isProductionDependency()) {
+                    if (!content.dependencies) {
+                        content.dependencies = {};
+                    }
+
+                    deps = content.dependencies;
+                } else {
+                    if (!content.devDependencies) {
+                        content.devDependencies = {};
+                    }
+
+                    deps = content.devDependencies;
+                }
+
+                deps[name] = pkg.bowerJsonVersion;
             });
 
             return that.saveContent(that._serialize(content));
