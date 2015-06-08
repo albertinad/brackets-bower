@@ -1,5 +1,21 @@
-<div class="header-section">
-    <div class="bower-title">{{ Strings.TITLE_PROJECT_PACKAGES }}</div>
+<div class="header-section bower-packages-section">
+    <div class="bower-title-wrapper">
+        <div class="bower-title">{{ Strings.TITLE_PROJECT_PACKAGES }}</div>
+    </div>
+
+    <div id="bower-sync" class="bower-sync">
+        <div class="sync-title">Synchronize project using: </div>
+
+        <div class="btn-group sync-btn-options">
+            <button data-bower-sync="project" class="btn small bower-btn">
+                project
+            </button>
+
+            <button data-bower-sync="file" class="btn small bower-btn">
+                bower.json
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- loading packages -->

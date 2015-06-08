@@ -29,6 +29,7 @@ define(function (require, exports) {
     "use strict";
 
     var AppInit              = brackets.getModule("utils/AppInit"),
+        Async                = brackets.getModule("utils/Async"),
         ProjectManager       = brackets.getModule("project/ProjectManager"),
         EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
         DocumentManager      = brackets.getModule("document/DocumentManager"),
@@ -66,6 +67,11 @@ define(function (require, exports) {
 
     var REGEX_NODE_MODULES     = /node_modules/,
         REGEX_BOWER_COMPONENTS = /bower_components/;
+
+    var SyncOptions = {
+        MATCH_BOWER_JSON: 0,
+        MATCH_PROJECT_FOLDER: 1
+    };
 
     var _bowerProject;
 
@@ -399,47 +405,28 @@ define(function (require, exports) {
 
     /**
      * Check the status of current project packages and validate it against
-     * the definition in bower.json file if any. Get the summary of missing
-     * packages and not tracked packages if any.
+     * the definition in bower.json file if any.
      * @return {object}
      */
-    function checkProjectStatus() {
-        if (!_bowerProject) {
-            return null;
-        }
-
-        var projectStatus = _bowerProject.getStatus(),
-            result;
-
-        projectStatus.checkCurrentStatus();
-
-        if (projectStatus.isOutOfSync()) {
-            result = projectStatus.getStatusSummary();
-        } else {
-            result = {
-                status: projectStatus.status()
-            };
-        }
-
-        return result;
+    function getProjectStatus() {
+        return (_bowerProject) ? _bowerProject.getStatus() : null;
     }
 
     /**
-     * Install the missing packages defined in bower.json file and uninstall
+     * Synchronize project packages.
+     * - MATCH_BOWER_JSON: Install the missing packages defined in bower.json file and uninstall
      * those packages that are not tracked in the bower.json.
-     * @return {$.Promise}
-     */
-    function synchronizeWithBowerJson() {
-        return _bowerProject.syncWithBowerJson();
-    }
-
-    /**
-     * Add to bower.json file the extraneous installed packages and remove the
+     * - MATCH_PROJECT_FOLDER: Add to bower.json file the extraneous installed packages and remove the
      * missing packages from dependencies and devDependencies in bower.json file.
      * @return {$.Promise}
      */
-    function synchronizeWithProject() {
-        return _bowerProject.syncWithCurrentPackages();
+    function synchronizeProject(syncOption) {
+        if (syncOption === SyncOptions.MATCH_PROJECT_FOLDER) {
+            return _bowerProject.syncWithCurrentPackages();
+        } else {
+            // default match bower.json
+            return _bowerProject.syncWithBowerJson();
+        }
     }
 
     /**
@@ -463,7 +450,11 @@ define(function (require, exports) {
             deferredCmds.push(PackageManager.installFromBowerJson);
         }
 
-        $.when(deferredCmds).then(function () {
+        function onNextCmd(cmdFn) {
+            return cmdFn();
+        }
+
+        Async.doSequentially(deferredCmds, onNextCmd, true).then(function () {
             deferred.resolve();
         }).fail(function (error) {
             deferred.reject(error);
@@ -611,11 +602,10 @@ define(function (require, exports) {
     exports.getProject                 = getProject;
     exports.getProjectDependencies     = getProjectDependencies;
     exports.updateActiveDirToSelection = updateActiveDirToSelection;
-    exports.checkProjectStatus         = checkProjectStatus;
+    exports.getProjectStatus           = getProjectStatus;
     exports.listProjectDependencies    = _wrap(listProjectDependencies);
     exports.checkForUpdates            = _wrap(checkForUpdates);
-    exports.synchronizeWithBowerJson   = _wrap(synchronizeWithBowerJson);
-    exports.synchronizeWithProject     = _wrap(synchronizeWithProject);
+    exports.synchronizeProject         = _wrap(synchronizeProject);
     exports.trackPackage               = _wrap(trackPackage);
     exports.untrackPackage             = _wrap(untrackPackage);
     exports.createBowerJson            = _wrap(createBowerJson);
@@ -626,6 +616,7 @@ define(function (require, exports) {
     exports.getBowerRc                 = getBowerRc;
     exports.openBowerJson              = openBowerJson;
     exports.openBowerRc                = openBowerRc;
+    exports.SyncOptions                = SyncOptions;
     exports.Events                     = Events;
 
     exports.notifyDependenciesAdded    = notifyDependenciesAdded;

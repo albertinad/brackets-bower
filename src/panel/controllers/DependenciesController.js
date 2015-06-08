@@ -28,13 +28,14 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var StringUtils        = brackets.getModule("utils/StringUtils"),
-        ProjectManager     = require("src/project/ProjectManager"),
-        PackageManager     = require("src/bower/PackageManager"),
-        DependenciesView   = require("src/panel/views/DependenciesView"),
-        ErrorUtils         = require("src/utils/ErrorUtils"),
-        NotificationDialog = require("src/dialogs/NotificationDialog"),
-        Strings            = require("strings");
+    var StringUtils         = brackets.getModule("utils/StringUtils"),
+        StatusBarController = require("src/panel/controllers/StatusBarController").Controller,
+        ProjectManager      = require("src/project/ProjectManager"),
+        PackageManager      = require("src/bower/PackageManager"),
+        DependenciesView    = require("src/panel/views/DependenciesView"),
+        ErrorUtils          = require("src/utils/ErrorUtils"),
+        NotificationDialog  = require("src/dialogs/NotificationDialog"),
+        Strings             = require("strings");
 
     /**
      * @constructor
@@ -177,6 +178,32 @@ define(function (require, exports, module) {
     DependenciesController.prototype.addToBowerJson = function (name) {
         ProjectManager.trackPackage(name).fail(function (error) {
             NotificationDialog.showError(error.message);
+        });
+    };
+
+    /**
+     * @param {string} option
+     */
+    DependenciesController.prototype.syncProject = function (option) {
+        var syncOption;
+
+        if (option === "file") {
+            syncOption = ProjectManager.SyncOptions.MATCH_BOWER_JSON;
+        } else {
+            syncOption = ProjectManager.SyncOptions.MATCH_PROJECT_FOLDER;
+        }
+
+        var statusId = StatusBarController.post("Synchronizing project", true);
+
+        ProjectManager.synchronizeProject(syncOption).then(function () {
+
+            StatusBarController.update(statusId, "Successfuly synchronized", false);
+        }).fail(function (error) {
+
+            NotificationDialog.showError(error.message);
+        }).always(function () {
+
+            StatusBarController.remove(statusId);
         });
     };
 

@@ -223,12 +223,33 @@
     padding: 8px;
 }
 
+
 .bower-section-panel .header-section .bower-title {
     padding-bottom: 3px;
 }
 
 .bower-section-panel tr:hover {
     cursor: pointer;
+}
+
+/* packages section */
+
+.bower-section-panel .bower-packages-section {
+    display: flex;
+}
+
+.bower-section-panel .bower-packages-section .bower-sync {
+    margin-left: auto;
+    padding: 0 5px;
+}
+
+.bower-section-panel .bower-packages-section .bower-sync .sync-title {
+    display: inline-block;
+    padding: 0 3px;
+}
+
+.bower-section-panel .bower-packages-section .bower-sync .sync-btn-options {
+    display: inline-block;
 }
 
 /* settings dialog */
