@@ -311,14 +311,20 @@ define(function (require, exports, module) {
                 deps;
 
             if (isProduction) {
+                if (!content.dependencies) {
+                    content.dependencies = {};
+                }
+
                 deps = content.dependencies;
             } else {
+                if (!content.devDependencies) {
+                    content.devDependencies = {};
+                }
+
                 deps = content.devDependencies;
             }
 
-            if (deps) {
-                deps[name] = version;
-            }
+            deps[name] = version;
 
             return that.saveContent(that._serialize(content));
 
