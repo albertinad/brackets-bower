@@ -299,10 +299,12 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Check if the package is installed. An installed package is the one that is
+     * tracked and installed, and also extraneous.
      * @return {boolean}
      */
     Package.prototype.isInstalled = function () {
-        return (this._status === PackageUtils.Status.INSTALLED);
+        return (this._status !== PackageUtils.Status.MISSING);
     };
 
     /**

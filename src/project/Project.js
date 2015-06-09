@@ -285,7 +285,7 @@ define(function (require, exports, module) {
     BowerProject.prototype.hasPackage = function (name) {
         var pkg = this._packages[name];
 
-        return (pkg && pkg.isInstalled()); // TODO only project packages?
+        return (pkg && pkg.isInstalled());
     };
 
     /**
