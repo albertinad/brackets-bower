@@ -465,9 +465,10 @@ define(function (require, exports) {
 
     /**
      * @param {string} name Project package name.
+     * @param {number=} dependencyType Package dependency type: production or development.
      */
-    function trackPackage(name) {
-        return _bowerProject.trackPackage(name);
+    function trackPackage(name, dependencyType) {
+        return _bowerProject.trackPackage(name, dependencyType);
     }
 
     /**

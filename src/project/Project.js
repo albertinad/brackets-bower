@@ -366,11 +366,13 @@ define(function (require, exports, module) {
 
     /**
      * @param {string} name Package name.
+     * @param {number=} dependencyType Package dependency type: production or development.
      * @return {$.Deferred}
      */
-    BowerProject.prototype.trackPackage = function (name) {
+    BowerProject.prototype.trackPackage = function (name, dependencyType) {
         var pkg = this.getPackageByName(name),
-            version;
+            version,
+            addDependencyFn;
 
         if (!this.hasBowerJson()) {
             return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
@@ -382,7 +384,17 @@ define(function (require, exports, module) {
 
         version = PackageUtils.getVersion(pkg.version, PackageUtils.VersionOptions.TILDE);
 
-        return this._activeBowerJson.addDependencyToProduction(pkg.name, version);
+        if (!PackageUtils.isValidDependencyType(dependencyType)) {
+            dependencyType = PackageUtils.DependencyType.PRODUCTION;
+        }
+
+        if (PackageUtils.DependencyType.PRODUCTION === dependencyType) {
+            addDependencyFn = this._activeBowerJson.addDependencyToProduction;
+        } else {
+            addDependencyFn = this._activeBowerJson.addDependencyToDevelopment;
+        }
+
+        return addDependencyFn.call(this._activeBowerJson, pkg.name, version);
     };
 
     /**
