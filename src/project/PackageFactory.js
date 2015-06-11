@@ -285,6 +285,23 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {Package} pkg
+     */
+    Package.prototype.updateVersionInfoFromPackage = function (pkg) {
+        if (!pkg) {
+            return;
+        }
+
+        if (pkg.versions) {
+            this._versions = pkg.versions;
+        }
+
+        if (pkg.latestVersion) {
+            this._latestVersion = pkg.latestVersion;
+        }
+    };
+
+    /**
      * @return {boolean}
      */
     Package.prototype.isDevDependency = function () {

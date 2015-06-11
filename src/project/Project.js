@@ -133,9 +133,11 @@ define(function (require, exports, module) {
      * @param {Array} packagesArray
      */
     BowerProject.prototype.setPackages = function (packagesArray) {
+        this._keepVersionsIfNeeded(packagesArray);
+
         this._packages = {};
 
-        this.addPackages(packagesArray);
+        return this._addPackages(packagesArray);
     };
 
     /**
@@ -143,6 +145,15 @@ define(function (require, exports, module) {
      * @param {Array} packagesArray
      */
     BowerProject.prototype.addPackages = function (packagesArray) {
+        this._keepVersionsIfNeeded(packagesArray);
+
+        return this._addPackages(packagesArray);
+    };
+
+    /**
+     * @private
+     */
+    BowerProject.prototype._addPackages = function (packagesArray) {
         var that = this,
             packagesInstalled = [],
             packagesUpdated = [],
@@ -173,6 +184,17 @@ define(function (require, exports, module) {
         return result;
     };
 
+    /**
+     * @param {Array} packagesArray
+     * @private
+     */
+    BowerProject.prototype._keepVersionsIfNeeded = function (packagesArray) {
+        var that = this;
+
+        packagesArray.forEach(function (pkg) {
+            pkg.updateVersionInfoFromPackage(that.getPackageByName(pkg.name));
+        });
+    };
     /**
      * Remove packages by its name.
      * @param {Array} names
@@ -261,8 +283,10 @@ define(function (require, exports, module) {
     };
 
     BowerProject.prototype.updatePackages = function (pkgs) {
+        var that = this;
+
         pkgs.forEach(function (pkg) {
-            this._packages[pkg.name] = pkg;
+            that._packages[pkg.name] = pkg;
         });
 
         this._status.checkCurrentStatus();

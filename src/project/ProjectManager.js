@@ -605,7 +605,6 @@ define(function (require, exports) {
     exports.updateActiveDirToSelection = updateActiveDirToSelection;
     exports.getProjectStatus           = getProjectStatus;
     exports.listProjectDependencies    = _wrap(listProjectDependencies);
-    exports.checkForUpdates            = _wrap(checkForUpdates);
     exports.synchronizeProject         = _wrap(synchronizeProject);
     exports.trackPackage               = _wrap(trackPackage);
     exports.untrackPackage             = _wrap(untrackPackage);

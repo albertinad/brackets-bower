@@ -124,7 +124,6 @@ define(function (require, exports) {
                     deferred.reject(ErrorUtils.createError(ErrorUtils.EINSTALL_NO_PKG_INSTALLED));
                 }
             }
-
         }).fail(function (error) {
             deferred.reject(error);
         });
@@ -307,8 +306,8 @@ define(function (require, exports) {
             return Bower.update(name, config);
         }).then(function (result) {
 
-            if (result.packages) {
-                var pkgs = PackageFactory.createPackages(result.packages),
+            if (Object.keys(result).length !== 0) {
+                var pkgs = PackageFactory.createPackages(result),
                     updatedPkg;
 
                 // find the direct updated package
