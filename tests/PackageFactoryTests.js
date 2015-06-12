@@ -77,7 +77,6 @@ define(function (require, exports, module) {
                     expect(pkg.name).toBeDefined();
                     expect(pkg.version).toBeDefined();
                     expect(pkg.latestVersion).toBeDefined();
-                    expect(pkg.versions).toBeDefined();
                     expect(pkg.status).toBeDefined();
                     expect(pkg.dependencyType).toBeDefined();
                     expect(pkg.dependencies).toBeDefined();
@@ -124,14 +123,18 @@ define(function (require, exports, module) {
         it("should get an array of packages, with secondary dependencies, tracked as 'production' dependencies", function () {
             var data = require("text!tests/data/package-factory/install1.result.json"),
                 rawData = JSON.parse(data),
-                deps = {
-                    dependencies: {
-                        "angular-material": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*"
+                            }
+                        };
                     }
                 },
                 result;
 
-            spyOn(ProjectManager, "getDependencies").andReturn(deps);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
             result = PackageFactory.createPackages(rawData);
 
@@ -164,14 +167,18 @@ define(function (require, exports, module) {
         it("should get an array of packages, with dependencies, tracked as 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/install1.result.json"),
                 rawData = JSON.parse(data),
-                deps = {
-                    devDependencies: {
-                        "angular-material": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            devDependencies: {
+                                "angular-material": "*"
+                            }
+                        };
                     }
                 },
                 result;
 
-            spyOn(ProjectManager, "getDependencies").andReturn(deps);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
             result = PackageFactory.createPackages(rawData);
 
@@ -203,20 +210,25 @@ define(function (require, exports, module) {
         it("should get an array of packages, with dependencies, tracked as 'production' and 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/install2.result.json"),
                 rawData = JSON.parse(data),
-                deps = {
-                    dependencies: {
-                        "jquery": "*",
-                        "angular": "*",
-                        "lodash": "*"
-                    },
-                    devDependencies: {
-                        "jasmine": "*",
-                        "sinon": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "jquery": "*",
+                                "angular": "*",
+                                "lodash": "*"
+                            },
+                            devDependencies: {
+                                "jasmine": "*",
+                                "sinon": "*"
+                            }
+                        };
                     }
                 },
+
                 result;
 
-            spyOn(ProjectManager, "getDependencies").andReturn(deps);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
             result = PackageFactory.createPackages(rawData);
 

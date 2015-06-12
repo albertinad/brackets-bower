@@ -31,7 +31,7 @@ define(function (require, exports, module) {
     var _              = brackets.getModule("thirdparty/lodash"),
         ProjectManager = require("src/project/ProjectManager"),
         PackageUtils   = require("src/bower/PackageUtils"),
-        semver         = require("semver");
+        semver         = require("thirdparty/semver/semver.browser"); // TODO: temporary fix, update to require "semver" module
 
     var DependencyType = PackageUtils.DependencyType;
 
@@ -91,8 +91,6 @@ define(function (require, exports, module) {
         /** @private */
         this._bowerJsonVersion = null;
         /** @private */
-        this._versions = [];
-        /** @private */
         this._status = PackageUtils.Status.INSTALLED;
         /** @private */
         this._dependencyType = DependencyType.PRODUCTION;
@@ -129,15 +127,6 @@ define(function (require, exports, module) {
         },
         get: function () {
             return this._latestVersion;
-        }
-    });
-
-    Object.defineProperty(Package.prototype, "versions", {
-        set: function (versions) {
-            this._versions = versions;
-        },
-        get: function () {
-            return this._versions;
         }
     });
 
@@ -281,7 +270,6 @@ define(function (require, exports, module) {
      */
     Package.prototype.updateVersionInfo = function (packageInfo) {
         this._latestVersion = packageInfo.latestVersion;
-        this._versions = packageInfo.versions;
     };
 
     /**
@@ -290,10 +278,6 @@ define(function (require, exports, module) {
     Package.prototype.updateVersionInfoFromPackage = function (pkg) {
         if (!pkg) {
             return;
-        }
-
-        if (pkg.versions) {
-            this._versions = pkg.versions;
         }
 
         if (pkg.latestVersion) {
@@ -476,10 +460,6 @@ define(function (require, exports, module) {
         if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
                 bowerJsonDeps.devDependencies[name]) {
             pkg.dependencyType = DependencyType.DEVELOPMENT;
-        }
-
-        if (data.versions && data.versions.length !== 0) {
-            pkg.versions = data.versions;
         }
 
         return pkg;
@@ -743,8 +723,9 @@ define(function (require, exports, module) {
     exports.getPackagesName    = getPackagesName;
 
     // tests
-    exports._Package                = Package;
-    exports._PackageDependency      = PackageDependency;
-    exports._PackageInfo            = PackageInfo;
-    exports._parsePackagesRecursive = _parsePackagesRecursive;
+    exports._Package                  = Package;
+    exports._PackageDependency        = PackageDependency;
+    exports._PackageInfo              = PackageInfo;
+    exports._parsePackagesRecursive   = _parsePackagesRecursive;
+    exports._getBowerJsonDependencies = _getBowerJsonDependencies;
 });
