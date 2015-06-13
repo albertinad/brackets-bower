@@ -242,11 +242,11 @@ define(function (require, exports, module) {
             syncOption = ProjectManager.SyncOptions.MATCH_PROJECT_FOLDER;
         }
 
-        var statusId = StatusBarController.post("Synchronizing project", true);
+        var statusId = StatusBarController.post(Strings.SYNC_PROJECT_MESSAGE, true);
 
         ProjectManager.synchronizeProject(syncOption).then(function () {
 
-            StatusBarController.update(statusId, "Successfuly synchronized", false);
+            StatusBarController.update(statusId, Strings.SYNC_PROJECT_SUCCESS_MESSAGE, false);
         }).fail(function (error) {
 
             that._view.syncFailed();

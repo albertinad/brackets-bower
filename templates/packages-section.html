@@ -31,15 +31,21 @@
 
                 {{ #isNotTracked }}
                 <div class="bower-row-item">
-                    <div class="bower-pkg-warning">Not Tracked</div>
+                    <div class="bower-pkg-warning">{{ Strings.PKG_STATUS_NOT_TRACKED }}</div>
                 </div>
                 {{ /isNotTracked }}
 
                 {{ #isMissing }}
                 <div class="bower-row-item">
-                    <div class="bower-pkg-warning">Missing</div>
+                    <div class="bower-pkg-warning">{{ Strings.PKG_STATUS_MISSING }}</div>
                 </div>
                 {{ /isMissing }}
+
+                {{ ^isVersionInSync }}
+                <div class="bower-row-item">
+                    <div class="bower-pkg-warning">{{ Strings.PKG_STATUS_VERSIONS }}</div>
+                </div>
+                {{ /isVersionInSync }}
 
                 <div class="bower-row-item">
                     {{ #isProductionDependency }}

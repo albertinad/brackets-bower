@@ -75,5 +75,10 @@ define({
     "SUMMARY_ERROR": "Oops! An error ocurred.",
     "SYNC_WITH_PROJECT_TITLE": "Synchronize with project packages",
     "SYNC_WITH_BOWER_JSON_TITLE": "Synchronize with bower.json",
-    "PROJECT_OUT_OF_SYNC_MESSAGE": "Out of sync"
+    "SYNC_PROJECT_MESSAGE": "Synchronizing project",
+    "SYNC_PROJECT_SUCCESS_MESSAGE": "Project synchronized",
+    "PROJECT_OUT_OF_SYNC_MESSAGE": "Out of sync",
+    "PKG_STATUS_MISSING": "Missing",
+    "PKG_STATUS_NOT_TRACKED": "Not tracked",
+    "PKG_STATUS_VERSIONS": "Versions don\'t match"
 });

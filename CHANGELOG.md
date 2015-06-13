@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.12
+* Project and packages synchronization based on the bower.json file:
+    - Keep track of the project status.
+    - Synchronize with the current packages installed
+    - Synchronize with the bower.json definition.
+* Keep track of bower.json changes.
+* Tests clean up.
+* Bug fixing.
+
 ## v0.2.11
 * Fixing bug when loading project dependencies.
 

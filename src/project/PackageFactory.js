@@ -256,9 +256,12 @@ define(function (require, exports, module) {
     Package.prototype.isVersionInSync = function () {
         var isInSync;
 
-        if ((this._bowerJsonVersion !== null) && (semver.validRange(this._bowerJsonVersion) !== null)) {
+        if (this._version !== null && this._bowerJsonVersion !== null &&
+                semver.validRange(this._bowerJsonVersion) !== null) {
+
             isInSync = semver.satisfies(this._version, this._bowerJsonVersion);
         } else {
+
             isInSync = true;
         }
 
