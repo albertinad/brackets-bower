@@ -647,20 +647,28 @@ define(function (require, exports, module) {
     }
 
     /**
-     * Create an array of Package instances from the raw data given as arguments.
+     * Create an object of Package instances from the raw data given as arguments.
      * @param {object} packages
      * @return {Array}
      */
     function createPackagesDeep(packages) {
         var deps = _getBowerJsonDependencies(),
-            pkgData = {},
-            pkgs;
+            pkgData = {};
 
         _parsePackagesRecursive(packages, deps, pkgData);
 
-        pkgs = _.values(pkgData);
+        return pkgData;
+    }
 
-        return pkgs;
+    /**
+     * Create an array of Package instances from the raw data given as arguments.
+     * @param {object} packages
+     * @return {Array}
+     */
+    function createPackagesDeepArray(packages) {
+        var pkgsData = createPackagesDeep(packages);
+
+        return _.values(pkgsData);
     }
 
     /**
@@ -716,11 +724,12 @@ define(function (require, exports, module) {
         return names;
     }
 
-    exports.createPackages     = createPackages;
-    exports.createPackagesDeep = createPackagesDeep;
-    exports.createPackage      = createPackage;
-    exports.createInfo         = createInfo;
-    exports.getPackagesName    = getPackagesName;
+    exports.createPackages          = createPackages;
+    exports.createPackagesDeep      = createPackagesDeep;
+    exports.createPackagesDeepArray = createPackagesDeepArray;
+    exports.createPackage           = createPackage;
+    exports.createInfo              = createInfo;
+    exports.getPackagesName         = getPackagesName;
 
     // tests
     exports._Package                  = Package;

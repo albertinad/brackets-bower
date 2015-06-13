@@ -65,6 +65,60 @@ define(function (require, exports) {
     }
 
     /**
+     * Get the current installed packages and updates if they have, using
+     * the current configuration.
+     * @param {boolean=} offline True if offline mode is enabled, otherwhise false.
+     * @return {$.Deferred}
+     */
+    function list(offline) {
+        var config = ConfigurationManager.getConfiguration();
+
+        if (typeof offline === "boolean") {
+            config.offline = offline;
+        }
+
+        return Bower.list(config);
+    }
+
+    /**
+     * @param {Array=} pkgsNames
+     * @return {Array}
+     * @private
+     */
+    function packagesWithVersions(pkgsNames) {
+        var deferred = new $.Deferred();
+
+        list().then(function (result) {
+
+            return PackageFactory.createPackagesDeep(result.dependencies);
+        }).then(function (packagesData) {
+            var packagesArray;
+
+            if (pkgsNames) {
+                packagesArray = [];
+
+                pkgsNames.forEach(function (name) {
+                    var updatedPkg = packagesData[name];
+
+                    if (updatedPkg) {
+                        packagesArray.push(updatedPkg);
+                    }
+                });
+
+                deferred.resolve(packagesArray);
+            } else {
+                packagesArray = _.values(packagesData);
+
+                deferred.resolve(packagesArray);
+            }
+        }).fail(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred;
+    }
+
+    /**
      * Install the given package and udpate the project model.
      * @param {string} name The package name to install.
      * @param {data} options Options to install the package.
@@ -155,20 +209,34 @@ define(function (require, exports) {
 
         Bower.install(config).then(function (result) {
             var total = result.count,
+                resultPackages = result.packages,
                 installResult = {
                     total: total,
                     installed: [],
                     updated: []
-                };
+                },
+                packagesNames,
+                packagesArray;
 
             if (total !== 0) {
-                var packagesArray = PackageFactory.createPackages(result.packages),
-                    pkgsData = project.addPackages(packagesArray);
+                packagesNames = Object.keys(resultPackages);
 
-                installResult.installed = pkgsData.installed;
-                installResult.updated = pkgsData.updated;
+                // try to get packages with "latestVersion" for the installed packages
+                packagesWithVersions(packagesNames).then(function (packagesWithUpdate) {
+                    packagesArray = packagesWithUpdate;
 
-                deferred.resolve(installResult);
+                }).fail(function () {
+                    // do not handle the error
+                    packagesArray = PackageFactory.createPackages(resultPackages);
+                }).always(function () {
+
+                    var pkgsData = project.addPackages(packagesArray);
+
+                    installResult.installed = pkgsData.installed;
+                    installResult.updated = pkgsData.updated;
+
+                    deferred.resolve(installResult);
+                });
             } else {
                 deferred.resolve(installResult);
             }
@@ -359,22 +427,6 @@ define(function (require, exports) {
         return Bower.listCache(ConfigurationManager.getConfiguration());
     }
 
-    /**
-     * Get the current installed packages and updates if they have, using
-     * the current configuration.
-     * @param {boolean=} offline True if offline mode is enabled, otherwhise false.
-     * @return {$.Deferred}
-     */
-    function list(offline) {
-        var config = ConfigurationManager.getConfiguration();
-
-        if (typeof offline === "boolean") {
-            config.offline = offline;
-        }
-
-        return Bower.list(config);
-    }
-
     exports.install                 = install;
     exports.uninstall               = uninstall;
     exports.installFromBowerJson    = installFromBowerJson;
@@ -384,4 +436,5 @@ define(function (require, exports) {
     exports.search                  = search;
     exports.listCache               = listCache;
     exports.list                    = list;
+    exports.packagesWithVersions    = packagesWithVersions;
 });

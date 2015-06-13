@@ -285,7 +285,7 @@ define(function (require, exports) {
 
         PackageManager.list(true).then(function (result) {
             // create the package model
-            return PackageFactory.createPackagesDeep(result.dependencies);
+            return PackageFactory.createPackagesDeepArray(result.dependencies);
         }).then(function (packagesArray) {
             deferred.resolve(packagesArray);
         }).fail(function (error) {
@@ -304,10 +304,7 @@ define(function (require, exports) {
     function checkForUpdates() {
         var deferred = new $.Deferred();
 
-        PackageManager.list().then(function (result) {
-
-            return PackageFactory.createPackagesDeep(result.dependencies);
-        }).then(function (packagesArray) {
+        PackageManager.packagesWithVersions().then(function (packagesArray) {
             _bowerProject.setPackages(packagesArray);
 
             deferred.resolve(packagesArray);
