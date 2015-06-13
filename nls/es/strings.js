@@ -71,5 +71,8 @@ define({
     "TITLE_ERROR_UNINSTALLING": "Error al desinstalar una dependencia de Bower",
     "SUMMARY_ERROR_UNINSTALLING_DEPENDANTS": "El paquete \"{0}\" tiene paquetes dependientes",
     "NOTE_QUESTION_CONTINUE_UNINSTALLING": "¿Está seguro que desea desinstalar el paquete?",
-    "SUMMARY_ERROR": "Oops! Ocurrió un error."
+    "SUMMARY_ERROR": "Oops! Ocurrió un error.",
+    "SYNC_WITH_PROJECT_TITLE": "Sincronizar con paquetes del proyecto",
+    "SYNC_WITH_BOWER_JSON_TITLE": "Sincronizar con bower.json",
+    "PROJECT_OUT_OF_SYNC_MESSAGE": "No sincronizado"
 });

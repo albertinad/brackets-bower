@@ -72,5 +72,8 @@ define({
     "TITLE_ERROR_UNINSTALLING": "Error uninstalling Bower package",
     "SUMMARY_ERROR_UNINSTALLING_DEPENDANTS": "The package \"{0}\" has dependants packages",
     "NOTE_QUESTION_CONTINUE_UNINSTALLING": "Are you sure you want to uninstall it?",
-    "SUMMARY_ERROR": "Oops! An error ocurred."
+    "SUMMARY_ERROR": "Oops! An error ocurred.",
+    "SYNC_WITH_PROJECT_TITLE": "Synchronize with project packages",
+    "SYNC_WITH_BOWER_JSON_TITLE": "Synchronize with bower.json",
+    "PROJECT_OUT_OF_SYNC_MESSAGE": "Out of sync"
 });

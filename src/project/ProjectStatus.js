@@ -156,7 +156,7 @@ define(function (require, exports, module) {
      * @private
      */
     ProjectStatus.prototype._notifyStatusChanged = function () {
-        this._bowerProject.onStatusChanged(this._status);
+        this._bowerProject.onStatusChanged();
     };
 
     module.exports = ProjectStatus;

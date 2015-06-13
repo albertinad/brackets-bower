@@ -61,6 +61,8 @@ define(function (require, exports, module) {
         this._$loading = null;
         /** @private */
         this._$activeDirLabel = null;
+        /** @private */
+        this._$statusSection = null;
 
         /** @private */
         this._currentStatusClass = StatusStyles.DEFAULT;
@@ -83,6 +85,7 @@ define(function (require, exports, module) {
         this._$header = this._$panel.find(".bower-panel-header");
         this._$commands = this._$header.find(".bower-commands-group");
         this._$activeDirLabel = $("#bower-active-path");
+        this._$statusSection = $("#bower-sync");
         this._$bowerIcon = $("<a id='bower-config-icon' href='#' title='" + Strings.TITLE_BOWER + "'></a>");
 
         this._$bowerIcon.appendTo("#main-toolbar .buttons");
@@ -93,6 +96,11 @@ define(function (require, exports, module) {
             .on("click", "[data-bower-panel-key]", function () {
                 /*jshint validthis:true */
                 that._onPanelSelected($(this).data("bower-panel-key"));
+            })
+            .on("click", "[data-bower-sync]", function () {
+                var option = $(this).data("bower-sync");
+
+                that._controller.syncProject(option);
             });
 
         this._$commands.on("click", "[data-bower-cmd-key]", function () {
@@ -138,7 +146,7 @@ define(function (require, exports, module) {
      * Enable the view to receive inputs from the user.
      */
     PanelView.prototype.enable = function () {
-        this._$header.find("button.bower-btn").prop("disabled", false);
+        this._enableButton(this._$header.find("button.bower-btn"));
         this._$activePanelSection.show();
         this._$loading.hide();
     };
@@ -147,7 +155,7 @@ define(function (require, exports, module) {
      * Disable the view to receive inputs from the user.
      */
     PanelView.prototype.disable = function () {
-        this._$header.find("button.bower-btn").prop("disabled", true);
+        this._disableButton(this._$header.find("button.bower-btn"));
         this._$activePanelSection.hide();
         this._$loading.show();
     };
@@ -215,10 +223,39 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {ProjectStatus} projectStatus
+     */
+    PanelView.prototype.projectStatusChanged = function (projectStatus) {
+        var $message = this._$statusSection.find("[data-bower-status='message']"),
+            $btns = this._$statusSection.find("[data-bower-sync]"),
+            statusTypeClass;
+
+        if (projectStatus) {
+            StatusStyles = PanelView.StatusStyles;
+
+            if (projectStatus.isOutOfSync()) {
+                statusTypeClass = StatusStyles.WARNING;
+
+                $message.text(Strings.PROJECT_OUT_OF_SYNC_MESSAGE);
+
+                this._enableButton($btns);
+            } else {
+                statusTypeClass = StatusStyles.DEFAULT;
+
+                $message.text("");
+
+                this._disableButton($btns);
+            }
+
+            this.updateIconStatus(statusTypeClass);
+        }
+    };
+
+    /**
      * Callback for when the command finishes its execution.
      */
     PanelView.prototype.onCommandExecuted = function () {
-        this._$commands.find(".bower-btn").prop("disabled", false);
+        this._enableButton(this._$commands.find(".bower-btn"));
     };
 
     /**
@@ -227,7 +264,7 @@ define(function (require, exports, module) {
      * @param {string} commandKey
      */
     PanelView.prototype._onCommandSelected = function (commandKey) {
-        this._$commands.find(".bower-btn").prop("disabled", true);
+        this._disableButton(this._$commands.find(".bower-btn"));
 
         this._controller.executeCommand(commandKey);
     };
@@ -255,6 +292,24 @@ define(function (require, exports, module) {
      */
     PanelView.prototype._onClose = function () {
         this._controller.toggle();
+    };
+
+    /**
+     * Helper function to enable a given jQuery button object.
+     * @private
+     * @param {jQuery} $btn
+     */
+    PanelView.prototype._enableButton = function ($btn) {
+        $btn.prop("disabled", false);
+    };
+
+    /**
+     * Helper function to disable a given jQuery button object.
+     * @private
+     * @param {jQuery} $btn
+     */
+    PanelView.prototype._disableButton = function ($btn) {
+        $btn.prop("disabled", true);
     };
 
     module.exports = PanelView;

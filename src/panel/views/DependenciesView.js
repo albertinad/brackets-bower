@@ -82,10 +82,6 @@ define(function (require, exports, module) {
             event.stopPropagation();
 
             that._controller.openBowerJson();
-        }).on("click", "[data-bower-sync]", function () {
-            var option = $(this).data("bower-sync");
-
-            that._controller.syncProject(option);
         });
     };
 

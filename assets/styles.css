@@ -16,8 +16,18 @@
     padding: 0 10px 0 5px;
 }
 
-.bower-panel-header .tools #bower-commands {
+.bower-panel-header .tools #bower-commands,
+.bower-panel-header .tools #bower-sync {
     display: inline-block;
+}
+
+.bower-panel-header .tools #bower-sync .sync-title {
+    color: #9f681c;
+    padding: 0 3px;
+}
+
+.dark .bower-panel-header .tools #bower-sync .sync-title {
+    color: #d9a45a;
 }
 
 .bower-panel-header .bower-active-path {
@@ -236,20 +246,6 @@
 
 .bower-section-panel .bower-packages-section {
     display: flex;
-}
-
-.bower-section-panel .bower-packages-section .bower-sync {
-    margin-left: auto;
-    padding: 0 5px;
-}
-
-.bower-section-panel .bower-packages-section .bower-sync .sync-title {
-    display: inline-block;
-    padding: 0 3px;
-}
-
-.bower-section-panel .bower-packages-section .bower-sync .sync-btn-options {
-    display: inline-block;
 }
 
 /* settings dialog */

@@ -21,6 +21,20 @@
             </div>
 
             <div class="tools">
+                <div id="bower-sync" class="bower-sync">
+                    <span data-bower-status="message" class="sync-title"></span>
+
+                    <div class="btn-group sync-btn-options">
+                        <button data-bower-sync="project" class="btn small" title="{{ Strings.SYNC_WITH_PROJECT_TITLE }}" disabled>
+                            <span class="octicon octicon-file-directory"></span>
+                        </button>
+
+                        <button data-bower-sync="file" class="btn small" title="{{ Strings.SYNC_WITH_BOWER_JSON_TITLE }}" disabled>
+                            <span class="octicon octicon-file-code"></span>
+                        </button>
+                    </div>
+                </div>
+
                 <div id="bower-commands">
                     <div class="btn-group bower-commands-group">
                         <button data-bower-cmd-key="install" title="{{ Strings.COMMAND_INSTALL }}" class="btn small bower-btn">

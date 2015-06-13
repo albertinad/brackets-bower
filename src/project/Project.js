@@ -590,9 +590,9 @@ define(function (require, exports, module) {
         }
     };
 
-    BowerProject.prototype.onStatusChanged = function (status) {
-        if (this.hasBowerJson()) {
-            this._projectManager.notifyProjectStatusChanged(status);
+    BowerProject.prototype.onStatusChanged = function () {
+        if (this.hasBowerJson()) { // TODO remove this validation??
+            this._projectManager.notifyProjectStatusChanged(this._status);
         }
     };
 

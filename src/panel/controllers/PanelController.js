@@ -66,8 +66,7 @@ define(function (require, exports, module) {
      * @param {string} extensionName Name of the extension.
      */
     PanelController.prototype.initialize = function (extensionName, controllers) {
-        var that = this,
-            Events = ProjectManager.Events;
+        var Events = ProjectManager.Events;
 
         this._view = new PanelView(this);
 
@@ -95,10 +94,7 @@ define(function (require, exports, module) {
         ProjectManager.on(Events.PROJECT_LOADING, this._disable.bind(this));
         ProjectManager.on(Events.PROJECT_READY, this._enable.bind(this));
         ProjectManager.on(Events.PROJECT_STATUS_CHANGED, this._onProjectStatusChanged.bind(this));
-
-        ProjectManager.on(Events.ACTIVE_DIR_CHANGED, function (event, fullPath, shortPath) {
-            that._view.onActiveDirChanged(shortPath);
-        });
+        ProjectManager.on(Events.ACTIVE_DIR_CHANGED, this._onActiveDirChanged.bind(this));
     };
 
     PanelController.prototype.showIfNeeded = function () {
@@ -169,7 +165,7 @@ define(function (require, exports, module) {
      * Set the status to warning status type.
      * @param {string} status
      */
-    PanelController.prototype.updateStatus = function (status) {
+    PanelController.prototype.updateStatus = function (status, projectStatus) {
         this._view.updateIconStatus(status);
     };
 
@@ -234,26 +230,46 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {string} option
+     */
+    PanelController.prototype.syncProject = function (option) {
+        var syncOption;
+
+        if (option === "file") {
+            syncOption = ProjectManager.SyncOptions.MATCH_BOWER_JSON;
+        } else {
+            syncOption = ProjectManager.SyncOptions.MATCH_PROJECT_FOLDER;
+        }
+
+        var statusId = StatusBarController.post("Synchronizing project", true);
+
+        ProjectManager.synchronizeProject(syncOption).then(function () {
+
+            StatusBarController.update(statusId, "Successfuly synchronized", false);
+        }).fail(function (error) {
+
+            NotificationDialog.showError(error.message);
+        }).always(function () {
+
+            StatusBarController.remove(statusId);
+        });
+    };
+
+    /**
      * @private
      */
-    PanelController.prototype._onProjectStatusChanged = function () {
-        var project = ProjectManager.getProject(),
-            projectStatus,
-            statusType,
-            StatusStyles;
+    PanelController.prototype._onProjectStatusChanged = function (event, projectStatus) {
+        this._view.projectStatusChanged(projectStatus);
+    };
 
-        if (project) {
-            StatusStyles = PanelView.StatusStyles;
-            projectStatus = project.getStatus();
+    /**
+     * @private
+     */
+    PanelController.prototype._onActiveDirChanged = function (event, fullPath, shortPath) {
+        var projectStatus = ProjectManager.getProjectStatus();
 
-            if (projectStatus.isSynced()) {
-                statusType = StatusStyles.DEFAULT;
-            } else {
-                statusType = StatusStyles.WARNING;
-            }
-
-            this.updateStatus(statusType);
-        }
+        this._view.onActiveDirChanged(shortPath);
+        this._view.projectStatusChanged(projectStatus);
     };
 
     /**

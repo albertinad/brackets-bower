@@ -320,8 +320,11 @@ define(function (require, exports) {
      * if any, the configuration for the project and bower.json if any. After
      * loading the current project infomartation, notifies that the bower project
      * is ready.
+     * @return {Object}
      */
     function _configureBowerProject() {
+        var deferred = new $.Deferred();
+
         // notify bower project is being loaded
         exports.trigger(PROJECT_LOADING);
 
@@ -346,16 +349,23 @@ define(function (require, exports) {
 
                         FileSystemHandler.startListenToFileSystem(_bowerProject);
 
+                        deferred.resolve();
+
                         // notify bower project is ready
                         exports.trigger(PROJECT_READY);
                     });
                 } else {
                     FileSystemHandler.stopListenToFileSystem();
+
+                    deferred.resolve();
+
                     // notify bower project is ready
                     exports.trigger(PROJECT_READY);
                 }
             });
         });
+
+        return deferred.promise();
     }
 
     /**
@@ -372,9 +382,9 @@ define(function (require, exports) {
 
         _bowerProject.activeDir = path;
 
-        exports.trigger(ACTIVE_DIR_CHANGED, path, _bowerProject.shortActiveDir);
-
-        _configureBowerProject();
+        _configureBowerProject().then(function () {
+            exports.trigger(ACTIVE_DIR_CHANGED, path, _bowerProject.shortActiveDir);
+        });
     }
 
     /**
@@ -540,8 +550,8 @@ define(function (require, exports) {
         exports.trigger(DEPENDENCY_UPDATED, pkg);
     }
 
-    function notifyProjectStatusChanged(status) {
-        exports.trigger(PROJECT_STATUS_CHANGED, status);
+    function notifyProjectStatusChanged(projectStatus) {
+        exports.trigger(PROJECT_STATUS_CHANGED, projectStatus);
     }
 
     AppInit.appReady(function () {
