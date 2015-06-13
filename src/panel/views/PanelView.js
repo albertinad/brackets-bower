@@ -94,17 +94,13 @@ define(function (require, exports, module) {
             .on("click", ".close", this._onClose.bind(this))
             .on("click", "[data-bower-btn-id='settings']", this._onSettingsSelected.bind(this))
             .on("click", "[data-bower-panel-key]", function () {
-                /*jshint validthis:true */
                 that._onPanelSelected($(this).data("bower-panel-key"));
             })
             .on("click", "[data-bower-sync]", function () {
-                var option = $(this).data("bower-sync");
-
-                that._controller.syncProject(option);
+                that._onSyncOptionSelected($(this).data("bower-sync"));
             });
 
         this._$commands.on("click", "[data-bower-cmd-key]", function () {
-            /*jshint validthis:true */
             that._onCommandSelected($(this).data("bower-cmd-key"));
         });
 
@@ -259,6 +255,16 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Callback for when the synchronization fails. Enable the synchronization
+     * options buttons.
+     */
+    PanelView.prototype.syncFailed = function () {
+        var $btns = this._$statusSection.find("[data-bower-sync]");
+
+        this._enableButton($btns);
+    };
+
+    /**
      * Callback for when a command is selected, notify the controller to
      * start the command execution.
      * @param {string} commandKey
@@ -292,6 +298,18 @@ define(function (require, exports, module) {
      */
     PanelView.prototype._onClose = function () {
         this._controller.toggle();
+    };
+
+    /**
+     * @param {string} option
+     * @private
+     */
+    PanelView.prototype._onSyncOptionSelected = function (option) {
+        var $btns = this._$statusSection.find("[data-bower-sync]");
+
+        this._disableButton($btns);
+
+        this._controller.syncProject(option);
     };
 
     /**

@@ -233,7 +233,8 @@ define(function (require, exports, module) {
      * @param {string} option
      */
     PanelController.prototype.syncProject = function (option) {
-        var syncOption;
+        var that = this,
+            syncOption;
 
         if (option === "file") {
             syncOption = ProjectManager.SyncOptions.MATCH_BOWER_JSON;
@@ -248,7 +249,11 @@ define(function (require, exports, module) {
             StatusBarController.update(statusId, "Successfuly synchronized", false);
         }).fail(function (error) {
 
-            NotificationDialog.showError(error.message);
+            that._view.syncFailed();
+
+            if (error) {
+                NotificationDialog.showError(error.message);
+            }
         }).always(function () {
 
             StatusBarController.remove(statusId);

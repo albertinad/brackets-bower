@@ -59,7 +59,6 @@ define(function (require, exports, module) {
         this._$panel = $container;
 
         this._$panel.on("click", "[data-bower-installed-action]", function () {
-            /*jshint validthis:true */
             var $selectedItem = $(this),
                 action = $selectedItem.data("bower-installed-action"),
                 actionFn = that._actions[action];

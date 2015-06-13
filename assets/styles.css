@@ -101,6 +101,10 @@
     color: #1b5d1b;
 }
 
+.dark #status-bower .status-information {
+    color: #3b9b3b;
+}
+
 #status-bower .status-progress .info {
     display: inline-block;
     padding-right: 5px;
