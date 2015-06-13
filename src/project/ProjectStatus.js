@@ -84,13 +84,21 @@ define(function (require, exports, module) {
      * @private
      */
     ProjectStatus.prototype.checkCurrentStatus = function () {
-        var hasMissingPkgs = this._bowerProject.hasNotInstalledPackages(),
-            hasExtraPkgs = this._bowerProject.hasExtraneousPackages(),
-            versionsOutOfSync = this._bowerProject.hasPackagesVersionOutOfSync(),
+        var hasMissingPkgs,
+            hasExtraPkgs,
+            versionsOutOfSync,
             currentStatus;
 
-        if (hasMissingPkgs || hasExtraPkgs || versionsOutOfSync) {
-            currentStatus = ProjectStatus.Status.OUT_OF_SYNC;
+        if (this._bowerProject.hasBowerJson()) {
+            hasMissingPkgs = this._bowerProject.hasNotInstalledPackages();
+            hasExtraPkgs = this._bowerProject.hasExtraneousPackages();
+            versionsOutOfSync = this._bowerProject.hasPackagesVersionOutOfSync();
+
+            if (hasMissingPkgs || hasExtraPkgs || versionsOutOfSync) {
+                currentStatus = ProjectStatus.Status.OUT_OF_SYNC;
+            } else {
+                currentStatus = ProjectStatus.Status.SYNCED;
+            }
         } else {
             currentStatus = ProjectStatus.Status.SYNCED;
         }
