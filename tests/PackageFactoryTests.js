@@ -99,7 +99,7 @@ define(function (require, exports, module) {
             expect(pkg).toBeDefined();
             expect(pkg.name).toEqual("jQuery");
             expect(pkg.version).toEqual("2.1.3");
-            expect(pkg.dependencies.length).toEqual(0);
+            expect(pkg.dependenciesCount()).toEqual(0);
             expect(pkg.homepage).toEqual("https://github.com/jquery/jquery");
             expect(pkg.installationDir).toEqual("/bowertestuser/bower_components/jQuery");
         });
@@ -114,7 +114,7 @@ define(function (require, exports, module) {
             expect(pkg).toBeDefined();
             expect(pkg.name).toEqual("bootstrap");
             expect(pkg.version).toEqual("3.3.4");
-            expect(pkg.dependencies.length).not.toEqual(0);
+            expect(pkg.dependenciesCount()).not.toEqual(0);
             expect(pkg.homepage).toEqual("http://getbootstrap.com");
             expect(pkg.installationDir).toBeDefined();
             expect(pkg.installationDir).not.toBeNull();

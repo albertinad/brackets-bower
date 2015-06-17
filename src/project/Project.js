@@ -192,7 +192,7 @@ define(function (require, exports, module) {
         var that = this;
 
         packagesArray.forEach(function (pkg) {
-            pkg.updateVersionInfoFromPackage(that.getPackageByName(pkg.name));
+            pkg.updateVersionInfo(that.getPackageByName(pkg.name));
         });
     };
     /**
