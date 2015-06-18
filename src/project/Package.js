@@ -166,6 +166,17 @@ define(function (require, exports, module) {
         }
     });
 
+    Object.defineProperty(Package.prototype, "dependencies", {
+        get: function () {
+            return this._dependencies;
+        }
+    });
+
+    Object.defineProperty(Package.prototype, "dependants", {
+        get: function () {
+            return this._dependants;
+        }
+    });
     /**
      * @param {PackageDependency} dependency
      */
