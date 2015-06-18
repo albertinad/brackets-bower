@@ -239,9 +239,14 @@ define(function (require, exports, module) {
 
         pkg.bowerJsonVersion = _getBowerJsonVersion(name, bowerJsonDeps);
 
-        if (bowerJsonDeps && bowerJsonDeps.devDependencies &&
-                bowerJsonDeps.devDependencies[name]) {
-            pkg.dependencyType = PackageUtils.DependencyType.DEVELOPMENT;
+        if (bowerJsonDeps) {
+            if (bowerJsonDeps.dependencies && bowerJsonDeps.dependencies[name]) {
+                pkg.dependencyType = PackageUtils.DependencyType.PRODUCTION;
+            } else if (bowerJsonDeps.devDependencies && bowerJsonDeps.devDependencies[name]) {
+                pkg.dependencyType = PackageUtils.DependencyType.DEVELOPMENT;
+            } else {
+                pkg.dependencyType = PackageUtils.DependencyType.UNKNOWN;
+            }
         }
 
         if (data.dependencies) {

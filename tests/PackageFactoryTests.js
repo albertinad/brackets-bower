@@ -1317,7 +1317,7 @@ define(function (require, exports, module) {
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
-            expect(pkg5.isProductionDependency()).toEqual(true);
+            expect(pkg5.isProductionDependency()).toEqual(false); // not in dependencies and devDependencies
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
@@ -1407,7 +1407,7 @@ define(function (require, exports, module) {
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
-            expect(pkg5.isProductionDependency()).toEqual(true);
+            expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
@@ -1499,7 +1499,7 @@ define(function (require, exports, module) {
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
-            expect(pkg5.isProductionDependency()).toEqual(true);
+            expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
@@ -1591,7 +1591,7 @@ define(function (require, exports, module) {
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
-            expect(pkg5.isProductionDependency()).toEqual(true);
+            expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
@@ -1693,7 +1693,7 @@ define(function (require, exports, module) {
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
-            expect(pkg5.isProductionDependency()).toEqual(true);
+            expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
@@ -1797,7 +1797,7 @@ define(function (require, exports, module) {
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
-            expect(pkg5.isProductionDependency()).toEqual(true);
+            expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);

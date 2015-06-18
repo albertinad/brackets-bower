@@ -30,7 +30,8 @@ define(function (require, exports, module) {
 
     var DependencyType = {
         DEVELOPMENT: 0,
-        PRODUCTION: 1
+        PRODUCTION: 1,
+        UNKNOWN: 2
     };
 
     var VersionOptions = {
