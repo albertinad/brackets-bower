@@ -326,6 +326,28 @@ define(function (require, exports, module) {
     }
 
     /**
+     * @private
+     */
+    function _prepareDependants(pkgsData) {
+        _.forEach(pkgsData, function (pkg, name) {
+
+            if (pkg.hasDependencies()) {
+                var dependencies = pkg.getDependenciesNames();
+
+                // iterate over the package dependencies to set up dependants
+                dependencies.forEach(function (depName) {
+                    var currentPkg = pkgsData[depName];
+
+                    // find the dependency package and add a dependant for that package
+                    if (currentPkg) {
+                        currentPkg.addDependant(pkg.name);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * Create an array of Package instances from the raw data given as arguments.
      * @param {object} packages
      * @return {Array}
@@ -337,16 +359,18 @@ define(function (require, exports, module) {
 
         var deps = _getBowerJsonDependencies(),
             pkgsName = Object.keys(packages),
-            pkgs = [];
+            pkgsData = {};
 
         pkgsName.forEach(function (name) {
             var pkgRawData = packages[name],
                 pkg = _packageFromRawData(name, pkgRawData, deps);
 
-            pkgs.push(pkg);
+            pkgsData[pkg.name] = pkg;
         });
 
-        return pkgs;
+        _prepareDependants(pkgsData);
+
+        return _.values(pkgsData);
     }
 
     /**
@@ -356,11 +380,13 @@ define(function (require, exports, module) {
      */
     function createPackagesDeep(packages) {
         var deps = _getBowerJsonDependencies(),
-            pkgData = {};
+            pkgsData = {};
 
-        _parsePackagesRecursive(packages, deps, pkgData);
+        _parsePackagesRecursive(packages, deps, pkgsData);
 
-        return pkgData;
+        _prepareDependants(pkgsData);
+
+        return pkgsData;
     }
 
     /**
@@ -437,6 +463,4 @@ define(function (require, exports, module) {
     // tests
     exports._PackageDependency        = PackageDependency;
     exports._PackageInfo              = PackageInfo;
-    exports._parsePackagesRecursive   = _parsePackagesRecursive;
-    exports._getBowerJsonDependencies = _getBowerJsonDependencies;
 });

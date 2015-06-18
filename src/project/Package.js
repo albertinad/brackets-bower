@@ -42,19 +42,11 @@ define(function (require, exports, module) {
         /** @private */
         this._name = name;
         /** @private */
-        this._isProjectDependency = true; // default
-        /** @private */
         this._version = null;
         /** @private */
         this._latestVersion = null;
         /** @private */
         this._bowerJsonVersion = null;
-        /** @private */
-        this._status = PackageUtils.Status.INSTALLED;
-        /** @private */
-        this._dependencyType = DependencyType.PRODUCTION;
-        /** @private */
-        this._dependencies = {};
         /** @private */
         this._description = null;
         /** @private */
@@ -63,6 +55,16 @@ define(function (require, exports, module) {
         this._source = null;
         /** @private */
         this._installationDir = null;
+        /** @private */
+        this._isProjectDependency = true; // default
+        /** @private */
+        this._status = PackageUtils.Status.INSTALLED;
+        /** @private */
+        this._dependencyType = DependencyType.PRODUCTION;
+        /** @private */
+        this._dependencies = {};
+        /** @private */
+        this._dependants = [];
     }
 
     Object.defineProperty(Package.prototype, "name", {
@@ -113,15 +115,6 @@ define(function (require, exports, module) {
         },
         get: function () {
             return this._dependencyType;
-        }
-    });
-
-    Object.defineProperty(Package.prototype, "dependencies", {
-        set: function (dependencies) {
-            this._dependencies = dependencies;
-        },
-        get: function () {
-            return this._dependencies;
         }
     });
 
@@ -193,6 +186,9 @@ define(function (require, exports, module) {
         }
     };
 
+    /**
+     * @return {boolean}
+     */
     Package.prototype.hasDependencies = function () {
         if (this._dependencies) {
             return (Object.keys(this._dependencies).length !== 0);
@@ -201,6 +197,17 @@ define(function (require, exports, module) {
         }
     };
 
+    /**
+     * @param {string} name
+     * @return {boolean}
+     */
+    Package.prototype.hasDependency = function (name) {
+        return (this._dependencies[name] !== undefined);
+    };
+
+    /**
+     * @return {Array|null}
+     */
     Package.prototype.getDependenciesNames = function () {
         if (this._dependencies) {
             return Object.keys(this._dependencies);
@@ -209,12 +216,54 @@ define(function (require, exports, module) {
         }
     };
 
+    /**
+     * @return {number}
+     */
     Package.prototype.dependenciesCount = function () {
         if (this._dependencies) {
             return Object.keys(this._dependencies).length;
         } else {
             return 0;
         }
+    };
+
+    /**
+     * @param {string} name
+     */
+    Package.prototype.addDependant = function (name) {
+        if (!this.hasDependant()) {
+            this._dependants.push(name);
+        }
+    };
+
+    /**
+     * @param {string} name
+     */
+    Package.prototype.removeDependant = function (name) {
+        if (this.hasDependant(name)) {
+            this._dependants.slice(name); // TODO review
+        }
+    };
+
+    /**
+     * @return {boolean}
+     */
+    Package.prototype.hasDependants = function () {
+        return (this.dependantsCount() !== 0);
+    };
+
+    /**
+     * @return {boolean}
+     */
+    Package.prototype.hasDependant = function (name) {
+        return (this._dependants.indexOf(name) !== -1);
+    };
+
+    /**
+     * @return {number}
+     */
+    Package.prototype.dependantsCount = function () {
+        return this._dependants.length;
     };
 
     /**

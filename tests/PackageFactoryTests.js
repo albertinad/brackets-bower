@@ -44,6 +44,7 @@ define(function (require, exports, module) {
                 SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
                     testWindow = w;
                     ExtensionUtils = testWindow.brackets.test.ExtensionUtils;
+
                     folderPromise.resolve();
                 });
 
@@ -79,7 +80,6 @@ define(function (require, exports, module) {
                     expect(pkg.latestVersion).toBeDefined();
                     expect(pkg.status).toBeDefined();
                     expect(pkg.dependencyType).toBeDefined();
-                    expect(pkg.dependencies).toBeDefined();
                     expect(pkg.description).toBeDefined();
                     expect(pkg.homepage).toBeDefined();
                     expect(pkg.source).toBeDefined();
@@ -102,6 +102,8 @@ define(function (require, exports, module) {
             expect(pkg.dependenciesCount()).toEqual(0);
             expect(pkg.homepage).toEqual("https://github.com/jquery/jquery");
             expect(pkg.installationDir).toEqual("/bowertestuser/bower_components/jQuery");
+            expect(pkg.hasDependants()).toEqual(false);
+            expect(pkg.hasDependencies()).toEqual(false);
         });
 
         it("should get a Package instance for the raw data, with dependencies", function () {
@@ -118,6 +120,8 @@ define(function (require, exports, module) {
             expect(pkg.homepage).toEqual("http://getbootstrap.com");
             expect(pkg.installationDir).toBeDefined();
             expect(pkg.installationDir).not.toBeNull();
+            expect(pkg.hasDependants()).toEqual(false);
+            expect(pkg.hasDependencies()).toEqual(true);
         });
 
         it("should get an array of packages, with secondary dependencies, tracked as 'production' dependencies", function () {
@@ -149,16 +153,34 @@ define(function (require, exports, module) {
                 switch (pkg.name) {
                 case "angular-aria":
                     expect(pkg.isProjectDependency).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(true);
+                    expect(pkg.hasDependants()).toEqual(true);
+                    expect(pkg.hasDependency("angular")).toEqual(true);
+                    expect(pkg.hasDependant("angular-material")).toEqual(true);
                     break;
                 case "angular":
                     expect(pkg.isProjectDependency).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(false);
+                    expect(pkg.hasDependants()).toEqual(true);
+                    expect(pkg.hasDependant("angular-animate")).toEqual(true);
+                    expect(pkg.hasDependant("angular-aria")).toEqual(true);
+                    expect(pkg.hasDependant("angular-material")).toEqual(true);
                     break;
                 case "angular-material":
                     expect(pkg.isProductionDependency()).toEqual(true);
                     expect(pkg.isProjectDependency).toEqual(true);
+                    expect(pkg.hasDependencies()).toEqual(true);
+                    expect(pkg.hasDependants()).toEqual(false);
+                    expect(pkg.hasDependency("angular-animate")).toEqual(true);
+                    expect(pkg.hasDependency("angular-aria")).toEqual(true);
+                    expect(pkg.hasDependency("angular")).toEqual(true);
                     break;
                 case "angular-animate":
                     expect(pkg.isProjectDependency).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(true);
+                    expect(pkg.hasDependants()).toEqual(true);
+                    expect(pkg.hasDependency("angular")).toEqual(true);
+                    expect(pkg.hasDependant("angular-material")).toEqual(true);
                     break;
                 }
             });
@@ -191,17 +213,35 @@ define(function (require, exports, module) {
                 switch (pkg.name) {
                 case "angular-aria":
                     expect(pkg.isProjectDependency).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(true);
+                    expect(pkg.hasDependants()).toEqual(true);
+                    expect(pkg.hasDependency("angular")).toEqual(true);
+                    expect(pkg.hasDependant("angular-material")).toEqual(true);
                     break;
                 case "angular":
                     expect(pkg.isProjectDependency).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(false);
+                    expect(pkg.hasDependants()).toEqual(true);
+                    expect(pkg.hasDependant("angular-animate")).toEqual(true);
+                    expect(pkg.hasDependant("angular-aria")).toEqual(true);
+                    expect(pkg.hasDependant("angular-material")).toEqual(true);
                     break;
                 case "angular-material":
                     expect(pkg.isProductionDependency()).toEqual(false);
                     expect(pkg.isDevDependency()).toEqual(true);
                     expect(pkg.isProjectDependency).toEqual(true);
+                    expect(pkg.hasDependencies()).toEqual(true);
+                    expect(pkg.hasDependants()).toEqual(false);
+                    expect(pkg.hasDependency("angular-animate")).toEqual(true);
+                    expect(pkg.hasDependency("angular-aria")).toEqual(true);
+                    expect(pkg.hasDependency("angular")).toEqual(true);
                     break;
                 case "angular-animate":
                     expect(pkg.isProjectDependency).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(true);
+                    expect(pkg.hasDependants()).toEqual(true);
+                    expect(pkg.hasDependency("angular")).toEqual(true);
+                    expect(pkg.hasDependant("angular-material")).toEqual(true);
                     break;
                 }
             });
@@ -225,7 +265,6 @@ define(function (require, exports, module) {
                         };
                     }
                 },
-
                 result;
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
@@ -245,22 +284,32 @@ define(function (require, exports, module) {
                 case "jquery":
                     expect(pkg.isProductionDependency()).toEqual(true);
                     expect(pkg.isDevDependency()).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(false);
+                    expect(pkg.hasDependants()).toEqual(false);
                     break;
                 case "angular":
                     expect(pkg.isProductionDependency()).toEqual(true);
                     expect(pkg.isDevDependency()).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(false);
+                    expect(pkg.hasDependants()).toEqual(false);
                     break;
                 case "lodash":
                     expect(pkg.isProductionDependency()).toEqual(true);
                     expect(pkg.isDevDependency()).toEqual(false);
+                    expect(pkg.hasDependencies()).toEqual(false);
+                    expect(pkg.hasDependants()).toEqual(false);
                     break;
                 case "jasmine":
                     expect(pkg.isProductionDependency()).toEqual(false);
                     expect(pkg.isDevDependency()).toEqual(true);
+                    expect(pkg.hasDependencies()).toEqual(false);
+                    expect(pkg.hasDependants()).toEqual(false);
                     break;
                 case "sinon":
                     expect(pkg.isProductionDependency()).toEqual(false);
                     expect(pkg.isDevDependency()).toEqual(true);
+                    expect(pkg.hasDependencies()).toEqual(false);
+                    expect(pkg.hasDependants()).toEqual(false);
                     break;
                 }
             });
@@ -271,18 +320,24 @@ define(function (require, exports, module) {
         it("should get an array of packages, without n-level dependencies, tracked as 'production' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep2.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular": "*",
-                        "jquery": "*",
-                        "sinon": "*",
-                        "lodash": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular": "*",
+                                "jquery": "*",
+                                "sinon": "*",
+                                "lodash": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(5);
 
@@ -299,6 +354,8 @@ define(function (require, exports, module) {
             expect(pkg1.isProjectDependency).toEqual(true);
             expect(pkg1.installationDir).toBeDefined();
             expect(pkg1.installationDir).not.toBeNull();
+            expect(pkg1.hasDependencies()).toEqual(false);
+            expect(pkg1.hasDependants()).toEqual(false);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("jquery");
@@ -307,6 +364,8 @@ define(function (require, exports, module) {
             expect(pkg2.isProjectDependency).toEqual(true);
             expect(pkg2.installationDir).toBeDefined();
             expect(pkg2.installationDir).not.toBeNull();
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(false);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("sinon");
@@ -315,6 +374,8 @@ define(function (require, exports, module) {
             expect(pkg3.isProjectDependency).toEqual(true);
             expect(pkg3.installationDir).toBeDefined();
             expect(pkg3.installationDir).not.toBeNull();
+            expect(pkg3.hasDependencies()).toEqual(false);
+            expect(pkg3.hasDependants()).toEqual(false);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("lodash");
@@ -323,6 +384,8 @@ define(function (require, exports, module) {
             expect(pkg4.isProjectDependency).toEqual(true);
             expect(pkg4.installationDir).toBeDefined();
             expect(pkg4.installationDir).not.toBeNull();
+            expect(pkg4.hasDependencies()).toEqual(false);
+            expect(pkg4.hasDependants()).toEqual(false);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jasmine");
@@ -331,23 +394,31 @@ define(function (require, exports, module) {
             expect(pkg5.isProjectDependency).toEqual(true);
             expect(pkg5.installationDir).toBeDefined();
             expect(pkg5.installationDir).not.toBeNull();
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, without n-level dependencies, tracked as 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep2.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    devDependencies: {
-                        "angular": "*",
-                        "jquery": "*",
-                        "sinon": "*",
-                        "lodash": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            devDependencies: {
+                                "angular": "*",
+                                "jquery": "*",
+                                "sinon": "*",
+                                "lodash": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(5);
 
@@ -365,6 +436,8 @@ define(function (require, exports, module) {
             expect(pkg1.isProjectDependency).toEqual(true);
             expect(pkg1.installationDir).toBeDefined();
             expect(pkg1.installationDir).not.toBeNull();
+            expect(pkg1.hasDependencies()).toEqual(false);
+            expect(pkg1.hasDependants()).toEqual(false);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("jquery");
@@ -374,6 +447,8 @@ define(function (require, exports, module) {
             expect(pkg2.isProjectDependency).toEqual(true);
             expect(pkg2.installationDir).toBeDefined();
             expect(pkg2.installationDir).not.toBeNull();
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(false);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("sinon");
@@ -383,6 +458,8 @@ define(function (require, exports, module) {
             expect(pkg3.isProjectDependency).toEqual(true);
             expect(pkg3.installationDir).toBeDefined();
             expect(pkg3.installationDir).not.toBeNull();
+            expect(pkg3.hasDependencies()).toEqual(false);
+            expect(pkg3.hasDependants()).toEqual(false);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("lodash");
@@ -392,6 +469,8 @@ define(function (require, exports, module) {
             expect(pkg4.isProjectDependency).toEqual(true);
             expect(pkg4.installationDir).toBeDefined();
             expect(pkg4.installationDir).not.toBeNull();
+            expect(pkg4.hasDependencies()).toEqual(false);
+            expect(pkg4.hasDependants()).toEqual(false);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jasmine");
@@ -401,25 +480,33 @@ define(function (require, exports, module) {
             expect(pkg5.isProjectDependency).toEqual(true);
             expect(pkg5.installationDir).toBeDefined();
             expect(pkg5.installationDir).not.toBeNull();
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, without n-level dependencies, tracked as 'production' and 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep2.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular": "*",
-                        "jquery": "*"
-                    },
-                    devDependencies: {
-                        "sinon": "*",
-                        "lodash": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular": "*",
+                                "jquery": "*"
+                            },
+                            devDependencies: {
+                                "sinon": "*",
+                                "lodash": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(5);
 
@@ -435,6 +522,8 @@ define(function (require, exports, module) {
             expect(pkg1.isProductionDependency()).toEqual(true);
             expect(pkg1.isDevDependency()).toEqual(false);
             expect(pkg1.isProjectDependency).toEqual(true);
+            expect(pkg1.hasDependencies()).toEqual(false);
+            expect(pkg1.hasDependants()).toEqual(false);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("jquery");
@@ -442,6 +531,8 @@ define(function (require, exports, module) {
             expect(pkg2.isProductionDependency()).toEqual(true);
             expect(pkg2.isDevDependency()).toEqual(false);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(false);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("sinon");
@@ -449,6 +540,8 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(false);
+            expect(pkg3.hasDependants()).toEqual(false);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("lodash");
@@ -456,6 +549,8 @@ define(function (require, exports, module) {
             expect(pkg4.isProductionDependency()).toEqual(false);
             expect(pkg4.isDevDependency()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(true);
+            expect(pkg4.hasDependencies()).toEqual(false);
+            expect(pkg4.hasDependants()).toEqual(false);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jasmine");
@@ -463,19 +558,27 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isDevDependency()).toEqual(true);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies and 1 of them tracked as 'production' dependency", function () {
             var data = require("text!tests/data/package-factory/deep1.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(4);
 
@@ -488,35 +591,59 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
             expect(pkg2.isInstalled()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(false);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
             expect(pkg3.isInstalled()).toEqual(true);
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
         });
 
         it("should get an array of packages, with n-level dependencies and 1 of them tracked as 'development' dependency", function () {
             var data = require("text!tests/data/package-factory/deep1.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    devDependencies: {
-                        "angular-material": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            devDependencies: {
+                                "angular-material": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(4);
 
@@ -529,11 +656,20 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
             expect(pkg2.isInstalled()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(false);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -541,26 +677,41 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
         });
 
         it("should get an array of packages, mix with n-level dependencies and tracked as 'production' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep3.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "jquery": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "jquery": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -575,11 +726,20 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
             expect(pkg2.isInstalled()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(false);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -587,11 +747,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -599,6 +768,8 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(true);
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -606,21 +777,29 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(true);
             expect(pkg6.isDevDependency()).toEqual(false);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, mix with n-level dependencies and tracked as 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep3.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    devDependencies: {
-                        "angular-material": "*",
-                        "jquery": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            devDependencies: {
+                                "angular-material": "*",
+                                "jquery": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -635,11 +814,20 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
             expect(pkg2.isInstalled()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(false);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -647,11 +835,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -659,6 +856,8 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isDevDependency()).toEqual(true);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -666,23 +865,31 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, mix with n-level dependencies and tracked as 'production' and 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep3.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "jquery": "*"
-                    },
-                    devDependencies: {
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "jquery": "*"
+                            },
+                            devDependencies: {
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -697,11 +904,20 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
             expect(pkg2.isInstalled()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(false);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -709,11 +925,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -721,6 +946,8 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(true);
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -728,22 +955,30 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies and a shared dependency, tracked as 'production' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep4.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "angular": "*",
-                        "jquery": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "angular": "*",
+                                "jquery": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -758,6 +993,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -765,6 +1004,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -772,11 +1016,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -784,6 +1037,8 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(true);
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -791,22 +1046,30 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(true);
             expect(pkg6.isDevDependency()).toEqual(false);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies and a shared dependency, tracked as 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep4.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    devDependencies: {
-                        "angular-material": "*",
-                        "angular": "*",
-                        "jquery": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            devDependencies: {
+                                "angular-material": "*",
+                                "angular": "*",
+                                "jquery": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -821,6 +1084,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -828,6 +1095,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -835,11 +1107,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -847,6 +1128,8 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isDevDependency()).toEqual(true);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -854,24 +1137,32 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies and a shared dependency, tracked as 'production' and 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep4.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "angular": "*"
-                    },
-                    devDependencies: {
-                        "jquery": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "angular": "*"
+                            },
+                            devDependencies: {
+                                "jquery": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -886,6 +1177,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -893,6 +1188,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -900,11 +1200,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -912,6 +1221,8 @@ define(function (require, exports, module) {
             expect(pkg5.isProductionDependency()).toEqual(false);
             expect(pkg5.isDevDependency()).toEqual(true);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -919,21 +1230,29 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies, a shared dependency and 'extraneous', tracked as 'production' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep5.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "angular": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "angular": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -948,6 +1267,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -955,6 +1278,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -962,11 +1290,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -974,6 +1311,8 @@ define(function (require, exports, module) {
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -981,21 +1320,29 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(true);
             expect(pkg6.isDevDependency()).toEqual(false);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies, a shared dependency and 'extraneous', tracked as 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep5.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    devDependencies: {
-                        "angular-material": "*",
-                        "angular": "*",
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            devDependencies: {
+                                "angular-material": "*",
+                                "angular": "*",
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1010,6 +1357,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -1017,6 +1368,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -1024,11 +1380,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -1036,6 +1401,8 @@ define(function (require, exports, module) {
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -1043,23 +1410,31 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies, a shared dependency and 'extraneous', tracked as 'production' and 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep5.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "angular": "*"
-                    },
-                    devDependencies: {
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "angular": "*"
+                            },
+                            devDependencies: {
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1074,6 +1449,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -1081,6 +1460,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -1088,11 +1472,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -1100,6 +1493,8 @@ define(function (require, exports, module) {
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -1107,22 +1502,30 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies, a shared dependency, 'extraneous' and 'missing', tracked as 'production' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep6.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "angular": "*",
-                        "jasmine": "*",
-                        "lodash": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "angular": "*",
+                                "jasmine": "*",
+                                "lodash": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(7);
 
@@ -1138,6 +1541,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -1145,6 +1552,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -1152,11 +1564,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -1164,6 +1585,8 @@ define(function (require, exports, module) {
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -1171,6 +1594,8 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(true);
             expect(pkg6.isDevDependency()).toEqual(false);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
 
             expect(pkg7).toBeDefined();
             expect(pkg7.name).toEqual("lodash");
@@ -1179,22 +1604,30 @@ define(function (require, exports, module) {
             expect(pkg7.isProductionDependency()).toEqual(true);
             expect(pkg7.isDevDependency()).toEqual(false);
             expect(pkg7.isProjectDependency).toEqual(true);
+            expect(pkg7.hasDependencies()).toEqual(false);
+            expect(pkg7.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies, a shared dependency, 'extraneous' and 'missing', tracked as 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep6.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    devDependencies: {
-                        "angular-material": "*",
-                        "angular": "*",
-                        "jasmine": "*",
-                        "lodash": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            devDependencies: {
+                                "angular-material": "*",
+                                "angular": "*",
+                                "jasmine": "*",
+                                "lodash": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(7);
 
@@ -1210,6 +1643,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -1217,6 +1654,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -1224,11 +1666,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(false);
             expect(pkg3.isDevDependency()).toEqual(true);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -1236,6 +1687,8 @@ define(function (require, exports, module) {
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -1243,6 +1696,8 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
 
             expect(pkg7).toBeDefined();
             expect(pkg7.name).toEqual("lodash");
@@ -1251,24 +1706,32 @@ define(function (require, exports, module) {
             expect(pkg7.isProductionDependency()).toEqual(false);
             expect(pkg7.isDevDependency()).toEqual(true);
             expect(pkg7.isProjectDependency).toEqual(true);
+            expect(pkg7.hasDependencies()).toEqual(false);
+            expect(pkg7.hasDependants()).toEqual(false);
         });
 
         it("should get an array of packages, with n-level dependencies, a shared dependency, 'extraneous' and 'missing', tracked as 'production' and 'development' dependencies", function () {
             var data = require("text!tests/data/package-factory/deep6.result.json"),
                 rawData = JSON.parse(data).dependencies,
-                deps = {
-                    dependencies: {
-                        "angular-material": "*",
-                        "angular": "*",
-                        "lodash": "*"
-                    },
-                    devDependencies: {
-                        "jasmine": "*"
+                mockBowerJson = {
+                    getAllDependencies: function () {
+                        return {
+                            dependencies: {
+                                "angular-material": "*",
+                                "angular": "*",
+                                "lodash": "*"
+                            },
+                            devDependencies: {
+                                "jasmine": "*"
+                            }
+                        };
                     }
                 },
-                result = {};
+                result;
 
-            PackageFactory._parsePackagesRecursive(rawData, deps, result);
+            spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
+
+            result = PackageFactory.createPackagesDeep(rawData);
 
             expect(Object.keys(result).length).toEqual(7);
 
@@ -1284,6 +1747,10 @@ define(function (require, exports, module) {
             expect(pkg1.name).toEqual("angular-aria");
             expect(pkg1.isInstalled()).toEqual(true);
             expect(pkg1.isProjectDependency).toEqual(false);
+            expect(pkg1.hasDependencies()).toEqual(true);
+            expect(pkg1.hasDependants()).toEqual(true);
+            expect(pkg1.hasDependency("angular")).toEqual(true);
+            expect(pkg1.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg2).toBeDefined();
             expect(pkg2.name).toEqual("angular");
@@ -1291,6 +1758,11 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg2.isProjectDependency).toEqual(true);
+            expect(pkg2.hasDependencies()).toEqual(false);
+            expect(pkg2.hasDependants()).toEqual(true);
+            expect(pkg2.hasDependant("angular-animate")).toEqual(true);
+            expect(pkg2.hasDependant("angular-aria")).toEqual(true);
+            expect(pkg2.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg3).toBeDefined();
             expect(pkg3.name).toEqual("angular-material");
@@ -1298,11 +1770,20 @@ define(function (require, exports, module) {
             expect(pkg3.isProductionDependency()).toEqual(true);
             expect(pkg3.isDevDependency()).toEqual(false);
             expect(pkg3.isProjectDependency).toEqual(true);
+            expect(pkg3.hasDependencies()).toEqual(true);
+            expect(pkg3.hasDependants()).toEqual(false);
+            expect(pkg3.hasDependency("angular-animate")).toEqual(true);
+            expect(pkg3.hasDependency("angular-aria")).toEqual(true);
+            expect(pkg3.hasDependency("angular")).toEqual(true);
 
             expect(pkg4).toBeDefined();
             expect(pkg4.name).toEqual("angular-animate");
             expect(pkg4.isInstalled()).toEqual(true);
             expect(pkg4.isProjectDependency).toEqual(false);
+            expect(pkg4.hasDependencies()).toEqual(true);
+            expect(pkg4.hasDependants()).toEqual(true);
+            expect(pkg4.hasDependency("angular")).toEqual(true);
+            expect(pkg4.hasDependant("angular-material")).toEqual(true);
 
             expect(pkg5).toBeDefined();
             expect(pkg5.name).toEqual("jquery");
@@ -1310,6 +1791,8 @@ define(function (require, exports, module) {
             expect(pkg5.isNotTracked()).toEqual(true); // and installed
             expect(pkg5.isDevDependency()).toEqual(false);
             expect(pkg5.isProjectDependency).toEqual(true);
+            expect(pkg5.hasDependencies()).toEqual(false);
+            expect(pkg5.hasDependants()).toEqual(false);
 
             expect(pkg6).toBeDefined();
             expect(pkg6.name).toEqual("jasmine");
@@ -1317,6 +1800,8 @@ define(function (require, exports, module) {
             expect(pkg6.isProductionDependency()).toEqual(false);
             expect(pkg6.isDevDependency()).toEqual(true);
             expect(pkg6.isProjectDependency).toEqual(true);
+            expect(pkg6.hasDependencies()).toEqual(false);
+            expect(pkg6.hasDependants()).toEqual(false);
 
             expect(pkg7).toBeDefined();
             expect(pkg7.name).toEqual("lodash");
@@ -1325,6 +1810,8 @@ define(function (require, exports, module) {
             expect(pkg7.isProductionDependency()).toEqual(true);
             expect(pkg7.isDevDependency()).toEqual(false);
             expect(pkg7.isProjectDependency).toEqual(true);
+            expect(pkg7.hasDependencies()).toEqual(false);
+            expect(pkg7.hasDependants()).toEqual(false);
         });
 
         // package info
