@@ -27,13 +27,15 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
+    var SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils"),
+        extensionName = "brackets-bower";
 
     describe("BracketsBower - PackageFactory", function () {
-        var PackageFactory = require("src/project/PackageFactory"),
-            ProjectManager = require("src/project/ProjectManager"),
-            tempDir = SpecRunnerUtils.getTempDirectory(),
+        var tempDir = SpecRunnerUtils.getTempDirectory(),
             defaultTimeout = 5000,
+            PackageFactory,
+            ProjectManager,
+            extensionRequire,
             ExtensionUtils,
             testWindow;
 
@@ -44,6 +46,10 @@ define(function (require, exports, module) {
                 SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
                     testWindow = w;
                     ExtensionUtils = testWindow.brackets.test.ExtensionUtils;
+                    extensionRequire = testWindow.brackets.test.ExtensionLoader.getRequireContextForExtension(extensionName);
+
+                    PackageFactory = extensionRequire("src/project/PackageFactory");
+                    ProjectManager = extensionRequire("src/project/ProjectManager");
 
                     folderPromise.resolve();
                 });
@@ -58,6 +64,10 @@ define(function (require, exports, module) {
         });
 
         afterLast(function () {
+            runs(function () {
+                extensionRequire = null;
+            });
+
             runs(function () {
                 SpecRunnerUtils.removeTempDirectory();
                 SpecRunnerUtils.closeTestWindow();

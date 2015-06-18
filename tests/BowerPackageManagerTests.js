@@ -22,31 +22,45 @@
  */
 
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, expect, beforeEach, afterEach, beforeFirst, afterLast, waitsForDone, waitsForFail,
+/*global define, describe, it, expect, afterEach, beforeFirst, afterLast, waitsForDone, waitsForFail,
 runs, spyOn, $, brackets, waitsForDone */
 
 define(function (require, exports, module) {
     "use strict";
 
     var NodeDomain = brackets.getModule("utils/NodeDomain"),
-        SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
+        SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils"),
+        extensionName = "brackets-bower";
 
     describe("BracketsBower - PackageManager", function () {
-        var PackageManager = require("src/bower/PackageManager"),
-            Bower = require("src/bower/Bower"),
-            tempDir = SpecRunnerUtils.getTempDirectory(),
+        var tempDir = SpecRunnerUtils.getTempDirectory(),
             defaultTimeout = 5000,
+            PackageManager,
+            Bower,
             ExtensionUtils,
             testWindow,
-            bowerDomain;
+            bowerDomain,
+            extensionRequire;
 
         beforeFirst(function () {
+            runs(function () {
+                SpecRunnerUtils.createTempDirectory();
+            });
+
             runs(function () {
                 var folderPromise = new $.Deferred();
 
                 SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
+                    var ExtensionLoader;
+
                     testWindow = w;
                     ExtensionUtils = testWindow.brackets.test.ExtensionUtils;
+                    ExtensionLoader = testWindow.brackets.test.ExtensionLoader;
+
+                    extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
+
+                    SpecRunnerUtils.loadProjectInTestWindow(tempDir);
+
                     folderPromise.resolve();
                 });
 
@@ -56,23 +70,17 @@ define(function (require, exports, module) {
             runs(function () {
                 var path = ExtensionUtils.getModulePath(module, "/utils/BowerDomainMock");
 
+                PackageManager = extensionRequire("src/bower/PackageManager");
+                Bower = extensionRequire("src/bower/Bower");
+
                 bowerDomain = new NodeDomain("bower-test", path);
 
                 Bower.setDomain(bowerDomain);
             });
         });
 
-        beforeEach(function () {
-            runs(function () {
-                SpecRunnerUtils.createTempDirectory();
-                SpecRunnerUtils.loadProjectInTestWindow(tempDir);
-            });
-        });
-
         afterEach(function () {
             runs(function () {
-                SpecRunnerUtils.removeTempDirectory();
-
                 bowerDomain.exec("resetTestData");
             });
         });
@@ -80,6 +88,7 @@ define(function (require, exports, module) {
         afterLast(function () {
             runs(function () {
                 SpecRunnerUtils.closeTestWindow();
+                SpecRunnerUtils.removeTempDirectory();
             });
 
             runs(function () {

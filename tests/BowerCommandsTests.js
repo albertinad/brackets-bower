@@ -6,27 +6,36 @@ define(function (require, exports, module) {
     "use strict";
 
     var NodeDomain      = brackets.getModule("utils/NodeDomain"),
-        SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
+        SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils"),
+        extensionName   = "brackets-bower";
 
     describe("BracketsBower - Bower Commands", function () {
         var tempDir = SpecRunnerUtils.getTempDirectory(),
-            bower = require("src/bower/Bower"),
             defaultTimeout = 3000,
+            Bower,
             config,
             ExtensionUtils,
             bowerDomain,
-            testWindow;
+            testWindow,
+            extensionRequire;
 
         beforeFirst(function () {
-            SpecRunnerUtils.createTempDirectory();
+            runs(function () {
+                SpecRunnerUtils.createTempDirectory();
+            });
 
             runs(function () {
                 var folderPromise = new $.Deferred();
 
                 SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
+                    var ExtensionLoader;
+
                     testWindow = w;
 
                     ExtensionUtils = testWindow.brackets.test.ExtensionUtils;
+                    ExtensionLoader = testWindow.brackets.test.ExtensionLoader;
+
+                    extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
 
                     SpecRunnerUtils.loadProjectInTestWindow(tempDir);
 
@@ -43,14 +52,17 @@ define(function (require, exports, module) {
             runs(function () {
                 var path = ExtensionUtils.getModulePath(module, "/utils/BowerDomainMock");
 
+                Bower = extensionRequire("src/bower/Bower");
+
                 bowerDomain = new NodeDomain("bower-test", path);
 
-                bower.setDomain(bowerDomain);
+                Bower.setDomain(bowerDomain);
             });
         });
 
         afterEach(function () {
             runs(function () {
+                bowerDomain.exec.reset();
                 bowerDomain.exec("resetTestData");
             });
         });
@@ -62,6 +74,7 @@ define(function (require, exports, module) {
             });
 
             runs(function () {
+                Bower = null;
                 bowerDomain = null;
             });
         });
@@ -73,7 +86,7 @@ define(function (require, exports, module) {
                 data;
 
             runs(function () {
-                bower.search(config).then(function (result) {
+                Bower.search(config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -93,7 +106,6 @@ define(function (require, exports, module) {
                     expect(typeof pkg.url).toBe("string");
                 });
 
-                expect(bowerDomain.exec.calls.length).toEqual(1);
                 expect(bowerDomain.exec).toHaveBeenCalledWith("search", config);
                 expect(resultPromise.state()).toEqual("resolved");
             });
@@ -112,7 +124,7 @@ define(function (require, exports, module) {
             spyOn(bowerDomain, "exec").andCallThrough();
 
             runs(function () {
-                bower.search(config).then(function () {
+                Bower.search(config).then(function () {
                     resultPromise.resolve();
                 }).fail(function (err) {
                     error = err;
@@ -141,7 +153,7 @@ define(function (require, exports, module) {
                 data;
 
             runs(function () {
-                bower.listCache(config).then(function (result) {
+                Bower.listCache(config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -180,7 +192,7 @@ define(function (require, exports, module) {
             spyOn(bowerDomain, "exec").andCallThrough();
 
             runs(function () {
-                bower.listCache(config).then(function (result) {
+                Bower.listCache(config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -210,7 +222,7 @@ define(function (require, exports, module) {
                 data;
 
             runs(function () {
-                bower.installPackage("jQuery", options, config).then(function (result) {
+                Bower.installPackage("jQuery", options, config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -238,7 +250,7 @@ define(function (require, exports, module) {
             spyOn(bowerDomain, "exec").andCallThrough();
 
             runs(function () {
-                bower.install(config).then(function (result) {
+                Bower.install(config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -272,7 +284,7 @@ define(function (require, exports, module) {
             spyOn(bowerDomain, "exec").andCallThrough();
 
             runs(function () {
-                bower.install(config).then(function (result) {
+                Bower.install(config).then(function (result) {
                     resultPromise.resolve();
                 }).fail(function (err) {
                     error = err;
@@ -303,7 +315,7 @@ define(function (require, exports, module) {
                 data;
 
             runs(function () {
-                bower.uninstall("jquery", options, config).then(function (result) {
+                Bower.uninstall("jquery", options, config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function (err) {
@@ -337,7 +349,7 @@ define(function (require, exports, module) {
                 data;
 
             runs(function () {
-                bower.uninstall(pkgs, options, config).then(function (result) {
+                Bower.uninstall(pkgs, options, config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -380,7 +392,7 @@ define(function (require, exports, module) {
             spyOn(bowerDomain, "exec").andCallThrough();
 
             runs(function () {
-                bower.uninstall("package1", options, config).then(function (result) {
+                Bower.uninstall("package1", options, config).then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function (err) {
@@ -406,7 +418,7 @@ define(function (require, exports, module) {
                 commandResult;
 
             runs(function () {
-                bower.prune(config).then(function (result) {
+                Bower.prune(config).then(function (result) {
                     commandResult = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -436,7 +448,7 @@ define(function (require, exports, module) {
 
             spyOn(bowerDomain, "exec").andCallThrough();
 
-            bower.prune(config).then(function () {
+            Bower.prune(config).then(function () {
                 resultPromise.resolve();
             }).fail(function (error) {
                 commandResult = error;

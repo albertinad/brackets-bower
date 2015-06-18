@@ -31,17 +31,19 @@ define(function (require, exports, module) {
     var SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils");
 
     describe("BracketsBower - Metadata", function () {
-        var tempDir = SpecRunnerUtils.getTempDirectory() + "/",
-            projectName = "test-app",
+        var tempDir = SpecRunnerUtils.getTempDirectory(),
+            projectName = "temp",
             defaultTimeout = 30000,
-            testWindow;
+            extensionName = "brackets-bower",
+            extensionRequire;
 
         beforeFirst(function () {
             runs(function () {
                 var folderPromise = new $.Deferred();
 
-                SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
-                    testWindow = w;
+                SpecRunnerUtils.createTestWindowAndRun(this, function (testWindow) {
+                    var ExtensionLoader = testWindow.brackets.test.ExtensionLoader;
+                    extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
                     folderPromise.resolve();
                 });
 
@@ -56,17 +58,30 @@ define(function (require, exports, module) {
 
         afterLast(function () {
             runs(function () {
+                extensionRequire = null;
+            });
+
+            runs(function () {
                 SpecRunnerUtils.removeTempDirectory();
                 SpecRunnerUtils.closeTestWindow();
             });
         });
 
         describe("BowerJson", function () {
-            var BowerJson = require("src/metadata/BowerJson"),
-                Package = require("src/project/PackageFactory")._Package,
-                BowerProject = require("src/project/Project"),
-                DependencyType = require("src/bower/PackageUtils").DependencyType,
+            var BowerJson,
+                Package,
+                BowerProject,
+                DependencyType,
                 project;
+
+            beforeFirst(function () {
+                runs(function () {
+                    BowerJson = extensionRequire("src/metadata/BowerJson");
+                    Package = extensionRequire("src/project/Package");
+                    BowerProject = extensionRequire("src/project/Project");
+                    DependencyType = extensionRequire("src/bower/PackageUtils").DependencyType;
+                });
+            });
 
             beforeEach(function () {
                 var fakeProjectManager = jasmine.createSpyObj("fakeProjectManager", [
@@ -1426,9 +1441,16 @@ define(function (require, exports, module) {
         });
 
         describe("BowerRc", function () {
-            var BowerRc = require("src/metadata/BowerRc"),
-                BowerProject = require("src/project/Project"),
+            var BowerRc,
+                BowerProject,
                 project;
+
+            beforeFirst(function () {
+                runs(function () {
+                    BowerRc = extensionRequire("src/metadata/BowerRc");
+                    BowerProject = extensionRequire("src/project/Project");
+                });
+            });
 
             beforeEach(function () {
                 var fakeProjectManager = jasmine.createSpyObj("fakeProjectManager", [
