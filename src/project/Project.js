@@ -129,6 +129,13 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @return {number}
+     */
+    BowerProject.prototype.packagesCount = function () {
+        return (this._packages) ? Object.keys(this._packages).length : 0;
+    };
+
+    /**
      * Set the packages.
      * @param {Array} packagesArray
      */
@@ -253,6 +260,32 @@ define(function (require, exports, module) {
         });
 
         return packagesArray;
+    };
+
+    /**
+     * @return {object}
+     */
+    BowerProject.prototype.getPackagesSummary = function () {
+        var packages = {
+            total: this.packagesCount(),
+            production: [],
+            development: [],
+            dependantsOnly: []
+        };
+
+        _.forEach(this._packages, function (pkg) {
+            if (pkg.isProjectDependency) {
+                if (pkg.isProductionDependency()) {
+                    packages.production.push(pkg);
+                } else {
+                    packages.development.push(pkg);
+                }
+            } else {
+                packages.dependantsOnly.push(pkg);
+            }
+        });
+
+        return packages;
     };
 
     /**

@@ -280,6 +280,13 @@ define(function (require, exports) {
         return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
     }
 
+    /**
+     * @return {object}
+     */
+    function getPackagesSummary() {
+        return (_bowerProject) ? _bowerProject.getPackagesSummary() : [];
+    }
+
     function listProjectDependencies() {
         var deferred = new $.Deferred();
 
@@ -609,6 +616,7 @@ define(function (require, exports) {
     exports.initialize                 = initialize;
     exports.getProject                 = getProject;
     exports.getProjectDependencies     = getProjectDependencies;
+    exports.getPackagesSummary         = getPackagesSummary;
     exports.updateActiveDirToSelection = updateActiveDirToSelection;
     exports.getProjectStatus           = getProjectStatus;
     exports.listProjectDependencies    = _wrap(listProjectDependencies);
