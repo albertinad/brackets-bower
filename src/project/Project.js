@@ -144,7 +144,7 @@ define(function (require, exports, module) {
 
         this._packages = {};
 
-        return this._addPackages(packagesArray);
+        return this._addPackages(packagesArray, false);
     };
 
     /**
@@ -154,13 +154,15 @@ define(function (require, exports, module) {
     BowerProject.prototype.addPackages = function (packagesArray) {
         this._keepVersionsIfNeeded(packagesArray);
 
-        return this._addPackages(packagesArray);
+        return this._addPackages(packagesArray, true);
     };
 
     /**
+     * @param {Array} packagesArray
+     * @param {boolean} updateDependants
      * @private
      */
-    BowerProject.prototype._addPackages = function (packagesArray) {
+    BowerProject.prototype._addPackages = function (packagesArray, updateDependants) {
         var that = this,
             packagesInstalled = [],
             packagesUpdated = [],
@@ -177,6 +179,11 @@ define(function (require, exports, module) {
             }
 
             that._packages[name] = pkg;
+
+            if (updateDependants) {
+                // update dependants
+                that._addPackageDependants(pkg);
+            }
         });
 
         result = {
@@ -221,11 +228,68 @@ define(function (require, exports, module) {
             }
         });
 
+        // update dependants for removed packages
+        // if a package that has it as a dependant was removed also, this won't updated because
+        // it will look for it in the updated packages.
+        packages.forEach(function (pkg) {
+            that._removePackageDependants(pkg);
+        });
+
         this._status.checkCurrentStatus();
 
         this._projectManager.notifyDependenciesRemoved(packages);
 
         return packages;
+    };
+
+    /**
+     * Update packages dependencies dependant's according for the given package. If the
+     * the package has dependencies, look for those dependencies and remove the given package
+     * as a dependant package.
+     * @param {Package} pkg
+     * @private
+     */
+    BowerProject.prototype._removePackageDependants = function (pkg) {
+        var that = this,
+            name = pkg.name,
+            pkgDeps;
+
+        if (pkg.hasDependencies()) {
+            pkgDeps = pkg.dependencies;
+
+            _.forEach(pkgDeps, function (dependency) {
+                var depPkg = that._packages[dependency.name];
+
+                if (depPkg) {
+                    depPkg.removeDependant(name);
+                }
+            });
+        }
+    };
+
+    /**
+     * Update packages dependencies dependant's according for the given package. If the
+     * the package has dependencies, look for those dependencies and add the given package
+     * as a dependant package if it wasn't added.
+     * @param {Package} pkg
+     * @private
+     */
+    BowerProject.prototype._addPackageDependants = function (pkg) {
+        var that = this,
+            name = pkg.name,
+            pkgDeps;
+
+        if (pkg.hasDependencies()) {
+            pkgDeps = pkg.dependencies;
+
+            _.forEach(pkgDeps, function (dependency) {
+                var depPkg = that._packages[dependency.name];
+
+                if (depPkg && !depPkg.hasDependant(name)) {
+                    depPkg.addDependant(name);
+                }
+            });
+        }
     };
 
     /**

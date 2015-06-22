@@ -252,7 +252,7 @@ define(function (require, exports, module) {
      */
     Package.prototype.removeDependant = function (name) {
         if (this.hasDependant(name)) {
-            this._dependants.slice(name); // TODO review
+            this._dependants.splice(this._dependants.indexOf(name), 1);
         }
     };
 
