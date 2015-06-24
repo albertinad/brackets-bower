@@ -37,7 +37,7 @@ define(function (require, exports, module) {
 
     // local modules
     var Bower              = require("src/bower/Bower"),
-        GitChecker         = require("src/utils/GitChecker"),
+        GitUtils           = require("src/utils/GitUtils"),
         ProjectManager     = require("src/project/ProjectManager"),
         QuickInstall       = require("src/QuickInstall"),
         NotificationDialog = require("src/dialogs/NotificationDialog"),
@@ -98,7 +98,7 @@ define(function (require, exports, module) {
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
         Bower.setDomain(bowerDomain);
-        GitChecker.setDomain(bowerDomain);
+        GitUtils.setDomain(bowerDomain);
 
         QuickInstall.init();
 
@@ -120,7 +120,7 @@ define(function (require, exports, module) {
         AppInit.appReady(function () {
             var projectMenu;
 
-            GitChecker.findGitOnSystem().fail(function () {
+            GitUtils.findGitOnSystem().fail(function () {
                 panelController.updateStatus(PanelController.WARNING);
 
                 NotificationDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
