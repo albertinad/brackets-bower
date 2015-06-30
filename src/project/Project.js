@@ -481,7 +481,7 @@ define(function (require, exports, module) {
         var pkg = this._packages[name];
 
         if (pkg) {
-            pkg.isProjectPackage = true;
+            pkg.isProjectDependency = true;
         }
     };
 

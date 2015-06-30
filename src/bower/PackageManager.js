@@ -168,9 +168,9 @@ define(function (require, exports) {
                 });
             } else {
                 // check if it is a previous installed package as a package dependency
-                pkg = project.getPackageDependencyByName(name);
+                pkg = project.getPackageByName(name);
 
-                if (pkg) {
+                if (pkg && !pkg.isProjectDependency) {
                     project.updatePackageDependencyToProject(name);
 
                     deferred.resolve(pkg);
