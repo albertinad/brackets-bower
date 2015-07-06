@@ -158,6 +158,8 @@ define(function (require, exports) {
                     return (pkgObject.name === name);
                 });
 
+                pkg.dependencyType = PackageUtils.getValidDependencyType(data.type);
+
                 info(name).then(function (packageInfo) {
 
                     pkg.updateVersionInfo(packageInfo);
@@ -226,7 +228,7 @@ define(function (require, exports) {
                     packagesArray = packagesWithUpdate;
 
                 }).fail(function () {
-                    // do not handle the error
+
                     packagesArray = PackageFactory.createPackages(resultPackages);
                 }).always(function () {
 
@@ -404,7 +406,6 @@ define(function (require, exports) {
                 deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED));
             }
         }).fail(function (error) {
-
             deferred.reject(error);
         });
 

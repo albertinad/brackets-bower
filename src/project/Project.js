@@ -28,10 +28,11 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var _             = brackets.getModule("thirdparty/lodash"),
-        ProjectStatus = require("src/project/ProjectStatus"),
-        PackageUtils  = require("src/bower/PackageUtils"),
-        ErrorUtils    = require("src/utils/ErrorUtils");
+    var _              = brackets.getModule("thirdparty/lodash"),
+        ProjectStatus  = require("src/project/ProjectStatus"),
+        PackageFactory = require("src/project/PackageFactory"),
+        PackageUtils   = require("src/bower/PackageUtils"),
+        ErrorUtils     = require("src/utils/ErrorUtils");
 
     /**
      * @constructor
@@ -276,17 +277,18 @@ define(function (require, exports, module) {
      */
     BowerProject.prototype._addPackageDependants = function (pkg) {
         var that = this,
-            name = pkg.name,
+            dependant,
             pkgDeps;
 
         if (pkg.hasDependencies()) {
             pkgDeps = pkg.dependencies;
+            dependant = PackageFactory.createPackageDependant(pkg);
 
             _.forEach(pkgDeps, function (dependency) {
                 var depPkg = that._packages[dependency.name];
 
-                if (depPkg && !depPkg.hasDependant(name)) {
-                    depPkg.addDependant(name);
+                if (depPkg) {
+                    depPkg.addDependant(dependant);
                 }
             });
         }

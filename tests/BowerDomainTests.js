@@ -32,6 +32,8 @@ define(function (require, exports, module) {
 
     describe("BracketsBower - Bower Domain", function () {
 
+        var DEFAULT_TIMEOUT = 100000;
+
         // test for the underlying node domain
 
         var tempDir = SpecRunnerUtils.getTempDirectory(),
@@ -77,34 +79,30 @@ define(function (require, exports, module) {
             });
         });
 
-        it("should return a list of package names", function () {
-            var packages,
-                emptyConfig = {},
-                i;
+        it("should get detailed information about 'jquery'", function () {
+            var emptyConfig = {},
+                info;
 
             runs(function () {
-                bowerDomain.exec("search", emptyConfig)
+                bowerDomain.exec("info", "jquery", emptyConfig)
                     .done(function (data) {
-                        packages = data;
+                        info = data;
                     });
             });
 
             waitsFor(function () {
-                return packages;
-            }, "waiting for bower package list", 100000);
+                return info;
+            }, "waiting for bower info about jquery ", DEFAULT_TIMEOUT);
 
             runs(function () {
-                expect(Array.isArray(packages)).toBe(true);
-                expect(packages.length).toBeGreaterThan(0);
-
-                for (i = 0; i < packages.length; i++) {
-                    expect(typeof packages[i].name).toBe("string");
-                    expect(typeof packages[i].url).toBe("string");
-                }
+                expect(info.name).toEqual("jquery");
+                expect(Array.isArray(info.versions)).toBe(true);
+                expect(info.latest).toBeDefined();
+                expect(typeof info.latest.version).toBe("string");
             });
         });
 
-        it("should install jquery", function () {
+        it("should install 'jquery'", function () {
             runs(function () {
                 var config = {
                         cwd: tempDir
@@ -114,7 +112,7 @@ define(function (require, exports, module) {
                     };
 
                 waitsForDone(bowerDomain.exec("install", ["jquery"], options, config),
-                    "installing jquery", 100000);
+                    "installing jquery", DEFAULT_TIMEOUT);
             });
 
             runs(function () {

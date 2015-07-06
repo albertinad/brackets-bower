@@ -40,12 +40,6 @@ define(function (require, exports, module) {
         FIXED: 2
     };
 
-    var Status = {
-        INSTALLED: 0,
-        MISSING: 1,
-        NOT_TRACKED: 2
-    };
-
     var TILDE = "~",
         CARET = "^";
 
@@ -64,15 +58,6 @@ define(function (require, exports, module) {
     function isValidVersion(version) {
         return (version === VersionOptions.TILDE || version === VersionOptions.CARET ||
                 version === VersionOptions.FIXED);
-    }
-
-    /**
-     * @param {number} type
-     * @return {boolean}
-     */
-    function isValidStatus(status) {
-        return (status === Status.INSTALLED || status === Status.MISSING ||
-                status === Status.NOT_TRACKED);
     }
 
     /**
@@ -183,23 +168,29 @@ define(function (require, exports, module) {
     }
 
     /**
+     * Check if the given dependency type is a valid type, in that case return the given value. Otherwise,
+     * return the default valid dependency type: production.
+     * @param {number} dependencyType
+     * @return {number}
+     */
+    function getValidDependencyType(dependencyType) {
+        return (isValidDependencyType(dependencyType)) ? dependencyType : DependencyType.PRODUCTION;
+    }
+
+    /**
      * @param {object} data
      * @private
      */
     function getInstallOptions(data) {
-        var options = {};
-
-        // prepare default values when needed
-        if (typeof data.type !== "number") {
-            data.type = DependencyType.PRODUCTION;
-        }
+        var options = {},
+            dependencyType = getValidDependencyType(data.type);
 
         if (typeof data.save !== "boolean") {
             data.save = false;
         }
 
         // setup options
-        if (data.type === DependencyType.PRODUCTION) {
+        if (dependencyType === DependencyType.PRODUCTION) {
             options.save = data.save;
         } else {
             options.saveDev = data.save;
@@ -213,10 +204,9 @@ define(function (require, exports, module) {
     exports.getPackageVersionToInstall = getPackageVersionToInstall;
     exports.getInstallOptions          = getInstallOptions;
     exports.getUpdateDataForPackage    = getUpdateDataForPackage;
+    exports.getValidDependencyType     = getValidDependencyType;
     exports.isValidDependencyType      = isValidDependencyType;
     exports.isValidVersion             = isValidVersion;
-    exports.isValidStatus              = isValidStatus;
     exports.DependencyType             = DependencyType;
     exports.VersionOptions             = VersionOptions;
-    exports.Status                     = Status;
 });

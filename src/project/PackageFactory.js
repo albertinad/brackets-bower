@@ -34,41 +34,36 @@ define(function (require, exports, module) {
         PackageUtils   = require("src/bower/PackageUtils");
 
     /**
-     * Package dependency constructor function.
-     * @controller
+     * Package short information constructor function.
+     * @param {string} name Package name.
+     * @param {string} version Package semver version.
+     * @param {string=} source Source repository.
+     * @constructor
      */
-    function PackageDependency(name, version, source, homepage) {
+    function PackageSummary(name, version, source) {
         /** @private */
         this._name = name;
         /** @private */
         this._version = version;
         /** @private */
-        this._source = source;
-        /** @private */
-        this._homepage = homepage;
+        this._source = source || null;
     }
 
-    Object.defineProperty(PackageDependency.prototype, "name", {
+    Object.defineProperty(PackageSummary.prototype, "name", {
         get: function () {
             return this._name;
         }
     });
 
-    Object.defineProperty(PackageDependency.prototype, "version", {
+    Object.defineProperty(PackageSummary.prototype, "version", {
         get: function () {
             return this._version;
         }
     });
 
-    Object.defineProperty(PackageDependency.prototype, "source", {
+    Object.defineProperty(PackageSummary.prototype, "source", {
         get: function () {
             return this._source;
-        }
-    });
-
-    Object.defineProperty(PackageDependency.prototype, "homepage", {
-        get: function () {
-            return this._homepage;
         }
     });
 
@@ -167,10 +162,22 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {Package}
+     * @return {PackageSummary}
+     */
+    function createPackageDependant(pkg) {
+        var name = pkg.name,
+            source = pkg.source;
+
+        return new PackageSummary(name, null, source);
+    }
+
+    /**
      * Check if the given dependency name is defined in bower json dependencies.
      * @param {string} name
      * @param {object} bowerJsonDependencies
      * @return {string}
+     * @private
      */
     function _getBowerJsonVersion(name, bowerJsonDependencies) {
         var version = null;
@@ -198,6 +205,7 @@ define(function (require, exports, module) {
      * @param {object} data
      * @param {object=} bowerJsonDeps
      * @return {Package} pkg
+     * @private
      */
     function _packageFromRawData(name, data, bowerJsonDeps) {
         var pkg = new Package(name),
@@ -230,9 +238,9 @@ define(function (require, exports, module) {
         }
 
         if (data.missing) {
-            pkg.status = PackageUtils.Status.MISSING;
+            pkg.status = Package.Status.MISSING;
         } else if (data.extraneous) {
-            pkg.status = PackageUtils.Status.NOT_TRACKED;
+            pkg.status = Package.Status.NOT_TRACKED;
         }
 
         pkg.isProjectDependency = Package.isProjectDirectDependency(name, pkg.status, bowerJsonDeps);
@@ -262,7 +270,7 @@ define(function (require, exports, module) {
                     source = "";
                 }
 
-                pkg.addDependency(new PackageDependency(name, version, source));
+                pkg.addDependency(new PackageSummary(name, version, source));
             });
         }
 
@@ -280,8 +288,7 @@ define(function (require, exports, module) {
             pkg = new PackageInfo(rawData.name, latestVersion, rawData.versions);
 
         _.forEach(latest.dependencies, function (version, name) {
-            // TODO get homepage?
-            pkg.addDependency(new PackageDependency(name, version, ""));
+            pkg.addDependency(new PackageSummary(name, version));
         });
 
         if (latest.keywords) {
@@ -337,7 +344,8 @@ define(function (require, exports, module) {
         _.forEach(pkgsData, function (pkg, name) {
 
             if (pkg.hasDependencies()) {
-                var dependencies = pkg.getDependenciesNames();
+                var dependencies = pkg.getDependenciesNames(),
+                    dependant = createPackageDependant(pkg);
 
                 // iterate over the package dependencies to set up dependants
                 dependencies.forEach(function (depName) {
@@ -345,7 +353,7 @@ define(function (require, exports, module) {
 
                     // find the dependency package and add a dependant for that package
                     if (currentPkg) {
-                        currentPkg.addDependant(pkg.name);
+                        currentPkg.addDependant(dependant);
                     }
                 });
             }
@@ -463,9 +471,10 @@ define(function (require, exports, module) {
     exports.createPackagesDeepArray = createPackagesDeepArray;
     exports.createPackage           = createPackage;
     exports.createInfo              = createInfo;
+    exports.createPackageDependant  = createPackageDependant;
     exports.getPackagesName         = getPackagesName;
 
     // tests
-    exports._PackageDependency        = PackageDependency;
-    exports._PackageInfo              = PackageInfo;
+    exports._PackageSummary         = PackageSummary;
+    exports._PackageInfo            = PackageInfo;
 });

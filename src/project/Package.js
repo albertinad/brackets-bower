@@ -33,6 +33,12 @@ define(function (require, exports, module) {
 
     var DependencyType = PackageUtils.DependencyType;
 
+    var Status = {
+        INSTALLED: 0,
+        MISSING: 1,
+        NOT_TRACKED: 2
+    };
+
     /**
      * Constructor function for Bower package instances.
      * @param {string} name
@@ -58,14 +64,16 @@ define(function (require, exports, module) {
         /** @private */
         this._isProjectDependency = true; // default
         /** @private */
-        this._status = PackageUtils.Status.INSTALLED;
+        this._status = Status.INSTALLED;
         /** @private */
         this._dependencyType = DependencyType.PRODUCTION;
         /** @private */
         this._dependencies = {};
         /** @private */
-        this._dependants = [];
+        this._dependants = {};
     }
+
+    Package.Status = Status;
 
     Object.defineProperty(Package.prototype, "name", {
         get: function () {
@@ -177,11 +185,12 @@ define(function (require, exports, module) {
             return this._dependants;
         }
     });
+
     /**
-     * @param {PackageDependency} dependency
+     * @param {PackageSummary} dependency
      */
     Package.prototype.addDependency = function (dependency) {
-        if (dependency) {
+        if (dependency && !this._dependencies[dependency.name]) {
             this._dependencies[dependency.name] = dependency;
         }
     };
@@ -201,11 +210,7 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     Package.prototype.hasDependencies = function () {
-        if (this._dependencies) {
-            return (Object.keys(this._dependencies).length !== 0);
-        } else {
-            return false;
-        }
+        return (this.dependenciesCount() !== 0);
     };
 
     /**
@@ -239,11 +244,11 @@ define(function (require, exports, module) {
     };
 
     /**
-     * @param {string} name
+     * @param {PackageSummary} dependant
      */
-    Package.prototype.addDependant = function (name) {
-        if (!this.hasDependant()) {
-            this._dependants.push(name);
+    Package.prototype.addDependant = function (dependant) {
+        if (dependant && !this._dependants[dependant.name]) {
+            this._dependants[dependant.name] = dependant;
         }
     };
 
@@ -251,8 +256,8 @@ define(function (require, exports, module) {
      * @param {string} name
      */
     Package.prototype.removeDependant = function (name) {
-        if (this.hasDependant(name)) {
-            this._dependants.splice(this._dependants.indexOf(name), 1);
+        if (this._dependants[name]) {
+            delete this._dependants[name];
         }
     };
 
@@ -267,14 +272,18 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     Package.prototype.hasDependant = function (name) {
-        return (this._dependants.indexOf(name) !== -1);
+        return (this._dependants[name] !== undefined);
     };
 
     /**
      * @return {number}
      */
     Package.prototype.dependantsCount = function () {
-        return this._dependants.length;
+        if (this._dependants) {
+            return Object.keys(this._dependants).length;
+        } else {
+            return 0;
+        }
     };
 
     /**
@@ -353,14 +362,14 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     Package.prototype.isInstalled = function () {
-        return (this._status !== PackageUtils.Status.MISSING);
+        return (this._status !== Status.MISSING);
     };
 
     /**
      * @return {boolean}
      */
     Package.prototype.isMissing = function () {
-        return (this._status === PackageUtils.Status.MISSING);
+        return (this._status === Status.MISSING);
     };
 
     /**
@@ -368,7 +377,7 @@ define(function (require, exports, module) {
      */
     Package.prototype.isNotTracked = function () {
         // bower "extraneous" definition
-        return (this._status === PackageUtils.Status.NOT_TRACKED);
+        return (this._status === Status.NOT_TRACKED);
     };
 
     /**
@@ -403,10 +412,13 @@ define(function (require, exports, module) {
         return false;
     };
 
+    /**
+     * @return {boolean}
+     */
     Package.isProjectDirectDependency = function (name, status, bowerJsonDeps) {
         var isDirectDependency;
 
-        if (status !==  PackageUtils.Status.INSTALLED) { // missing or extraneous
+        if (status !==  Status.INSTALLED) { // missing or extraneous
             isDirectDependency = true;
         } else {
             isDirectDependency = (bowerJsonDeps) ? Package.isInBowerJsonDeps(name, bowerJsonDeps) : true;

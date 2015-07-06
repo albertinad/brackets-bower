@@ -158,10 +158,6 @@ define(function (require, exports) {
         var deferred = new $.Deferred(),
             bowerJson;
 
-        if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         BowerJson.findInPath(_bowerProject.getPath()).then(function () {
             bowerJson = new BowerJson(_bowerProject);
 
@@ -181,7 +177,7 @@ define(function (require, exports) {
             }
         });
 
-        return deferred;
+        return deferred.promise();
     }
 
     /**
@@ -239,10 +235,6 @@ define(function (require, exports) {
         var deferred = new $.Deferred(),
             bowerRc;
 
-        if (!_bowerProject) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
-        }
-
         BowerRc.findInPath(_bowerProject.getPath()).then(function () {
             bowerRc = new BowerRc(_bowerProject);
 
@@ -261,7 +253,7 @@ define(function (require, exports) {
             }
         });
 
-        return deferred;
+        return deferred.promise();
     }
 
     /**
@@ -303,72 +295,46 @@ define(function (require, exports) {
     }
 
     /**
-     * Check for packages updates based on the current installed packages.
-     * If the packages have upates, update the information from the current
-     * project installed packages.
-     * @return {$.Deferred}
-     */
-    function checkForUpdates() {
-        var deferred = new $.Deferred();
-
-        PackageManager.packagesWithVersions().then(function (packagesArray) {
-            _bowerProject.setPackages(packagesArray);
-
-            deferred.resolve(packagesArray);
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred;
-    }
-    /**
      * Initialization sequence when the project changes. Notifies that the
      * BowerProject instance is loading. Load the current project dependencies
      * if any, the configuration for the project and bower.json if any. After
      * loading the current project infomartation, notifies that the bower project
      * is ready.
-     * @return {Object}
+     * @return {$.Promise}
      */
     function _configureBowerProject() {
-        var deferred = new $.Deferred();
+        var deferred = new $.Deferred(),
+            loadPromises;
 
         // notify bower project is being loaded
         exports.trigger(PROJECT_LOADING);
 
-        // load bowerrc if any
-        _loadBowerRc().always(function () {
-            // load bower.json if any
-            _loadBowerJson().always(function () {
+        if (!_bowerProject) {
+            exports.trigger(PROJECT_READY);
 
-                if (_bowerProject !== null) {
-                    // start loading project dependencies
-                    listProjectDependencies().then(function (packagesArray) {
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+        }
 
+        loadPromises = [_loadBowerRc(), _loadBowerJson()];
+
+        Async.waitForAll(loadPromises).then(function () {
+            // start loading project dependencies
+            listProjectDependencies().then(function (packagesArray) {
+                _bowerProject.setPackages(packagesArray);
+
+                // check for dependencies updates
+                PackageManager.packagesWithVersions().then(function (packagesArray) {
+                    if (_bowerProject) {
                         _bowerProject.setPackages(packagesArray);
+                    }
+                });
+            }).always(function () {
+                FileSystemHandler.startListenToFileSystem(_bowerProject);
 
-                        // try to get check for dependencies updates
-                        checkForUpdates().fail(function () {
-                            // TODO: handle when it fails not because network errors
-                        });
-                    }).fail(function () {
-                        // do not handle failure
-                    }).always(function () {
+                // notify bower project is ready
+                exports.trigger(PROJECT_READY);
 
-                        FileSystemHandler.startListenToFileSystem(_bowerProject);
-
-                        deferred.resolve();
-
-                        // notify bower project is ready
-                        exports.trigger(PROJECT_READY);
-                    });
-                } else {
-                    FileSystemHandler.stopListenToFileSystem();
-
-                    deferred.resolve();
-
-                    // notify bower project is ready
-                    exports.trigger(PROJECT_READY);
-                }
+                deferred.resolve();
             });
         });
 
