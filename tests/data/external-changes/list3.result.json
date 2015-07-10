@@ -1,0 +1,250 @@
+{
+  "endpoint": {
+    "name": "project02",
+    "source": "/tests/project02",
+    "target": "*"
+  },
+  "canonicalDir": "/tests/project02",
+  "pkgMeta": {
+    "name": "project02",
+    "dependencies": {
+      "angular-material": "~0.10.0",
+      "angular": "*"
+    },
+    "devDependencies": {
+      "sinon": "~1.15.4"
+    }
+  },
+  "dependencies": {
+    "angular": {
+      "endpoint": {
+        "name": "angular",
+        "source": "angular",
+        "target": "*"
+      },
+      "canonicalDir": "/tests/project02/bower_components/angular",
+      "pkgMeta": {
+        "name": "angular",
+        "version": "1.4.2",
+        "main": "./angular.js",
+        "ignore": [],
+        "dependencies": {},
+        "homepage": "https://github.com/angular/bower-angular",
+        "_release": "1.4.2",
+        "_resolution": {
+          "type": "version",
+          "tag": "v1.4.2",
+          "commit": "71a5067e4cddc6dd2dcb9f03afb9296c282f148f"
+        },
+        "_source": "https://github.com/angular/bower-angular.git",
+        "_target": "^1.3.0 || >1.4.0-beta.0",
+        "_originalSource": "angular"
+      },
+      "dependencies": {},
+      "nrDependants": 1
+    },
+    "angular-material": {
+      "endpoint": {
+        "name": "angular-material",
+        "source": "angular-material",
+        "target": "~0.10.0"
+      },
+      "canonicalDir": "/tests/project02/bower_components/angular-material",
+      "pkgMeta": {
+        "name": "angular-material",
+        "version": "0.10.0",
+        "ignore": [],
+        "dependencies": {
+          "angular": "^1.3.0 || >1.4.0-beta.0",
+          "angular-animate": "^1.3.0 || >1.4.0-beta.0",
+          "angular-aria": "^1.3.15 || >1.4.0-beta.0"
+        },
+        "main": [
+          "angular-material.js",
+          "angular-material.css"
+        ],
+        "homepage": "https://github.com/angular/bower-material",
+        "_release": "0.10.0",
+        "_resolution": {
+          "type": "version",
+          "tag": "v0.10.0",
+          "commit": "1e48d39c2be9aa2bf6ebb212f978947d7e52e608"
+        },
+        "_source": "https://github.com/angular/bower-material.git",
+        "_target": "~0.10.0",
+        "_originalSource": "angular-material",
+        "_direct": true
+      },
+      "dependencies": {
+        "angular": {
+          "endpoint": {
+            "name": "angular",
+            "source": "angular",
+            "target": "^1.3.0 || >1.4.0-beta.0"
+          },
+          "canonicalDir": "/tests/project02/bower_components/angular",
+          "pkgMeta": {
+            "name": "angular",
+            "version": "1.4.2",
+            "main": "./angular.js",
+            "ignore": [],
+            "dependencies": {},
+            "homepage": "https://github.com/angular/bower-angular",
+            "_release": "1.4.2",
+            "_resolution": {
+              "type": "version",
+              "tag": "v1.4.2",
+              "commit": "71a5067e4cddc6dd2dcb9f03afb9296c282f148f"
+            },
+            "_source": "https://github.com/angular/bower-angular.git",
+            "_target": "^1.3.0 || >1.4.0-beta.0",
+            "_originalSource": "angular"
+          },
+          "dependencies": {},
+          "nrDependants": 1
+        },
+        "angular-animate": {
+          "endpoint": {
+            "name": "angular-animate",
+            "source": "angular-animate",
+            "target": "^1.3.0 || >1.4.0-beta.0"
+          },
+          "canonicalDir": "/tests/project02/bower_components/angular-animate",
+          "pkgMeta": {
+            "name": "angular-animate",
+            "version": "1.4.2",
+            "main": "./angular-animate.js",
+            "ignore": [],
+            "dependencies": {
+              "angular": "1.4.2"
+            },
+            "homepage": "https://github.com/angular/bower-angular-animate",
+            "_release": "1.4.2",
+            "_resolution": {
+              "type": "version",
+              "tag": "v1.4.2",
+              "commit": "8753e3cc8facaf2da19dbe26d318e566b89e452e"
+            },
+            "_source": "https://github.com/angular/bower-angular-animate.git",
+            "_target": "^1.3.0 || >1.4.0-beta.0",
+            "_originalSource": "angular-animate"
+          },
+          "dependencies": {
+            "angular": {
+              "endpoint": {
+                "name": "angular",
+                "source": "angular",
+                "target": "1.4.2"
+              },
+              "canonicalDir": "/tests/project02/bower_components/angular",
+              "pkgMeta": {
+                "name": "angular",
+                "version": "1.4.2",
+                "main": "./angular.js",
+                "ignore": [],
+                "dependencies": {},
+                "homepage": "https://github.com/angular/bower-angular",
+                "_release": "1.4.2",
+                "_resolution": {
+                  "type": "version",
+                  "tag": "v1.4.2",
+                  "commit": "71a5067e4cddc6dd2dcb9f03afb9296c282f148f"
+                },
+                "_source": "https://github.com/angular/bower-angular.git",
+                "_target": "^1.3.0 || >1.4.0-beta.0",
+                "_originalSource": "angular"
+              },
+              "dependencies": {},
+              "nrDependants": 1
+            }
+          },
+          "nrDependants": 1
+        },
+        "angular-aria": {
+          "endpoint": {
+            "name": "angular-aria",
+            "source": "angular-aria",
+            "target": "^1.3.15 || >1.4.0-beta.0"
+          },
+          "canonicalDir": "/tests/project02/bower_components/angular-aria",
+          "pkgMeta": {
+            "name": "angular-aria",
+            "version": "1.4.2",
+            "main": "./angular-aria.js",
+            "ignore": [],
+            "dependencies": {
+              "angular": "1.4.2"
+            },
+            "homepage": "https://github.com/angular/bower-angular-aria",
+            "_release": "1.4.2",
+            "_resolution": {
+              "type": "version",
+              "tag": "v1.4.2",
+              "commit": "b5b37f3d12b8b23f2a0212efd08c1902216d2d8c"
+            },
+            "_source": "https://github.com/angular/bower-angular-aria.git",
+            "_target": "^1.3.15 || >1.4.0-beta.0",
+            "_originalSource": "angular-aria"
+          },
+          "dependencies": {
+            "angular": {
+              "endpoint": {
+                "name": "angular",
+                "source": "angular",
+                "target": "1.4.2"
+              },
+              "canonicalDir": "/tests/project02/bower_components/angular",
+              "pkgMeta": {
+                "name": "angular",
+                "version": "1.4.2",
+                "main": "./angular.js",
+                "ignore": [],
+                "dependencies": {},
+                "homepage": "https://github.com/angular/bower-angular",
+                "_release": "1.4.2",
+                "_resolution": {
+                  "type": "version",
+                  "tag": "v1.4.2",
+                  "commit": "71a5067e4cddc6dd2dcb9f03afb9296c282f148f"
+                },
+                "_source": "https://github.com/angular/bower-angular.git",
+                "_target": "^1.3.0 || >1.4.0-beta.0",
+                "_originalSource": "angular"
+              },
+              "dependencies": {},
+              "nrDependants": 1
+            }
+          },
+          "nrDependants": 1
+        }
+      },
+      "nrDependants": 1
+    },
+    "sinon": {
+      "endpoint": {
+        "name": "sinon",
+        "source": "sinon",
+        "target": "~1.15.4"
+      },
+      "canonicalDir": "/tests/project02/bower_components/sinon",
+      "pkgMeta": {
+        "name": "sinon",
+        "homepage": "https://github.com/cjohansen/Sinon.JS",
+        "version": "1.15.4",
+        "_release": "1.15.4",
+        "_resolution": {
+          "type": "version",
+          "tag": "v1.15.4",
+          "commit": "9469e69895ec934e4e145d9b8a1c5a0165692036"
+        },
+        "_source": "https://github.com/cjohansen/Sinon.JS.git",
+        "_target": "~1.15.4",
+        "_originalSource": "sinon",
+        "_direct": true
+      },
+      "dependencies": {},
+      "nrDependants": 1
+    }
+  },
+  "nrDependants": 0
+}

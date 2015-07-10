@@ -37,7 +37,35 @@ define(function (require, exports) {
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
+    /**
+     * Flag to specify when an action that could modify external configuration files is taking place.
+     * @type {boolean}
+     */
+    var _isModificationInProgress = false;
+
     EventDispatcher.makeEventDispatcher(exports);
+
+    /**
+     * Creates and return a function based on the given function, that updates the isModificationInProgress flag
+     * according to the state and result of the given function.
+     * This function should only be used to wrap those actions that can potentially modify external configuration files.
+     * @param {Function} fn A function to wrap. It must return a $.Promise object.
+     * @return {Function}
+     * @private
+     */
+    function _wrapModification(fn) {
+        return function () {
+            _isModificationInProgress = true;
+
+            var promiseResult = fn.apply(null, arguments);
+
+            promiseResult.always(function () {
+                _isModificationInProgress = false;
+            });
+
+            return promiseResult;
+        };
+    }
 
     /**
      * Get detailed information about the given package.
@@ -151,14 +179,16 @@ define(function (require, exports) {
             var pkg;
 
             if (result.count !== 0) {
-                var pkgs = PackageFactory.createPackages(result.packages);
+                var rawPkgInstalled = {
+                    name: name,
+                    dependencyType: data.type
+                };
+                var pkgs = PackageFactory.createPackages(result.packages, [rawPkgInstalled]);
 
                 // find the direct installed package
                 pkg = _.find(pkgs, function (pkgObject) {
                     return (pkgObject.name === name);
                 });
-
-                pkg.dependencyType = PackageUtils.getValidDependencyType(data.type);
 
                 info(name).then(function (packageInfo) {
 
@@ -212,11 +242,6 @@ define(function (require, exports) {
         Bower.install(config).then(function (result) {
             var total = result.count,
                 resultPackages = result.packages,
-                installResult = {
-                    total: total,
-                    installed: [],
-                    updated: []
-                },
                 packagesNames,
                 packagesArray;
 
@@ -229,18 +254,16 @@ define(function (require, exports) {
 
                 }).fail(function () {
 
-                    packagesArray = PackageFactory.createPackages(resultPackages);
+                    packagesArray = PackageFactory.createPackagesWithBowerJson(resultPackages);
                 }).always(function () {
 
-                    var pkgsData = project.addPackages(packagesArray);
-
-                    installResult.installed = pkgsData.installed;
-                    installResult.updated = pkgsData.updated;
+                    var installResult = project.addPackages(packagesArray);
+                    installResult.total = total;
 
                     deferred.resolve(installResult);
                 });
             } else {
-                deferred.resolve(installResult);
+                deferred.resolve({ total: total, installed: [], updated: [] });
             }
 
         }).fail(function (error) {
@@ -428,14 +451,22 @@ define(function (require, exports) {
         return Bower.listCache(ConfigurationManager.getConfiguration());
     }
 
-    exports.install                 = install;
-    exports.uninstall               = uninstall;
-    exports.installFromBowerJson    = installFromBowerJson;
-    exports.prune                   = prune;
-    exports.update                  = update;
-    exports.info                    = info;
-    exports.search                  = search;
-    exports.listCache               = listCache;
-    exports.list                    = list;
-    exports.packagesWithVersions    = packagesWithVersions;
+    /**
+     * @return {boolean}
+     */
+    function isModificationInProgress() {
+        return _isModificationInProgress;
+    }
+
+    exports.install                  = _wrapModification(install);
+    exports.uninstall                = _wrapModification(uninstall);
+    exports.installFromBowerJson     = installFromBowerJson;
+    exports.prune                    = prune;
+    exports.update                   = _wrapModification(update);
+    exports.info                     = info;
+    exports.search                   = search;
+    exports.listCache                = listCache;
+    exports.list                     = list;
+    exports.packagesWithVersions     = packagesWithVersions;
+    exports.isModificationInProgress = isModificationInProgress;
 });

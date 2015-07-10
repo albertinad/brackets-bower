@@ -1,0 +1,131 @@
+{
+  "endpoint": {
+    "name": "brackets-bower",
+    "source": "/tests/brackets-bower",
+    "target": "*"
+  },
+  "canonicalDir": "/tests/brackets-bower",
+  "pkgMeta": {
+    "name": "brackets-bower",
+    "dependencies": {
+      "jasmine": "jasmine#~2.3.4",
+      "jquery": "jquery#~2.1.4"
+    },
+    "devDependencies": {}
+  },
+  "dependencies": {
+    "jasmine": {
+      "endpoint": {
+        "name": "jasmine",
+        "source": "jasmine",
+        "target": "~2.3.4"
+      },
+      "canonicalDir": "/tests/brackets-bower/bower_components/jasmine",
+      "pkgMeta": {
+        "name": "jasmine-core",
+        "version": "2.3.4",
+        "homepage": "http://jasmine.github.io",
+        "authors": [
+          "slackersoft <gregg@slackersoft.net>"
+        ],
+        "description": "Official packaging of Jasmine's core files",
+        "keywords": [
+          "test",
+          "jasmine",
+          "tdd",
+          "bdd"
+        ],
+        "license": "MIT",
+        "moduleType": "globals",
+        "main": "lib/jasmine-core/jasmine.js",
+        "ignore": [
+          "**/.*",
+          "dist",
+          "grunt",
+          "node_modules",
+          "pkg",
+          "release_notes",
+          "spec",
+          "src",
+          "Gemfile",
+          "Gemfile.lock",
+          "Rakefile",
+          "jasmine-core.gemspec",
+          "*.sh",
+          "*.py",
+          "Gruntfile.js",
+          "lib/jasmine-core.rb",
+          "lib/jasmine-core/boot/",
+          "lib/jasmine-core/spec",
+          "lib/jasmine-core/version.rb",
+          "lib/jasmine-core/*.py",
+          "sauce_connect.log"
+        ],
+        "_release": "2.3.4",
+        "_resolution": {
+          "type": "version",
+          "tag": "v2.3.4",
+          "commit": "651426b6583020e2f3fdae56d2873514963ba65e"
+        },
+        "_source": "git://github.com/pivotal/jasmine.git",
+        "_target": "~2.3.4",
+        "_originalSource": "jasmine",
+        "_direct": true
+      },
+      "extraneous": true,
+      "dependencies": {},
+      "nrDependants": 1
+    },
+    "jquery": {
+      "endpoint": {
+        "name": "jquery",
+        "source": "jquery",
+        "target": "~2.1.4"
+      },
+      "canonicalDir": "/tests/brackets-bower/bower_components/jquery",
+      "pkgMeta": {
+        "name": "jquery",
+        "version": "2.1.4",
+        "main": "dist/jquery.js",
+        "license": "MIT",
+        "ignore": [
+          "**/.*",
+          "build",
+          "dist/cdn",
+          "speed",
+          "test",
+          "*.md",
+          "AUTHORS.txt",
+          "Gruntfile.js",
+          "package.json"
+        ],
+        "devDependencies": {
+          "sizzle": "2.1.1-jquery.2.1.2",
+          "requirejs": "2.1.10",
+          "qunit": "1.14.0",
+          "sinon": "1.8.1"
+        },
+        "keywords": [
+          "jquery",
+          "javascript",
+          "library"
+        ],
+        "homepage": "https://github.com/jquery/jquery",
+        "_release": "2.1.4",
+        "_resolution": {
+          "type": "version",
+          "tag": "2.1.4",
+          "commit": "7751e69b615c6eca6f783a81e292a55725af6b85"
+        },
+        "_source": "git://github.com/jquery/jquery.git",
+        "_target": "~2.1.4",
+        "_originalSource": "jquery",
+        "_direct": true
+      },
+      "extraneous": true,
+      "dependencies": {},
+      "nrDependants": 1
+    }
+  },
+  "nrDependants": 0
+}

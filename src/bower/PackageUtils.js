@@ -48,7 +48,8 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     function isValidDependencyType(type) {
-        return (type === DependencyType.DEVELOPMENT || type === DependencyType.PRODUCTION);
+        return (type === DependencyType.DEVELOPMENT || type === DependencyType.PRODUCTION ||
+                type === DependencyType.UNKNOWN);
     }
 
     /**

@@ -1,0 +1,9 @@
+{
+    "name": "project02",
+    "dependencies": {
+        "angular-material": "~0.10.0"
+    },
+    "devDependencies": {
+        "sinon": "~1.15.4"
+    }
+}

@@ -32,6 +32,7 @@ define(function (require, exports, module) {
         ProjectStatus  = require("src/project/ProjectStatus"),
         PackageFactory = require("src/project/PackageFactory"),
         PackageUtils   = require("src/bower/PackageUtils"),
+        PackageManager = require("src/bower/PackageManager"),
         ErrorUtils     = require("src/utils/ErrorUtils");
 
     /**
@@ -634,6 +635,12 @@ define(function (require, exports, module) {
     };
 
     BowerProject.prototype.bowerJsonChanged = function () {
+        if (PackageManager.isModificationInProgress()) {
+            // bower json content has changed but not due to external changes
+            // there's no need to analize those changes
+            return;
+        }
+
         var that = this,
             currentPackages = that.getPackagesArray();
 
