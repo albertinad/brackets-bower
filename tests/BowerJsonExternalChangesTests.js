@@ -9,17 +9,16 @@ define(function (require, exports, module) {
         extensionName = "brackets-bower";
 
     describe("BracketsBower - BowerJson External Changes", function () {
-        var tempDir = SpecRunnerUtils.getTempDirectory(),
+        var projectName = "project02",
             projectsPath = "extensions/dev/brackets-bower/tests/data/projects",
-            testProjectPath = SpecRunnerUtils.getBracketsSourceRoot() + "/" + projectsPath + "/" + "project02",
-            tempDirProjectPath = tempDir + "/project02",
+            testProjectPath = SpecRunnerUtils.getBracketsSourceRoot() + "/" + projectsPath + "/" + projectName,
+            tempDirProjectPath = SpecRunnerUtils.getTempDirectory() + "/" + projectName,
             DEFAULT_TIMEOUT = 30000,
             BowerProjectManager,
             PackageFactory,
             FileUtils,
             PackageManager,
             testWindow,
-            extensionRequire,
             getBowerJsonSpy;
 
         var defaultBowerJsonContent = {
@@ -43,13 +42,13 @@ define(function (require, exports, module) {
                 SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
                     testWindow = w;
 
-                    var ExtensionLoader = testWindow.brackets.test.ExtensionLoader;
-                    extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
+                    var ExtensionLoader = testWindow.brackets.test.ExtensionLoader,
+                        extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
 
                     BowerProjectManager = extensionRequire("src/project/ProjectManager");
-                    PackageFactory = extensionRequire("src/project/PackageFactory");
-                    FileUtils = extensionRequire("src/utils/FileUtils");
-                    PackageManager = extensionRequire("src/bower/PackageManager");
+                    PackageFactory      = extensionRequire("src/project/PackageFactory");
+                    FileUtils           = extensionRequire("src/utils/FileUtils");
+                    PackageManager      = extensionRequire("src/bower/PackageManager");
 
                     folderPromise.resolve();
                 });

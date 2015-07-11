@@ -9,10 +9,10 @@ define(function (require, exports, module) {
         extensionName = "brackets-bower";
 
     describe("BracketsBower - BowerJson Internal Changes", function () {
-        var tempDir = SpecRunnerUtils.getTempDirectory(),
+        var projectName = "project01",
             projectsPath = "extensions/dev/brackets-bower/tests/data/projects",
-            testProjectPath = SpecRunnerUtils.getBracketsSourceRoot() + "/" + projectsPath + "/" + "project01",
-            tempDirProjectPath = tempDir + "/project01",
+            testProjectPath = SpecRunnerUtils.getBracketsSourceRoot() + "/" + projectsPath + "/" + projectName,
+            tempDirProjectPath = SpecRunnerUtils.getTempDirectory() + "/" + projectName,
             DEFAULT_TIMEOUT = 5000,
             PackageManager,
             PackageUtils,
@@ -23,7 +23,6 @@ define(function (require, exports, module) {
             FileSystemHandler,
             Events,
             testWindow,
-            extensionRequire,
             getBowerJsonSpy;
 
         var defaultBowerJsonContent = {
@@ -42,29 +41,27 @@ define(function (require, exports, module) {
             });
 
             runs(function () {
-                var folderPromise = new $.Deferred();
+                var deferred = new $.Deferred();
 
                 SpecRunnerUtils.createTestWindowAndRun(this, function (w) {
-                    var ExtensionLoader;
-
                     testWindow = w;
-                    ExtensionLoader = testWindow.brackets.test.ExtensionLoader;
 
-                    extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
+                    var ExtensionLoader = testWindow.brackets.test.ExtensionLoader,
+                        extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
 
-                    PackageManager = extensionRequire("src/bower/PackageManager");
-                    PackageUtils = extensionRequire("src/bower/PackageUtils");
-                    PackageFactory = extensionRequire("src/project/PackageFactory");
-                    FileUtils = extensionRequire("src/utils/FileUtils");
+                    PackageManager      = extensionRequire("src/bower/PackageManager");
+                    PackageUtils        = extensionRequire("src/bower/PackageUtils");
+                    PackageFactory      = extensionRequire("src/project/PackageFactory");
+                    FileUtils           = extensionRequire("src/utils/FileUtils");
                     BowerProjectManager = extensionRequire("src/project/ProjectManager");
-                    Bower = extensionRequire("src/bower/Bower");
-                    FileSystemHandler = extensionRequire("src/project/FileSystemHandler");
-                    Events = FileSystemHandler.Events;
+                    Bower               = extensionRequire("src/bower/Bower");
+                    FileSystemHandler   = extensionRequire("src/project/FileSystemHandler");
+                    Events              = FileSystemHandler.Events;
 
-                    folderPromise.resolve();
+                    deferred.resolve();
                 });
 
-                waitsForDone(folderPromise, "waiting for test window ready", DEFAULT_TIMEOUT);
+                waitsForDone(deferred, "waiting for test window to be ready", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
@@ -103,7 +100,7 @@ define(function (require, exports, module) {
                     status = bowerProject.getStatus();
 
                 expect(status.isSynced()).toEqual(true);
-                expect(bowerProject.name).toEqual("project01");
+                expect(bowerProject.name).toEqual(projectName);
                 expect(projectPackages.length).toEqual(2);
                 expect(dependenciesPackages.length).toEqual(0);
                 expect(packages.angular).toBeDefined();
@@ -231,7 +228,7 @@ define(function (require, exports, module) {
                 expect(bowerJsonDeps.devDependencies.sinon).toBeDefined();
                 expect(bowerJsonDeps.dependencies.jquery).toBeDefined();
 
-                expect(project.name).toEqual("project01");
+                expect(project.name).toEqual(projectName);
                 expect(projectPackages.length).toEqual(3);
                 expect(dependenciesPackages.length).toEqual(0);
                 expect(packages.angular).toBeDefined();
@@ -332,7 +329,7 @@ define(function (require, exports, module) {
                 expect(bowerJsonDeps.devDependencies.sinon).toBeDefined();
                 expect(bowerJsonDeps.devDependencies.jquery).toBeDefined();
 
-                expect(project.name).toEqual("project01");
+                expect(project.name).toEqual(projectName);
                 expect(projectPackages.length).toEqual(3);
                 expect(dependenciesPackages.length).toEqual(0);
                 expect(packages.angular).toBeDefined();
@@ -367,7 +364,7 @@ define(function (require, exports, module) {
                         "sinon": "/tests/project01/bower_components/sinon"
                     },
                     newContent = {
-                        "name": "project01",
+                        "name": projectName,
                         "dependencies": {
                             "angular": "~1.4.2"
                         }
@@ -415,7 +412,7 @@ define(function (require, exports, module) {
                 expect(Object.keys(bowerJsonDeps.devDependencies).length).toEqual(0);
                 expect(bowerJsonDeps.dependencies.angular).toBeDefined();
 
-                expect(project.name).toEqual("project01");
+                expect(project.name).toEqual(projectName);
                 expect(projectPackages.length).toEqual(1);
                 expect(dependenciesPackages.length).toEqual(0);
                 expect(packages.angular).toBeDefined();
