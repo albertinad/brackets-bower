@@ -59,7 +59,7 @@ define(function (require, exports, module) {
             runs(function () {
                 var copyPromise = SpecRunnerUtils.copy(testProjectPath, tempDirProjectPath);
 
-                waitsForDone(copyPromise, "waiting for project copy to temp dir", DEFAULT_TIMEOUT);
+                waitsForDone(copyPromise, "waiting for copying project to temp dir", DEFAULT_TIMEOUT);
             });
 
             runs(function () {

@@ -1,6 +1,6 @@
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
 /*global define, describe, it, beforeFirst, beforeEach, afterEach, afterLast, waitsForDone,
-runs, $, brackets, waitsForDone, waitsFor, spyOn, expect, xit */
+runs, $, brackets, waitsForDone, waitsFor, spyOn, expect */
 
 define(function (require, exports, module) {
     "use strict";
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
             runs(function () {
                 var copyPromise = SpecRunnerUtils.copy(testProjectPath, tempDirProjectPath);
 
-                waitsForDone(copyPromise, "waiting for project copy to temp dir", DEFAULT_TIMEOUT);
+                waitsForDone(copyPromise, "waiting for copying project to temp dir", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
@@ -419,8 +419,136 @@ define(function (require, exports, module) {
             });
         });
 
-        xit("updated a tracked package should cause BowerJson to be udpated without refreshing the Project packages model", function () {
+        it("updating a tracked package from 'production' to 'development' should cause BowerJson to be udpated without refreshing the Project packages model", function () {
+            var project = BowerProjectManager.getProject(),
+                bowerJson = project.activeBowerJson;
 
+            getBowerJsonSpy.andCallThrough();
+
+            spyOn(project, "bowerJsonChanged").andCallThrough();
+            spyOn(project, "setPackages").andCallThrough();
+            spyOn(PackageManager, "isModificationInProgress").andCallThrough();
+
+            spyOn(Bower, "update").andCallFake(function () {
+                var deferred = new testWindow.$.Deferred();
+
+                deferred.resolve({});
+
+                return deferred.promise();
+            });
+
+            runs(function () {
+                var options = {
+                    version: "1.4.2",
+                    versionType: PackageUtils.VersionOptions.TILDE,
+                    type: PackageUtils.DependencyType.DEVELOPMENT
+                };
+
+                var promise = PackageManager.update("angular", options);
+
+                waitsForDone(promise, "Updating 'angular' to 'development' package", DEFAULT_TIMEOUT);
+            });
+
+            runs(function () {
+                var projectPackages = project.getPackagesArray(),
+                    dependenciesPackages = project.getPackagesDependenciesArray(),
+                    packages = project.getPackages(),
+                    bowerJsonDeps = bowerJson.getAllDependencies(),
+                    status = project.getStatus(),
+                    updatedPkg;
+
+                expect(project.bowerJsonChanged).not.toHaveBeenCalled();
+                expect(PackageManager.isModificationInProgress.calls.length).toEqual(0);
+                expect(project.setPackages.calls.length).toEqual(0);
+
+                expect(status.isSynced()).toEqual(true);
+                expect(bowerJsonDeps.dependencies).toBeDefined();
+                expect(bowerJsonDeps.devDependencies).toBeDefined();
+                expect(Object.keys(bowerJsonDeps.dependencies).length).toEqual(0);
+                expect(Object.keys(bowerJsonDeps.devDependencies).length).toEqual(2);
+                expect(bowerJsonDeps.devDependencies.angular).toBeDefined();
+                expect(bowerJsonDeps.devDependencies.sinon).toBeDefined();
+
+                expect(project.name).toEqual(projectName);
+                expect(projectPackages.length).toEqual(2);
+                expect(dependenciesPackages.length).toEqual(0);
+                expect(packages.angular).toBeDefined();
+                expect(packages.sinon).toBeDefined();
+
+                updatedPkg = packages.angular;
+
+                expect(updatedPkg.isProjectDependency).toEqual(true);
+                expect(updatedPkg.isDevDependency()).toEqual(true);
+                expect(updatedPkg.isInstalled()).toEqual(true);
+                expect(updatedPkg.isNotTracked()).toEqual(false);
+                expect(updatedPkg.isMissing()).toEqual(false);
+            });
+        });
+
+        it("updating a tracked package from 'development' to 'production' should cause BowerJson to be udpated without refreshing the Project packages model", function () {
+            var project = BowerProjectManager.getProject(),
+                bowerJson = project.activeBowerJson;
+
+            getBowerJsonSpy.andCallThrough();
+
+            spyOn(project, "bowerJsonChanged").andCallThrough();
+            spyOn(project, "setPackages").andCallThrough();
+            spyOn(PackageManager, "isModificationInProgress").andCallThrough();
+
+            spyOn(Bower, "update").andCallFake(function () {
+                var deferred = new testWindow.$.Deferred();
+
+                deferred.resolve({});
+
+                return deferred.promise();
+            });
+
+            runs(function () {
+                var options = {
+                    version: "1.15.4",
+                    versionType: PackageUtils.VersionOptions.TILDE,
+                    type: PackageUtils.DependencyType.PRODUCTION
+                };
+
+                var promise = PackageManager.update("sinon", options);
+
+                waitsForDone(promise, "Updating 'sinon' to 'production' package", DEFAULT_TIMEOUT);
+            });
+
+            runs(function () {
+                var projectPackages = project.getPackagesArray(),
+                    dependenciesPackages = project.getPackagesDependenciesArray(),
+                    packages = project.getPackages(),
+                    bowerJsonDeps = bowerJson.getAllDependencies(),
+                    status = project.getStatus(),
+                    updatedPkg;
+
+                expect(project.bowerJsonChanged).not.toHaveBeenCalled();
+                expect(PackageManager.isModificationInProgress.calls.length).toEqual(0);
+                expect(project.setPackages.calls.length).toEqual(0);
+
+                expect(status.isSynced()).toEqual(true);
+                expect(bowerJsonDeps.dependencies).toBeDefined();
+                expect(bowerJsonDeps.devDependencies).toBeDefined();
+                expect(Object.keys(bowerJsonDeps.dependencies).length).toEqual(2);
+                expect(Object.keys(bowerJsonDeps.devDependencies).length).toEqual(0);
+                expect(bowerJsonDeps.dependencies.angular).toBeDefined();
+                expect(bowerJsonDeps.dependencies.sinon).toBeDefined();
+
+                expect(project.name).toEqual(projectName);
+                expect(projectPackages.length).toEqual(2);
+                expect(dependenciesPackages.length).toEqual(0);
+                expect(packages.angular).toBeDefined();
+                expect(packages.sinon).toBeDefined();
+
+                updatedPkg = packages.sinon;
+
+                expect(updatedPkg.isProjectDependency).toEqual(true);
+                expect(updatedPkg.isProductionDependency()).toEqual(true);
+                expect(updatedPkg.isInstalled()).toEqual(true);
+                expect(updatedPkg.isNotTracked()).toEqual(false);
+                expect(updatedPkg.isMissing()).toEqual(false);
+            });
         });
     });
 });
