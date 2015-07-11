@@ -37,5 +37,6 @@ define(function (require, exports, module) {
     require("tests/PackageFactoryTests");
     require("tests/BowerDomainTests");
     require("tests/CommandsTaskTests");
+    require("tests/BowerJsonInternalChangesTests");
     require("tests/BowerJsonExternalChangesTests");
 });
