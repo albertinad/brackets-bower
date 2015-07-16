@@ -72,12 +72,12 @@ define(function (require, exports) {
      * @param {string} name Package name to get detailed information.
      * @return {$.Deferred}
      */
-    function info(name) {
+    function infoByName(name) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration();
 
         Bower.info(name, config).then(function (result) {
-            var packageInfo = PackageFactory.createInfo(result),
+            var packageInfo = PackageFactory.createPackageInfo(result),
                 project = ProjectManager.getProject();
 
             if (project && project.hasPackage(name)) {
@@ -118,7 +118,7 @@ define(function (require, exports) {
 
         list().then(function (result) {
 
-            return PackageFactory.createPackagesDeep(result.dependencies);
+            return PackageFactory.createPackagesRecursive(result.dependencies);
         }).then(function (packagesData) {
             var packagesArray;
 
@@ -156,7 +156,7 @@ define(function (require, exports) {
      *      save {boolean}: Save or not the package to the bower.json file.
      * @return {$.Deferred}
      */
-    function install(name, data) {
+    function installByName(name, data) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
@@ -190,7 +190,7 @@ define(function (require, exports) {
                     return (pkgObject.name === name);
                 });
 
-                info(name).then(function (packageInfo) {
+                infoByName(name).then(function (packageInfo) {
 
                     pkg.updateVersionInfo(packageInfo);
                 }).always(function () {
@@ -224,7 +224,7 @@ define(function (require, exports) {
      * installation, otherwhise, it rejects the promise.
      * @return {$.Deferred}
      */
-    function installFromBowerJson() {
+    function install() {
         var deferred = new $.Deferred(),
             project = ProjectManager.getProject(),
             config;
@@ -310,7 +310,7 @@ define(function (require, exports) {
      * @param {boolean} force Force uninstalling the given package.
      * @return {$.Deferred}
      */
-    function uninstall(name, force) {
+    function uninstallByName(name, force) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
@@ -362,7 +362,7 @@ define(function (require, exports) {
      *      type {number}: update the package type: dependency or devDependency.
      * @return {$.Deferred}
      */
-    function update(name, data) {
+    function updateByName(name, data) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
@@ -408,7 +408,7 @@ define(function (require, exports) {
                     return (pkgObject.name === name);
                 });
 
-                info(name).then(function (packageInfo) {
+                infoByName(name).then(function (packageInfo) {
                     // update the package latestVersion
                     updatedPkg.updateVersionInfo(packageInfo);
                 }).always(function () {
@@ -458,12 +458,12 @@ define(function (require, exports) {
         return _isModificationInProgress;
     }
 
-    exports.install                  = _wrapModification(install);
-    exports.uninstall                = _wrapModification(uninstall);
-    exports.installFromBowerJson     = installFromBowerJson;
+    exports.installByName            = _wrapModification(installByName);
+    exports.uninstallByName          = _wrapModification(uninstallByName);
+    exports.updateByName             = _wrapModification(updateByName);
+    exports.infoByName               = infoByName;
+    exports.install                  = install;
     exports.prune                    = prune;
-    exports.update                   = _wrapModification(update);
-    exports.info                     = info;
     exports.search                   = search;
     exports.listCache                = listCache;
     exports.list                     = list;

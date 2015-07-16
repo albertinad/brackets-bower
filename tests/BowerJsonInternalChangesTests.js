@@ -201,7 +201,7 @@ define(function (require, exports, module) {
                     save: true
                 };
 
-                var promise = PackageManager.install("jquery", options);
+                var promise = PackageManager.installByName("jquery", options);
 
                 waitsForDone(promise, "Installing 'jquery#~2.1.4' as production package", DEFAULT_TIMEOUT);
             });
@@ -302,7 +302,7 @@ define(function (require, exports, module) {
                     save: true
                 };
 
-                var promise = PackageManager.install("jquery", options);
+                var promise = PackageManager.installByName("jquery", options);
 
                 waitsForDone(promise, "Installing 'jquery#~2.1.4' as development package", DEFAULT_TIMEOUT);
             });
@@ -388,7 +388,7 @@ define(function (require, exports, module) {
             });
 
             runs(function () {
-                var promise = PackageManager.uninstall("sinon", false);
+                var promise = PackageManager.uninstallByName("sinon", false);
 
                 waitsForDone(promise, "Uninstalling 'sinon'", DEFAULT_TIMEOUT);
             });
@@ -444,7 +444,7 @@ define(function (require, exports, module) {
                     type: PackageUtils.DependencyType.DEVELOPMENT
                 };
 
-                var promise = PackageManager.update("angular", options);
+                var promise = PackageManager.updateByName("angular", options);
 
                 waitsForDone(promise, "Updating 'angular' to 'development' package", DEFAULT_TIMEOUT);
             });
@@ -510,7 +510,7 @@ define(function (require, exports, module) {
                     type: PackageUtils.DependencyType.PRODUCTION
                 };
 
-                var promise = PackageManager.update("sinon", options);
+                var promise = PackageManager.updateByName("sinon", options);
 
                 waitsForDone(promise, "Updating 'sinon' to 'production' package", DEFAULT_TIMEOUT);
             });

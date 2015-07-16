@@ -352,19 +352,19 @@ define(function (require, exports, module) {
      * Create an array of Package instances from the raw data given as arguments. The information in the
      * projectPackages array is used to complete the package dependencyType and defines a package as a project
      * direct dependency.
-     * @param {object} rawData Packages information to use to create the Package array.
+     * @param {object} data Packages information to use to create the Package array.
      * @param {Array} projectPackages Project package's minimum information to use for completing the
      * creation of Packages.
      * @return {Array}
      */
-    function createPackages(rawData, projectPackages) {
-        if (!rawData) {
+    function createPackages(data, projectPackages) {
+        if (!data) {
             return [];
         }
 
         var pkgsData = {};
 
-        _.forEach(rawData, function (rawPkg, name) {
+        _.forEach(data, function (rawPkg, name) {
             var pkg = _packageFromRawData(name, rawPkg);
 
             pkgsData[name] = pkg;
@@ -386,7 +386,7 @@ define(function (require, exports, module) {
      * @param {object} packages
      * @return {Array}
      */
-    function createPackagesDeep(packages) {
+    function createPackagesRecursive(packages) {
         var deps = _getBowerJsonDependencies(),
             pkgsData = {};
 
@@ -398,29 +398,18 @@ define(function (require, exports, module) {
     }
 
     /**
-     * Create an array of Package instances from the raw data given as arguments.
-     * @param {object} packages
-     * @return {Array}
-     */
-    function createPackagesDeepArray(packages) {
-        var pkgsData = createPackagesDeep(packages);
-
-        return _.values(pkgsData);
-    }
-
-    /**
      * Create a PackageInfo instance from the raw data.
-     * @param {object} rawData
+     * @param {object} data
      * @return {PackageInfo}
      */
-    function createInfo(rawData) {
-        if (!rawData) {
+    function createPackageInfo(data) {
+        if (!data) {
             return null;
         }
 
-        var latest = rawData.latest,
+        var latest = data.latest,
             latestVersion = latest.version,
-            pkg = new PackageInfo(rawData.name, latestVersion, rawData.versions);
+            pkg = new PackageInfo(data.name, latestVersion, data.versions);
 
         _.forEach(latest.dependencies, function (version, name) {
             pkg.addDependency(new PackageSummary(name, version));
@@ -443,14 +432,14 @@ define(function (require, exports, module) {
 
     /**
      * Parse the given raw packages array and returns an array of packages names.
-     * @param {array} rawPackagesArray
+     * @param {array} packagesData
      * @return {array}
      */
-    function getPackagesName(rawPackagesArray) {
+    function getPackagesName(packagesData) {
         var names = [];
 
-        rawPackagesArray.forEach(function (rawPackage) {
-            var meta = rawPackage.pkgMeta;
+        packagesData.forEach(function (data) {
+            var meta = data.pkgMeta;
 
             if (meta && meta.name) {
                 names.push(meta.name);
@@ -462,9 +451,8 @@ define(function (require, exports, module) {
 
     exports.createPackagesWithBowerJson = createPackagesWithBowerJson;
     exports.createPackages              = createPackages;
-    exports.createPackagesDeep          = createPackagesDeep;
-    exports.createPackagesDeepArray     = createPackagesDeepArray;
-    exports.createInfo                  = createInfo;
+    exports.createPackagesRecursive     = createPackagesRecursive;
+    exports.createPackageInfo           = createPackageInfo;
     exports.createPackageDependant      = createPackageDependant;
     exports.getPackagesName             = getPackagesName;
 });

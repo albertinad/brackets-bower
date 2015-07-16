@@ -5,8 +5,9 @@ runs, spyOn, $, brackets */
 define(function (require, exports, module) {
     "use strict";
 
-    var SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils"),
-        extensionName = "brackets-bower";
+    var _               = brackets.getModule("thirdparty/lodash"),
+        SpecRunnerUtils = brackets.getModule("spec/SpecRunnerUtils"),
+        extensionName   = "brackets-bower";
 
     describe("BracketsBower - BowerJson External Changes", function () {
         var projectName = "project02",
@@ -156,7 +157,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            var resultPkgs = PackageFactory.createPackagesDeepArray(rawData),
+            var resultPkgs = _.values(PackageFactory.createPackagesRecursive(rawData)),
                 listProjectDepsReturn = (new $.Deferred()).resolve(resultPkgs);
 
             getBowerJsonSpy.andCallThrough();
@@ -238,7 +239,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            var resultPkgs = PackageFactory.createPackagesDeepArray(rawData),
+            var resultPkgs = _.values(PackageFactory.createPackagesRecursive(rawData)),
                 listProjectDepsReturn = (new $.Deferred()).resolve(resultPkgs);
 
             getBowerJsonSpy.andCallThrough();
@@ -321,7 +322,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            var resultPkgs = PackageFactory.createPackagesDeepArray(rawData),
+            var resultPkgs = _.values(PackageFactory.createPackagesRecursive(rawData)),
                 listProjectDepsReturn = (new $.Deferred()).resolve(resultPkgs);
 
             getBowerJsonSpy.andCallThrough();
@@ -402,7 +403,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            var resultPkgs = PackageFactory.createPackagesDeepArray(rawData),
+            var resultPkgs = _.values(PackageFactory.createPackagesRecursive(rawData)),
                 listProjectDepsReturn = (new $.Deferred()).resolve(resultPkgs);
 
             getBowerJsonSpy.andCallThrough();
@@ -479,7 +480,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            var resultPkgs = PackageFactory.createPackagesDeepArray(rawData),
+            var resultPkgs = _.values(PackageFactory.createPackagesRecursive(rawData)),
                 listProjectDepsReturn = (new $.Deferred()).resolve(resultPkgs);
 
             getBowerJsonSpy.andCallThrough();

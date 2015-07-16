@@ -171,7 +171,7 @@ define(function (require, exports, module) {
                 data;
 
             runs(function () {
-                PackageManager.info().then(function (result) {
+                PackageManager.infoByName().then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {
@@ -196,7 +196,7 @@ define(function (require, exports, module) {
                 data;
 
             runs(function () {
-                PackageManager.info("jquery").then(function (result) {
+                PackageManager.infoByName("jquery").then(function (result) {
                     data = result;
                     resultPromise.resolve();
                 }).fail(function () {

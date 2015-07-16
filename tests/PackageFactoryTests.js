@@ -290,10 +290,10 @@ define(function (require, exports, module) {
             });
         });
 
-        // deep creation
+        // recursive packages model creation
 
         it("should get packages, without n-level dependencies, tracked as 'production' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep2.result.json"),
+            var data = require("text!tests/data/package-factory/list2.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -312,7 +312,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(5);
 
@@ -374,7 +374,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, without n-level dependencies, tracked as 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep2.result.json"),
+            var data = require("text!tests/data/package-factory/list2.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -393,7 +393,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(5);
 
@@ -460,7 +460,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, without n-level dependencies, tracked as 'production' and 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep2.result.json"),
+            var data = require("text!tests/data/package-factory/list2.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -481,7 +481,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(5);
 
@@ -538,7 +538,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies and 1 of them tracked as 'production' dependency", function () {
-            var data = require("text!tests/data/package-factory/deep1.result.json"),
+            var data = require("text!tests/data/package-factory/list1.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -553,7 +553,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(4);
 
@@ -603,7 +603,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies and 1 of them tracked as 'development' dependency", function () {
-            var data = require("text!tests/data/package-factory/deep1.result.json"),
+            var data = require("text!tests/data/package-factory/list1.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -618,7 +618,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(4);
 
@@ -669,7 +669,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, mix with n-level dependencies and tracked as 'production' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep3.result.json"),
+            var data = require("text!tests/data/package-factory/list3.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -686,7 +686,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -757,7 +757,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, mix with n-level dependencies and tracked as 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep3.result.json"),
+            var data = require("text!tests/data/package-factory/list3.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -774,7 +774,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -845,7 +845,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, mix with n-level dependencies and tracked as 'production' and 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep3.result.json"),
+            var data = require("text!tests/data/package-factory/list3.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -864,7 +864,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -935,7 +935,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies and a shared dependency, tracked as 'production' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep4.result.json"),
+            var data = require("text!tests/data/package-factory/list4.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -953,7 +953,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1026,7 +1026,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies and a shared dependency, tracked as 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep4.result.json"),
+            var data = require("text!tests/data/package-factory/list4.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1044,7 +1044,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1117,7 +1117,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies and a shared dependency, tracked as 'production' and 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep4.result.json"),
+            var data = require("text!tests/data/package-factory/list4.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1137,7 +1137,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1210,7 +1210,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies, a shared dependency and 'extraneous', tracked as 'production' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep5.result.json"),
+            var data = require("text!tests/data/package-factory/list5.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1227,7 +1227,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1300,7 +1300,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies, a shared dependency and 'extraneous', tracked as 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep5.result.json"),
+            var data = require("text!tests/data/package-factory/list5.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1317,7 +1317,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1390,7 +1390,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies, a shared dependency and 'extraneous', tracked as 'production' and 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep5.result.json"),
+            var data = require("text!tests/data/package-factory/list5.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1409,7 +1409,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(6);
 
@@ -1482,7 +1482,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies, a shared dependency, 'extraneous' and 'missing', tracked as 'production' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep6.result.json"),
+            var data = require("text!tests/data/package-factory/list6.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1500,7 +1500,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(7);
 
@@ -1584,7 +1584,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies, a shared dependency, 'extraneous' and 'missing', tracked as 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep6.result.json"),
+            var data = require("text!tests/data/package-factory/list6.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1602,7 +1602,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(7);
 
@@ -1686,7 +1686,7 @@ define(function (require, exports, module) {
         });
 
         it("should get packages, with n-level dependencies, a shared dependency, 'extraneous' and 'missing', tracked as 'production' and 'development' dependencies", function () {
-            var data = require("text!tests/data/package-factory/deep6.result.json"),
+            var data = require("text!tests/data/package-factory/list6.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1706,7 +1706,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(7);
 
@@ -1811,7 +1811,7 @@ define(function (require, exports, module) {
                 }
             };
 
-            var packageInfo = PackageFactory.createInfo(rawData);
+            var packageInfo = PackageFactory.createPackageInfo(rawData);
 
             expect(packageInfo).not.toBeNull();
             expect(packageInfo).toBeDefined();
@@ -1844,7 +1844,7 @@ define(function (require, exports, module) {
                 }
             };
 
-            var packageInfo = PackageFactory.createInfo(rawData);
+            var packageInfo = PackageFactory.createPackageInfo(rawData);
 
             expect(packageInfo).not.toBeNull();
             expect(packageInfo).toBeDefined();
@@ -1860,7 +1860,7 @@ define(function (require, exports, module) {
             var data = require("text!tests/utils/data/info.json"),
                 rawData = JSON.parse(data);
 
-            var packageInfo = PackageFactory.createInfo(rawData);
+            var packageInfo = PackageFactory.createPackageInfo(rawData);
 
             expect(packageInfo).not.toBeNull();
             expect(packageInfo).toBeDefined();
@@ -1892,7 +1892,7 @@ define(function (require, exports, module) {
                 }
             };
 
-            var packageInfo = PackageFactory.createInfo(rawData);
+            var packageInfo = PackageFactory.createPackageInfo(rawData);
 
             expect(packageInfo).not.toBeNull();
             expect(packageInfo).toBeDefined();
@@ -1906,7 +1906,7 @@ define(function (require, exports, module) {
         // no bower.json
 
         it("should get a map of packages, without n-level dependencies, all as 'production' dependencies and 'project direct dependencies' when no bower.json exists", function () {
-            var data = require("text!tests/data/package-factory/deep7.result.json"),
+            var data = require("text!tests/data/package-factory/list7.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1917,7 +1917,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(2);
 
@@ -1948,7 +1948,7 @@ define(function (require, exports, module) {
         });
 
         it("should get a map of packages, with n-level dependencies, all as 'production' dependencies and 'project direct dependencies' when no bower.json exists", function () {
-            var data = require("text!tests/data/package-factory/deep8.result.json"),
+            var data = require("text!tests/data/package-factory/list8.result.json"),
                 rawData = JSON.parse(data).dependencies,
                 mockBowerJson = {
                     getAllDependencies: function () {
@@ -1959,7 +1959,7 @@ define(function (require, exports, module) {
 
             spyOn(ProjectManager, "getBowerJson").andReturn(mockBowerJson);
 
-            result = PackageFactory.createPackagesDeep(rawData);
+            result = PackageFactory.createPackagesRecursive(rawData);
 
             expect(Object.keys(result).length).toEqual(5);
 
