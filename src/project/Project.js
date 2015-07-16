@@ -337,18 +337,21 @@ define(function (require, exports, module) {
             total: this.packagesCount(),
             production: [],
             development: [],
-            dependantsOnly: []
+            dependenciesOnly: []
         };
 
         _.forEach(this._packages, function (pkg) {
             if (pkg.isProjectDependency) {
-                if (pkg.isProductionDependency()) {
+                switch (pkg.dependencyType) {
+                case PackageUtils.DependencyType.PRODUCTION:
+                case PackageUtils.DependencyType.UNKNOWN:
                     packages.production.push(pkg);
-                } else {
+                    break;
+                default:
                     packages.development.push(pkg);
                 }
             } else {
-                packages.dependantsOnly.push(pkg);
+                packages.dependenciesOnly.push(pkg);
             }
         });
 
