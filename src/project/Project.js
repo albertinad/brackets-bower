@@ -50,11 +50,15 @@ define(function (require, exports, module) {
         this._shortActiveDir = null;
         /** @private */
         this._packages = {};
-
         /** @private */
         this._activeBowerJson = null;
         /** @private */
         this._activeBowerRc = null;
+
+        /** @private */
+        this._processChanges = true;
+        /** @private */
+        this._hasChanges = false;
 
         /** @private */
         this._status = new ProjectStatus(this);
@@ -316,7 +320,7 @@ define(function (require, exports, module) {
      * @private
      * @returns {Array} packages
      */
-    BowerProject.prototype.getPackagesArray = function () {
+    BowerProject.prototype.getProjectPackages = function () {
         var packagesArray = [];
 
         _.forEach(this._packages, function (pkg) {
@@ -336,18 +340,21 @@ define(function (require, exports, module) {
             total: this.packagesCount(),
             production: [],
             development: [],
-            dependantsOnly: []
+            dependenciesOnly: []
         };
 
         _.forEach(this._packages, function (pkg) {
             if (pkg.isProjectDependency) {
-                if (pkg.isProductionDependency()) {
+                switch (pkg.dependencyType) {
+                case PackageUtils.DependencyType.PRODUCTION:
+                case PackageUtils.DependencyType.UNKNOWN:
                     packages.production.push(pkg);
-                } else {
+                    break;
+                default:
                     packages.development.push(pkg);
                 }
             } else {
-                packages.dependantsOnly.push(pkg);
+                packages.dependenciesOnly.push(pkg);
             }
         });
 
@@ -633,20 +640,54 @@ define(function (require, exports, module) {
         return deferred.promise();
     };
 
+    BowerProject.prototype.disableChangesProcessing = function () {
+        this._processChanges = false;
+    };
+
+    /**
+     * Turn on packages changes processing and process changes if any was required while
+     * processing was disabled.
+     */
+    BowerProject.prototype.enableChangesProcessing = function () {
+        this._processChanges = true;
+
+        this._processPackagesChanges();
+    };
+
+    /**
+     * BowerJson instanaces notifies that the content has changed so project can start
+     * processing it.
+     */
     BowerProject.prototype.bowerJsonChanged = function () {
-        var that = this,
-            currentPackages = that.getPackagesArray();
+        this._hasChanges = true;
+
+        if (this._processChanges) {
+            this._processPackagesChanges();
+        }
+    };
+
+    /**
+     * @private
+     */
+    BowerProject.prototype._processPackagesChanges = function () {
+        var that = this;
+
+        if (!this._hasChanges) {
+            return;
+        }
+
+        this._hasChanges = false;
 
         this._projectManager.listProjectDependencies().then(function (packagesArray) {
             var isAnyModification;
 
-            if (currentPackages.length !== packagesArray.length) {
+            if (that.packagesCount() !== packagesArray.length) {
                 that.setPackages(packagesArray);
             } else {
                 isAnyModification = _.some(packagesArray, function (pkg) {
-                    var projectPkg = that.getPackageByName(pkg.name);
+                    var currentPkg = that.getPackageByName(pkg.name);
 
-                    return !projectPkg.isEqualTo(pkg);
+                    return (currentPkg) ? !currentPkg.isEqualTo(pkg) : true;
                 });
 
                 if (isAnyModification) {

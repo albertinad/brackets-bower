@@ -114,7 +114,7 @@ define(function (require, exports, module) {
             type: DependencyType.PRODUCTION
         };
 
-        installPromise = PackageManager.install(pkgName, installOptions);
+        installPromise = PackageManager.installByName(pkgName, installOptions);
 
         installPromise.then(function (result) {
             StatusBarController.update(statusId, StringUtils.format(Strings.STATUS_PKG_INSTALLED, pkgName), false);

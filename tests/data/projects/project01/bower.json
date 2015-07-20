@@ -1,0 +1,9 @@
+{
+  "name": "project01",
+  "dependencies": {
+    "angular": "~1.4.2"
+  },
+  "devDependencies": {
+    "sinon": "~1.15.4"
+  }
+}

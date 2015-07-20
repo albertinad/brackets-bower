@@ -197,7 +197,7 @@ define(function (require, exports, module) {
             resultMessage;
 
         if (commandKey === "install") {
-            commandFn = PackageManager.installFromBowerJson;
+            commandFn = PackageManager.install;
             resultMessage = Strings.STATUS_SUCCESS_INSTALLING;
         } else {
             commandFn = PackageManager.prune;

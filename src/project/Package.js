@@ -62,7 +62,7 @@ define(function (require, exports, module) {
         /** @private */
         this._installationDir = null;
         /** @private */
-        this._isProjectDependency = true; // default
+        this._isProjectDependency = false;
         /** @private */
         this._status = Status.INSTALLED;
         /** @private */
@@ -119,7 +119,7 @@ define(function (require, exports, module) {
 
     Object.defineProperty(Package.prototype, "dependencyType", {
         set: function (dependencyType) {
-            this._dependencyType = dependencyType;
+            this._dependencyType = PackageUtils.getValidDependencyType(dependencyType);
         },
         get: function () {
             return this._dependencyType;
@@ -418,7 +418,7 @@ define(function (require, exports, module) {
     Package.isProjectDirectDependency = function (name, status, bowerJsonDeps) {
         var isDirectDependency;
 
-        if (status !==  Status.INSTALLED) { // missing or extraneous
+        if (status !== Status.INSTALLED) { // missing or extraneous
             isDirectDependency = true;
         } else {
             isDirectDependency = (bowerJsonDeps) ? Package.isInBowerJsonDeps(name, bowerJsonDeps) : true;

@@ -40,16 +40,40 @@ define(function (require, exports) {
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
+     * Creates and return a function based on the given function that turn off the external metadata
+     * modifications after the function is executed, and then, turn it on.
+     * This function should only be used to wrap those actions that can potentially modify external
+     * configuration files.
+     * @param {Function} fn A function to wrap. It must return a $.Promise object.
+     * @return {Function}
+     * @private
+     */
+    function wrapChangesProcessing(fn) {
+        return function () {
+            var project = ProjectManager.getProject(),
+                promiseResult = fn.apply(null, arguments);
+
+            project.disableChangesProcessing();
+
+            promiseResult.always(function () {
+                project.enableChangesProcessing();
+            });
+
+            return promiseResult;
+        };
+    }
+
+    /**
      * Get detailed information about the given package.
      * @param {string} name Package name to get detailed information.
      * @return {$.Deferred}
      */
-    function info(name) {
+    function infoByName(name) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration();
 
         Bower.info(name, config).then(function (result) {
-            var packageInfo = PackageFactory.createInfo(result),
+            var packageInfo = PackageFactory.createPackageInfo(result),
                 project = ProjectManager.getProject();
 
             if (project && project.hasPackage(name)) {
@@ -85,12 +109,12 @@ define(function (require, exports) {
      * @return {Array}
      * @private
      */
-    function packagesWithVersions(pkgsNames) {
+    function listWithVersions(pkgsNames) {
         var deferred = new $.Deferred();
 
         list().then(function (result) {
 
-            return PackageFactory.createPackagesDeep(result.dependencies);
+            return PackageFactory.createPackagesRecursive(result.dependencies);
         }).then(function (packagesData) {
             var packagesArray;
 
@@ -128,7 +152,7 @@ define(function (require, exports) {
      *      save {boolean}: Save or not the package to the bower.json file.
      * @return {$.Deferred}
      */
-    function install(name, data) {
+    function installByName(name, data) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
@@ -151,16 +175,18 @@ define(function (require, exports) {
             var pkg;
 
             if (result.count !== 0) {
-                var pkgs = PackageFactory.createPackages(result.packages);
+                var rawPkgInstalled = {
+                    name: name,
+                    dependencyType: data.type
+                };
+                var pkgs = PackageFactory.createPackages(result.packages, [rawPkgInstalled]);
 
                 // find the direct installed package
                 pkg = _.find(pkgs, function (pkgObject) {
                     return (pkgObject.name === name);
                 });
 
-                pkg.dependencyType = PackageUtils.getValidDependencyType(data.type);
-
-                info(name).then(function (packageInfo) {
+                infoByName(name).then(function (packageInfo) {
 
                     pkg.updateVersionInfo(packageInfo);
                 }).always(function () {
@@ -194,7 +220,7 @@ define(function (require, exports) {
      * installation, otherwhise, it rejects the promise.
      * @return {$.Deferred}
      */
-    function installFromBowerJson() {
+    function install() {
         var deferred = new $.Deferred(),
             project = ProjectManager.getProject(),
             config;
@@ -212,11 +238,6 @@ define(function (require, exports) {
         Bower.install(config).then(function (result) {
             var total = result.count,
                 resultPackages = result.packages,
-                installResult = {
-                    total: total,
-                    installed: [],
-                    updated: []
-                },
                 packagesNames,
                 packagesArray;
 
@@ -224,23 +245,21 @@ define(function (require, exports) {
                 packagesNames = Object.keys(resultPackages);
 
                 // try to get packages with "latestVersion" for the installed packages
-                packagesWithVersions(packagesNames).then(function (packagesWithUpdate) {
+                listWithVersions(packagesNames).then(function (packagesWithUpdate) {
                     packagesArray = packagesWithUpdate;
 
                 }).fail(function () {
 
-                    packagesArray = PackageFactory.createPackages(resultPackages);
+                    packagesArray = PackageFactory.createPackagesWithBowerJson(resultPackages);
                 }).always(function () {
 
-                    var pkgsData = project.addPackages(packagesArray);
-
-                    installResult.installed = pkgsData.installed;
-                    installResult.updated = pkgsData.updated;
+                    var installResult = project.addPackages(packagesArray);
+                    installResult.total = total;
 
                     deferred.resolve(installResult);
                 });
             } else {
-                deferred.resolve(installResult);
+                deferred.resolve({ total: total, installed: [], updated: [] });
             }
 
         }).fail(function (error) {
@@ -287,7 +306,7 @@ define(function (require, exports) {
      * @param {boolean} force Force uninstalling the given package.
      * @return {$.Deferred}
      */
-    function uninstall(name, force) {
+    function uninstallByName(name, force) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
@@ -339,7 +358,7 @@ define(function (require, exports) {
      *      type {number}: update the package type: dependency or devDependency.
      * @return {$.Deferred}
      */
-    function update(name, data) {
+    function updateByName(name, data) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
@@ -385,7 +404,7 @@ define(function (require, exports) {
                     return (pkgObject.name === name);
                 });
 
-                info(name).then(function (packageInfo) {
+                infoByName(name).then(function (packageInfo) {
                     // update the package latestVersion
                     updatedPkg.updateVersionInfo(packageInfo);
                 }).always(function () {
@@ -428,14 +447,14 @@ define(function (require, exports) {
         return Bower.listCache(ConfigurationManager.getConfiguration());
     }
 
-    exports.install                 = install;
-    exports.uninstall               = uninstall;
-    exports.installFromBowerJson    = installFromBowerJson;
-    exports.prune                   = prune;
-    exports.update                  = update;
-    exports.info                    = info;
-    exports.search                  = search;
-    exports.listCache               = listCache;
-    exports.list                    = list;
-    exports.packagesWithVersions    = packagesWithVersions;
+    exports.installByName    = wrapChangesProcessing(installByName);
+    exports.uninstallByName  = wrapChangesProcessing(uninstallByName);
+    exports.updateByName     = wrapChangesProcessing(updateByName);
+    exports.infoByName       = infoByName;
+    exports.install          = install;
+    exports.prune            = prune;
+    exports.search           = search;
+    exports.listCache        = listCache;
+    exports.list             = list;
+    exports.listWithVersions = listWithVersions;
 });

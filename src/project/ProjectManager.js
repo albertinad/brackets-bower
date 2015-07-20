@@ -28,7 +28,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var AppInit              = brackets.getModule("utils/AppInit"),
+    var _                    = brackets.getModule("thirdparty/lodash"),
+        AppInit              = brackets.getModule("utils/AppInit"),
         Async                = brackets.getModule("utils/Async"),
         ProjectManager       = brackets.getModule("project/ProjectManager"),
         EventDispatcher      = brackets.getModule("utils/EventDispatcher"),
@@ -101,7 +102,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred(),
             bowerJson = new BowerJson(_bowerProject);
 
-        bowerJson.create(_bowerProject.getPackagesArray()).then(function () {
+        bowerJson.create(_bowerProject.getProjectPackages()).then(function () {
             _bowerProject.activeBowerJson = bowerJson;
 
             deferred.resolve();
@@ -269,7 +270,7 @@ define(function (require, exports) {
      * @return {Array}
      */
     function getProjectDependencies() {
-        return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
+        return (_bowerProject) ? _bowerProject.getProjectPackages() : [];
     }
 
     /**
@@ -284,9 +285,9 @@ define(function (require, exports) {
 
         PackageManager.list(true).then(function (result) {
             // create the package model
-            return PackageFactory.createPackagesDeepArray(result.dependencies);
-        }).then(function (packagesArray) {
-            deferred.resolve(packagesArray);
+            return PackageFactory.createPackagesRecursive(result.dependencies);
+        }).then(function (packages) {
+            deferred.resolve(_.values(packages));
         }).fail(function (error) {
             deferred.reject(error);
         });
@@ -323,7 +324,7 @@ define(function (require, exports) {
                 _bowerProject.setPackages(packagesArray);
 
                 // check for dependencies updates
-                PackageManager.packagesWithVersions().then(function (packagesArray) {
+                PackageManager.listWithVersions().then(function (packagesArray) {
                     if (_bowerProject) {
                         _bowerProject.setPackages(packagesArray);
                     }
@@ -427,7 +428,7 @@ define(function (require, exports) {
 
         if (existsBowerJsonChanges) {
             // install missing packages
-            deferredCmds.push(PackageManager.installFromBowerJson);
+            deferredCmds.push(PackageManager.install);
         }
 
         function onNextCmd(cmdFn) {

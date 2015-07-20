@@ -148,7 +148,7 @@ define(function (require, exports, module) {
             force = false;
         }
 
-        PackageManager.uninstall(name, force).fail(function (error) {
+        PackageManager.uninstallByName(name, force).fail(function (error) {
             that._onUninstallFailed(name, error);
         });
     };
@@ -157,7 +157,7 @@ define(function (require, exports, module) {
      * Update the selected package.
      */
     DependenciesController.prototype.update = function (name) {
-        PackageManager.update(name).fail(function (error) {
+        PackageManager.updateByName(name).fail(function (error) {
             NotificationDialog.showError(error.message);
         });
     };

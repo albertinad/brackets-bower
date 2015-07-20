@@ -48,7 +48,14 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     function isValidDependencyType(type) {
-        return (type === DependencyType.DEVELOPMENT || type === DependencyType.PRODUCTION);
+        switch (type) {
+        case DependencyType.PRODUCTION:
+        case DependencyType.DEVELOPMENT:
+        case DependencyType.UNKNOWN:
+            return true;
+        default:
+            return false;
+        }
     }
 
     /**
@@ -56,8 +63,14 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     function isValidVersion(version) {
-        return (version === VersionOptions.TILDE || version === VersionOptions.CARET ||
-                version === VersionOptions.FIXED);
+        switch (version) {
+        case VersionOptions.TILDE:
+        case VersionOptions.CARET:
+        case VersionOptions.FIXED:
+            return true;
+        default:
+            return false;
+        }
     }
 
     /**
