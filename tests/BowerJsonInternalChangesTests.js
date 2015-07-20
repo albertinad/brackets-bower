@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, browser: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, describe, it, beforeFirst, beforeEach, afterEach, afterLast, waitsForDone,
+/*global define, describe, it, beforeFirst, afterEach, afterLast, waitsForDone,
 runs, $, brackets, waitsForDone, waitsFor, spyOn, expect */
 
 define(function (require, exports, module) {
@@ -23,7 +23,9 @@ define(function (require, exports, module) {
             FileSystemHandler,
             Events,
             testWindow,
-            getBowerJsonSpy;
+            getBowerJsonSpy,
+            setPackagesSpy,
+            project;
 
         var defaultBowerJsonContent = {
             "name": "project01",
@@ -79,9 +81,11 @@ define(function (require, exports, module) {
                     promise = deferred.promise();
 
                 // ignore packages with latest versions
-                spyOn(PackageManager, "packagesWithVersions").andReturn((new testWindow.$.Deferred()).reject());
+                spyOn(PackageManager, "listWithVersions").andReturn((new testWindow.$.Deferred()).reject());
 
                 function onProjectReady() {
+                    project = BowerProjectManager.getProject();
+
                     deferred.resolve();
 
                     BowerProjectManager.off(BowerProjectManager.Events.PROJECT_READY, onProjectReady);
@@ -93,14 +97,20 @@ define(function (require, exports, module) {
             });
 
             runs(function () {
-                var bowerProject = BowerProjectManager.getProject(),
-                    projectPackages = bowerProject.getPackagesArray(),
-                    dependenciesPackages = bowerProject.getPackagesDependenciesArray(),
-                    packages = bowerProject.getPackages(),
-                    status = bowerProject.getStatus();
+                getBowerJsonSpy = spyOn(BowerProjectManager, "getBowerJson");
+                setPackagesSpy = spyOn(project, "setPackages");
+                getBowerJsonSpy.andCallThrough();
+                setPackagesSpy.andCallThrough();
+            });
+
+            runs(function () {
+                var projectPackages = project.getProjectPackages(),
+                    dependenciesPackages = project.getPackagesDependenciesArray(),
+                    packages = project.getPackages(),
+                    status = project.getStatus();
 
                 expect(status.isSynced()).toEqual(true);
-                expect(bowerProject.name).toEqual(projectName);
+                expect(project.name).toEqual(projectName);
                 expect(projectPackages.length).toEqual(2);
                 expect(dependenciesPackages.length).toEqual(0);
                 expect(packages.angular).toBeDefined();
@@ -108,29 +118,45 @@ define(function (require, exports, module) {
             });
         });
 
-        beforeEach(function () {
-            getBowerJsonSpy = spyOn(BowerProjectManager, "getBowerJson");
-
-            getBowerJsonSpy.andCallThrough();
-        });
-
         afterEach(function () {
-            var project = BowerProjectManager.getProject(),
-                notifyDependenciesAddedSpy = spyOn(BowerProjectManager, "notifyDependenciesAdded");
+            var notifyDependenciesAddedSpy = spyOn(BowerProjectManager, "notifyDependenciesAdded");
 
             notifyDependenciesAddedSpy.andCallThrough();
+            setPackagesSpy.andCallThrough();
             getBowerJsonSpy.andCallThrough();
+
+            notifyDependenciesAddedSpy.reset();
+            setPackagesSpy.reset();
+            getBowerJsonSpy.reset();
 
             // restore bower.json
 
             runs(function () {
-                var bowerJson = project.activeBowerJson;
+                var deferred = new $.Deferred(),
+                    promise = deferred.promise(),
+                    bowerJson = project.activeBowerJson;
 
-                bowerJson.saveContent(JSON.stringify(defaultBowerJsonContent, null, 4));
+                function onBowerJsonChanged() {
+                    FileSystemHandler.off(Events.BOWER_JSON_CHANGED, onBowerJsonChanged);
 
+                    deferred.resolve();
+                }
+
+                FileSystemHandler.on(Events.BOWER_JSON_CHANGED, onBowerJsonChanged);
+
+                bowerJson.saveContent(JSON.stringify(defaultBowerJsonContent, null, 4)).fail(function (error) {
+                    FileSystemHandler.off(Events.BOWER_JSON_CHANGED, onBowerJsonChanged);
+
+                    deferred.reject(error);
+                });
+
+                waitsForDone(promise, "saving default content ready");
+            });
+
+            runs(function () {
                 waitsFor(function () {
                     return (notifyDependenciesAddedSpy.calls.length === 1);
-                }, "project packages to be updated after bower.json changed", 20000);
+                }, "project packages to be updated after bower.json changed", 30000);
             });
         });
 
@@ -147,15 +173,13 @@ define(function (require, exports, module) {
         it("install a single package with '--save' option should cause BowerJson to be udpated without refreshing the Project packages model", function () {
             var data = require("text!tests/data/internal-changes/install1.result.json"),
                 rawData = JSON.parse(data),
-                project = BowerProjectManager.getProject(),
                 bowerJson = project.activeBowerJson;
 
             getBowerJsonSpy.andCallThrough();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "bowerJsonChanged").andCallThrough();
-            spyOn(project, "setPackages").andCallThrough();
-            spyOn(PackageManager, "isModificationInProgress").andCallThrough();
+            spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "info").andReturn((new $.Deferred()).reject());
             spyOn(Bower, "installPackage").andCallFake(function () {
@@ -201,13 +225,15 @@ define(function (require, exports, module) {
                     save: true
                 };
 
-                var promise = PackageManager.installByName("jquery", options);
+                PackageManager.installByName("jquery", options);
 
-                waitsForDone(promise, "Installing 'jquery#~2.1.4' as production package", DEFAULT_TIMEOUT);
+                waitsFor(function () {
+                    return (project._processPackagesChanges.calls.length === 1);
+                }, "Installing 'jquery#~2.1.4' as production package", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -216,8 +242,7 @@ define(function (require, exports, module) {
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project.bowerJsonChanged).toHaveBeenCalled();
-                expect(PackageManager.isModificationInProgress.calls.length).toEqual(1);
-                expect(project.setPackages.calls.length).toEqual(0);
+                expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -248,15 +273,14 @@ define(function (require, exports, module) {
         it("install a single package with '--saveDev' option should cause BowerJson to be udpated without refreshing the Project packages model", function () {
             var data = require("text!tests/data/internal-changes/install1.result.json"),
                 rawData = JSON.parse(data),
-                project = BowerProjectManager.getProject(),
                 bowerJson = project.activeBowerJson;
 
             getBowerJsonSpy.andCallThrough();
+            setPackagesSpy.reset();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "bowerJsonChanged").andCallThrough();
-            spyOn(project, "setPackages").andCallThrough();
-            spyOn(PackageManager, "isModificationInProgress").andCallThrough();
+            spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "info").andReturn((new $.Deferred()).reject());
             spyOn(Bower, "installPackage").andCallFake(function () {
@@ -302,13 +326,15 @@ define(function (require, exports, module) {
                     save: true
                 };
 
-                var promise = PackageManager.installByName("jquery", options);
+                PackageManager.installByName("jquery", options);
 
-                waitsForDone(promise, "Installing 'jquery#~2.1.4' as development package", DEFAULT_TIMEOUT);
+                waitsFor(function () {
+                    return (project._processPackagesChanges.calls.length === 1);
+                }, "Installing 'jquery#~2.1.4' as development package", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -317,8 +343,7 @@ define(function (require, exports, module) {
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project.bowerJsonChanged).toHaveBeenCalled();
-                expect(PackageManager.isModificationInProgress.calls.length).toEqual(1);
-                expect(project.setPackages.calls.length).toEqual(0);
+                expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -347,15 +372,13 @@ define(function (require, exports, module) {
         });
 
         it("uninstall a tracked package should cause BowerJson to be udpated without refreshing the Project packages model", function () {
-            var project = BowerProjectManager.getProject(),
-                bowerJson = project.activeBowerJson;
+            var bowerJson = project.activeBowerJson;
 
             getBowerJsonSpy.andCallThrough();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "bowerJsonChanged").andCallThrough();
-            spyOn(project, "setPackages").andCallThrough();
-            spyOn(PackageManager, "isModificationInProgress").andCallThrough();
+            spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "uninstall").andCallFake(function () {
                 var deferred = new testWindow.$.Deferred(),
@@ -388,13 +411,15 @@ define(function (require, exports, module) {
             });
 
             runs(function () {
-                var promise = PackageManager.uninstallByName("sinon", false);
+                PackageManager.uninstallByName("sinon", false);
 
-                waitsForDone(promise, "Uninstalling 'sinon'", DEFAULT_TIMEOUT);
+                waitsFor(function () {
+                    return (project._processPackagesChanges.calls.length === 1);
+                }, "Uninstalling 'sinon'", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -402,8 +427,7 @@ define(function (require, exports, module) {
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project.bowerJsonChanged).toHaveBeenCalled();
-                expect(PackageManager.isModificationInProgress.calls.length).toEqual(1);
-                expect(project.setPackages.calls.length).toEqual(0);
+                expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -420,14 +444,12 @@ define(function (require, exports, module) {
         });
 
         it("updating a tracked package from 'production' to 'development' should cause BowerJson to be udpated without refreshing the Project packages model", function () {
-            var project = BowerProjectManager.getProject(),
-                bowerJson = project.activeBowerJson;
+            var bowerJson = project.activeBowerJson;
 
             getBowerJsonSpy.andCallThrough();
 
             spyOn(project, "bowerJsonChanged").andCallThrough();
-            spyOn(project, "setPackages").andCallThrough();
-            spyOn(PackageManager, "isModificationInProgress").andCallThrough();
+            spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "update").andCallFake(function () {
                 var deferred = new testWindow.$.Deferred();
@@ -444,13 +466,15 @@ define(function (require, exports, module) {
                     type: PackageUtils.DependencyType.DEVELOPMENT
                 };
 
-                var promise = PackageManager.updateByName("angular", options);
+                PackageManager.updateByName("angular", options);
 
-                waitsForDone(promise, "Updating 'angular' to 'development' package", DEFAULT_TIMEOUT);
+                waitsFor(function () {
+                    return (project._processPackagesChanges.calls.length === 1);
+                }, "Updating 'angular' to 'development' package", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -458,8 +482,7 @@ define(function (require, exports, module) {
                     updatedPkg;
 
                 expect(project.bowerJsonChanged).not.toHaveBeenCalled();
-                expect(PackageManager.isModificationInProgress.calls.length).toEqual(0);
-                expect(project.setPackages.calls.length).toEqual(0);
+                expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -486,14 +509,12 @@ define(function (require, exports, module) {
         });
 
         it("updating a tracked package from 'development' to 'production' should cause BowerJson to be udpated without refreshing the Project packages model", function () {
-            var project = BowerProjectManager.getProject(),
-                bowerJson = project.activeBowerJson;
+            var bowerJson = project.activeBowerJson;
 
             getBowerJsonSpy.andCallThrough();
 
             spyOn(project, "bowerJsonChanged").andCallThrough();
-            spyOn(project, "setPackages").andCallThrough();
-            spyOn(PackageManager, "isModificationInProgress").andCallThrough();
+            spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "update").andCallFake(function () {
                 var deferred = new testWindow.$.Deferred();
@@ -510,13 +531,15 @@ define(function (require, exports, module) {
                     type: PackageUtils.DependencyType.PRODUCTION
                 };
 
-                var promise = PackageManager.updateByName("sinon", options);
+                PackageManager.updateByName("sinon", options);
 
-                waitsForDone(promise, "Updating 'sinon' to 'production' package", DEFAULT_TIMEOUT);
+                waitsFor(function () {
+                    return (project._processPackagesChanges.calls.length === 1);
+                }, "Updating 'sinon' to 'production' package", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -524,8 +547,7 @@ define(function (require, exports, module) {
                     updatedPkg;
 
                 expect(project.bowerJsonChanged).not.toHaveBeenCalled();
-                expect(PackageManager.isModificationInProgress.calls.length).toEqual(0);
-                expect(project.setPackages.calls.length).toEqual(0);
+                expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();

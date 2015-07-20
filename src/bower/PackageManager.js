@@ -37,30 +37,26 @@ define(function (require, exports) {
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
-    /**
-     * Flag to specify when an action that could modify external configuration files is taking place.
-     * @type {boolean}
-     */
-    var _isModificationInProgress = false;
-
     EventDispatcher.makeEventDispatcher(exports);
 
     /**
-     * Creates and return a function based on the given function, that updates the isModificationInProgress flag
-     * according to the state and result of the given function.
-     * This function should only be used to wrap those actions that can potentially modify external configuration files.
+     * Creates and return a function based on the given function that turn off the external metadata
+     * modifications after the function is executed, and then, turn it on.
+     * This function should only be used to wrap those actions that can potentially modify external
+     * configuration files.
      * @param {Function} fn A function to wrap. It must return a $.Promise object.
      * @return {Function}
      * @private
      */
-    function _wrapModification(fn) {
+    function wrapChangesProcessing(fn) {
         return function () {
-            _isModificationInProgress = true;
+            var project = ProjectManager.getProject(),
+                promiseResult = fn.apply(null, arguments);
 
-            var promiseResult = fn.apply(null, arguments);
+            project.disableChangesProcessing();
 
             promiseResult.always(function () {
-                _isModificationInProgress = false;
+                project.enableChangesProcessing();
             });
 
             return promiseResult;
@@ -113,7 +109,7 @@ define(function (require, exports) {
      * @return {Array}
      * @private
      */
-    function packagesWithVersions(pkgsNames) {
+    function listWithVersions(pkgsNames) {
         var deferred = new $.Deferred();
 
         list().then(function (result) {
@@ -249,7 +245,7 @@ define(function (require, exports) {
                 packagesNames = Object.keys(resultPackages);
 
                 // try to get packages with "latestVersion" for the installed packages
-                packagesWithVersions(packagesNames).then(function (packagesWithUpdate) {
+                listWithVersions(packagesNames).then(function (packagesWithUpdate) {
                     packagesArray = packagesWithUpdate;
 
                 }).fail(function () {
@@ -451,22 +447,14 @@ define(function (require, exports) {
         return Bower.listCache(ConfigurationManager.getConfiguration());
     }
 
-    /**
-     * @return {boolean}
-     */
-    function isModificationInProgress() {
-        return _isModificationInProgress;
-    }
-
-    exports.installByName            = _wrapModification(installByName);
-    exports.uninstallByName          = _wrapModification(uninstallByName);
-    exports.updateByName             = _wrapModification(updateByName);
-    exports.infoByName               = infoByName;
-    exports.install                  = install;
-    exports.prune                    = prune;
-    exports.search                   = search;
-    exports.listCache                = listCache;
-    exports.list                     = list;
-    exports.packagesWithVersions     = packagesWithVersions;
-    exports.isModificationInProgress = isModificationInProgress;
+    exports.installByName    = wrapChangesProcessing(installByName);
+    exports.uninstallByName  = wrapChangesProcessing(uninstallByName);
+    exports.updateByName     = wrapChangesProcessing(updateByName);
+    exports.infoByName       = infoByName;
+    exports.install          = install;
+    exports.prune            = prune;
+    exports.search           = search;
+    exports.listCache        = listCache;
+    exports.list             = list;
+    exports.listWithVersions = listWithVersions;
 });

@@ -72,7 +72,7 @@ define(function (require, exports, module) {
                     promise = deferred.promise();
 
                 // ignore packages with latest versions
-                spyOn(PackageManager, "packagesWithVersions").andReturn((new testWindow.$.Deferred()).reject());
+                spyOn(PackageManager, "listWithVersions").andReturn((new testWindow.$.Deferred()).reject());
 
                 function onProjectReady() {
                     deferred.resolve();
@@ -87,7 +87,7 @@ define(function (require, exports, module) {
 
             runs(function () {
                 var bowerProject = BowerProjectManager.getProject(),
-                    projectPackages = bowerProject.getPackagesArray(),
+                    projectPackages = bowerProject.getProjectPackages(),
                     dependenciesPackages = bowerProject.getPackagesDependenciesArray(),
                     packages = bowerProject.getPackages(),
                     status = bowerProject.getStatus();
@@ -174,12 +174,12 @@ define(function (require, exports, module) {
 
             runs(function () {
                 waitsFor(function () {
-                    return (project.getPackagesArray().length === 3);
+                    return (project.getProjectPackages().length === 3);
                 }, "project dependencies updated", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -256,13 +256,13 @@ define(function (require, exports, module) {
 
             runs(function () {
                 waitsFor(function () {
-                    return (project.getPackagesArray().length === 3);
+                    return (project.getProjectPackages().length === 3);
                 }, "project dependencies updated", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
                 var bowerProject = BowerProjectManager.getProject(),
-                    projectPackages = bowerProject.getPackagesArray(),
+                    projectPackages = bowerProject.getProjectPackages(),
                     dependenciesPackages = bowerProject.getPackagesDependenciesArray(),
                     packages = bowerProject.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -339,12 +339,12 @@ define(function (require, exports, module) {
 
             runs(function () {
                 waitsFor(function () {
-                    return (project.getPackagesArray().length === 3);
+                    return (project.getProjectPackages().length === 3);
                 }, "project dependencies updated", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -420,12 +420,12 @@ define(function (require, exports, module) {
 
             runs(function () {
                 waitsFor(function () {
-                    return (project.getPackagesArray().length === 3);
+                    return (project.getProjectPackages().length === 3);
                 }, "project dependencies updated", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),
@@ -497,12 +497,12 @@ define(function (require, exports, module) {
 
             runs(function () {
                 waitsFor(function () {
-                    return (project.getPackagesArray().length === 2);
+                    return (project.getProjectPackages().length === 2);
                 }, "project dependencies updated", DEFAULT_TIMEOUT);
             });
 
             runs(function () {
-                var projectPackages = project.getPackagesArray(),
+                var projectPackages = project.getProjectPackages(),
                     dependenciesPackages = project.getPackagesDependenciesArray(),
                     packages = project.getPackages(),
                     bowerJsonDeps = bowerJson.getAllDependencies(),

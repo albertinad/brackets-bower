@@ -102,7 +102,7 @@ define(function (require, exports) {
         var deferred = new $.Deferred(),
             bowerJson = new BowerJson(_bowerProject);
 
-        bowerJson.create(_bowerProject.getPackagesArray()).then(function () {
+        bowerJson.create(_bowerProject.getProjectPackages()).then(function () {
             _bowerProject.activeBowerJson = bowerJson;
 
             deferred.resolve();
@@ -270,7 +270,7 @@ define(function (require, exports) {
      * @return {Array}
      */
     function getProjectDependencies() {
-        return (_bowerProject) ? _bowerProject.getPackagesArray() : [];
+        return (_bowerProject) ? _bowerProject.getProjectPackages() : [];
     }
 
     /**
@@ -324,7 +324,7 @@ define(function (require, exports) {
                 _bowerProject.setPackages(packagesArray);
 
                 // check for dependencies updates
-                PackageManager.packagesWithVersions().then(function (packagesArray) {
+                PackageManager.listWithVersions().then(function (packagesArray) {
                     if (_bowerProject) {
                         _bowerProject.setPackages(packagesArray);
                     }
