@@ -392,38 +392,40 @@ define(function (require, exports) {
 
         bowerJson.updatePackageInfo(name, updateData).then(function () {
 
-            return Bower.update(name, config);
-        }).then(function (result) {
+            if (updateData.version !== undefined) {
 
-            if (Object.keys(result).length !== 0) {
-                var pkgs = PackageFactory.createPackages(result),
-                    updatedPkg;
+                Bower.update(name, config).then(function (result) {
+                    if (Object.keys(result).length !== 0) {
+                        var pkgs = PackageFactory.createPackages(result),
+                            updatedPkg;
 
-                // find the direct updated package
-                updatedPkg = _.find(pkgs, function (pkgObject) {
-                    return (pkgObject.name === name);
+                        // find the direct updated package
+                        updatedPkg = _.find(pkgs, function (pkgObject) {
+                            return (pkgObject.name === name);
+                        });
+
+                        infoByName(name).then(function (packageInfo) {
+                            // update the package latestVersion
+                            updatedPkg.updateVersionInfo(packageInfo);
+                        }).always(function () {
+                            project.updatePackages(pkgs);
+
+                            deferred.resolve(updatedPkg);
+                        });
+                    } else {
+                        deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED));
+                    }
                 });
 
-                infoByName(name).then(function (packageInfo) {
-                    // update the package latestVersion
-                    updatedPkg.updateVersionInfo(packageInfo);
-                }).always(function () {
-                    project.updatePackages(pkgs);
-
-                    deferred.resolve(updatedPkg);
-                });
-            } else if (updateData.dependencyType !== undefined) {
-                // dependencyType was an updated property
-
+            } else {
+                // dependencyType was an updated property only
                 pkg.dependencyType = updateData.dependencyType;
 
                 project.updatePackage(pkg);
 
                 deferred.resolve(pkg);
-            } else {
-
-                deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED));
             }
+
         }).fail(function (error) {
             deferred.reject(error);
         });
