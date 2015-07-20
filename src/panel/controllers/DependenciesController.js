@@ -157,9 +157,20 @@ define(function (require, exports, module) {
      * Update the selected package.
      */
     DependenciesController.prototype.update = function (name) {
-        PackageManager.updateByName(name).fail(function (error) {
-            NotificationDialog.showError(error.message);
-        });
+        var project = ProjectManager.getProject(),
+            pkg = (project) ? project.getPackageByName(name) : null,
+            options;
+
+        if (pkg) {
+            options = {
+                version: pkg.latestVersion,
+                versionType: PackageManager.VersionOptions.TILDE
+            };
+
+            PackageManager.updateByName(name, options).fail(function (error) {
+                NotificationDialog.showError(error.message);
+            });
+        }
     };
 
     /**

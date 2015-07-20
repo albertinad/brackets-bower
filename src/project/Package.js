@@ -28,16 +28,28 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var PackageUtils = require("src/bower/PackageUtils"),
-        semver       = require("thirdparty/semver/semver.browser"); // TODO: temporary fix, update to require "semver" module
-
-    var DependencyType = PackageUtils.DependencyType;
+    var semver = require("thirdparty/semver/semver.browser"); // TODO: temporary fix, update to require "semver" module
 
     var Status = {
         INSTALLED: 0,
         MISSING: 1,
         NOT_TRACKED: 2
     };
+
+    var DependencyType = {
+        DEVELOPMENT: 0,
+        PRODUCTION: 1,
+        UNKNOWN: 2
+    };
+
+    var VersionOptions = {
+        TILDE: 0,
+        CARET: 1,
+        FIXED: 2
+    };
+
+    var TILDE = "~",
+        CARET = "^";
 
     /**
      * Constructor function for Bower package instances.
@@ -74,6 +86,76 @@ define(function (require, exports, module) {
     }
 
     Package.Status = Status;
+
+    Package.VersionOptions = VersionOptions;
+
+    Package.DependencyType = DependencyType;
+
+    /**
+     * @param {number} type
+     * @return {boolean}
+     */
+    Package.isValidDependencyType = function (type) {
+        switch (type) {
+        case DependencyType.PRODUCTION:
+        case DependencyType.DEVELOPMENT:
+        case DependencyType.UNKNOWN:
+            return true;
+        default:
+            return false;
+        }
+    };
+
+    /**
+     * @param {string} version
+     * @param {number} type
+     * @private
+     */
+    Package.getVersion = function (version, type) {
+        var fullVersion;
+
+        if (version && (version.trim() !== "")) {
+            switch (type) {
+            case VersionOptions.TILDE:
+                fullVersion = TILDE + version;
+                break;
+            case VersionOptions.CARET:
+                fullVersion = CARET + version;
+                break;
+            default:
+                fullVersion = version;
+            }
+        }
+
+        return fullVersion;
+    };
+
+    /**
+     * Get the default semver version for the given version.
+     * @param {string} version
+     * @return {string}
+     */
+    Package.getDefaultSemverVersion = function (version) {
+        var semverVersion;
+
+        if (version) {
+            semverVersion = Package.getVersion(version, VersionOptions.TILDE);
+        } else {
+            semverVersion = "*";
+        }
+
+        return semverVersion;
+    };
+
+    /**
+     * Check if the given dependency type is a valid type, in that case return the given value. Otherwise,
+     * return the default valid dependency type: production.
+     * @param {number} dependencyType
+     * @return {number}
+     */
+    Package.getValidDependencyType = function (dependencyType) {
+        return (Package.isValidDependencyType(dependencyType)) ? dependencyType : DependencyType.PRODUCTION;
+    };
 
     Object.defineProperty(Package.prototype, "name", {
         get: function () {
@@ -119,7 +201,7 @@ define(function (require, exports, module) {
 
     Object.defineProperty(Package.prototype, "dependencyType", {
         set: function (dependencyType) {
-            this._dependencyType = PackageUtils.getValidDependencyType(dependencyType);
+            this._dependencyType = Package.getValidDependencyType(dependencyType);
         },
         get: function () {
             return this._dependencyType;

@@ -11,7 +11,7 @@ define(function (require, exports, module) {
         var tempDir = SpecRunnerUtils.getTempDirectory(),
             defaultTimeout = 5000,
             PackageFactory,
-            PackageUtils,
+            DependencyType,
             ProjectManager,
             extensionRequire,
             ExtensionUtils,
@@ -27,8 +27,8 @@ define(function (require, exports, module) {
                     extensionRequire = testWindow.brackets.test.ExtensionLoader.getRequireContextForExtension(extensionName);
 
                     PackageFactory = extensionRequire("src/project/PackageFactory");
-                    PackageUtils = extensionRequire("src/bower/PackageUtils");
                     ProjectManager = extensionRequire("src/project/ProjectManager");
+                    DependencyType = extensionRequire("src/project/Package").DependencyType;
 
                     folderPromise.resolve();
                 });
@@ -2028,7 +2028,7 @@ define(function (require, exports, module) {
                 pkgsMetadata = [
                     {
                         name: "jquery",
-                        dependencyType: PackageUtils.DependencyType.PRODUCTION
+                        dependencyType: DependencyType.PRODUCTION
                     }
                 ],
                 result = PackageFactory.createPackages(rawData, pkgsMetadata);
@@ -2055,7 +2055,7 @@ define(function (require, exports, module) {
                 pkgsMetadata = [
                     {
                         name: "jquery",
-                        dependencyType: PackageUtils.DependencyType.DEVELOPMENT
+                        dependencyType: DependencyType.DEVELOPMENT
                     }
                 ],
                 result = PackageFactory.createPackages(rawData, pkgsMetadata);
@@ -2082,7 +2082,7 @@ define(function (require, exports, module) {
                 pkgsMetadata = [
                     {
                         name: "angular-material",
-                        dependencyType: PackageUtils.DependencyType.PRODUCTION
+                        dependencyType: DependencyType.PRODUCTION
                     }
                 ],
                 result = PackageFactory.createPackages(rawData, pkgsMetadata);

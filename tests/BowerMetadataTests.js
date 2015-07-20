@@ -56,7 +56,7 @@ define(function (require, exports, module) {
                     BowerJson = extensionRequire("src/metadata/BowerJson");
                     Package = extensionRequire("src/project/Package");
                     BowerProject = extensionRequire("src/project/Project");
-                    DependencyType = extensionRequire("src/bower/PackageUtils").DependencyType;
+                    DependencyType = Package.DependencyType;
                 });
             });
 

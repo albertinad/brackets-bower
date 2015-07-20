@@ -15,7 +15,8 @@ define(function (require, exports, module) {
             tempDirProjectPath = SpecRunnerUtils.getTempDirectory() + "/" + projectName,
             DEFAULT_TIMEOUT = 5000,
             PackageManager,
-            PackageUtils,
+            VersionOptions,
+            DependencyType,
             PackageFactory,
             BowerProjectManager,
             Bower,
@@ -52,13 +53,14 @@ define(function (require, exports, module) {
                         extensionRequire = ExtensionLoader.getRequireContextForExtension(extensionName);
 
                     PackageManager      = extensionRequire("src/bower/PackageManager");
-                    PackageUtils        = extensionRequire("src/bower/PackageUtils");
                     PackageFactory      = extensionRequire("src/project/PackageFactory");
                     FileUtils           = extensionRequire("src/utils/FileUtils");
                     BowerProjectManager = extensionRequire("src/project/ProjectManager");
                     Bower               = extensionRequire("src/bower/Bower");
                     FileSystemHandler   = extensionRequire("src/project/FileSystemHandler");
                     Events              = FileSystemHandler.Events;
+                    DependencyType      = PackageManager.DependencyType;
+                    VersionOptions      = PackageManager.VersionOptions;
 
                     deferred.resolve();
                 });
@@ -220,8 +222,8 @@ define(function (require, exports, module) {
             runs(function () {
                 var options = {
                     version: "2.1.4",
-                    versionType: PackageUtils.VersionOptions.TILDE,
-                    type: PackageUtils.DependencyType.PRODUCTION,
+                    versionType: VersionOptions.TILDE,
+                    type: DependencyType.PRODUCTION,
                     save: true
                 };
 
@@ -321,8 +323,8 @@ define(function (require, exports, module) {
             runs(function () {
                 var options = {
                     version: "2.1.4",
-                    versionType: PackageUtils.VersionOptions.TILDE,
-                    type: PackageUtils.DependencyType.DEVELOPMENT,
+                    versionType: VersionOptions.TILDE,
+                    type: DependencyType.DEVELOPMENT,
                     save: true
                 };
 
@@ -462,8 +464,8 @@ define(function (require, exports, module) {
             runs(function () {
                 var options = {
                     version: "1.4.2",
-                    versionType: PackageUtils.VersionOptions.TILDE,
-                    type: PackageUtils.DependencyType.DEVELOPMENT
+                    versionType: VersionOptions.TILDE,
+                    type: DependencyType.DEVELOPMENT
                 };
 
                 PackageManager.updateByName("angular", options);
@@ -526,9 +528,7 @@ define(function (require, exports, module) {
 
             runs(function () {
                 var options = {
-                    version: "1.15.4",
-                    versionType: PackageUtils.VersionOptions.TILDE,
-                    type: PackageUtils.DependencyType.PRODUCTION
+                    type: DependencyType.PRODUCTION
                 };
 
                 PackageManager.updateByName("sinon", options);
