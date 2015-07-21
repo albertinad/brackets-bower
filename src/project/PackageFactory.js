@@ -30,8 +30,7 @@ define(function (require, exports, module) {
 
     var _              = brackets.getModule("thirdparty/lodash"),
         ProjectManager = require("src/project/ProjectManager"),
-        Package        = require("src/project/Package"),
-        PackageUtils   = require("src/bower/PackageUtils");
+        Package        = require("src/project/Package");
 
     /**
      * Package short information constructor function.
@@ -252,16 +251,16 @@ define(function (require, exports, module) {
         if (deps) {
             if (deps.dependencies && deps.dependencies[name]) {
                 bowerJsonVersion = deps.dependencies[name];
-                dependencyType = PackageUtils.DependencyType.PRODUCTION;
+                dependencyType = Package.DependencyType.PRODUCTION;
             } else if (deps.devDependencies && deps.devDependencies[name]) {
                 bowerJsonVersion = deps.devDependencies[name];
-                dependencyType = PackageUtils.DependencyType.DEVELOPMENT;
+                dependencyType = Package.DependencyType.DEVELOPMENT;
             } else {
-                dependencyType = PackageUtils.DependencyType.UNKNOWN;
+                dependencyType = Package.DependencyType.UNKNOWN;
             }
         } else {
             // assume production
-            dependencyType = PackageUtils.DependencyType.PRODUCTION;
+            dependencyType = Package.DependencyType.PRODUCTION;
         }
 
         pkg.bowerJsonVersion = bowerJsonVersion;

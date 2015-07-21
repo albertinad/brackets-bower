@@ -31,7 +31,7 @@ define(function (require, exports, module) {
     var _              = brackets.getModule("thirdparty/lodash"),
         ProjectStatus  = require("src/project/ProjectStatus"),
         PackageFactory = require("src/project/PackageFactory"),
-        PackageUtils   = require("src/bower/PackageUtils"),
+        Package        = require("src/project/Package"),
         ErrorUtils     = require("src/utils/ErrorUtils");
 
     /**
@@ -346,8 +346,8 @@ define(function (require, exports, module) {
         _.forEach(this._packages, function (pkg) {
             if (pkg.isProjectDependency) {
                 switch (pkg.dependencyType) {
-                case PackageUtils.DependencyType.PRODUCTION:
-                case PackageUtils.DependencyType.UNKNOWN:
+                case Package.DependencyType.PRODUCTION:
+                case Package.DependencyType.UNKNOWN:
                     packages.production.push(pkg);
                     break;
                 default:
@@ -512,13 +512,10 @@ define(function (require, exports, module) {
             return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
         }
 
-        version = PackageUtils.getVersion(pkg.version, PackageUtils.VersionOptions.TILDE);
+        version = Package.getVersion(pkg.version, Package.VersionOptions.TILDE);
+        dependencyType = Package.getValidDependencyType(dependencyType);
 
-        if (!PackageUtils.isValidDependencyType(dependencyType)) {
-            dependencyType = PackageUtils.DependencyType.PRODUCTION;
-        }
-
-        if (PackageUtils.DependencyType.PRODUCTION === dependencyType) {
+        if (Package.DependencyType.PRODUCTION === dependencyType) {
             addDependencyFn = this._activeBowerJson.addDependencyToProduction;
         } else {
             addDependencyFn = this._activeBowerJson.addDependencyToDevelopment;

@@ -30,9 +30,10 @@ define(function (require, exports, module) {
 
     var _              = brackets.getModule("thirdparty/lodash"),
         BowerMetadata  = require("src/metadata/BowerMetadata"),
-        DependencyType = require("src/bower/PackageUtils").DependencyType,
-        FileUtils      = require("src/utils/FileUtils"),
-        PackageUtils   = require("src/bower/PackageUtils");
+        Package        = require("src/project/Package"),
+        FileUtils      = require("src/utils/FileUtils");
+
+    var DependencyType = Package.DependencyType;
 
     /**
      * Bower json file constructor.
@@ -245,7 +246,7 @@ define(function (require, exports, module) {
                 }
 
                 if (!deps[name]) {
-                    deps[name] = PackageUtils.getDefaultSemverVersion(pkg.version);
+                    deps[name] = Package.getDefaultSemverVersion(pkg.version);
                 }
             });
 
@@ -267,7 +268,7 @@ define(function (require, exports, module) {
                     deps = content.devDependencies;
                 }
 
-                deps[name] = PackageUtils.getDefaultSemverVersion(pkg.version);
+                deps[name] = Package.getDefaultSemverVersion(pkg.version);
             });
 
             return that.saveContent(that._serialize(content));

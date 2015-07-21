@@ -33,7 +33,7 @@ define(function (require, exports) {
         Bower                = require("src/bower/Bower"),
         ProjectManager       = require("src/project/ProjectManager"),
         PackageFactory       = require("src/project/PackageFactory"),
-        PackageUtils         = require("src/bower/PackageUtils"),
+        Package              = require("src/project/Package"),
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
@@ -48,7 +48,7 @@ define(function (require, exports) {
      * @return {Function}
      * @private
      */
-    function wrapChangesProcessing(fn) {
+    function _wrapChangesProcessing(fn) {
         return function () {
             var project = ProjectManager.getProject(),
                 promiseResult = fn.apply(null, arguments);
@@ -63,6 +63,72 @@ define(function (require, exports) {
         };
     }
 
+    /**
+     * @param {Package} pkg
+     * @param {object} data Values to update the package properties.
+     *        {string|null} data.version Version to update to. If empty, it will update it to the latest version.
+     *        {number} data.versionType The version type to use, following semver conventions.
+     *        {number} data.type Update the package type: dependency or devDependency.
+     * @private
+     */
+    function _updateOptionsForPackage(pkg, data) {
+        var updateData,
+            updateVersion,
+            dependencyType;
+
+        if (!data) {
+            data = {};
+        }
+
+        dependencyType = data.type;
+
+        function addToUpdateData(dataKey, value) {
+            if (!updateData) {
+                updateData = {};
+            }
+
+            updateData[dataKey] = value;
+        }
+
+        updateVersion = Package.getVersion(data.version, data.versionType);
+
+        // version
+        if (updateVersion && (pkg.bowerJsonVersion !== updateVersion)) {
+            addToUpdateData("version", updateVersion);
+        }
+
+        // dependency type
+        if (Package.isValidDependencyType(dependencyType) && pkg.dependencyType !== dependencyType) {
+            addToUpdateData("dependencyType", dependencyType);
+        }
+
+        return updateData;
+    }
+
+    /**
+     * @param {object} data
+     * @return {object} options
+     *         {boolean} options.save Install as production dependency and update bower.json file.
+     *         {boolean} options.saveDev Install as development dependency and update the bower.json file.
+     * @private
+     */
+    function _getInstallOptions(data) {
+        var options = {},
+            dependencyType = Package.getValidDependencyType(data.type);
+
+        if (typeof data.save !== "boolean") {
+            data.save = false;
+        }
+
+        // setup options
+        if (dependencyType === Package.DependencyType.PRODUCTION) {
+            options.save = data.save;
+        } else {
+            options.saveDev = data.save;
+        }
+
+        return options;
+    }
     /**
      * Get detailed information about the given package.
      * @param {string} name Package name to get detailed information.
@@ -146,17 +212,17 @@ define(function (require, exports) {
      * Install the given package and udpate the project model.
      * @param {string} name The package name to install.
      * @param {data} options Options to install the package.
-     *      version {string|null}: The package version.
-     *      versionType {number}: The version type to use, following semver conventions.
-     *      type {number}: Specify if the package to install is a dependency or devDependency.
-     *      save {boolean}: Save or not the package to the bower.json file.
+     *      {string|null} options.version The package version.
+     *      {number} options.versionType The version type to use, following semver conventions.
+     *      {number} options.type Specify if the package to install is a dependency or devDependency.
+     *      {boolean} options.save Save or not the package to the bower.json file.
      * @return {$.Deferred}
      */
     function installByName(name, data) {
         var deferred = new $.Deferred(),
             config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
-            packageName,
+            packageName = name,
             options;
 
         if (!project) {
@@ -167,8 +233,12 @@ define(function (require, exports) {
             data = {};
         }
 
-        packageName = PackageUtils.getPackageVersionToInstall(name, data.version, data.versionType);
-        options = PackageUtils.getInstallOptions(data);
+        // prepare package name with version if any
+        if (data.version) {
+            packageName += "#" + Package.getVersion(data.version, data.versionType);
+        }
+
+        options = _getInstallOptions(data);
 
         // install the given package
         Bower.installPackage(packageName, options, config).then(function (result) {
@@ -349,18 +419,51 @@ define(function (require, exports) {
     }
 
     /**
-     * Update the given package to the given version if any, otherwise it will update it
-     * to the latest available version.
+     * @param {string} name Package name tu update.
+     * @private
+     */
+    function _updateByName(name) {
+        var deferred = new $.Deferred(),
+            project = ProjectManager.getProject(),
+            config = ConfigurationManager.getConfiguration();
+
+        Bower.update(name, config).then(function (result) {
+            if (Object.keys(result).length !== 0) {
+                var pkgs = PackageFactory.createPackagesWithBowerJson(result),
+                    updatedPkg;
+
+                // find the direct updated package
+                updatedPkg = _.find(pkgs, function (pkgObject) {
+                    return (pkgObject.name === name);
+                });
+
+                infoByName(name).then(function (packageInfo) {
+                    // update the package latestVersion
+                    updatedPkg.updateVersionInfo(packageInfo);
+                }).always(function () {
+                    project.updatePackages(pkgs);
+
+                    deferred.resolve(updatedPkg);
+                });
+            } else {
+                deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED));
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * Update the package to the specified version and/or dependency type.
      * @param {string} name Name of the package to update.
      * @param {data} options Options to install the package.
-     *      version {string|null}: Version to update to. If empty, it will update it to the latest version.
-     *      versionType {number}: The version type to use, following semver conventions.
-     *      type {number}: update the package type: dependency or devDependency.
+     *      {string|null} options.version Version to update to. If null, it will update it to the latest version.
+     *      {number} options.versionType The version type to use, following semver conventions.
+     *      {number} options.type Update the package type: dependency or devDependency.
      * @return {$.Deferred}
      */
     function updateByName(name, data) {
         var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration(),
             project = ProjectManager.getProject(),
             pkg,
             bowerJson,
@@ -384,7 +487,7 @@ define(function (require, exports) {
         }
 
         // get package data to update
-        updateData = PackageUtils.getUpdateDataForPackage(pkg, data);
+        updateData = _updateOptionsForPackage(pkg, data);
 
         if (!updateData || Object.keys(updateData) === 0) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA));
@@ -392,39 +495,22 @@ define(function (require, exports) {
 
         bowerJson.updatePackageInfo(name, updateData).then(function () {
 
-            return Bower.update(name, config);
-        }).then(function (result) {
+            if (updateData.version !== undefined) {
 
-            if (Object.keys(result).length !== 0) {
-                var pkgs = PackageFactory.createPackages(result),
-                    updatedPkg;
-
-                // find the direct updated package
-                updatedPkg = _.find(pkgs, function (pkgObject) {
-                    return (pkgObject.name === name);
-                });
-
-                infoByName(name).then(function (packageInfo) {
-                    // update the package latestVersion
-                    updatedPkg.updateVersionInfo(packageInfo);
-                }).always(function () {
-                    project.updatePackages(pkgs);
-
-                    deferred.resolve(updatedPkg);
-                });
-            } else if (updateData.dependencyType !== undefined) {
-                // dependencyType was an updated property
-
+                return _updateByName(name);
+            } else {
+                // dependencyType was an updated property only
                 pkg.dependencyType = updateData.dependencyType;
 
                 project.updatePackage(pkg);
 
-                deferred.resolve(pkg);
-            } else {
-
-                deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED));
+                return pkg;
             }
+        }).then(function (result) {
+
+            deferred.resolve(result);
         }).fail(function (error) {
+
             deferred.reject(error);
         });
 
@@ -447,9 +533,9 @@ define(function (require, exports) {
         return Bower.listCache(ConfigurationManager.getConfiguration());
     }
 
-    exports.installByName    = wrapChangesProcessing(installByName);
-    exports.uninstallByName  = wrapChangesProcessing(uninstallByName);
-    exports.updateByName     = wrapChangesProcessing(updateByName);
+    exports.installByName    = _wrapChangesProcessing(installByName);
+    exports.uninstallByName  = _wrapChangesProcessing(uninstallByName);
+    exports.updateByName     = _wrapChangesProcessing(updateByName);
     exports.infoByName       = infoByName;
     exports.install          = install;
     exports.prune            = prune;
@@ -457,4 +543,6 @@ define(function (require, exports) {
     exports.listCache        = listCache;
     exports.list             = list;
     exports.listWithVersions = listWithVersions;
+    exports.VersionOptions   = Package.VersionOptions;
+    exports.DependencyType   = Package.DependencyType;
 });
