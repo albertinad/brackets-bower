@@ -380,14 +380,8 @@ define(function (require, exports, module) {
 
     /**
      * Update the given package.
-     * @param {Package} pkg
+     * @param {Array<Package>} pkgs
      */
-    BowerProject.prototype.updatePackage = function (pkg) {
-        this._packages[pkg.name] = pkg;
-
-        this._projectManager.notifyDependencyUpdated(pkg);
-    };
-
     BowerProject.prototype.updatePackages = function (pkgs) {
         var that = this;
 

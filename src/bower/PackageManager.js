@@ -502,7 +502,7 @@ define(function (require, exports) {
                 // dependencyType was an updated property only
                 pkg.dependencyType = updateData.dependencyType;
 
-                project.updatePackage(pkg);
+                project.updatePackages([pkg]);
 
                 return pkg;
             }
