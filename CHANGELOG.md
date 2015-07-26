@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.13
+* Bug fixing:
+    - Uninstalling packages and bower.json file system changes leave the BowerProject model in an inconsistent state.
+    - Package latest version is lost after any command execution.
+* Improve parsing of installed and updated packages.
+* Code clean up and APIs updated.
+* Adding more tests.
+
 ## v0.2.12
 * Project and packages synchronization based on the bower.json file:
     - Keep track of the project status.
