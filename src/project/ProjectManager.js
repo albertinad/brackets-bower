@@ -125,7 +125,7 @@ define(function (require, exports) {
     /**
      * Get the current active BowerJson object. Null means there's
      * no BowerJson for the project.
-     * @returns {BowerJson} Current active BowerJson object.
+     * @return {BowerJson} Current active BowerJson object.
      */
     function getBowerJson() {
         return (_bowerProject) ? _bowerProject.activeBowerJson : null;

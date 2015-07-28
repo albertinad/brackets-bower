@@ -318,7 +318,7 @@ define(function (require, exports, module) {
     /**
      * Get the current packages array.
      * @private
-     * @returns {Array} packages
+     * @return {Array} packages
      */
     BowerProject.prototype.getProjectPackages = function () {
         var packagesArray = [];
@@ -364,7 +364,7 @@ define(function (require, exports, module) {
     /**
      * Get the current packages dependencies array.
      * @private
-     * @returns {Array} packages
+     * @return {Array} packages
      */
     BowerProject.prototype.getPackagesDependenciesArray = function () {
         var packagesArray = [];
