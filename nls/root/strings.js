@@ -80,5 +80,6 @@ define({
     "PROJECT_OUT_OF_SYNC_MESSAGE": "Out of sync",
     "PKG_STATUS_MISSING": "Missing",
     "PKG_STATUS_NOT_TRACKED": "Not tracked",
-    "PKG_STATUS_VERSIONS": "Versions don\'t match"
+    "PKG_STATUS_VERSIONS": "Versions don\'t match",
+    "ERROR_MSG_MALFORMED_BOWER_JSON": "The bower.json file is malformed."
 });

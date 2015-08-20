@@ -59,14 +59,14 @@ define(function (require, exports, module) {
     }
 
     /**
-     * @param {string}
+     * @param {options}
      */
-    function showError(highlight) {
+    function showError(options) {
         var dialog,
             dialogTemplate = Mustache.render(dialogHTML, {
                 title: Strings.TITLE_ERROR,
-                summary: Strings.SUMMARY_ERROR,
-                highlight: highlight,
+                summary: options.summary || Strings.SUMMARY_ERROR,
+                highlight: options.highlight || null,
                 buttons: [{ id: BTN_CLOSE, text: Strings.TEXT_CLOSE }]
             });
 

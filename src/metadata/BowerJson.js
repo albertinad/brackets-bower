@@ -31,7 +31,8 @@ define(function (require, exports, module) {
     var _              = brackets.getModule("thirdparty/lodash"),
         BowerMetadata  = require("src/metadata/BowerMetadata"),
         Package        = require("src/project/Package"),
-        FileUtils      = require("src/utils/FileUtils");
+        FileUtils      = require("src/utils/FileUtils"),
+        ErrorUtils     = require("src/utils/ErrorUtils");
 
     var DependencyType = Package.DependencyType;
 
@@ -104,10 +105,9 @@ define(function (require, exports, module) {
             return deferred.reject();
         }
 
-        this.read().then(function (result) {
+        this._getFileContent().then(function (content) {
 
-            var content = JSON.parse(result),
-                deps = content.dependencies,
+            var deps = content.dependencies,
                 devDeps = content.devDependencies,
                 currentDeps;
 
@@ -169,10 +169,9 @@ define(function (require, exports, module) {
         var that = this,
             deferred = new $.Deferred();
 
-        this.read().then(function (result) {
+        this._getFileContent().then(function (content) {
 
-            var content = JSON.parse(result),
-                deps = content.dependencies,
+            var deps = content.dependencies,
                 devDeps = content.devDependencies;
 
             if (deps && deps[name]) {
@@ -221,10 +220,9 @@ define(function (require, exports, module) {
             return deferred.reject();
         }
 
-        this.read().then(function (result) {
+        this._getFileContent().then(function (content) {
 
-            var content = JSON.parse(result),
-                deps = content.dependencies,
+            var deps = content.dependencies,
                 devDeps = content.devDependencies;
 
             missing.forEach(function (pkg) {
@@ -287,12 +285,14 @@ define(function (require, exports, module) {
     BowerJson.prototype.onContentChanged = function () {
         var that = this;
 
-        this._loadAllDependencies().then(function (updated) {
+        this.loadAllDependencies().then(function (updated) {
             if (updated) {
                 that._notifyBowerJsonChanged();
             }
-        }).fail(function () {
-            // do nothing
+        }).fail(function (error) {
+            if (error && error.code === ErrorUtils.EMALFORMED_BOWER_JSON) {
+                ErrorUtils.handleError(error);
+            }
         });
     };
 
@@ -306,10 +306,9 @@ define(function (require, exports, module) {
         var that = this,
             deferred = new $.Deferred();
 
-        this.read().then(function (result) {
+        this._getFileContent().then(function (content) {
 
-            var content = JSON.parse(result),
-                deps;
+            var deps;
 
             if (isProduction) {
                 if (!content.dependencies) {
@@ -343,31 +342,22 @@ define(function (require, exports, module) {
     /**
      * Get the dependencies and devDependencies defined in the bower.json.
      * @param {$.Deferred}
-     * @private
      */
-    BowerJson.prototype._loadAllDependencies = function () {
+    BowerJson.prototype.loadAllDependencies = function () {
         var that = this,
             deferred = new $.Deferred();
 
-        this.read().then(function (result) {
-            var content,
-                hasChanged;
+        this._getFileContent().then(function (content) {
+            var hasChanged = that._hasDependenciesChanged(content);
 
-            try {
-                content = JSON.parse(result);
-                hasChanged = that._hasDependenciesChanged(content);
-
-                if (hasChanged) {
-                    that._updateCacheDependencies(content);
-                }
-
-                deferred.resolve(hasChanged);
-            } catch (error) {
-                that._deps = {};
-
-                deferred.reject(error);
+            if (hasChanged) {
+                that._updateCacheDependencies(content);
             }
+
+            deferred.resolve(hasChanged);
         }).fail(function (error) {
+            that._deps = {};
+
             deferred.reject(error);
         });
 
@@ -504,6 +494,29 @@ define(function (require, exports, module) {
      */
     BowerJson.prototype._serialize = function (data) {
         return JSON.stringify(data, null, 4);
+    };
+
+    /**
+     * @return {$.Promise}
+     * @private
+     */
+    BowerJson.prototype._getFileContent = function () {
+        var deferred = new $.Deferred();
+
+        this.read().then(function (result) {
+
+            try {
+                var content = JSON.parse(result);
+
+                deferred.resolve(content);
+            } catch (ex) {
+                console.log("[bower] Error parsing bower.json", ex);
+
+                deferred.reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWER_JSON, ex.message));
+            }
+        }).fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     /**

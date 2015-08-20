@@ -77,6 +77,17 @@ define(function (require, exports) {
         case "EINCOMPLETE":
             code = ErrorUtils.DONWLOAD_INCOMPLETE;
             break;
+        case "EMALFORMED":
+            if (originalError.file) {
+                if (originalError.file.match("bower.json")) {
+                    code = ErrorUtils.EMALFORMED_BOWER_JSON;
+                } else {
+                    code = ErrorUtils.EMALFORMED_BOWERRC;
+                }
+            } else {
+                code = ErrorUtils.EMALFORMED;
+            }
+            break;
         default:
             code = ErrorUtils.UNKNOWN_ERROR;
         }

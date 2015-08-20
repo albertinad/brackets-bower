@@ -162,9 +162,11 @@ define(function (require, exports) {
         BowerJson.findInPath(_bowerProject.getPath()).then(function () {
             bowerJson = new BowerJson(_bowerProject);
 
-            return bowerJson._loadAllDependencies();
-        }).fail(function () {
-            bowerJson = null;
+            return bowerJson.loadAllDependencies();
+        }).fail(function (error) {
+            if (!error || error.code !== ErrorUtils.EMALFORMED_BOWER_JSON) {
+                bowerJson = null;
+            }
         }).always(function () {
 
             _bowerProject.activeBowerJson = bowerJson;

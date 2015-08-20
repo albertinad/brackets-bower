@@ -168,7 +168,7 @@ define(function (require, exports, module) {
             };
 
             PackageManager.updateByName(name, options).fail(function (error) {
-                NotificationDialog.showError(error.message);
+                ErrorUtils.handleError(error);
             });
         }
     };
@@ -178,7 +178,7 @@ define(function (require, exports, module) {
      */
     DependenciesController.prototype.removeFromBowerJson = function (name) {
         ProjectManager.untrackPackage(name).fail(function (error) {
-            NotificationDialog.showError(error.message);
+            ErrorUtils.handleError(error);
         });
     };
 
@@ -187,7 +187,7 @@ define(function (require, exports, module) {
      */
     DependenciesController.prototype.addToBowerJson = function (name) {
         ProjectManager.trackPackage(name).fail(function (error) {
-            NotificationDialog.showError(error.message);
+            ErrorUtils.handleError(error);
         });
     };
 

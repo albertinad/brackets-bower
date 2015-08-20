@@ -35,7 +35,6 @@ define(function (require, exports, module) {
         ProjectManager      = require("src/project/ProjectManager"),
         PackageManager      = require("src/bower/PackageManager"),
         Preferences         = require("src/preferences/Preferences"),
-        NotificationDialog  = require("src/dialogs/NotificationDialog"),
         ErrorUtils          = require("src/utils/ErrorUtils"),
         Strings             = require("strings");
 
@@ -217,7 +216,7 @@ define(function (require, exports, module) {
             if (error.code === ErrorUtils.NO_BOWER_JSON) {
                 resultMessage = StringUtils.format(Strings.STATUS_ERROR_EXECUTING_COMMAND, commandKey);
             } else {
-                NotificationDialog.showError(error.message);
+                ErrorUtils.handleError(error);
             }
 
         }).always(function () {
@@ -252,7 +251,7 @@ define(function (require, exports, module) {
             that._view.syncFailed();
 
             if (error) {
-                NotificationDialog.showError(error.message);
+                ErrorUtils.handleError(error);
             }
         }).always(function () {
 

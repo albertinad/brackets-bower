@@ -28,6 +28,9 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
+    var NotificationDialog = require("src/dialogs/NotificationDialog"),
+        Strings            = require("strings");
+
     var NO_BOWER_JSON             = 0,
         PKG_NOT_INSTALLED         = 1,
         SRC_NOT_FOUND             = 2,
@@ -41,12 +44,14 @@ define(function (require, exports, module) {
         DOWNLOAD_INCOMPLETE       = 10,
         UNKNOWN_ERROR             = 11,
         NO_PROJECT                = 12,
-        EMALFORMED                = 13,
-        EUPDATE_NO_DATA           = 14,
-        EUPDATE_NO_PKG_UPDATED    = 15,
-        EINSTALL_NO_PKG_INSTALLED = 16,
-        EINSTALL_NO_PKG           = 17,
-        ESYNC_NOTHING_TO_SYNC     = 18;
+        EMALFORMED_BOWER_JSON     = 13,
+        EMALFORMED_BOWERRC        = 14,
+        EMALFORMED                = 15,
+        EUPDATE_NO_DATA           = 16,
+        EUPDATE_NO_PKG_UPDATED    = 17,
+        EINSTALL_NO_PKG_INSTALLED = 18,
+        EINSTALL_NO_PKG           = 19,
+        ESYNC_NOTHING_TO_SYNC     = 20;
 
     /**
      * @param {number} code
@@ -63,7 +68,24 @@ define(function (require, exports, module) {
         return error;
     }
 
+    /**
+     * Check error code to display a proper error description.
+     * @param {object} error
+     */
+    function handleError(error) {
+        var options = {
+            highlight: error.message
+        };
+
+        if (error.code === EMALFORMED_BOWER_JSON) {
+            options.summary = Strings.ERROR_MSG_MALFORMED_BOWER_JSON;
+        }
+
+        NotificationDialog.showError(options);
+    }
+
     exports.createError            = createError;
+    exports.handleError            = handleError;
     exports.NO_BOWER_JSON          = NO_BOWER_JSON;
     exports.PKG_NOT_INSTALLED      = PKG_NOT_INSTALLED;
     exports.SRC_NOT_FOUND          = SRC_NOT_FOUND;
@@ -77,6 +99,8 @@ define(function (require, exports, module) {
     exports.DOWNLOAD_INCOMPLETE    = DOWNLOAD_INCOMPLETE;
     exports.UNKNOWN_ERROR          = UNKNOWN_ERROR;
     exports.NO_PROJECT             = NO_PROJECT;
+    exports.EMALFORMED_BOWER_JSON  = EMALFORMED_BOWER_JSON;
+    exports.EMALFORMED_BOWERRC     = EMALFORMED_BOWERRC;
     exports.EMALFORMED             = EMALFORMED;
     exports.EUPDATE_NO_DATA        = EUPDATE_NO_DATA;
     exports.EUPDATE_NO_PKG_UPDATED = EUPDATE_NO_PKG_UPDATED;
