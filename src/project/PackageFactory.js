@@ -71,21 +71,45 @@ define(function (require, exports, module) {
      * @constructor
      */
     function PackageInfo(name, latestVersion, versions) {
-        /** @private */
+        /**
+         * @type {string}
+         * @private
+         */
         this._name = name;
-        /** @private */
+        /**
+         * @type {string}
+         * @private
+         */
         this._latestVersion = latestVersion;
-        /** @private */
+        /**
+         * @type {Array}
+         * @private
+         */
         this._versions = versions;
-        /** @private */
+        /**
+         * @type {Array}
+         * @private
+         */
         this._dependencies = [];
-        /** @private */
+        /**
+         * @type {Array}
+         * @private
+         */
         this._keywords = [];
-        /** @private */
+        /**
+         * @type {string}
+         * @private
+         */
         this._homepage = "";
-        /** @private */
+        /**
+         * @type {string}
+         * @private
+         */
         this._description = "";
-        /** @private */
+        /**
+         * @type {Package}
+         * @private
+         */
         this._installedPackage = null;
     }
 
@@ -191,11 +215,11 @@ define(function (require, exports, module) {
                 pkg.source = meta._source;
             }
 
-            if (meta.homepage) {
+            if (typeof meta.homepage === "string") {
                 pkg.homepage = meta.homepage;
             }
 
-            if (meta.description) {
+            if (typeof meta.description === "string") {
                 pkg.description = meta.description;
             }
         }
@@ -408,21 +432,26 @@ define(function (require, exports, module) {
 
         var latest = data.latest,
             latestVersion = latest.version,
+            keywords = latest.keywords,
             pkg = new PackageInfo(data.name, latestVersion, data.versions);
 
         _.forEach(latest.dependencies, function (version, name) {
             pkg.addDependency(new PackageSummary(name, version));
         });
 
-        if (latest.keywords) {
-            pkg.keywords = latest.keywords;
+        if (keywords) {
+            if (Array.isArray(keywords)) {
+                pkg.keywords = keywords;
+            } else if (typeof keywords === "string") {
+                pkg.keywords = [keywords];
+            }
         }
 
-        if (latest.homepage) {
+        if (typeof latest.homepage === "string") {
             pkg.homepage = latest.homepage;
         }
 
-        if (latest.description) {
+        if (typeof latest.description === "string") {
             pkg.description = latest.description;
         }
 
