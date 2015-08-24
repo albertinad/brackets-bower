@@ -43,7 +43,6 @@ define(function (require, exports) {
         var originalError = wrappedError.error,
             originalCode = (originalError) ? originalError.code : "UNKNOWN_ERROR_CODE",
             options = {
-                originalMessage: originalError.message,
                 originalError: originalError
             },
             code,
@@ -116,6 +115,10 @@ define(function (require, exports) {
         default:
             code = ErrorUtils.UNKNOWN_ERROR;
             message = Strings.ERROR_DEFAULT_MSG;
+        }
+
+        if (originalError) {
+            options.originalMessage = originalError.message;
         }
 
         if (message) {

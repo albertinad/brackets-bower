@@ -34,7 +34,7 @@ maxerr: 50, node: true */
     var defaultCommandExecution = {
         resultType: "success",
         bowerRcExists: false,
-        bowerJsonExists: true,
+        bowerJsonExists: true
     };
 
     var commandExecution;
@@ -236,6 +236,9 @@ maxerr: 50, node: true */
 
         bowerError = new Error("BowerDomainMock error message");
         bowerError.code = "BOWER_DOMAIN_MOCK_ERROR";
+        bowerError.error = new Error("BowerDomainMock wrapped error");
+        bowerError.error.code = "BOWER_DOMAIN_MOCK_ERROR";
+        bowerError.error.message = "BowerDomain mock error message";
     }
 
     exports.init = init;
