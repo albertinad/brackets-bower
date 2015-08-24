@@ -39,7 +39,7 @@ define(function (require, exports) {
         _configuration = {
             directory: "bower_components",
             registry: "https://bower.herokuapp.com",
-            interactive: null
+            interactive: true
         };
     }
 

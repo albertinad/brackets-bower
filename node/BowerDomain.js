@@ -30,6 +30,7 @@ maxerr: 50, node: true */
 
     var bower       = require("bower"),
         bowerConfig = require("bower-config"),
+        inquirer    = require("inquirer"),
         Cli         = require("./Cli");
 
     var DOMAIN_NAME = "bower";
@@ -94,6 +95,10 @@ maxerr: 50, node: true */
         bower.commands.install(names, options, config)
             .on("end", function (installedPackages) {
                 cb(null, installedPackages);
+            })
+            .on("prompt", function (prompts, cbResult, a) {
+                inquirer.prompt(prompts, cbResult);
+                cb(null, { prompts: prompts });
             })
             .on("error", function (error) {
                 cb(_getError(error), null);
