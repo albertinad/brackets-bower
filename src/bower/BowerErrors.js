@@ -24,13 +24,14 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true */
-/*global define */
+/*global define, brackets */
 
 define(function (require, exports) {
     "use strict";
 
-    var ErrorUtils = require("src/utils/ErrorUtils"),
-        Strings    = require("strings");
+    var StringUtils = brackets.getModule("utils/StringUtils"),
+        ErrorUtils  = require("src/utils/ErrorUtils"),
+        Strings     = require("strings");
 
     /**
      * @param {object} wrappedError
@@ -58,7 +59,10 @@ define(function (require, exports) {
             break;
         case "ECONFLICT":
             code = ErrorUtils.CONFLICT;
-            message = Strings.ERROR_MSG_DEPENDENCY_CONFLICT;
+
+            if (originalError.name) {
+                message = StringUtils.format(Strings.ERROR_MSG_DEPENDENCY_CONFLICT, originalError.name);
+            }
             // TODO complete with data for selecting dependencies
             break;
         case "ENORESOLVER":

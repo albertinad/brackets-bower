@@ -88,7 +88,7 @@ define({
     "ERROR_MSG_NO_TARGET": "The target for downloading or getting more information about some of the packages does not exist or is not valid.",
     "ERROR_MSG_NO_SOURCE": "Some of the package's source was not found, or is not valid",
     "ERROR_MSG_NO_RESOLVER": "Bower can't find an specific resolver to download information about some package.",
-    "ERROR_MSG_DEPENDENCY_CONFLICT": "Unable to find a suitable version of some dependency. Please, review your bower.json configuration",
+    "ERROR_MSG_DEPENDENCY_CONFLICT": "Unable to find a suitable version for \"{0}\". Please, review your bower.json configuration",
     "ERROR_MSG_NO_PACKAGE_INSTALLED": "The operation could not be performed because there's no installed package.",
     "ERROR_MSG_NO_PACKAGE_UPDATED": "The package was not updated because there wasn't anything to update.",
     "ERROR_MSG_NO_UPDATE_DATA": "There's no data to update the package",
