@@ -55,15 +55,19 @@ define(function (require, exports, module) {
 
     /**
      * @param {number} code
-     * @param {string=} message
-     * @param {object=} originalError
+     * @param {object} options
      */
-    function createError(code, message, originalError) {
+    function createError(code, options) {
         var error = new Error();
 
+        if (!options) {
+            options = {};
+        }
+
         error.code = code;
-        error.message = message || null;
-        error.originalError = originalError || null;
+        error.message = options.message || null;
+        error.originalMessage = options.originalMessage || null;
+        error.originalError = options.originalError || null;
 
         return error;
     }
@@ -74,11 +78,11 @@ define(function (require, exports, module) {
      */
     function handleError(error) {
         var options = {
-            highlight: error.message
+            summary: error.message || Strings.SUMMARY_ERROR
         };
 
-        if (error.code === EMALFORMED_BOWER_JSON) {
-            options.summary = Strings.ERROR_MSG_MALFORMED_BOWER_JSON;
+        if (error.originalMessage) {
+            options.highlight = error.originalMessage;
         }
 
         NotificationDialog.showError(options);

@@ -32,7 +32,8 @@ define(function (require, exports, module) {
         BowerMetadata  = require("src/metadata/BowerMetadata"),
         Package        = require("src/project/Package"),
         FileUtils      = require("src/utils/FileUtils"),
-        ErrorUtils     = require("src/utils/ErrorUtils");
+        ErrorUtils     = require("src/utils/ErrorUtils"),
+        Strings        = require("strings");
 
     var DependencyType = Package.DependencyType;
 
@@ -512,7 +513,10 @@ define(function (require, exports, module) {
             } catch (ex) {
                 console.log("[bower] Error parsing bower.json", ex);
 
-                deferred.reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWER_JSON, ex.message));
+                deferred.reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWER_JSON, {
+                    message: Strings.ERROR_MSG_MALFORMED_BOWER_JSON,
+                    originalMessage: ex.message
+                }));
             }
         }).fail(deferred.reject);
 

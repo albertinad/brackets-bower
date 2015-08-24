@@ -35,7 +35,8 @@ define(function (require, exports) {
         PackageFactory       = require("src/project/PackageFactory"),
         Package              = require("src/project/Package"),
         ConfigurationManager = require("src/configuration/ConfigurationManager"),
-        ErrorUtils           = require("src/utils/ErrorUtils");
+        ErrorUtils           = require("src/utils/ErrorUtils"),
+        Strings              = require("strings");
 
     EventDispatcher.makeEventDispatcher(exports);
 
@@ -273,7 +274,9 @@ define(function (require, exports) {
 
                     deferred.resolve(pkg);
                 } else {
-                    deferred.reject(ErrorUtils.createError(ErrorUtils.EINSTALL_NO_PKG_INSTALLED));
+                    deferred.reject(ErrorUtils.createError(ErrorUtils.EINSTALL_NO_PKG_INSTALLED, {
+                        message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
+                    }));
                 }
             }
         }).fail(function (error) {
@@ -300,7 +303,9 @@ define(function (require, exports) {
         }
 
         if (!project.hasBowerJson()) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+                message: Strings.ERROR_NO_BOWER_JSON
+            }));
         }
 
         config = ConfigurationManager.getConfiguration();
@@ -353,7 +358,9 @@ define(function (require, exports) {
         }
 
         if (!project.hasBowerJson()) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+                message: Strings.ERROR_NO_BOWER_JSON
+            }));
         }
 
         config = ConfigurationManager.getConfiguration();
@@ -446,7 +453,9 @@ define(function (require, exports) {
                     deferred.resolve(updatedPkg);
                 });
             } else {
-                deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED));
+                deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_PKG_UPDATED, {
+                    message: Strings.ERROR_MSG_NO_PACKAGE_UPDATED
+                }));
             }
         });
 
@@ -475,7 +484,9 @@ define(function (require, exports) {
 
         // force bower.json to exists before updating
         if (!project.hasBowerJson()) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+                message: Strings.ERROR_NO_BOWER_JSON
+            }));
         }
 
         pkg = project.getPackageByName(name);
@@ -483,14 +494,18 @@ define(function (require, exports) {
 
         // check if the selected package exists
         if (!pkg) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
+                message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
+            }));
         }
 
         // get package data to update
         updateData = _updateOptionsForPackage(pkg, data);
 
         if (!updateData || Object.keys(updateData) === 0) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA));
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA, {
+                message: Strings.ERROR_MSG_NO_UPDATE_DATA
+            }));
         }
 
         bowerJson.updatePackageInfo(name, updateData).then(function () {

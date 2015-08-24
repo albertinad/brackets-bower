@@ -32,7 +32,8 @@ define(function (require, exports, module) {
         ProjectStatus  = require("src/project/ProjectStatus"),
         PackageFactory = require("src/project/PackageFactory"),
         Package        = require("src/project/Package"),
-        ErrorUtils     = require("src/utils/ErrorUtils");
+        ErrorUtils     = require("src/utils/ErrorUtils"),
+        Strings        = require("strings");
 
     /**
      * @constructor
@@ -499,11 +500,15 @@ define(function (require, exports, module) {
             addDependencyFn;
 
         if (!this.hasBowerJson()) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+                message: Strings.ERROR_NO_BOWER_JSON
+            }));
         }
 
         if (!pkg) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
+                message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
+            }));
         }
 
         version = Package.getVersion(pkg.version, Package.VersionOptions.TILDE);
@@ -525,11 +530,15 @@ define(function (require, exports, module) {
         var pkg = this.getPackageByName(name);
 
         if (!this.hasBowerJson()) {
-            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+                message: Strings.ERROR_NO_BOWER_JSON
+            }));
         }
 
         if (!pkg) {
-            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
+                message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
+            }));
         }
 
         return this._activeBowerJson.removeDependency(pkg.name);
@@ -544,7 +553,9 @@ define(function (require, exports, module) {
 
             return this._activeBowerJson.syncDependencies(packages);
         } else {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+                message: Strings.ERROR_NO_BOWER_JSON
+            }));
         }
     };
 
@@ -557,7 +568,9 @@ define(function (require, exports, module) {
                 existsBowerJsonChanges;
 
             if (this._status.isSynced()) {
-                return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC));
+                return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
+                    message: String.ERROR_MSG_NOTHING_TO_SYNC
+                })); // TODO complete error
             }
 
             existsExtraneous = this.hasExtraneousPackages();
@@ -565,7 +578,9 @@ define(function (require, exports, module) {
 
             return this._projectManager.syncDependenciesWithBowerJson(existsExtraneous, existsBowerJsonChanges);
         } else {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON));
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+                message: Strings.ERROR_NO_BOWER_JSON
+            }));
         }
     };
 

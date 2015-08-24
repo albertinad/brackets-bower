@@ -29,7 +29,8 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var ErrorUtils = require("src/utils/ErrorUtils");
+    var ErrorUtils = require("src/utils/ErrorUtils"),
+        Strings    = require("strings");
 
     /**
      * @param {object} wrappedError
@@ -38,29 +39,39 @@ define(function (require, exports) {
      */
     function getError(wrappedError) {
         var originalError = wrappedError.error,
-            message = wrappedError.message,
             originalCode = (originalError) ? originalError.code : "UNKNOWN_ERROR_CODE",
+            options = {
+                originalMessage: originalError.message,
+                originalError: originalError
+            },
             code,
-            error;
+            message;
 
         switch (originalCode) {
         case "ENOENT":
             code = ErrorUtils.NO_BOWER_JSON;
+            message = Strings.ERROR_NO_BOWER_JSON;
             break;
         case "ENOTINS":
             code = ErrorUtils.PKG_NOT_INSTALLED;
+            message = Strings.ERROR_MSG_NO_PACKAGE_INSTALLED;
             break;
         case "ECONFLICT":
             code = ErrorUtils.CONFLICT;
+            message = Strings.ERROR_MSG_DEPENDENCY_CONFLICT;
+            // TODO complete with data for selecting dependencies
             break;
         case "ENORESOLVER":
             code = ErrorUtils.SRC_RESOLVER_NOT_FOUND;
+            message = Strings.ERROR_MSG_NO_RESOLVER;
             break;
         case "ENOTFOUND":
             code = ErrorUtils.SRC_NOT_FOUND;
+            message = Strings.ERROR_MSG_NO_SOURCE;
             break;
         case "ENORESTARGET":
             code = ErrorUtils.CANT_FOUND_TARGET;
+            message = Strings.ERROR_MSG_NO_TARGET;
             break;
         case "ECMDERR":
             code = ErrorUtils.CMD_EXE;
@@ -76,25 +87,31 @@ define(function (require, exports) {
             break;
         case "EINCOMPLETE":
             code = ErrorUtils.DONWLOAD_INCOMPLETE;
+            message = Strings.ERROR_MSG_DOWNLOAD_INCOMPLETE;
             break;
         case "EMALFORMED":
             if (originalError.file) {
                 if (originalError.file.match("bower.json")) {
                     code = ErrorUtils.EMALFORMED_BOWER_JSON;
+                    message = Strings.ERROR_MSG_MALFORMED_BOWER_JSON;
                 } else {
                     code = ErrorUtils.EMALFORMED_BOWERRC;
                 }
             } else {
                 code = ErrorUtils.EMALFORMED;
+                message = Strings.ERROR_MSG_MALFORMED_FILE;
             }
             break;
         default:
             code = ErrorUtils.UNKNOWN_ERROR;
+            message = Strings.ERROR_DEFAULT_MSG;
         }
 
-        error = ErrorUtils.createError(code, message, originalError);
+        if (message) {
+            options.message = message;
+        }
 
-        return error;
+        return ErrorUtils.createError(code, options);
     }
 
     exports.getError = getError;
