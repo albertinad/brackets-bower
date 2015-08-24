@@ -29,9 +29,10 @@ maxerr: 50, browser: true */
 define(function (require, exports) {
     "use strict";
 
-    var StringUtils = brackets.getModule("utils/StringUtils"),
-        ErrorUtils  = require("src/utils/ErrorUtils"),
-        Strings     = require("strings");
+    var StringUtils    = brackets.getModule("utils/StringUtils"),
+        ErrorUtils     = require("src/utils/ErrorUtils"),
+        PackageFactory = require("src/project/PackageFactory"),
+        Strings        = require("strings");
 
     /**
      * @param {object} wrappedError
@@ -46,7 +47,8 @@ define(function (require, exports) {
                 originalError: originalError
             },
             code,
-            message;
+            message,
+            extra;
 
         switch (originalCode) {
         case "ENOENT":
@@ -63,7 +65,12 @@ define(function (require, exports) {
             if (originalError.name) {
                 message = StringUtils.format(Strings.ERROR_MSG_DEPENDENCY_CONFLICT, originalError.name);
             }
-            // TODO complete with data for selecting dependencies
+
+            if (originalError.picks) {
+                extra = {
+                    pickPackages: PackageFactory.getPackages(originalError.picks)
+                };
+            }
             break;
         case "ENORESOLVER":
             code = ErrorUtils.SRC_RESOLVER_NOT_FOUND;
@@ -113,6 +120,10 @@ define(function (require, exports) {
 
         if (message) {
             options.message = message;
+        }
+
+        if (extra) {
+            options.extra = extra;
         }
 
         return ErrorUtils.createError(code, options);

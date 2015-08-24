@@ -477,10 +477,39 @@ define(function (require, exports, module) {
         return names;
     }
 
+    /**
+     * Parse the given raw packages array and returns an array of packages instances, without dependants.
+     * The array could contain duplicated packages instances.
+     * @param {array} packagesData
+     * @return {array}
+     */
+    function getPackages(packagesData) {
+        if (!packagesData) {
+            return [];
+        }
+
+        var pkgs = [],
+            deps = _getBowerJsonDependencies();
+
+        packagesData.forEach(function (data) {
+            var meta = data.pkgMeta,
+                pkg;
+
+            if (meta && meta.name) {
+                pkg = _packageFromRawDataUsingBowerJson(meta.name, data, deps);
+
+                pkgs.push(pkg);
+            }
+        });
+
+        return pkgs;
+    }
+
     exports.createPackagesWithBowerJson = createPackagesWithBowerJson;
     exports.createPackages              = createPackages;
     exports.createPackagesRecursive     = createPackagesRecursive;
     exports.createPackageInfo           = createPackageInfo;
     exports.createPackageDependant      = createPackageDependant;
     exports.getPackagesName             = getPackagesName;
+    exports.getPackages                 = getPackages;
 });
