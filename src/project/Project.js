@@ -570,7 +570,7 @@ define(function (require, exports, module) {
             if (this._status.isSynced()) {
                 return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
                     message: String.ERROR_MSG_NOTHING_TO_SYNC
-                })); // TODO complete error
+                }));
             }
 
             existsExtraneous = this.hasExtraneousPackages();

@@ -421,16 +421,56 @@ define(function (require, exports) {
      */
     function syncDependenciesWithBowerJson(existsExtraneous, existsBowerJsonChanges) {
         var deferred = new $.Deferred(),
-            deferredCmds = [];
+            deferredCmds = [],
+            packages = {};
+
+        function removeExtraneous() {
+            var pruneDeferred = new $.Deferred();
+
+            PackageManager.prune().then(function (removedPackages) {
+                // save the uninstalled package
+                packages.removed = removedPackages;
+
+                pruneDeferred.resolve();
+            }).fail(function (error) {
+                console.log("[bower-sync] \"prune\" error.", error);
+
+                pruneDeferred.reject();
+            });
+
+            return pruneDeferred.promise();
+        }
+
+        function install() {
+            var installDeferred = new $.Deferred();
+
+            PackageManager.install().then(function (result) {
+                if (result.installed.length !== 0) {
+                    packages.installed = result.installed;
+                }
+
+                if (result.updated.length !== 0) {
+                    packages.updated = result.updated;
+                }
+
+                installDeferred.resolve();
+            }).fail(function (error) {
+                console.log("[bower-sync] \"install\" error.", error);
+
+                installDeferred.reject();
+            });
+
+            return installDeferred.promise();
+        }
 
         if (existsExtraneous) {
             // uninstall untracked packages
-            deferredCmds.push(PackageManager.prune);
+            deferredCmds.push(removeExtraneous);
         }
 
         if (existsBowerJsonChanges) {
             // install missing packages
-            deferredCmds.push(PackageManager.install);
+            deferredCmds.push(install);
         }
 
         function onNextCmd(cmdFn) {
@@ -438,7 +478,7 @@ define(function (require, exports) {
         }
 
         Async.doSequentially(deferredCmds, onNextCmd, true).then(function () {
-            deferred.resolve();
+            deferred.resolve(packages);
         }).fail(function (error) {
             deferred.reject(error);
         });

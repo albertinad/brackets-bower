@@ -217,8 +217,10 @@ define(function (require, exports, module) {
         versionOutOfSync = packagesData.versionOutOfSync;
 
         if (missing.length === 0 && untracked.length === 0 && versionOutOfSync.length === 0) {
-            // there's nothing to update
-            return deferred.reject();
+            // there's nothing to sync
+            return deferred.reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
+                message: String.ERROR_MSG_NOTHING_TO_SYNC
+            }));
         }
 
         this._getFileContent().then(function (content) {
@@ -273,8 +275,13 @@ define(function (require, exports, module) {
             return that.saveContent(that._serialize(content));
 
         }).then(function () {
+            var packages = {
+                removed: missing,
+                installed: untracked,
+                updated: versionOutOfSync
+            };
 
-            deferred.resolve();
+            deferred.resolve(packages);
         }).fail(function (error) {
 
             deferred.reject(error);
