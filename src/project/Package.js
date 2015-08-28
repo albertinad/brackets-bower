@@ -48,6 +48,8 @@ define(function (require, exports, module) {
         FIXED: 2
     };
 
+    var DEFAULT_VERSION_TYPE = VersionOptions.TILDE;
+
     var TILDE = "~",
         CARET = "^";
 
@@ -90,6 +92,8 @@ define(function (require, exports, module) {
     Package.VersionOptions = VersionOptions;
 
     Package.DependencyType = DependencyType;
+
+    Package.DEFAULT_VERSION_TYPE = DEFAULT_VERSION_TYPE;
 
     /**
      * @param {number} type
@@ -139,7 +143,7 @@ define(function (require, exports, module) {
         var semverVersion;
 
         if (version) {
-            semverVersion = Package.getVersion(version, VersionOptions.TILDE);
+            semverVersion = Package.getVersion(version, DEFAULT_VERSION_TYPE);
         } else {
             semverVersion = "*";
         }

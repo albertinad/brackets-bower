@@ -511,7 +511,7 @@ define(function (require, exports, module) {
             }));
         }
 
-        version = Package.getVersion(pkg.version, Package.VersionOptions.TILDE);
+        version = Package.getVersion(pkg.version, Package.DEFAULT_VERSION_TYPE);
         dependencyType = Package.getValidDependencyType(dependencyType);
 
         if (Package.DependencyType.PRODUCTION === dependencyType) {
