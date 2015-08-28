@@ -422,7 +422,8 @@ define(function (require, exports) {
     function syncDependenciesWithBowerJson(existsExtraneous, existsBowerJsonChanges) {
         var deferred = new $.Deferred(),
             deferredCmds = [],
-            packages = {};
+            packages = {},
+            syncError;
 
         function removeExtraneous() {
             var pruneDeferred = new $.Deferred();
@@ -433,9 +434,11 @@ define(function (require, exports) {
 
                 pruneDeferred.resolve();
             }).fail(function (error) {
-                console.log("[bower-sync] \"prune\" error.", error);
+                syncError = error;
 
-                pruneDeferred.reject();
+                console.log("[bower-sync] \"prune\" error.", syncError);
+
+                pruneDeferred.reject(syncError);
             });
 
             return pruneDeferred.promise();
@@ -455,9 +458,11 @@ define(function (require, exports) {
 
                 installDeferred.resolve();
             }).fail(function (error) {
-                console.log("[bower-sync] \"install\" error.", error);
+                syncError = error;
 
-                installDeferred.reject();
+                console.log("[bower-sync] \"install\" error.", syncError);
+
+                installDeferred.reject(syncError);
             });
 
             return installDeferred.promise();
@@ -479,8 +484,8 @@ define(function (require, exports) {
 
         Async.doSequentially(deferredCmds, onNextCmd, true).then(function () {
             deferred.resolve(packages);
-        }).fail(function (error) {
-            deferred.reject(error);
+        }).fail(function () {
+            deferred.reject(syncError);
         });
 
         return deferred.promise();
