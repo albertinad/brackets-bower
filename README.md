@@ -34,13 +34,13 @@ through the default Preferences.
 2. Add a new entry `"proxy": "<proxyValue>"`
 
 Some bower commands like "install" rely on the git configuration. To support a proxy, you need
-to configure the http and https proxy from your global git configuration on your system.
+to configure the http proxy from your global git configuration on your system.
 
 1. Open a console/terminal
 2. Set up the global proxy:
 ```
-git config --global --add http.proxy <proxyValue>
-git config --global --add https.proxy <proxyValue>
+$ git config --global --add http.proxy <proxyValue>
+
 ```
 
 ### bower.json

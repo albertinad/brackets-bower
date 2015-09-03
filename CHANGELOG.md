@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.14
+* Improving error handling and notifications.
+
 ## v0.2.13
 * Bug fixing:
     - Uninstalling packages and bower.json file system changes leave the BowerProject model in an inconsistent state.
