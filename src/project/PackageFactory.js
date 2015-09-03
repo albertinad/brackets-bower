@@ -185,6 +185,14 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {string} text
+     * @private
+     */
+    function _isValidString(text) {
+        return (text && (typeof text.trim === "function") && (text.trim().length));
+    }
+
+    /**
      * @param {Package}
      * @return {PackageSummary}
      */
@@ -207,32 +215,32 @@ define(function (require, exports, module) {
             meta = data.pkgMeta;
 
         if (meta) {
-            if (meta.version) {
+            if (_isValidString(meta.version)) {
                 pkg.version = meta.version;
             }
 
-            if (meta._source) {
+            if (_isValidString(meta._source)) {
                 pkg.source = meta._source;
             }
 
-            if (typeof meta.homepage === "string") {
+            if (_isValidString(meta.homepage)) {
                 pkg.homepage = meta.homepage;
             }
 
-            if (typeof meta.description === "string") {
+            if (_isValidString(meta.description)) {
                 pkg.description = meta.description;
             }
         }
 
-        if (data.endpoint && data.endpoint.target) {
+        if (data.endpoint && _isValidString(data.endpoint.target)) {
             pkg.bowerJsonVersion = data.endpoint.target;
         }
 
-        if (data.canonicalDir) {
+        if (_isValidString(data.canonicalDir)) {
             pkg.installationDir = data.canonicalDir;
         }
 
-        if (data.update && data.update.latest) {
+        if (data.update && _isValidString(data.update.latest)) {
             pkg.latestVersion = data.update.latest;
         }
 
