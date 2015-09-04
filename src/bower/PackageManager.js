@@ -73,7 +73,9 @@ define(function (require, exports) {
      * @private
      */
     function _updateOptionsForPackage(pkg, data) {
-        var updateData,
+        var updateData = {},
+            backupData = {},
+            result,
             updateVersion,
             dependencyType;
 
@@ -82,28 +84,28 @@ define(function (require, exports) {
         }
 
         dependencyType = data.type;
-
-        function addToUpdateData(dataKey, value) {
-            if (!updateData) {
-                updateData = {};
-            }
-
-            updateData[dataKey] = value;
-        }
-
         updateVersion = Package.getVersion(data.version, data.versionType);
 
         // version
         if (updateVersion && (pkg.bowerJsonVersion !== updateVersion)) {
-            addToUpdateData("version", updateVersion);
+            updateData.version = updateVersion;
+            backupData.version = pkg.bowerJsonVersion;
         }
 
         // dependency type
         if (Package.isValidDependencyType(dependencyType) && pkg.dependencyType !== dependencyType) {
-            addToUpdateData("dependencyType", dependencyType);
+            updateData.dependencyType = dependencyType;
+            backupData.dependencyType = pkg.dependencyType;
         }
 
-        return updateData;
+        if (updateData && Object.keys(updateData) !== 0) {
+            result = {
+                update: updateData,
+                backup: backupData
+            };
+        }
+
+        return result;
     }
 
     /**
@@ -457,6 +459,8 @@ define(function (require, exports) {
                     message: Strings.ERROR_MSG_NO_PACKAGE_UPDATED
                 }));
             }
+        }).fail(function (error) {
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -476,7 +480,8 @@ define(function (require, exports) {
             project = ProjectManager.getProject(),
             pkg,
             bowerJson,
-            updateData;
+            options,
+            update;
 
         if (!project) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
@@ -500,22 +505,24 @@ define(function (require, exports) {
         }
 
         // get package data to update
-        updateData = _updateOptionsForPackage(pkg, data);
+        options = _updateOptionsForPackage(pkg, data);
 
-        if (!updateData || Object.keys(updateData) === 0) {
+        if (!options) {
             return deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA, {
                 message: Strings.ERROR_MSG_NO_UPDATE_DATA
             }));
         }
 
-        bowerJson.updatePackageInfo(name, updateData).then(function () {
+        update = options.update;
 
-            if (updateData.version !== undefined) {
+        bowerJson.updatePackageInfo(name, update).then(function () {
+
+            if (update.version !== undefined) {
 
                 return _updateByName(name);
             } else {
                 // dependencyType was an updated property only
-                pkg.dependencyType = updateData.dependencyType;
+                pkg.dependencyType = update.dependencyType;
 
                 project.updatePackages([pkg]);
 
@@ -525,6 +532,8 @@ define(function (require, exports) {
 
             deferred.resolve(result);
         }).fail(function (error) {
+            // restore bower.json to previous state
+            bowerJson.updatePackageInfo(name, options.backup);
 
             deferred.reject(error);
         });
