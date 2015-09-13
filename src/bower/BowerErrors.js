@@ -112,6 +112,10 @@ define(function (require, exports) {
                 message = Strings.ERROR_MSG_MALFORMED_FILE;
             }
             break;
+        case "ECONRESET":
+            code = ErrorUtils.ECONNECTION_RESET;
+            message = Strings.ERROR_MSG_CONNECTION_PROBLEM;
+            break;
         default:
             code = ErrorUtils.UNKNOWN_ERROR;
             message = Strings.ERROR_DEFAULT_MSG;

@@ -94,5 +94,6 @@ define({
     "ERROR_MSG_NO_UPDATE_DATA": "There's no data to update the package",
     "ERROR_NO_BOWER_JSON": "The bower.json file is required and it doesn't exist.",
     "ERROR_MSG_NOTHING_TO_SYNC": "There's no packages that needs synchronization.",
-    "ERROR_MSG_DOWNLOAD_INCOMPLETE": "The download is incomplete, please try again later."
+    "ERROR_MSG_DOWNLOAD_INCOMPLETE": "The download is incomplete, please try again later.",
+    "ERROR_MSG_CONNECTION_PROBLEM": "The network connection is lost. Please, check your internet connection and try again."
 });

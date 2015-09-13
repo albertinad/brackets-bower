@@ -51,7 +51,8 @@ define(function (require, exports, module) {
         EUPDATE_NO_PKG_UPDATED    = 17,
         EINSTALL_NO_PKG_INSTALLED = 18,
         EINSTALL_NO_PKG           = 19,
-        ESYNC_NOTHING_TO_SYNC     = 20;
+        ESYNC_NOTHING_TO_SYNC     = 20,
+        ECONNECTION_RESET         = 21;
 
     /**
      * @param {number} code
@@ -111,4 +112,5 @@ define(function (require, exports, module) {
     exports.EINSTALL_NO_PKG_INSTALLED = EINSTALL_NO_PKG_INSTALLED;
     exports.EINSTALL_NO_PKG        = EINSTALL_NO_PKG;
     exports.ESYNC_NOTHING_TO_SYNC  = ESYNC_NOTHING_TO_SYNC;
+    exports.ECONNECTION_RESET      = ECONNECTION_RESET;
 });

@@ -29,6 +29,8 @@ define(function (require, exports, module) {
     "use strict";
 
     var StringUtils         = brackets.getModule("utils/StringUtils"),
+        CommandManager      = brackets.getModule("command/CommandManager"),
+        Menus               = brackets.getModule("command/Menus"),
         PanelView           = require("src/panel/views/PanelView"),
         StatusBarController = require("src/panel/controllers/StatusBarController").Controller,
         SettingsDialog      = require("src/dialogs/SettingsDialog"),
@@ -37,6 +39,8 @@ define(function (require, exports, module) {
         Preferences         = require("src/preferences/Preferences"),
         ErrorUtils          = require("src/utils/ErrorUtils"),
         Strings             = require("strings");
+
+    var CMD_PANEL = ".togglePanel";
 
     /**
      * PanelController constructor. Main controller for the bower extension view.
@@ -54,6 +58,8 @@ define(function (require, exports, module) {
         this._activePanelController = null;
         /** @private */
         this._activePanelkey = null;
+        /** @private */
+        this._cmdPanel = null;
     }
 
     PanelController.STATUS_WARNING = PanelView.StatusStyles.WARNING;
@@ -72,10 +78,17 @@ define(function (require, exports, module) {
         this._view.initialize(extensionName);
 
         var $section = this._view.getPanelSection(),
+            cmdName = extensionName + CMD_PANEL,
+            viewMenu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU),
             key,
             controllerData,
             ConstructorFn,
             controllerInstance;
+
+        // add menu entry to toggle panel
+        this._cmdPanel = CommandManager.register(Strings.TITLE_BOWER, cmdName, this.toggle.bind(this));
+
+        viewMenu.addMenuItem(this._cmdPanel);
 
         // initializes and register the sub panels controllers
         for (key in controllers) {
@@ -117,6 +130,8 @@ define(function (require, exports, module) {
         }
 
         this._isActive = !this._isActive;
+
+        this._cmdPanel.setChecked(this._isActive);
 
         Preferences.set(Preferences.settings.EXTENSION_VISIBLE, this._isActive);
     };

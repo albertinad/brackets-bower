@@ -50,18 +50,10 @@ define(function (require, exports, module) {
 
     var EXTENSION_NAME         = "albertinad.bracketsbower",
         CMD_QUICK_INSTALL      = EXTENSION_NAME + ".installFromBower",
-        CMD_PANEL              = EXTENSION_NAME + ".togglePanel",
         CMD_SET_BOWER_CWD      = EXTENSION_NAME + ".setAsCwd",
         KEY_INSTALL_FROM_BOWER = "Ctrl-Alt-B";
 
     var panelController;
-
-    /**
-     * Show or hide the bower panel.
-     */
-    function _togglePanel() {
-        panelController.toggle();
-    }
 
     /**
      * Show QuickSearch for Bower searching.
@@ -104,14 +96,11 @@ define(function (require, exports, module) {
 
         _initializeControllers();
 
-        var panelCmd   = CommandManager.register(Strings.TITLE_BOWER, CMD_PANEL, _togglePanel),
-            installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_QUICK_INSTALL, _showQuickInstall),
-            fileMenu   = Menus.getMenu(Menus.AppMenuBar.FILE_MENU),
-            viewMenu   = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
+        var installCmd = CommandManager.register(Strings.TITLE_SHORTCUT, CMD_QUICK_INSTALL, _showQuickInstall),
+            fileMenu   = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
 
         fileMenu.addMenuDivider();
         fileMenu.addMenuItem(installCmd);
-        viewMenu.addMenuItem(panelCmd);
 
         KeyBindingManager.addBinding(CMD_QUICK_INSTALL, {
             key: KEY_INSTALL_FROM_BOWER
