@@ -59,19 +59,12 @@ define(function (require, exports, module) {
 
     BowerJson.prototype.create = function (data) {
         var that = this,
-            deferred = new $.Deferred(),
             pkgMeta = (Array.isArray(data)) ? this._createPackageMetadata(data) : this._getDefaultData();
 
-        this.saveContent(this._serialize(pkgMeta)).then(function () {
+        return this.saveContent(this._serialize(pkgMeta)).then(function () {
             // cache the dependencies
             that._updateCacheDependencies(pkgMeta);
-
-            deferred.resolve();
-        }).fail(function (error) {
-            deferred.reject(error);
         });
-
-        return deferred;
     };
 
     /**
