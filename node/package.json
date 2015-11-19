@@ -1,9 +1,9 @@
 {
     "name": "brackets-bower-node",
     "description": "Node modules for the Brackets bower extension",
-    "version": "0.2.5",
+    "version": "0.3.0",
     "dependencies": {
-        "bower": "~1.4.1",
-        "bower-config": "~0.6.1"
+        "bower": "1.6.5",
+        "bower-config": "1.2.2"
     }
 }
