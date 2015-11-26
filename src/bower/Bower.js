@@ -64,7 +64,9 @@ define(function (require, exports) {
             };
             deferred.resolve(result);
         }).fail(function (error) {
-            deferred.reject(BowerErrors.getError(error));
+            var err = BowerErrors.getError(error);
+            console.warn("[brackets-bower] Error installing package " + packageName, JSON.stringify(err, null, 2), options);
+            deferred.reject(err);
         });
 
         return deferred.promise();
@@ -85,7 +87,9 @@ define(function (require, exports) {
 
             deferred.resolve(result);
         }).fail(function (error) {
-            deferred.reject(BowerErrors.getError(error));
+            var err = BowerErrors.getError(error);
+            console.warn("[brackets-bower] Error installing from bower.json", JSON.stringify(err, null, 2));
+            deferred.reject(err);
         });
 
         return deferred.promise();
