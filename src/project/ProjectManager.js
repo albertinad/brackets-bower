@@ -95,24 +95,32 @@ define(function (require, exports) {
         };
     }
 
-    /**
-     * Create the bower.json file.
-     */
-    function createBowerJson() {
-        var deferred = new $.Deferred(),
-            bowerJson = new BowerJson(_bowerProject);
+    function listProjectDependencies() {
+        var deferred = new $.Deferred();
 
-        bowerJson.create(_bowerProject.getProjectPackages()).then(function () {
-            _bowerProject.activeBowerJson = bowerJson;
-
-            deferred.resolve();
+        PackageManager.list(true).then(function (result) {
+            // create the package model
+            return PackageFactory.createPackagesRecursive(result.dependencies);
+        }).then(function (packages) {
+            deferred.resolve(_.values(packages));
         }).fail(function (error) {
-            _bowerProject.activeBowerJson = null;
-
             deferred.reject(error);
         });
 
         return deferred;
+    }
+
+    /**
+     * Create the bower.json file.
+     */
+    function createBowerJson() {
+        var bowerJson = new BowerJson(_bowerProject);
+
+        return bowerJson.create(_bowerProject.getProjectPackages()).then(function () {
+            _bowerProject.activeBowerJson = bowerJson;
+        }).fail(function (error) {
+            _bowerProject.activeBowerJson = null;
+        });
     }
 
     /**
@@ -184,23 +192,43 @@ define(function (require, exports) {
     }
 
     /**
+     * @private
+     */
+    function _loadAddedBowerJson() {
+        return BowerJson.findInPath(_bowerProject.getPath()).then(function () {
+            var bowerJson = new BowerJson(_bowerProject);
+
+            _bowerProject.activeBowerJson = bowerJson;
+
+            return bowerJson.loadAllDependencies();
+        }).then(function () {
+            // start loading project dependencies
+            return listProjectDependencies().then(function (packagesArray) {
+                _bowerProject.setPackages(packagesArray);
+
+                PackageManager.listWithVersions().then(function (packagesArray) {
+                    if (_bowerProject) {
+                        _bowerProject.setPackages(packagesArray);
+                    }
+                });
+            });
+        }).fail(function (error) {
+            // show the error
+            ErrorUtils.handleError(error);
+        });
+    }
+
+    /**
      * Create the .bowerrc file for the current project.
      */
     function createBowerRc() {
-        var deferred = new $.Deferred(),
-            bowerRc = new BowerRc(_bowerProject);
+        var bowerRc = new BowerRc(_bowerProject);
 
-        bowerRc.create().then(function () {
+        return bowerRc.create().then(function () {
             _bowerProject.activeBowerRc = bowerRc;
-
-            deferred.resolve();
         }).fail(function (error) {
             _bowerProject.activeBowerRc = null;
-
-            deferred.reject(error);
         });
-
-        return deferred.promise();
     }
 
     /**
@@ -280,21 +308,6 @@ define(function (require, exports) {
      */
     function getPackagesSummary() {
         return (_bowerProject) ? _bowerProject.getPackagesSummary() : [];
-    }
-
-    function listProjectDependencies() {
-        var deferred = new $.Deferred();
-
-        PackageManager.list(true).then(function (result) {
-            // create the package model
-            return PackageFactory.createPackagesRecursive(result.dependencies);
-        }).then(function (packages) {
-            deferred.resolve(_.values(packages));
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
-
-        return deferred;
     }
 
     /**
@@ -581,8 +594,8 @@ define(function (require, exports) {
         // bower.json
 
         FileSystemHandler.on(Events.BOWER_JSON_CREATED, function () {
-            if (_bowerProject && !_bowerProject.hasBowerJson()) {
-                createBowerJson().always(function () {
+            if (_bowerProject) {
+                _loadAddedBowerJson().always(function () {
                     _notifyBowerJsonReloaded();
                 });
             }
