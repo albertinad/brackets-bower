@@ -686,7 +686,7 @@ define(function (require, exports, module) {
                     var currentPkg = this.getPackageByName(pkg.name);
 
                     return (currentPkg) ? !currentPkg.isEqualTo(pkg) : true;
-                });
+                }.bind(this));
 
                 if (isAnyModification) {
                     this.setPackages(packagesArray);
