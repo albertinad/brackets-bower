@@ -285,7 +285,7 @@ define(function (require, exports, module) {
     };
 
     BowerJson.prototype.onContentChanged = function () {
-        return this.loadAllDependencies()
+        return this.loadAllDependencies();
     };
 
     /**

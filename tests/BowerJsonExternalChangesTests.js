@@ -186,7 +186,6 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
@@ -210,7 +209,6 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isOutOfSync()).toEqual(true);
@@ -268,7 +266,6 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
@@ -293,7 +290,6 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -351,7 +347,6 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
@@ -375,7 +370,6 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isSynced()).toEqual(true);
@@ -432,7 +426,6 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
@@ -456,7 +449,6 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isSynced()).toEqual(true);
@@ -509,7 +501,6 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
@@ -533,7 +524,6 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isOutOfSync()).toEqual(true);

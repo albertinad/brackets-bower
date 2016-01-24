@@ -220,6 +220,20 @@ define(function (require, exports) {
     }
 
     /**
+     * @private
+     */
+    function _loadAddedBowerRc() {
+        return BowerRc.findInPath(_bowerProject.getPath()).then(function () {
+            _bowerProject.activeBowerRc = new BowerRc(_bowerProject);
+
+            _bowerProject.onBowerRcChanged();
+        }).fail(function (error) {
+            // show the error
+            ErrorUtils.handleError(error);
+        });
+    }
+
+    /**
      * Create the .bowerrc file for the current project.
      */
     function createBowerRc() {
@@ -619,16 +633,10 @@ define(function (require, exports) {
         // bowerrc
 
         FileSystemHandler.on(Events.BOWER_BOWERRC_CREATED, function () {
-            if (_bowerProject && !_bowerProject.hasBowerRc()) {
-                createBowerRc().always(function () {
+            if (_bowerProject) {
+                _loadAddedBowerRc().always(function () {
                     _notifyBowerRcReloaded();
                 });
-            }
-        });
-
-        FileSystemHandler.on(Events.BOWER_BOWERRC_CHANGED, function () {
-            if (_bowerProject) {
-                _bowerProject.onBowerRcChanged();
             }
         });
 
@@ -637,6 +645,12 @@ define(function (require, exports) {
                 _bowerProject.removeBowerRc().always(function () {
                     _notifyBowerRcReloaded();
                 });
+            }
+        });
+
+        FileSystemHandler.on(Events.BOWER_BOWERRC_CHANGED, function () {
+            if (_bowerProject) {
+                _bowerProject.onBowerRcChanged();
             }
         });
     });

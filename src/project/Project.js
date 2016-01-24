@@ -709,6 +709,8 @@ define(function (require, exports, module) {
         this._activeBowerRc.remove().always(function () {
             this._activeBowerRc = null;
 
+            this._bowerJsonChanged();
+
             deferred.resolve();
         }.bind(this));
 

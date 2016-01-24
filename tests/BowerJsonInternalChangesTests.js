@@ -203,7 +203,6 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
@@ -266,7 +265,6 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
@@ -304,7 +302,6 @@ define(function (require, exports, module) {
             getBowerJsonSpy.andCallThrough();
             setPackagesSpy.reset();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
@@ -367,7 +364,6 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
@@ -402,7 +398,6 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
             spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
@@ -451,7 +446,6 @@ define(function (require, exports, module) {
                     bowerJsonDeps = bowerJson.getAllDependencies(),
                     status = project.getStatus();
 
-                expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
                 expect(project._bowerJsonChanged).toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
