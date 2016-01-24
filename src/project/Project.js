@@ -635,7 +635,7 @@ define(function (require, exports, module) {
             this._bowerJsonChanged();
 
             deferred.resolve();
-        });
+        }.bind(this));
 
         return deferred.promise();
     };
