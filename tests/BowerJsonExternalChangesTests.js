@@ -187,7 +187,7 @@ define(function (require, exports, module) {
             getBowerJsonSpy.andCallThrough();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
-            spyOn(project, "bowerJsonChanged").andCallThrough();
+            spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
             runs(function () {
@@ -211,7 +211,7 @@ define(function (require, exports, module) {
                     newPkg;
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
-                expect(project.bowerJsonChanged).toHaveBeenCalled();
+                expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isOutOfSync()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -269,7 +269,7 @@ define(function (require, exports, module) {
             getBowerJsonSpy.andCallThrough();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
-            spyOn(project, "bowerJsonChanged").andCallThrough();
+            spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
             runs(function () {
@@ -294,7 +294,7 @@ define(function (require, exports, module) {
                     newPkg;
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
-                expect(project.bowerJsonChanged).toHaveBeenCalled();
+                expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(bowerJsonDeps.dependencies).toBeDefined();
                 expect(bowerJsonDeps.devDependencies).toBeDefined();
@@ -352,7 +352,7 @@ define(function (require, exports, module) {
             getBowerJsonSpy.andCallThrough();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
-            spyOn(project, "bowerJsonChanged").andCallThrough();
+            spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
             runs(function () {
@@ -376,7 +376,7 @@ define(function (require, exports, module) {
                     newPkg;
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
-                expect(project.bowerJsonChanged).toHaveBeenCalled();
+                expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isSynced()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -433,7 +433,7 @@ define(function (require, exports, module) {
             getBowerJsonSpy.andCallThrough();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
-            spyOn(project, "bowerJsonChanged").andCallThrough();
+            spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
             runs(function () {
@@ -457,7 +457,7 @@ define(function (require, exports, module) {
                     newPkg;
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
-                expect(project.bowerJsonChanged).toHaveBeenCalled();
+                expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isSynced()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();
@@ -510,7 +510,7 @@ define(function (require, exports, module) {
             getBowerJsonSpy.andCallThrough();
 
             spyOn(bowerJson, "_notifyBowerJsonChanged").andCallThrough();
-            spyOn(project, "bowerJsonChanged").andCallThrough();
+            spyOn(project, "_bowerJsonChanged").andCallThrough();
             spyOn(BowerProjectManager, "listProjectDependencies").andReturn(listProjectDepsReturn);
 
             runs(function () {
@@ -534,7 +534,7 @@ define(function (require, exports, module) {
                     newPkg;
 
                 expect(bowerJson._notifyBowerJsonChanged).toHaveBeenCalled();
-                expect(project.bowerJsonChanged).toHaveBeenCalled();
+                expect(project._bowerJsonChanged).toHaveBeenCalled();
 
                 expect(status.isOutOfSync()).toEqual(true);
                 expect(bowerJsonDeps.dependencies).toBeDefined();

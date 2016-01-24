@@ -170,14 +170,13 @@ define(function (require, exports, module) {
      * @private
      */
     BowerProject.prototype._addPackages = function (packagesArray, updateDependants) {
-        var that = this,
-            packagesInstalled = [],
+        var packagesInstalled = [],
             packagesUpdated = [],
             result;
 
         packagesArray.forEach(function (pkg) {
             var name = pkg.name,
-                currentPkg = that._packages[name];
+                currentPkg = this._packages[name];
 
             if (currentPkg && currentPkg.isInstalled()) {
                 packagesUpdated.push(pkg);
@@ -185,13 +184,13 @@ define(function (require, exports, module) {
                 packagesInstalled.push(pkg);
             }
 
-            that._packages[name] = pkg;
+            this._packages[name] = pkg;
 
             if (updateDependants) {
                 // update dependants
-                that._addPackageDependants(pkg);
+                this._addPackageDependants(pkg);
             }
-        });
+        }.bind(this));
 
         result = {
             installed: packagesInstalled,
@@ -210,12 +209,11 @@ define(function (require, exports, module) {
      * @private
      */
     BowerProject.prototype._keepVersionsIfNeeded = function (packagesArray) {
-        var that = this;
-
         packagesArray.forEach(function (pkg) {
-            pkg.updateVersionInfo(that.getPackageByName(pkg.name));
-        });
+            pkg.updateVersionInfo(this.getPackageByName(pkg.name));
+        }.bind(this));
     };
+
     /**
      * Remove packages by its name.
      * @param {Array} names
@@ -385,11 +383,9 @@ define(function (require, exports, module) {
      * @param {Array<Package>} pkgs
      */
     BowerProject.prototype.updatePackages = function (pkgs) {
-        var that = this;
-
         pkgs.forEach(function (pkg) {
-            that._packages[pkg.name] = pkg;
-        });
+            this._packages[pkg.name] = pkg;
+        }.bind(this));
 
         this._status.checkCurrentStatus();
 
@@ -607,12 +603,10 @@ define(function (require, exports, module) {
      * @return {boolean}
      */
     BowerProject.prototype.isActiveBowerJson = function (bowerJsonPath) {
-        var isCurrentBowerJson;
+        var isCurrentBowerJson = false;
 
         if (this.hasBowerJson()) {
             isCurrentBowerJson = (this._activeBowerJson.AbsolutePath === bowerJsonPath);
-        } else {
-            isCurrentBowerJson = false;
         }
 
         return isCurrentBowerJson;
@@ -629,17 +623,16 @@ define(function (require, exports, module) {
      * @return {$.Deferred}
      */
     BowerProject.prototype.removeBowerJson = function () {
-        var that = this,
-            deferred = new $.Deferred();
+        var deferred = new $.Deferred();
 
         if (this._activeBowerJson === null) {
             return deferred.resolve();
         }
 
         this._activeBowerJson.remove().always(function () {
-            that._activeBowerJson = null;
+            this._activeBowerJson = null;
 
-            that.bowerJsonChanged();
+            this._bowerJsonChanged();
 
             deferred.resolve();
         });
@@ -662,10 +655,10 @@ define(function (require, exports, module) {
     };
 
     /**
-     * BowerJson instanaces notifies that the content has changed so project can start
-     * processing it.
+     * BowerJson content has changed so project can start processing it.
+     * @private
      */
-    BowerProject.prototype.bowerJsonChanged = function () {
+    BowerProject.prototype._bowerJsonChanged = function () {
         this._hasChanges = true;
 
         if (this._processChanges) {
@@ -677,8 +670,6 @@ define(function (require, exports, module) {
      * @private
      */
     BowerProject.prototype._processPackagesChanges = function () {
-        var that = this;
-
         if (!this._hasChanges) {
             return;
         }
@@ -688,20 +679,20 @@ define(function (require, exports, module) {
         this._projectManager.listProjectDependencies().then(function (packagesArray) {
             var isAnyModification;
 
-            if (that.packagesCount() !== packagesArray.length) {
-                that.setPackages(packagesArray);
+            if (this.packagesCount() !== packagesArray.length) {
+                this.setPackages(packagesArray);
             } else {
                 isAnyModification = _.some(packagesArray, function (pkg) {
-                    var currentPkg = that.getPackageByName(pkg.name);
+                    var currentPkg = this.getPackageByName(pkg.name);
 
                     return (currentPkg) ? !currentPkg.isEqualTo(pkg) : true;
                 });
 
                 if (isAnyModification) {
-                    that.setPackages(packagesArray);
+                    this.setPackages(packagesArray);
                 }
             }
-        });
+        }.bind(this));
     };
 
     /**
@@ -709,31 +700,46 @@ define(function (require, exports, module) {
      * @return {$.Deferred}
      */
     BowerProject.prototype.removeBowerRc = function () {
-        var that = this,
-            deferred = new $.Deferred();
+        var deferred = new $.Deferred();
 
         if (this._activeBowerRc === null) {
             return deferred.resolve();
         }
 
         this._activeBowerRc.remove().always(function () {
-            that._activeBowerRc = null;
+            this._activeBowerRc = null;
 
             deferred.resolve();
-        });
+        }.bind(this));
 
         return deferred.promise();
     };
 
     BowerProject.prototype.onBowerJsonChanged = function () {
         if (this.hasBowerJson()) {
-            this._activeBowerJson.onContentChanged();
+            this._activeBowerJson.onContentChanged().then(function (updated) {
+                if (updated) {
+                    this._bowerJsonChanged();
+                }
+            }.bind(this)).fail(function (error) {
+                if (error && error.code === ErrorUtils.EMALFORMED_BOWER_JSON) {
+                    ErrorUtils.handleError(error);
+                }
+            });
         }
     };
 
     BowerProject.prototype.onBowerRcChanged = function () {
         if (this.hasBowerRc()) {
-            this._activeBowerRc.onContentChanged();
+            this._activeBowerRc.onContentChanged().then(function (changed) {
+                if (changed && changed.indexOf("directory") !== -1) {
+                    this._bowerJsonChanged();
+                }
+            }.bind(this)).fail(function (error) {
+                if (error && error.code === ErrorUtils.EMALFORMED_BOWERRC) {
+                    ErrorUtils.handleError(error);
+                }
+            });
         }
     };
 

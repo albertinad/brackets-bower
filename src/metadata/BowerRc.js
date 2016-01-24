@@ -50,6 +50,12 @@ define(function (require, exports, module) {
     BowerRc.prototype.constructor = BowerRc;
     BowerRc.prototype.parentClass = BowerMetadata.prototype;
 
+    /** @const */
+    BowerRc.Defaults = {
+        directory: "bower_components",
+        interactive: false
+    };
+
     Object.defineProperty(BowerRc.prototype, "Data", {
         get: function () {
             return _.clone(this._data, true);
@@ -66,15 +72,16 @@ define(function (require, exports, module) {
     };
 
     BowerRc.prototype.loadConfiguration = function () {
-        var that = this,
-            deferred = new $.Deferred();
+        var deferred = new $.Deferred();
 
         Bower.getConfiguration(this.AbsolutePath)
             .then(function (configuration) {
-                that.Data = configuration;
+                var configChanged = this._getConfigChanged(configuration);
 
-                deferred.resolve();
-            })
+                this.Data = configuration;
+
+                deferred.resolve(configChanged);
+            }.bind(this))
             .fail(function (error) {
                 deferred.reject(error);
             });
@@ -87,12 +94,27 @@ define(function (require, exports, module) {
     };
 
     /**
+     * @param {object} configuration
+     * @return {Array | null}
+     * @private
+     */
+    BowerRc.prototype._getConfigChanged = function (configuration) {
+        var configChanged = [];
+
+        if (!_.isEqual(this.Data.directory, configuration.directory)) {
+            configChanged.push("directory");
+        }
+
+        return (configChanged.length > 0) ? configChanged : null;
+    };
+
+    /**
      * @private
      */
     BowerRc.prototype._defaultContent = function () {
         var defaultConfiguration = {
-            directory: "bower_components/",
-            interactive: false
+            directory: BowerRc.Defaults.directory + "/",
+            interactive: BowerRc.Defaults.interactive
         };
 
         return JSON.stringify(defaultConfiguration, null, 4);

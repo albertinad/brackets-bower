@@ -73,6 +73,14 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Callback for when the content of the metadata file has changed.
+     * @return {$.Promise}
+     */
+    BowerMetadata.prototype.onContentChanged = function () {
+        throw "Function 'onContentChanged' not implemented yet.";
+    };
+
+    /**
      * Save the given content in the file.
      * @param {object} content JSON object to save to the file.
      * @return {$.Deferred}

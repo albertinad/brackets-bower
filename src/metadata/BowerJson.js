@@ -285,17 +285,7 @@ define(function (require, exports, module) {
     };
 
     BowerJson.prototype.onContentChanged = function () {
-        var that = this;
-
-        this.loadAllDependencies().then(function (updated) {
-            if (updated) {
-                that._notifyBowerJsonChanged();
-            }
-        }).fail(function (error) {
-            if (error && error.code === ErrorUtils.EMALFORMED_BOWER_JSON) {
-                ErrorUtils.handleError(error);
-            }
-        });
+        return this.loadAllDependencies()
     };
 
     /**
@@ -482,13 +472,6 @@ define(function (require, exports, module) {
         } else {
             this._deps.devDependencies = {};
         }
-    };
-
-    /**
-     * @private
-     */
-    BowerJson.prototype._notifyBowerJsonChanged = function () {
-        this._project.bowerJsonChanged();
     };
 
     /**
