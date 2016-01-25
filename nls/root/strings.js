@@ -83,6 +83,7 @@ define({
     "PKG_STATUS_VERSIONS": "Versions don\'t match",
     "ERROR_DEFAULT_MSG": "Bower unknown internal error.",
     "ERROR_MSG_MALFORMED_BOWER_JSON": "The bower.json file is malformed, please review it.",
+    "ERROR_MSG_MALFORMED_BOWERRC": "The .bowerrc file is malformed, please review it.",
     "ERROR_MSG_MALFORMED": "Bower unknown internal error.",
     "ERROR_MSG_MALFORMED_FILE": "Some metadata file, \"bower.json\" or \".bowerrc\" is malformed or, it doesn't follow the specification.",
     "ERROR_MSG_NO_TARGET": "The target for downloading or getting more information about some of the packages does not exist or is not valid.",

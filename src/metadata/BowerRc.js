@@ -31,8 +31,9 @@ define(function (require, exports, module) {
 
     var _             = brackets.getModule("thirdparty/lodash"),
         BowerMetadata = require("src/metadata/BowerMetadata"),
-        Bower         = require("src/bower/Bower"),
-        FileUtils     = require("src/utils/FileUtils");
+        FileUtils     = require("src/utils/FileUtils"),
+        ErrorUtils    = require("src/utils/ErrorUtils"),
+        Strings       = require("strings");
 
     /**
      * Configuration file constructor.
@@ -74,7 +75,7 @@ define(function (require, exports, module) {
     BowerRc.prototype.loadConfiguration = function () {
         var deferred = new $.Deferred();
 
-        Bower.getConfiguration(this.AbsolutePath)
+        this._getFileContent()
             .then(function (configuration) {
                 var configChanged = this._getConfigChanged(configuration);
 
@@ -118,6 +119,31 @@ define(function (require, exports, module) {
         };
 
         return JSON.stringify(defaultConfiguration, null, 4);
+    };
+
+    /**
+     * @return {$.Promise}
+     * @private
+     */
+    BowerRc.prototype._getFileContent = function () {
+        var deferred = new $.Deferred();
+
+        this.read().then(function (result) {
+            try {
+                var content = JSON.parse(result);
+
+                deferred.resolve(content);
+            } catch (ex) {
+                console.log("[bower] Error parsing .bowerrc", ex);
+
+                deferred.reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWERRC, {
+                    message: Strings.ERROR_MSG_MALFORMED_BOWERRC,
+                    originalMessage: ex.message
+                }));
+            }
+        }).fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     /**

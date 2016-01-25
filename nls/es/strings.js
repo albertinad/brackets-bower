@@ -80,5 +80,6 @@ define({
     "PROJECT_OUT_OF_SYNC_MESSAGE": "No sincronizado",
     "PKG_STATUS_MISSING": "No instalado",
     "PKG_STATUS_VERSIONS": "Versiones no coinciden",
-    "ERROR_MSG_MALFORMED_BOWER_JSON": "El archivo bower.json está malformado."
+    "ERROR_MSG_MALFORMED_BOWER_JSON": "El archivo bower.json está malformado.",
+    "ERROR_MSG_MALFORMED_BOWERRC": "El archivo .bowerrc está malformado."
 });
