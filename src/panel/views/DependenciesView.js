@@ -78,7 +78,7 @@ define(function (require, exports, module) {
             event.stopPropagation();
 
             that._controller.deleteBowerJson();
-        }).on("click", "[data-bower-json]", function () {
+        }).on("click", "[data-bower-json]", function (event) {
             event.stopPropagation();
 
             that._controller.openBowerJson();
