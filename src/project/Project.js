@@ -632,7 +632,7 @@ define(function (require, exports, module) {
         this._activeBowerJson.remove().always(function () {
             this._activeBowerJson = null;
 
-            this._bowerJsonChanged();
+            this._packagesChanged();
 
             deferred.resolve();
         }.bind(this));
@@ -656,17 +656,21 @@ define(function (require, exports, module) {
 
     /**
      * BowerJson content has changed so project can start processing it.
+     * @return {$.Promise}
      * @private
      */
-    BowerProject.prototype._bowerJsonChanged = function () {
+    BowerProject.prototype._packagesChanged = function () {
         this._hasChanges = true;
 
         if (this._processChanges) {
-            this._processPackagesChanges();
+            return this._processPackagesChanges();
+        } else {
+            return (new $.Deferred()).resolve();
         }
     };
 
     /**
+     * @return {$.Promise}
      * @private
      */
     BowerProject.prototype._processPackagesChanges = function () {
@@ -676,7 +680,7 @@ define(function (require, exports, module) {
 
         this._hasChanges = false;
 
-        this._projectManager.listProjectDependencies().then(function (packagesArray) {
+        return this._projectManager.listProjectDependencies().then(function (packagesArray) {
             var isAnyModification;
 
             if (this.packagesCount() !== packagesArray.length) {
@@ -709,7 +713,7 @@ define(function (require, exports, module) {
         this._activeBowerRc.remove().always(function () {
             this._activeBowerRc = null;
 
-            this._bowerJsonChanged();
+            this._packagesChanged();
 
             deferred.resolve();
         }.bind(this));
@@ -721,7 +725,7 @@ define(function (require, exports, module) {
         if (this.hasBowerJson()) {
             this._activeBowerJson.onContentChanged().then(function (updated) {
                 if (updated) {
-                    this._bowerJsonChanged();
+                    this._packagesChanged();
                 }
             }.bind(this)).fail(function (error) {
                 if (error && error.code === ErrorUtils.EMALFORMED_BOWER_JSON) {
@@ -735,7 +739,7 @@ define(function (require, exports, module) {
         if (this.hasBowerRc()) {
             this._activeBowerRc.onContentChanged().then(function (changed) {
                 if (changed && changed.indexOf("directory") !== -1) {
-                    this._bowerJsonChanged();
+                    this._packagesChanged();
                 }
             }.bind(this)).fail(function (error) {
                 if (error && error.code === ErrorUtils.EMALFORMED_BOWERRC) {
