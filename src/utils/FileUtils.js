@@ -30,6 +30,7 @@ define(function (require, exports) {
     "use strict";
 
     var FileSystem      = brackets.getModule("filesystem/FileSystem"),
+        FileUtils       = brackets.getModule("file/FileUtils"),
         CommandManager  = brackets.getModule("command/CommandManager"),
         Commands        = brackets.getModule("command/Commands"),
         EditorManager   = brackets.getModule("editor/EditorManager"),
@@ -145,9 +146,69 @@ define(function (require, exports) {
         return deferred;
     }
 
-    exports.exists       = exists;
-    exports.writeContent = writeContent;
-    exports.deleteFile   = deleteFile;
-    exports.readFile     = readFile;
-    exports.openInEditor = openInEditor;
+    /**
+     * @return {$.Promise}
+     * @private
+     */
+    function _createDirIfNeeded(directory) {
+        var deferred = new $.Deferred();
+
+        directory.exists(function (error, exists) {
+            if (error) {
+                deferred.reject(error);
+            } else if (!exists) {
+                // let's create it
+                directory.create(function (error) {
+                    if (error) {
+                        deferred.reject(error);
+                    } else {
+                        deferred.resolve();
+                    }
+                });
+            } else {
+                // directory exists
+                deferred.resolve();
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * @return {$.Promise}
+     */
+    function renameDirectory(oldPath, newPath) {
+        var deferred = new $.Deferred(),
+            directory = FileSystem.getDirectoryForPath(oldPath),
+            parentPath = FileUtils.getDirectoryPath(newPath),
+            parentDirectory;
+
+        if (parentPath === newPath) {
+            parentPath = FileUtils.getParentPath(newPath);
+        }
+
+        parentDirectory = FileSystem.getDirectoryForPath(parentPath);
+
+        _createDirIfNeeded(parentDirectory).then(function (fileSystemError) {
+            directory.rename(newPath, function (fileSystemError) {
+                if (fileSystemError) {
+                    deferred.reject(fileSystemError);
+                } else {
+                    deferred.resolve();
+                }
+            });
+        }).fail(function (error) {
+            console.log(error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    exports.exists          = exists;
+    exports.writeContent    = writeContent;
+    exports.deleteFile      = deleteFile;
+    exports.readFile        = readFile;
+    exports.renameDirectory = renameDirectory;
+    exports.openInEditor    = openInEditor;
 });

@@ -30,10 +30,13 @@ define(function (require, exports, module) {
     "use strict";
 
     var _              = brackets.getModule("thirdparty/lodash"),
+        FileUtils      = brackets.getModule("file/FileUtils"),
         ProjectStatus  = require("src/project/ProjectStatus"),
         PackageFactory = require("src/project/PackageFactory"),
         Package        = require("src/project/Package"),
         ErrorUtils     = require("src/utils/ErrorUtils"),
+        BowerFileUtils = require("src/utils/FileUtils"),
+        BowerRc        = require("src/metadata/BowerRc"),
         Strings        = require("strings");
 
     /**
@@ -64,6 +67,10 @@ define(function (require, exports, module) {
 
         /** @private */
         this._status = new ProjectStatus(this);
+        /** @private */
+        this._packagesDirectory = ""; // root
+        /** @private */
+        this._packagesDirectoryName = BowerRc.Defaults.directory;
     }
 
     Object.defineProperty(BowerProject.prototype, "name", {
@@ -112,11 +119,33 @@ define(function (require, exports, module) {
     Object.defineProperty(BowerProject.prototype, "activeBowerRc", {
         set: function (activeBowerRc) {
             this._activeBowerRc = activeBowerRc;
+
+            this._updatePackagesDirectory();
         },
         get: function () {
             return this._activeBowerRc;
         }
     });
+
+    Object.defineProperty(BowerProject.prototype, "packagesDirectory", {
+        get: function () {
+            return this._packagesDirectory;
+        }
+    });
+
+    Object.defineProperty(BowerProject.prototype, "packagesDirectoryName", {
+        get: function () {
+            return this._packagesDirectoryName;
+        }
+    });
+
+    /**
+     * Get the bower components directory.
+     * @return {string}
+     */
+    BowerProject.prototype.getPackagesDirectory = function () {
+        return (this._packagesDirectory + this._packagesDirectoryName);
+    };
 
     /**
      * Get the bower project working directory, either the active directory
@@ -739,8 +768,16 @@ define(function (require, exports, module) {
         if (this.hasBowerRc()) {
             this._activeBowerRc.onContentChanged().then(function (changed) {
                 if (changed && changed.indexOf("directory") !== -1) {
-                    this._packagesChanged();
+                    var oldDir = this.getPath() + this.getPackagesDirectory();
+
+                    this._updatePackagesDirectory();
+
+                    var newDir = this.getPath() + this.getPackagesDirectory();
+
+                    return BowerFileUtils.renameDirectory(oldDir, newDir);
                 }
+            }.bind(this)).then(function () {
+                this._packagesChanged();
             }.bind(this)).fail(function (error) {
                 if (error && error.code === ErrorUtils.EMALFORMED_BOWERRC) {
                     ErrorUtils.handleError(error);
@@ -751,6 +788,24 @@ define(function (require, exports, module) {
 
     BowerProject.prototype.onStatusChanged = function () {
         this._projectManager.notifyProjectStatusChanged(this._status);
+    };
+
+    /**
+     * @private
+     */
+    BowerProject.prototype._updatePackagesDirectory = function () {
+        if (this.hasBowerRc()) {
+            var dir = this._activeBowerRc.Data.directory,
+                packagesDir;
+            if (dir) {
+                packagesDir = FileUtils.getDirectoryPath(dir);
+                if (packagesDir === dir) {
+                    packagesDir = FileUtils.getParentPath(dir);
+                }
+                this._packagesDirectory = packagesDir;
+                this._packagesDirectoryName = FileUtils.getBaseName(dir);
+            }
+        }
     };
 
     module.exports = BowerProject;
