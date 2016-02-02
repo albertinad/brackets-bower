@@ -203,7 +203,7 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(project, "_bowerJsonChanged").andCallThrough();
+            spyOn(project, "_packagesChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "info").andReturn((new $.Deferred()).reject());
@@ -265,7 +265,7 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(project._bowerJsonChanged).toHaveBeenCalled();
+                expect(project._packagesChanged).toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
@@ -302,7 +302,7 @@ define(function (require, exports, module) {
             getBowerJsonSpy.andCallThrough();
             setPackagesSpy.reset();
 
-            spyOn(project, "_bowerJsonChanged").andCallThrough();
+            spyOn(project, "_packagesChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "info").andReturn((new $.Deferred()).reject());
@@ -364,7 +364,7 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     newPkg;
 
-                expect(project._bowerJsonChanged).toHaveBeenCalled();
+                expect(project._packagesChanged).toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
@@ -398,7 +398,7 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(project, "_bowerJsonChanged").andCallThrough();
+            spyOn(project, "_packagesChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "uninstall").andCallFake(function () {
@@ -446,7 +446,7 @@ define(function (require, exports, module) {
                     bowerJsonDeps = bowerJson.getAllDependencies(),
                     status = project.getStatus();
 
-                expect(project._bowerJsonChanged).toHaveBeenCalled();
+                expect(project._packagesChanged).toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
@@ -468,7 +468,7 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(project, "_bowerJsonChanged").andCallThrough();
+            spyOn(project, "_packagesChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "update").andCallFake(function () {
@@ -501,7 +501,7 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     updatedPkg;
 
-                expect(project._bowerJsonChanged).not.toHaveBeenCalled();
+                expect(project._packagesChanged).not.toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
@@ -533,7 +533,7 @@ define(function (require, exports, module) {
 
             getBowerJsonSpy.andCallThrough();
 
-            spyOn(project, "_bowerJsonChanged").andCallThrough();
+            spyOn(project, "_packagesChanged").andCallThrough();
             spyOn(project, "_processPackagesChanges").andCallThrough();
 
             spyOn(Bower, "update").andCallFake(function () {
@@ -564,7 +564,7 @@ define(function (require, exports, module) {
                     status = project.getStatus(),
                     updatedPkg;
 
-                expect(project._bowerJsonChanged).not.toHaveBeenCalled();
+                expect(project._packagesChanged).not.toHaveBeenCalled();
                 expect(setPackagesSpy.calls.length).toEqual(0);
 
                 expect(status.isSynced()).toEqual(true);
