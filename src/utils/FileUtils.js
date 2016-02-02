@@ -186,7 +186,7 @@ define(function (require, exports) {
                         if (error === FileSystemError.AlreadyExists) {
                             message = Strings.ERROR_MSG_FS_DIR_ALREADY_EXISTS;
                         } else {
-                            message = Strings.ERROR_MSG_PKGS_DIRECTORY_UNKNOWN;
+                            message = Strings.ERROR_MSG_FS_DIR_UNKNOWN;
                         }
                         var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
                             message: StringUtils.format(Strings.ERROR_MSG_FS_DIR_UNKNOWN,
@@ -212,30 +212,47 @@ define(function (require, exports) {
      */
     function renameDirectory(oldPath, newPath) {
         var deferred = new $.Deferred(),
-            directory = FileSystem.getDirectoryForPath(oldPath),
-            parentPath = FileUtils.getDirectoryPath(newPath),
-            parentDirectory;
+            oldDirectory = FileSystem.getDirectoryForPath(oldPath);
 
-        if (parentPath === newPath) {
-            parentPath = FileUtils.getParentPath(newPath);
-        }
+        oldDirectory.exists(function (error, exists) {
+            if (!error && exists) {
+                var parentPath = FileUtils.getDirectoryPath(newPath),
+                    parentDirectory;
 
-        parentDirectory = FileSystem.getDirectoryForPath(parentPath);
-
-        _createDirIfNeeded(parentDirectory).then(function (fileSystemError) {
-            directory.rename(newPath, function (fileSystemError) {
-                if (fileSystemError) {
-                    var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
-                        message: StringUtils.format(Strings.ERROR_MSG_FS_DIR_UNKNOWN, newPath),
-                        originalMessage: fileSystemError
-                    });
-                    deferred.reject(err);
-                } else {
-                    deferred.resolve();
+                if (parentPath === newPath) {
+                    parentPath = FileUtils.getParentPath(newPath);
                 }
-            });
-        }).fail(function (error) {
-            deferred.reject(error);
+
+                parentDirectory = FileSystem.getDirectoryForPath(parentPath);
+
+                _createDirIfNeeded(parentDirectory).then(function (fileSystemError) {
+                    var directory = FileSystem.getDirectoryForPath(oldPath);
+
+                    directory.rename(newPath, function (fileSystemError) {
+                        if (fileSystemError) {
+                            var message;
+                            if (fileSystemError === FileSystemError.ALREADY_EXISTS) {
+                                message = Strings.ERROR_MSG_FS_DIR_ALREADY_EXISTS;
+                            } else {
+                                message = Strings.ERROR_MSG_FS_DIR_UNKNOWN;
+                            }
+
+                            var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                                message: StringUtils.format(message, newPath),
+                                originalMessage: fileSystemError
+                            });
+                            deferred.reject(err);
+                        } else {
+                            deferred.resolve();
+                        }
+                    });
+                }).fail(function (error) {
+                    deferred.reject(error);
+                });
+            } else {
+                // directory may not exists, do nothing, there's nothing to rename
+                deferred.resolve();
+            }
         });
 
         return deferred.promise();
