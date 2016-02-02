@@ -44,16 +44,17 @@ define(function (require, exports) {
         FileUtils            = require("src/utils/FileUtils"),
         ErrorUtils           = require("src/utils/ErrorUtils");
 
-    var namespace              = ".albertinad.bracketsbower",
-        PROJECT_LOADING        = "bowerProjectLoading",
-        PROJECT_READY          = "bowerProjectReady",
-        PROJECT_STATUS_CHANGED = "bowerProjectStatusChanged",
-        DEPENDENCIES_ADDED     = "bowerProjectDepsAdded",
-        DEPENDENCIES_REMOVED   = "bowerProjectDepsRemoved",
-        DEPENDENCY_UPDATED     = "bowerProjectDepUpdated",
-        ACTIVE_DIR_CHANGED     = "bowerActiveDirChanged",
-        BOWER_JSON_RELOADED    = "bowerjsonReloaded",
-        BOWERRC_RELOADED       = "bowerrcReloaded";
+    var namespace               = ".albertinad.bracketsbower",
+        PROJECT_LOADING         = "bowerProjectLoading",
+        PROJECT_READY           = "bowerProjectReady",
+        PROJECT_STATUS_CHANGED  = "bowerProjectStatusChanged",
+        DEPENDENCIES_ADDED      = "bowerProjectDepsAdded",
+        DEPENDENCIES_REMOVED    = "bowerProjectDepsRemoved",
+        DEPENDENCY_UPDATED      = "bowerProjectDepUpdated",
+        ACTIVE_DIR_CHANGED      = "bowerActiveDirChanged",
+        BOWER_JSON_RELOADED     = "bowerjsonReloaded",
+        BOWERRC_RELOADED        = "bowerrcReloaded",
+        PROJECT_PKS_DIR_CHANGED = "bowerProjectPkgsChanged";
 
     var Events = {
         PROJECT_LOADING: PROJECT_LOADING + namespace,
@@ -64,7 +65,8 @@ define(function (require, exports) {
         DEPENDENCY_UPDATED: DEPENDENCY_UPDATED + namespace,
         ACTIVE_DIR_CHANGED: ACTIVE_DIR_CHANGED + namespace,
         BOWER_JSON_RELOADED: BOWER_JSON_RELOADED + namespace,
-        BOWERRC_RELOADED: BOWERRC_RELOADED + namespace
+        BOWERRC_RELOADED: BOWERRC_RELOADED + namespace,
+        PROJECT_PKS_DIR_CHANGED: PROJECT_PKS_DIR_CHANGED + namespace
     };
 
     var REGEX_NODE_MODULES     = /node_modules/,
@@ -603,6 +605,10 @@ define(function (require, exports) {
         exports.trigger(PROJECT_STATUS_CHANGED, projectStatus);
     }
 
+    function notifyPackagesDirectoryChanged(oldDirectoryPath, newDirectoryPath) {
+        exports.trigger(PROJECT_PKS_DIR_CHANGED, oldDirectoryPath, newDirectoryPath);
+    }
+
     AppInit.appReady(function () {
         var Events = FileSystemHandler.Events;
 
@@ -676,9 +682,12 @@ define(function (require, exports) {
     exports.SyncOptions                = SyncOptions;
     exports.Events                     = Events;
 
-    exports.notifyDependenciesAdded    = notifyDependenciesAdded;
-    exports.notifyDependenciesRemoved  = notifyDependenciesRemoved;
-    exports.notifyDependencyUpdated    = notifyDependencyUpdated;
-    exports.notifyProjectStatusChanged = notifyProjectStatusChanged;
-    exports.syncDependenciesWithBowerJson = syncDependenciesWithBowerJson;
+    exports.notifyDependenciesAdded        = notifyDependenciesAdded;
+    exports.notifyDependenciesRemoved      = notifyDependenciesRemoved;
+    exports.notifyDependencyUpdated        = notifyDependencyUpdated;
+    exports.notifyProjectStatusChanged     = notifyProjectStatusChanged;
+    exports.notifyPackagesDirectoryChanged = notifyPackagesDirectoryChanged;
+    exports.syncDependenciesWithBowerJson  = syncDependenciesWithBowerJson;
+
+    window.bpm = exports;
 });

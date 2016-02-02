@@ -644,7 +644,7 @@ define(function (require, exports, module) {
     BowerProject.prototype.bowerJsonLoaded = function (bowerJson) {
         this._activeBowerJson = bowerJson;
 
-        this.notifyBowerJsonChanged();
+        this._packagesChanged();
     };
 
     /**
@@ -774,12 +774,15 @@ define(function (require, exports, module) {
 
                     var newDir = this.getPath() + this.getPackagesDirectory();
 
-                    return BowerFileUtils.renameDirectory(oldDir, newDir);
+                    return BowerFileUtils.renameDirectory(oldDir, newDir)
+                        .always(function () {
+                            this._projectManager.notifyPackagesDirectoryChanged(oldDir, newDir);
+                        }.bind(this));
                 }
             }.bind(this)).then(function () {
                 this._packagesChanged();
             }.bind(this)).fail(function (error) {
-                if (error && error.code === ErrorUtils.EMALFORMED_BOWERRC) {
+                if (error && error.code !== undefined && error.code !== null) {
                     ErrorUtils.handleError(error);
                 }
             });

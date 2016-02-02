@@ -36,29 +36,12 @@ define(function (require, exports) {
         Commands        = brackets.getModule("command/Commands"),
         EditorManager   = brackets.getModule("editor/EditorManager"),
         MainViewManager = brackets.getModule("view/MainViewManager"),
+        StringUtils     = brackets.getModule("utils/StringUtils"),
         ErrorUtils      = require("src/utils/ErrorUtils"),
         Strings         = require("strings");
 
     /**
-     * @private
-     */
-    function _createError(error) {
-        var message;
-
-        if (error === FileSystemError.AlreadyExists) {
-            message = Strings.ERROR_MSG_PKGS_DIRECTORY_ALREADY_EXISTS;
-        } else {
-            message = Strings.ERROR_MSG_PKGS_DIRECTORY_UNKNOWN;
-        }
-
-        return ErrorUtils.createError(ErrorUtils.EUPDATING_BOWERRC_DIR, {
-            message: message
-        });
-    }
-
-    /**
-     * Checks if the bowerrc json file exists in the given directory. If the directory
-     * is not set, the root project directory is taken as the default directory.
+     * Checks if the given file exists.
      * @param {string} path
      * @return {$.Deferred}
      */
@@ -71,7 +54,11 @@ define(function (require, exports) {
             if (fileExists) {
                 result.resolve(path);
             } else {
-                result.reject(_createError(error));
+                var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                    message: StringUtils.format(Strings.ERROR_MSG_FS_EXISTS_ACTION, path),
+                    originalMessage: error
+                });
+                result.reject(err);
             }
         });
 
@@ -86,9 +73,7 @@ define(function (require, exports) {
      */
     function writeContent(path, content) {
         var deferred = new $.Deferred(),
-            file;
-
-        file = FileSystem.getFileForPath(path);
+            file = FileSystem.getFileForPath(path);
 
         if (!file) {
             deferred.reject();
@@ -96,7 +81,11 @@ define(function (require, exports) {
 
         file.write(content, function (error, result) {
             if (error) {
-                deferred.reject(_createError(error));
+                var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                    message: StringUtils.format(Strings.ERROR_MSG_FS_WRITE_ACTION, path),
+                    originalMessage: error
+                });
+                deferred.reject(err);
             } else {
                 deferred.resolve(path);
             }
@@ -116,7 +105,11 @@ define(function (require, exports) {
 
         function onDeleted(error) {
             if (error) {
-                deferred.reject(_createError(error));
+                var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                    message: StringUtils.format(Strings.ERROR_MSG_FS_DELETE_ACTION, path),
+                    originalMessage: error
+                });
+                deferred.reject(err);
             } else {
                 deferred.resolve();
             }
@@ -157,7 +150,11 @@ define(function (require, exports) {
 
         file.read(function (error, result) {
             if (error) {
-                deferred.reject(_createError(error));
+                var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                    message: StringUtils.format(Strings.ERROR_MSG_FS_READ_ACTION, path),
+                    originalMessage: error
+                });
+                deferred.reject(err);
             } else {
                 deferred.resolve(result);
             }
@@ -175,12 +172,28 @@ define(function (require, exports) {
 
         directory.exists(function (error, exists) {
             if (error) {
-                deferred.reject(_createError(error));
+                var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                    message: StringUtils.format(Strings.ERROR_MSG_FS_EXISTS_DIR_ACTION,
+                                                directory.fullPath),
+                    originalMessage: error
+                });
+                deferred.reject(err);
             } else if (!exists) {
                 // let's create it
                 directory.create(function (error) {
                     if (error) {
-                        deferred.reject(_createError(error));
+                        var message;
+                        if (error === FileSystemError.AlreadyExists) {
+                            message = Strings.ERROR_MSG_FS_DIR_ALREADY_EXISTS;
+                        } else {
+                            message = Strings.ERROR_MSG_PKGS_DIRECTORY_UNKNOWN;
+                        }
+                        var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                            message: StringUtils.format(Strings.ERROR_MSG_FS_DIR_UNKNOWN,
+                                                        directory.fullPath),
+                            originalMessage: error
+                        });
+                        deferred.reject(err);
                     } else {
                         deferred.resolve();
                     }
@@ -212,7 +225,11 @@ define(function (require, exports) {
         _createDirIfNeeded(parentDirectory).then(function (fileSystemError) {
             directory.rename(newPath, function (fileSystemError) {
                 if (fileSystemError) {
-                    deferred.reject(_createError(fileSystemError));
+                    var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                        message: StringUtils.format(Strings.ERROR_MSG_FS_DIR_UNKNOWN, newPath),
+                        originalMessage: fileSystemError
+                    });
+                    deferred.reject(err);
                 } else {
                     deferred.resolve();
                 }

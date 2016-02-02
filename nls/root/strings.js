@@ -97,6 +97,11 @@ define({
     "ERROR_MSG_NOTHING_TO_SYNC": "There's no packages that needs synchronization.",
     "ERROR_MSG_DOWNLOAD_INCOMPLETE": "The download is incomplete, please try again later.",
     "ERROR_MSG_CONNECTION_PROBLEM": "The network connection is lost. Please, check your internet connection and try again.",
-    "ERROR_MSG_PKGS_DIRECTORY_ALREADY_EXISTS": "The bower packages directory \"{0}\" already exists.",
-    "ERROR_MSG_PKGS_DIRECTORY_UNKNOWN": "An error ocurred while trying to create the bower packages directory \"{0}\"."
+    "ERROR_MSG_FS_DIR_ALREADY_EXISTS": "Cannot create the directory \"{0}\", it already exists.",
+    "ERROR_MSG_FS_DIR_UNKNOWN": "An error ocurred while trying to create the directory \"{0}\".",
+    "ERROR_MSG_FS_EXISTS_ACTION": "An error ocurred while trying to check for the file \"{0}\".",
+    "ERROR_MSG_FS_EXISTS_DIR_ACTION": "An error ocurred while trying to check for the directory \"{0}\".",
+    "ERROR_MSG_FS_WRITE_ACTION": "An error ocurred while trying to modify the file \"{0}\".",
+    "ERROR_MSG_FS_DELETE_ACTION": "An error ocurred while trying to delete the file \"{0}\".",
+    "ERROR_MSG_FS_READ_ACTION": "An error ocurred while trying to read the file \"{0}\"."
 });
