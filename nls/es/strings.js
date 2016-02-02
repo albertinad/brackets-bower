@@ -81,5 +81,7 @@ define({
     "PKG_STATUS_MISSING": "No instalado",
     "PKG_STATUS_VERSIONS": "Versiones no coinciden",
     "ERROR_MSG_MALFORMED_BOWER_JSON": "El archivo bower.json está malformado.",
-    "ERROR_MSG_MALFORMED_BOWERRC": "El archivo .bowerrc está malformado."
+    "ERROR_MSG_MALFORMED_BOWERRC": "El archivo .bowerrc está malformado.",
+    "ERROR_MSG_PKGS_DIRECTORY_ALREADY_EXISTS": "El directorio de paquetes de Bower \"{0}\" ya existe.",
+    "ERROR_MSG_PKGS_DIRECTORY_UNKNOWN": "Se ha producido un error al intentar crear el directorio de paquetes de Bower \"{0}\"."
 });

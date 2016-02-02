@@ -30,11 +30,31 @@ define(function (require, exports) {
     "use strict";
 
     var FileSystem      = brackets.getModule("filesystem/FileSystem"),
+        FileSystemError = brackets.getModule("filesystem/FileSystemError"),
         FileUtils       = brackets.getModule("file/FileUtils"),
         CommandManager  = brackets.getModule("command/CommandManager"),
         Commands        = brackets.getModule("command/Commands"),
         EditorManager   = brackets.getModule("editor/EditorManager"),
-        MainViewManager = brackets.getModule("view/MainViewManager");
+        MainViewManager = brackets.getModule("view/MainViewManager"),
+        ErrorUtils      = require("src/utils/ErrorUtils"),
+        Strings         = require("strings");
+
+    /**
+     * @private
+     */
+    function _createError(error) {
+        var message;
+
+        if (error === FileSystemError.AlreadyExists) {
+            message = Strings.ERROR_MSG_PKGS_DIRECTORY_ALREADY_EXISTS;
+        } else {
+            message = Strings.ERROR_MSG_PKGS_DIRECTORY_UNKNOWN;
+        }
+
+        return ErrorUtils.createError(ErrorUtils.EUPDATING_BOWERRC_DIR, {
+            message: message
+        });
+    }
 
     /**
      * Checks if the bowerrc json file exists in the given directory. If the directory
@@ -51,7 +71,7 @@ define(function (require, exports) {
             if (fileExists) {
                 result.resolve(path);
             } else {
-                result.reject(error);
+                result.reject(_createError(error));
             }
         });
 
@@ -76,7 +96,7 @@ define(function (require, exports) {
 
         file.write(content, function (error, result) {
             if (error) {
-                deferred.reject(error);
+                deferred.reject(_createError(error));
             } else {
                 deferred.resolve(path);
             }
@@ -96,7 +116,7 @@ define(function (require, exports) {
 
         function onDeleted(error) {
             if (error) {
-                deferred.reject(error);
+                deferred.reject(_createError(error));
             } else {
                 deferred.resolve();
             }
@@ -137,7 +157,7 @@ define(function (require, exports) {
 
         file.read(function (error, result) {
             if (error) {
-                deferred.reject(error);
+                deferred.reject(_createError(error));
             } else {
                 deferred.resolve(result);
             }
@@ -155,12 +175,12 @@ define(function (require, exports) {
 
         directory.exists(function (error, exists) {
             if (error) {
-                deferred.reject(error);
+                deferred.reject(_createError(error));
             } else if (!exists) {
                 // let's create it
                 directory.create(function (error) {
                     if (error) {
-                        deferred.reject(error);
+                        deferred.reject(_createError(error));
                     } else {
                         deferred.resolve();
                     }
@@ -192,13 +212,12 @@ define(function (require, exports) {
         _createDirIfNeeded(parentDirectory).then(function (fileSystemError) {
             directory.rename(newPath, function (fileSystemError) {
                 if (fileSystemError) {
-                    deferred.reject(fileSystemError);
+                    deferred.reject(_createError(fileSystemError));
                 } else {
                     deferred.resolve();
                 }
             });
         }).fail(function (error) {
-            console.log(error);
             deferred.reject(error);
         });
 

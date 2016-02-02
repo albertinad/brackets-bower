@@ -556,13 +556,13 @@ define(function (require, exports, module) {
         var pkg = this.getPackageByName(name);
 
         if (!this.hasBowerJson()) {
-            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
 
         if (!pkg) {
-            (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
+            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
                 message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
             }));
         }

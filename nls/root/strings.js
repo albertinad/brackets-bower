@@ -96,5 +96,7 @@ define({
     "ERROR_NO_BOWER_JSON": "The bower.json file is required and it doesn't exist.",
     "ERROR_MSG_NOTHING_TO_SYNC": "There's no packages that needs synchronization.",
     "ERROR_MSG_DOWNLOAD_INCOMPLETE": "The download is incomplete, please try again later.",
-    "ERROR_MSG_CONNECTION_PROBLEM": "The network connection is lost. Please, check your internet connection and try again."
+    "ERROR_MSG_CONNECTION_PROBLEM": "The network connection is lost. Please, check your internet connection and try again.",
+    "ERROR_MSG_PKGS_DIRECTORY_ALREADY_EXISTS": "The bower packages directory \"{0}\" already exists.",
+    "ERROR_MSG_PKGS_DIRECTORY_UNKNOWN": "An error ocurred while trying to create the bower packages directory \"{0}\"."
 });
