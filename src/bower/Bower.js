@@ -227,22 +227,14 @@ define(function (require, exports) {
         return deferred.promise();
     }
 
-    /**
-     * @param {string} path
-     */
-    function getConfiguration(path) {
-        return bowerDomain.exec("getConfiguration", path);
-    }
-
-    exports.setDomain        = setDomain;
-    exports.getConfiguration = getConfiguration;
-    exports.install          = install;
-    exports.installPackage   = installPackage;
-    exports.prune            = prune;
-    exports.list             = list;
-    exports.uninstall        = uninstall;
-    exports.update           = update;
-    exports.info             = info;
-    exports.search           = search;
-    exports.listCache        = listCache;
+    exports.setDomain      = setDomain;
+    exports.install        = install;
+    exports.installPackage = installPackage;
+    exports.prune          = prune;
+    exports.list           = list;
+    exports.uninstall      = uninstall;
+    exports.update         = update;
+    exports.info           = info;
+    exports.search         = search;
+    exports.listCache      = listCache;
 });

@@ -88,5 +88,8 @@ define({
     "ERROR_MSG_FS_EXISTS_DIR_ACTION": "Se ha producido un error al verificar la existencia del directorio \"{0}\".",
     "ERROR_MSG_FS_WRITE_ACTION": "Se ha producido un error al intentar modificar el archivo \"{0}\".",
     "ERROR_MSG_FS_DELETE_ACTION": "Se ha producido un error al intentar eliminar el archivo \"{0}\".",
-    "ERROR_MSG_FS_READ_ACTION": "Se ha producido un error al intentar leer el archivo \"{0}\"."
+    "ERROR_MSG_FS_READ_ACTION": "Se ha producido un error al intentar leer el archivo \"{0}\".",
+    "ERROR_MSG_FS_COPY_DIR_ACTION": "Se ha producido un error al intentar copiar el directorio \"{0}\" al destino \"{1}\".",
+    "ERROR_MSG_FS_DELETE_DIR_ACTION": "Se ha producido un error al intentar eliminar el directorio \"{0}\".",
+    "ERROR_MSG_FS_DIR_TO_MOVE_EXISTS": "No se puede mover el directorio de origen \"{0}\" al destino \"{1}\", ya existe."
 });

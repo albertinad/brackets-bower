@@ -28,9 +28,9 @@ maxerr: 50, node: true */
 (function () {
     "use strict";
 
-    var bower       = require("bower"),
-        bowerConfig = require("bower-config"),
-        Cli         = require("./Cli");
+    var bower     = require("bower"),
+        Cli       = require("./Cli"),
+        FileUtils = require("./FileUtils");
 
     var DOMAIN_NAME = "bower";
 
@@ -180,17 +180,6 @@ maxerr: 50, node: true */
     }
 
     /**
-     * Read and get the configuration from the ".bowerrc" file.
-     * @param {string} path The path to the folder to read the configuration.
-     * @param {function(?string, ?string)} cb Callback for when the configuration is ready.
-     */
-    function _cmdGetConfiguration(path, cb) {
-        var config = bowerConfig.read(path);
-
-        cb(null, config);
-    }
-
-    /**
      * Executes a system program with arguments.
      * @param {string} cmd The full path to the program.
      * @param {array} args The arguments for the program to execute.
@@ -198,6 +187,15 @@ maxerr: 50, node: true */
      */
     function _cmdExecCommand(cmd, args, cb) {
         Cli.execCommand(cmd, args, cb);
+    }
+
+    /**
+     * @param {string} source Source of the directory to copy.
+     * @param {string} destination Destination of the directory to copy.
+     * @param {function} cb Callback for when the directory has been copied or it failed to copy.
+     */
+    function _cmdCopyDir(source, destination, cb) {
+        FileUtils.copyDir(source, destination, cb);
     }
 
     /**
@@ -342,24 +340,6 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "getConfiguration",
-            _cmdGetConfiguration,
-            true,
-            "Get the configuration.",
-            [{
-                name: "path",
-                type: "string",
-                description: "Path to folder to read the configuration."
-            }],
-            [{
-                name: "config",
-                type: "Object",
-                description: "Configuration object."
-            }]
-        );
-
-        domainManager.registerCommand(
-            DOMAIN_NAME,
             "execCommand",
             _cmdExecCommand,
             true,
@@ -379,6 +359,24 @@ maxerr: 50, node: true */
                 type: "string",
                 description: "Result of the command execution."
             }]
+        );
+
+        domainManager.registerCommand(
+            DOMAIN_NAME,
+            "copyDir",
+            _cmdCopyDir,
+            true,
+            "Utility to copy directories.",
+            [{
+                name: "source",
+                type: "string",
+                description: "Source of the directory to copy."
+            }, {
+                name: "destination",
+                type: "string",
+                description: "Destination of the directory to copy"
+            }],
+            []
         );
     }
 

@@ -38,6 +38,7 @@ define(function (require, exports, module) {
     // local modules
     var Bower              = require("src/bower/Bower"),
         GitUtils           = require("src/utils/GitUtils"),
+        FileUtils          = require("src/utils/FileUtils"),
         ProjectManager     = require("src/project/ProjectManager"),
         QuickInstall       = require("src/QuickInstall"),
         NotificationDialog = require("src/dialogs/NotificationDialog"),
@@ -91,6 +92,7 @@ define(function (require, exports, module) {
 
         Bower.setDomain(bowerDomain);
         GitUtils.setDomain(bowerDomain);
+        FileUtils.setDomain(bowerDomain);
 
         QuickInstall.init();
 

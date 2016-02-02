@@ -774,7 +774,7 @@ define(function (require, exports, module) {
 
                     var newDir = this.getPath() + this.getPackagesDirectory();
 
-                    return BowerFileUtils.renameDirectory(oldDir, newDir)
+                    return BowerFileUtils.moveDirectory(oldDir, newDir)
                         .always(function () {
                             this._projectManager.notifyPackagesDirectoryChanged(oldDir, newDir);
                         }.bind(this));

@@ -103,5 +103,8 @@ define({
     "ERROR_MSG_FS_EXISTS_DIR_ACTION": "An error ocurred while trying to check for the directory \"{0}\".",
     "ERROR_MSG_FS_WRITE_ACTION": "An error ocurred while trying to modify the file \"{0}\".",
     "ERROR_MSG_FS_DELETE_ACTION": "An error ocurred while trying to delete the file \"{0}\".",
-    "ERROR_MSG_FS_READ_ACTION": "An error ocurred while trying to read the file \"{0}\"."
+    "ERROR_MSG_FS_READ_ACTION": "An error ocurred while trying to read the file \"{0}\".",
+    "ERROR_MSG_FS_COPY_DIR_ACTION": "An error ocurred while trying to copy the directory \"{0}\" to the destination \"{1}\".",
+    "ERROR_MSG_FS_DELETE_DIR_ACTION": "An error ocurred while trying to remove the directory \"{0}\".",
+    "ERROR_MSG_FS_DIR_TO_MOVE_EXISTS": "Cannot move the source directory \"{0}\" to the destination \"{1}\", it already exists."
 });
