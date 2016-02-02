@@ -95,6 +95,19 @@ define(function (require, exports, module) {
     };
 
     /**
+     * Update the directory location configuration.
+     * @string {string} directory
+     * @return {$.Promise}
+     */
+    BowerRc.prototype.setDirectory = function (directory) {
+        this._data.directory = directory;
+
+        var dataToSave = JSON.stringify(this._data, null, 4);
+
+        return this.saveContent(dataToSave);
+    };
+
+    /**
      * @param {object} configuration
      * @return {Array | null}
      * @private

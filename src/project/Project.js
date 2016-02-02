@@ -767,16 +767,27 @@ define(function (require, exports, module) {
     BowerProject.prototype.onBowerRcChanged = function () {
         if (this.hasBowerRc()) {
             this._activeBowerRc.onContentChanged().then(function (changed) {
-                if (changed && changed.indexOf("directory") !== -1) {
-                    var oldDir = this.getPath() + this.getPackagesDirectory();
+                if (changed && changed.indexOf("directory") !== -1 &&
+                        this.getPackagesDirectory() !== this._activeBowerRc.Data.directory) {
+                    var oldDir = this.getPath() + this.getPackagesDirectory(),
+                        oldPkgsDir = this._packagesDirectory,
+                        oldPkgsDirName = this._packagesDirectoryName;
 
                     this._updatePackagesDirectory();
 
                     var newDir = this.getPath() + this.getPackagesDirectory();
 
                     return BowerFileUtils.moveDirectory(oldDir, newDir)
-                        .always(function () {
+                        .then(function () {
+                            // notify only when success
                             this._projectManager.notifyPackagesDirectoryChanged(oldDir, newDir);
+                        }.bind(this))
+                        .fail(function () {
+                            // if any error happens trying to move the directory,
+                            // restore the information in the .bowerrc
+                            this._packagesDirectory = oldPkgsDir;
+                            this._packagesDirectoryName = oldPkgsDirName;
+                            this._activeBowerRc.setDirectory(this.getPackagesDirectory());
                         }.bind(this));
                 }
             }.bind(this)).then(function () {
