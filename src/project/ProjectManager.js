@@ -688,6 +688,4 @@ define(function (require, exports) {
     exports.notifyProjectStatusChanged     = notifyProjectStatusChanged;
     exports.notifyPackagesDirectoryChanged = notifyPackagesDirectoryChanged;
     exports.syncDependenciesWithBowerJson  = syncDependenciesWithBowerJson;
-
-    window.bpm = exports;
 });
