@@ -54,7 +54,8 @@ define(function (require, exports, module) {
         EINSTALL_NO_PKG           = 19,
         ESYNC_NOTHING_TO_SYNC     = 20,
         ECONNECTION_RESET         = 21,
-        EFILESYSTEM_ACTION        = 22;
+        EFILESYSTEM_ACTION        = 22,
+        EFILE_ENTRY_NOT_EXISTS    = 23;
 
     /**
      * @param {number} code
@@ -116,4 +117,5 @@ define(function (require, exports, module) {
     exports.ESYNC_NOTHING_TO_SYNC  = ESYNC_NOTHING_TO_SYNC;
     exports.ECONNECTION_RESET      = ECONNECTION_RESET;
     exports.EFILESYSTEM_ACTION     = EFILESYSTEM_ACTION;
+    exports.EFILE_ENTRY_NOT_EXISTS = EFILE_ENTRY_NOT_EXISTS;
 });

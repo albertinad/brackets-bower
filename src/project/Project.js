@@ -742,6 +742,10 @@ define(function (require, exports, module) {
         this._activeBowerRc.remove().always(function () {
             this._activeBowerRc = null;
 
+            // reset packages directory to default
+            this._packagesDirectory = ""; // root
+            this._packagesDirectoryName = BowerRc.Defaults.directory;
+
             this._packagesChanged();
 
             deferred.resolve();
@@ -782,18 +786,21 @@ define(function (require, exports, module) {
                             // notify only when success
                             this._projectManager.notifyPackagesDirectoryChanged(oldDir, newDir);
                         }.bind(this))
-                        .fail(function () {
-                            // if any error happens trying to move the directory,
-                            // restore the information in the .bowerrc
-                            this._packagesDirectory = oldPkgsDir;
-                            this._packagesDirectoryName = oldPkgsDirName;
-                            this._activeBowerRc.setDirectory(this.getPackagesDirectory());
+                        .fail(function (error) {
+                            if (error.code !== ErrorUtils.EFILE_ENTRY_NOT_EXISTS) {
+                                // if any error happens trying to move the directory,
+                                // restore the information in the .bowerrc
+                                this._packagesDirectory = oldPkgsDir;
+                                this._packagesDirectoryName = oldPkgsDirName;
+                                this._activeBowerRc.setDirectory(this.getPackagesDirectory());
+                            }
                         }.bind(this));
                 }
             }.bind(this)).then(function () {
                 this._packagesChanged();
             }.bind(this)).fail(function (error) {
-                if (error && error.code !== undefined && error.code !== null) {
+                if (error && error.code !== undefined && error.code !== null &&
+                        error.code !== ErrorUtils.EFILE_ENTRY_NOT_EXISTS) {
                     ErrorUtils.handleError(error);
                 }
             });

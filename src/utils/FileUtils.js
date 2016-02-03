@@ -268,14 +268,19 @@ define(function (require, exports) {
 
     /**
      * @param {FileEntry} fileEntry
-     * @return {$.Promise} A promise that is always resolved.
+     * @return {$.Promise}
      * @private
      */
     function _existsFileEntry(fileEntry) {
         var deferred = new $.Deferred();
 
         fileEntry.exists(function (error, exists) {
-            deferred.resolve((!error && exists));
+            if (!error && exists) {
+                deferred.resolve();
+            } else {
+                var err = ErrorUtils.createError(ErrorUtils.EFILE_ENTRY_NOT_EXISTS);
+                deferred.reject(err);
+            }
         });
 
         return deferred.promise();
@@ -329,46 +334,36 @@ define(function (require, exports) {
      * @return {$.Promise}
      */
     function moveDirectory(source, destination, overwriteDestination) {
-        var deferred = new $.Deferred(),
-            sourceDir = FileSystem.getDirectoryForPath(source),
+        var sourceDir = FileSystem.getDirectoryForPath(source),
             destiantionDir = FileSystem.getDirectoryForPath(destination);
 
         overwriteDestination = !!overwriteDestination;
 
         // check if the source directory exists
-        _existsFileEntry(sourceDir)
+        return _existsFileEntry(sourceDir)
             .then(function (sourceExists) {
-                if (sourceExists) {
-                    // check if the destination directory exists
-                    return _existsFileEntry(destiantionDir);
-                } else {
-                    // directory may not exists, there's nothing to copy/rename
-                    deferred.resolve();
-                }
-            })
-            .then(function (destinationExists) {
-                if (destinationExists) {
-                    if (overwriteDestination) {
-                        // move the content to the destination and remove
-                        // the source folder
-                        return _copyAndRemoveDir(source, destination);
-                    } else {
-                        var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
-                            message: StringUtils.format(Strings.ERROR_MSG_FS_DIR_TO_MOVE_EXISTS, source, destination)
-                        });
-                        deferred.reject(err);
-                    }
-                } else {
-                    // check for parent folders and create it if needed
-                    // rename the source directory into the destination directory
-                    return _createDirAndRename(source, destination);
-                }
-            })
-            .fail(function (error) {
-                deferred.reject(error);
-            });
+                // check if the destination directory exists
+                return _existsFileEntry(destiantionDir)
+                    .then(function () {
+                        if (overwriteDestination) {
+                            // move the content to the destination and remove
+                            // the source folder
+                            return _copyAndRemoveDir(source, destination);
+                        } else {
+                            var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
+                                message: StringUtils.format(Strings.ERROR_MSG_FS_DIR_TO_MOVE_EXISTS,
+                                                            source,
+                                                            destination)
+                            });
 
-        return deferred.promise();
+                            return (new $.Deferred()).reject(err);
+                        }
+                    }, function () {
+                        // check for parent folders and create it if needed
+                        // rename the source directory into the destination directory
+                        return _createDirAndRename(source, destination);
+                    });
+            });
     }
 
     exports.setDomain     = setDomain;
