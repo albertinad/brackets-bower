@@ -34,14 +34,18 @@ maxerr: 50, browser: true */
 define(function (require, exports, module) {
     "use strict";
 
-    var PreferencesManager    = brackets.getModule("preferences/PreferencesManager"),
-        preferences           = PreferencesManager.getExtensionPrefs("brackets-bower"),
-        reloadRegistrySetting = require("src/preferences/ReloadRegistryTimeSetting"),
-        savePackageSetting    = require("src/preferences/SavePackagesSetting"),
-        showExtensionSetting  = require("src/preferences/ShowExtensionSetting");
+    var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
+        preferences        = PreferencesManager.getExtensionPrefs("brackets-bower");
 
     var settingsKey = {},
         settings    = {};
+
+    /**
+     * @private
+     */
+    function _isValidProp(prop) {
+        return (prop !== undefined && prop !== null);
+    }
 
     function get(key) {
         return preferences.get(key);
@@ -58,7 +62,7 @@ define(function (require, exports, module) {
 
         for (key in settings) {
             if (settings.hasOwnProperty(key)) {
-                defaults[key] = settings[key].defaultValue();
+                defaults[key] = settings[key].defaultValue;
             }
         }
 
@@ -72,7 +76,7 @@ define(function (require, exports, module) {
             throw "Setting with the preference key '" + key + "' doesn't exists.";
         }
 
-        return setting.defaultValue();
+        return setting.defaultValue;
     }
 
     function getMinValueForSetting(key) {
@@ -82,21 +86,31 @@ define(function (require, exports, module) {
             throw "Setting with the preference key '" + key + "' doesn't exists.";
         }
 
-        if (typeof setting.minValue !== "function") {
+        if (!_isValidProp(setting.minValue)) {
             throw "The setting '" + key + "' has not a minimum value defined.";
         }
 
-        return setting.minValue();
+        return setting.minValue;
     }
 
+    /**
+     * @private
+     */
     function _validatePrefValue(key) {
-        var validatorFn = settings[key].validate;
+        var settingItem = settings[key],
+            validatorFn = settingItem.validate;
 
-        if (validatorFn) {
-            validatorFn(preferences.get(key), exports);
+        if (typeof validatorFn === "function") {
+            validatorFn.call(settingItem, preferences.get(key), exports);
+        } else if (typeof preferences.get(key) !== settingItem.type) {
+            // default validation
+            preferences.set(settingItem.key, settingItem.defaultValue);
         }
     }
 
+    /**
+     * @private
+     */
     function _onPreferencesChange(event, data) {
         var prefs = data.ids;
 
@@ -105,22 +119,28 @@ define(function (require, exports, module) {
         });
     }
 
+    /**
+     * @private
+     */
     function _init() {
-        var key;
+        var data = require('./preferencesData');
 
-        settings[reloadRegistrySetting.key()] = reloadRegistrySetting;
-        settings[savePackageSetting.key()] = savePackageSetting;
-        settings[showExtensionSetting.key()] = showExtensionSetting;
-
-        for (key in settings) {
-            if (settings.hasOwnProperty(key)) {
-                var setting = settings[key];
-
-                preferences.definePreference(key, setting.type(), setting.defaultValue());
-
-                settingsKey[setting.preferenceId()] = key;
+        data.forEach(function (prefData) {
+            if (!_isValidProp(prefData.key)) {
+                throw "The property 'key' must be defined.";
             }
-        }
+            if (!_isValidProp(prefData.type)) {
+                throw "The property 'type' must be defined.";
+            }
+            if (!_isValidProp(prefData.defaultValue)) {
+                throw "The property 'defaultValue' must be defined.";
+            }
+
+            settings[prefData.key] = prefData;
+            settingsKey[prefData.preferenceId] = prefData.key;
+
+            preferences.definePreference(prefData.key, prefData.type, prefData.defaultValue);
+        });
 
         preferences.on("change", _onPreferencesChange);
     }
