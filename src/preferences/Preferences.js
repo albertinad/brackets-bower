@@ -123,7 +123,7 @@ define(function (require, exports, module) {
      * @private
      */
     function _init() {
-        var data = require('./preferencesData');
+        var data = require("./preferencesData");
 
         data.forEach(function (prefData) {
             if (!_isValidProp(prefData.key)) {
