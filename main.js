@@ -37,7 +37,6 @@ define(function (require, exports, module) {
 
     // local modules
     var Bower              = require("src/bower/Bower"),
-        GitUtils           = require("src/utils/GitUtils"),
         FileUtils          = require("src/utils/FileUtils"),
         ProjectManager     = require("src/project/ProjectManager"),
         QuickInstall       = require("src/QuickInstall"),
@@ -91,7 +90,6 @@ define(function (require, exports, module) {
         ExtensionUtils.loadStyleSheet(module, "assets/styles.css");
 
         Bower.setDomain(bowerDomain);
-        GitUtils.setDomain(bowerDomain);
         FileUtils.setDomain(bowerDomain);
 
         QuickInstall.init();
@@ -109,12 +107,18 @@ define(function (require, exports, module) {
         });
 
         AppInit.appReady(function () {
-            var projectMenu;
+            var projectMenu,
+                displayGitNotFoundWarning = function () {
+                    panelController.updateStatus(PanelController.WARNING);
+                    NotificationDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
+                };
 
-            GitUtils.findGitOnSystem().fail(function () {
-                panelController.updateStatus(PanelController.WARNING);
-
-                NotificationDialog.showWarning(Strings.GIT_NOT_FOUND_TITLE, Strings.GIT_NOT_FOUND_DESCRIPTION);
+            bowerDomain.exec("isGitOnSystem").then(function (isInstalled) {
+                if (!isInstalled) {
+                    displayGitNotFoundWarning();
+                }
+            }).fail(function () {
+                displayGitNotFoundWarning();
             });
 
             ProjectManager.initialize();

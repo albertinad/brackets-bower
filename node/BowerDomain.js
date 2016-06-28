@@ -29,7 +29,7 @@ maxerr: 50, node: true */
     "use strict";
 
     var bower     = require("bower"),
-        Cli       = require("./Cli"),
+        GitUtils  = require("./GitUtils"),
         FileUtils = require("./FileUtils");
 
     var DOMAIN_NAME = "bower";
@@ -180,13 +180,11 @@ maxerr: 50, node: true */
     }
 
     /**
-     * Executes a system program with arguments.
-     * @param {string} cmd The full path to the program.
-     * @param {array} args The arguments for the program to execute.
-     * @param {function(?string, ?string)} cb Callback for when the program has executed.
+     * Check if git is installed on the system.
+     * @param {function(?string, ?string)} cb.
      */
-    function _cmdExecCommand(cmd, args, cb) {
-        Cli.execCommand(cmd, args, cb);
+    function _cmdIsGitOnSystem(cb) {
+        GitUtils.isGitOnSystem(cb);
     }
 
     /**
@@ -340,25 +338,12 @@ maxerr: 50, node: true */
 
         domainManager.registerCommand(
             DOMAIN_NAME,
-            "execCommand",
-            _cmdExecCommand,
+            "isGitOnSystem",
+            _cmdIsGitOnSystem,
             true,
-            "Utility to execute commands",
-            [{
-                name: "cmd",
-                type: "string",
-                description: "System command to execute in a child process."
-            }],
-            [{
-                name: "args",
-                type: "array",
-                description: "Sytem command's arguments."
-            }],
-            [{
-                name: "result",
-                type: "string",
-                description: "Result of the command execution."
-            }]
+            "Check if git is installed on the system.",
+            [],
+            []
         );
 
         domainManager.registerCommand(

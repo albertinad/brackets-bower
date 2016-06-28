@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 - 2016 Intel Corporation
+ * Copyright (c) 2016 - 2016 Intel Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,48 +23,35 @@
  */
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
-maxerr: 50, browser: true */
-/*global $, define */
+maxerr: 50, node: true */
+/*global require */
 
-define(function (require, exports) {
+(function () {
     "use strict";
 
-    var bowerDomain;
+    var exec = require("child_process").exec;
 
-    var DEFAULT_GIT = "git",
-        GIT_ARG_VERSION = "--version",
-        GIT_VERSION_REGEX = /^git version\s(.*)$/;
-
-    /**
-     * @param {NodeDomain} domain
-     */
-    function setDomain(domain) {
-        bowerDomain = domain;
-    }
+    var GIT_VERSION_REGEX = /^git version\s(.*)$/;
 
     /**
      * Search for Git on the system Path.
      */
-    function findGitOnSystem() {
-        var deferred = new $.Deferred(),
-            execPromise = bowerDomain.exec("execCommand", DEFAULT_GIT, [GIT_ARG_VERSION]);
+    function isGitOnSystem(callback) {
+        var command = "git --version";
 
-        execPromise.then(function (result) {
-            var version = result.output,
-                match = version.match(GIT_VERSION_REGEX);
-
-            if (match) {
-                deferred.resolve();
+        function onExecDone(error, stdout, stderr) {
+            if (error) {
+                callback(error, null);
             } else {
-                deferred.reject();
-            }
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
+                var version = stdout.trim(),
+                    match = version.match(GIT_VERSION_REGEX);
 
-        return deferred.promise();
+                callback(null, !!match);
+            }
+        }
+
+        exec(command, onExecDone);
     }
 
-    exports.setDomain = setDomain;
-    exports.findGitOnSystem = findGitOnSystem;
-});
+    exports.isGitOnSystem = isGitOnSystem;
+}());
