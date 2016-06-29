@@ -139,10 +139,9 @@ define(function (require, exports) {
      * @return {$.Deferred}
      */
     function infoByName(name) {
-        var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration();
+        var config = ConfigurationManager.getConfiguration();
 
-        Bower.info(name, config).then(function (result) {
+        return Bower.info(name, config).then(function (result) {
             var packageInfo = PackageFactory.createPackageInfo(result),
                 project = ProjectManager.getProject();
 
@@ -150,12 +149,8 @@ define(function (require, exports) {
                 packageInfo.installedPackage = project.getPackageByName(name);
             }
 
-            deferred.resolve(packageInfo);
-        }).fail(function (error) {
-            deferred.reject(error);
+            return packageInfo;
         });
-
-        return deferred;
     }
 
     /**
@@ -180,10 +175,7 @@ define(function (require, exports) {
      * @private
      */
     function listWithVersions(pkgsNames) {
-        var deferred = new $.Deferred();
-
-        list().then(function (result) {
-
+        return list().then(function (result) {
             return PackageFactory.createPackagesRecursive(result.dependencies);
         }).then(function (packagesData) {
             var packagesArray;
@@ -198,18 +190,12 @@ define(function (require, exports) {
                         packagesArray.push(updatedPkg);
                     }
                 });
-
-                deferred.resolve(packagesArray);
             } else {
                 packagesArray = _.values(packagesData);
-
-                deferred.resolve(packagesArray);
             }
-        }).fail(function (error) {
-            deferred.reject(error);
-        });
 
-        return deferred;
+            return packagesArray;
+        });
     }
 
     /**
@@ -223,14 +209,11 @@ define(function (require, exports) {
      * @return {$.Deferred}
      */
     function installByName(name, data) {
-        var deferred = new $.Deferred(),
-            config = ConfigurationManager.getConfiguration(),
-            project = ProjectManager.getProject(),
-            packageName = name,
-            options;
+        var project = ProjectManager.getProject(),
+            packageName = name;
 
         if (!project) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
         if (!data) {
@@ -242,7 +225,9 @@ define(function (require, exports) {
             packageName += "#" + Package.getVersion(data.version, data.versionType);
         }
 
-        options = _getInstallOptions(data);
+        var deferred = new $.Deferred(),
+            config = ConfigurationManager.getConfiguration(),
+            options = _getInstallOptions(data);
 
         // install the given package
         Bower.installPackage(packageName, options, config).then(function (result) {
@@ -297,21 +282,20 @@ define(function (require, exports) {
      * @return {$.Deferred}
      */
     function install() {
-        var deferred = new $.Deferred(),
-            project = ProjectManager.getProject(),
-            config;
+        var project = ProjectManager.getProject();
 
         if (!project) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
         if (!project.hasBowerJson()) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
 
-        config = ConfigurationManager.getConfiguration();
+        var deferred = new $.Deferred(),
+            config = ConfigurationManager.getConfiguration();
 
         Bower.install(config).then(function (result) {
             var total = result.count,
@@ -325,12 +309,9 @@ define(function (require, exports) {
                 // try to get packages with "latestVersion" for the installed packages
                 listWithVersions(packagesNames).then(function (packagesWithUpdate) {
                     packagesArray = packagesWithUpdate;
-
                 }).fail(function () {
-
                     packagesArray = PackageFactory.createPackagesWithBowerJson(resultPackages);
                 }).always(function () {
-
                     var installResult = project.addPackages(packagesArray);
                     installResult.total = total;
 
@@ -339,7 +320,6 @@ define(function (require, exports) {
             } else {
                 deferred.resolve({ total: total, installed: [], updated: [] });
             }
-
         }).fail(function (error) {
             deferred.reject(error);
         });
@@ -352,31 +332,23 @@ define(function (require, exports) {
      * @return {$.Deferred}
      */
     function prune() {
-        var deferred = new $.Deferred(),
-            project = ProjectManager.getProject(),
-            config;
+        var project = ProjectManager.getProject();
 
         if (!project) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
         if (!project.hasBowerJson()) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
 
-        config = ConfigurationManager.getConfiguration();
+        var config = ConfigurationManager.getConfiguration();
 
-        Bower.prune(config).then(function (uninstalled) {
-            var result = project.removePackages(Object.keys(uninstalled));
-
-            deferred.resolve(result);
-        }).fail(function (error) {
-            deferred.reject(error);
+        return Bower.prune(config).then(function (uninstalled) {
+            return project.removePackages(Object.keys(uninstalled));
         });
-
-        return deferred;
     }
 
     /**
@@ -477,49 +449,42 @@ define(function (require, exports) {
      * @return {$.Deferred}
      */
     function updateByName(name, data) {
-        var deferred = new $.Deferred(),
-            project = ProjectManager.getProject(),
-            pkg,
-            bowerJson,
-            options,
-            update;
+        var project = ProjectManager.getProject();
 
         if (!project) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_PROJECT));
         }
 
         // force bower.json to exists before updating
         if (!project.hasBowerJson()) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
 
-        pkg = project.getPackageByName(name);
-        bowerJson = project.activeBowerJson;
+        var pkg = project.getPackageByName(name),
+            bowerJson = project.activeBowerJson;
 
         // check if the selected package exists
         if (!pkg) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
                 message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
             }));
         }
 
         // get package data to update
-        options = _updateOptionsForPackage(pkg, data);
+        var options = _updateOptionsForPackage(pkg, data);
 
         if (!options) {
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA, {
                 message: Strings.ERROR_MSG_NO_UPDATE_DATA
             }));
         }
 
-        update = options.update;
+        var update = options.update;
 
-        bowerJson.updatePackageInfo(name, update).then(function () {
-
+        return bowerJson.updatePackageInfo(name, update).then(function () {
             if (update.version !== undefined) {
-
                 return _updateByName(name);
             } else {
                 // dependencyType was an updated property only
@@ -529,17 +494,12 @@ define(function (require, exports) {
 
                 return pkg;
             }
-        }).then(function (result) {
-
-            deferred.resolve(result);
         }).fail(function (error) {
             // restore bower.json to previous state
             bowerJson.updatePackageInfo(name, options.backup);
 
-            deferred.reject(error);
+            return $.Deferred().reject(error);
         });
-
-        return deferred;
     }
 
     /**

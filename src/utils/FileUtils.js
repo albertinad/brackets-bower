@@ -85,7 +85,7 @@ define(function (require, exports) {
             file = FileSystem.getFileForPath(path);
 
         if (!file) {
-            deferred.reject();
+            deferred.reject(ErrorUtils.createError(ErrorUtils.EFILE_ENTRY_NOT_EXISTS));
         }
 
         file.write(content, function (error, result) {
@@ -154,7 +154,7 @@ define(function (require, exports) {
             file = FileSystem.getFileForPath(path);
 
         if (!file) {
-            deferred.reject();
+            deferred.reject(ErrorUtils.createError(ErrorUtils.EFILE_ENTRY_NOT_EXISTS));
         }
 
         file.read(function (error, result) {
@@ -222,19 +222,13 @@ define(function (require, exports) {
      * @return {$.Promies}
      */
     function copyDir(source, destination) {
-        var deferred = new $.Deferred();
-
-        bowerDomain.exec("copyDir", source, destination).then(function () {
-            deferred.resolve();
-        }).fail(function (error) {
+        return bowerDomain.exec("copyDir", source, destination).fail(function (error) {
             var err = ErrorUtils.createError(ErrorUtils.EFILESYSTEM_ACTION, {
                 message: StringUtils.format(Strings.ERROR_MSG_FS_COPY_DIR_ACTION, source, destination),
                 originalMessage: (error && error.message) ? error.message : null
             });
-            deferred.reject(err);
+            return $.Deferred().reject(err);
         });
-
-        return deferred.promise();
     }
 
     /**
@@ -356,7 +350,7 @@ define(function (require, exports) {
                                                             destination)
                             });
 
-                            return (new $.Deferred()).reject(err);
+                            return $.Deferred().reject(err);
                         }
                     }, function () {
                         // check for parent folders and create it if needed

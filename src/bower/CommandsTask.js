@@ -68,13 +68,11 @@ define(function (require, exports, module) {
      * @return {$.Promise}
      */
     Task.prototype.execute = function () {
-        var that = this;
-
         this._fn.apply(this._context, this._args).then(function (result) {
-            that._deferred.resolve(result);
-        }).fail(function (error) {
-            that._deferred.reject(error);
-        });
+            this._deferred.resolve(result);
+        }.bind(this)).fail(function (error) {
+            this._deferred.reject(error);
+        }.bind(this));
 
         return this._promise;
     };
@@ -117,8 +115,6 @@ define(function (require, exports, module) {
      * Executes the next task if any.
      */
     CommandsTask.prototype._executeNext = function () {
-        var that = this;
-
         if (this._currentTask || this._tasksQueue.length === 0) {
             // a task is being executed or tasksQueue empty
             return;
@@ -126,10 +122,10 @@ define(function (require, exports, module) {
 
         this._currentTask = this._tasksQueue.shift();
         this._currentTask.execute().always(function () {
-            that._currentTask = null;
+            this._currentTask = null;
 
-            that._executeNext();
-        });
+            this._executeNext();
+        }.bind(this));
     };
 
     CommandsTask.prototype._count = function () {

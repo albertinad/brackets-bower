@@ -82,26 +82,24 @@ define(function (require, exports, module) {
      * @return {$.Deferred}
      */
     BowerJson.prototype.updatePackageInfo = function (name, data) {
-        var that = this,
-            deferred = new $.Deferred(),
-            version,
-            dependencyType;
-
         if (!data) {
             // there's nothing to update
-            return deferred.reject();
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA, {
+                message: Strings.ERROR_MSG_NO_UPDATE_DATA
+            }));
         }
 
-        version = data.version;
-        dependencyType = data.dependencyType;
+        var version = data.version,
+            dependencyType = data.dependencyType;
 
         if (!version && (typeof dependencyType !== "number")) {
             // there's nothing to update
-            return deferred.reject();
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA, {
+                message: Strings.ERROR_MSG_NO_UPDATE_DATA
+            }));
         }
 
-        this._getFileContent().then(function (content) {
-
+        return this._getFileContent().then(function (content) {
             var deps = content.dependencies,
                 devDeps = content.devDependencies,
                 currentDeps;
@@ -120,25 +118,19 @@ define(function (require, exports, module) {
                 }
 
                 // update dependency type
-                that._updateDependencyType(name, dependencyType, content, currentDeps);
+                this._updateDependencyType(name, dependencyType, content, currentDeps);
 
-                return that.saveContent(that._serialize(content)).then(function () {
-                    if (that._hasDependenciesChanged(content)) {
-                        that._updateCacheDependencies(content);
+                return this.saveContent(this._serialize(content)).then(function () {
+                    if (this._hasDependenciesChanged(content)) {
+                        this._updateCacheDependencies(content);
                     }
-                });
+                }.bind(this));
             } else {
-                deferred.reject();
+                return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.EUPDATE_NO_DATA, {
+                    message: Strings.ERROR_MSG_NO_UPDATE_DATA
+                }));
             }
-        }).then(function () {
-
-            deferred.resolve();
-        }).fail(function (error) {
-
-            deferred.reject(error);
-        });
-
-        return deferred;
+        }.bind(this));
     };
 
     /**
@@ -161,11 +153,7 @@ define(function (require, exports, module) {
      * @param {string} name
      */
     BowerJson.prototype.removeDependency = function (name) {
-        var that = this,
-            deferred = new $.Deferred();
-
-        this._getFileContent().then(function (content) {
-
+        return this._getFileContent().then(function (content) {
             var deps = content.dependencies,
                 devDeps = content.devDependencies;
 
@@ -175,17 +163,8 @@ define(function (require, exports, module) {
                 delete devDeps[name];
             }
 
-            return that.saveContent(that._serialize(content));
-
-        }).then(function () {
-
-            deferred.resolve();
-        }).fail(function (error) {
-
-            deferred.reject(error);
-        });
-
-        return deferred;
+            return this.saveContent(this._serialize(content));
+        }.bind(this));
     };
 
     /**
@@ -195,30 +174,25 @@ define(function (require, exports, module) {
      *        versionOutOfSync: packages to update version in bower.json.
      */
     BowerJson.prototype.syncDependencies = function (packagesData) {
-        var that = this,
-            deferred = new $.Deferred(),
-            missing,
-            untracked,
-            versionOutOfSync;
-
         if (!packagesData) {
             // there's nothing to sync
-            return deferred.reject();
-        }
-
-        missing = packagesData.missing;
-        untracked = packagesData.untracked;
-        versionOutOfSync = packagesData.versionOutOfSync;
-
-        if (missing.length === 0 && untracked.length === 0 && versionOutOfSync.length === 0) {
-            // there's nothing to sync
-            return deferred.reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
                 message: String.ERROR_MSG_NOTHING_TO_SYNC
             }));
         }
 
-        this._getFileContent().then(function (content) {
+        var missing = packagesData.missing,
+            untracked = packagesData.untracked,
+            versionOutOfSync = packagesData.versionOutOfSync;
 
+        if (missing.length === 0 && untracked.length === 0 && versionOutOfSync.length === 0) {
+            // there's nothing to sync
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
+                message: String.ERROR_MSG_NOTHING_TO_SYNC
+            }));
+        }
+
+        return this._getFileContent().then(function (content) {
             var deps = content.dependencies,
                 devDeps = content.devDependencies;
 
@@ -253,35 +227,27 @@ define(function (require, exports, module) {
                     if (!content.dependencies) {
                         content.dependencies = {};
                     }
-
                     deps = content.dependencies;
                 } else {
                     if (!content.devDependencies) {
                         content.devDependencies = {};
                     }
-
                     deps = content.devDependencies;
                 }
 
                 deps[name] = Package.getDefaultSemverVersion(pkg.version);
             });
 
-            return that.saveContent(that._serialize(content));
-
-        }).then(function () {
+            return this.saveContent(this._serialize(content));
+        }.bind(this)).then(function () {
             var packages = {
                 removed: missing,
                 installed: untracked,
                 updated: versionOutOfSync
             };
 
-            deferred.resolve(packages);
-        }).fail(function (error) {
-
-            deferred.reject(error);
+            return packages;
         });
-
-        return deferred;
     };
 
     BowerJson.prototype.onContentChanged = function () {
@@ -295,40 +261,25 @@ define(function (require, exports, module) {
      * @private
      */
     BowerJson.prototype._addDependency = function (name, version, isProduction) {
-        var that = this,
-            deferred = new $.Deferred();
-
-        this._getFileContent().then(function (content) {
-
+        return this._getFileContent().then(function (content) {
             var deps;
 
             if (isProduction) {
                 if (!content.dependencies) {
                     content.dependencies = {};
                 }
-
                 deps = content.dependencies;
             } else {
                 if (!content.devDependencies) {
                     content.devDependencies = {};
                 }
-
                 deps = content.devDependencies;
             }
 
             deps[name] = version;
 
-            return that.saveContent(that._serialize(content));
-
-        }).then(function () {
-
-            deferred.resolve();
-        }).fail(function (error) {
-
-            deferred.reject(error);
-        });
-
-        return deferred;
+            return this.saveContent(this._serialize(content));
+        }.bind(this));
     };
 
     /**
@@ -336,33 +287,26 @@ define(function (require, exports, module) {
      * @param {$.Deferred}
      */
     BowerJson.prototype.loadAllDependencies = function () {
-        var that = this,
-            deferred = new $.Deferred();
-
-        this._getFileContent().then(function (content) {
-            var hasChanged = that._hasDependenciesChanged(content);
+        return this._getFileContent().then(function (content) {
+            var hasChanged = this._hasDependenciesChanged(content);
 
             if (hasChanged) {
-                that._updateCacheDependencies(content);
+                this._updateCacheDependencies(content);
             }
 
-            deferred.resolve(hasChanged);
-        }).fail(function (error) {
-            that._deps = {};
+            return hasChanged;
+        }.bind(this)).fail(function (error) {
+            this._deps = {};
 
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
+            return $.Deferred().reject(error);
+        }.bind(this));
     };
 
     /**
      * @private
      */
     BowerJson.prototype._updateDependencyType = function (name, type, content, currentDeps) {
-
         if (type === DependencyType.PRODUCTION) {
-
             if (content.dependencies && content.dependencies[name]) {
                 // the package is already a production dependency
                 return;
@@ -486,25 +430,18 @@ define(function (require, exports, module) {
      * @private
      */
     BowerJson.prototype._getFileContent = function () {
-        var deferred = new $.Deferred();
-
-        this.read().then(function (result) {
-
+        return this.read().then(function (result) {
             try {
-                var content = JSON.parse(result);
-
-                deferred.resolve(content);
+                return JSON.parse(result);
             } catch (ex) {
                 console.log("[bower] Error parsing bower.json", ex);
 
-                deferred.reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWER_JSON, {
+                return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWER_JSON, {
                     message: Strings.ERROR_MSG_MALFORMED_BOWER_JSON,
                     originalMessage: ex.message
                 }));
             }
-        }).fail(deferred.reject);
-
-        return deferred.promise();
+        });
     };
 
     /**

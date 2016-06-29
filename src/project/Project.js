@@ -526,13 +526,13 @@ define(function (require, exports, module) {
             addDependencyFn;
 
         if (!this.hasBowerJson()) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
 
         if (!pkg) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
                 message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
             }));
         }
@@ -553,16 +553,16 @@ define(function (require, exports, module) {
      * @param {string} name Package name.
      */
     BowerProject.prototype.untrackPackage = function (name) {
-        var pkg = this.getPackageByName(name);
-
         if (!this.hasBowerJson()) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
 
+        var pkg = this.getPackageByName(name);
+
         if (!pkg) {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.PKG_NOT_INSTALLED, {
                 message: Strings.ERROR_MSG_NO_PACKAGE_INSTALLED
             }));
         }
@@ -579,7 +579,7 @@ define(function (require, exports, module) {
 
             return this._activeBowerJson.syncDependencies(packages);
         } else {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
@@ -590,21 +590,18 @@ define(function (require, exports, module) {
      */
     BowerProject.prototype.syncWithBowerJson = function () {
         if (this.hasBowerJson()) {
-            var existsExtraneous,
-                existsBowerJsonChanges;
-
             if (this._status.isSynced()) {
-                return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
+                return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.ESYNC_NOTHING_TO_SYNC, {
                     message: String.ERROR_MSG_NOTHING_TO_SYNC
                 }));
             }
 
-            existsExtraneous = this.hasExtraneousPackages();
-            existsBowerJsonChanges = this.hasNotInstalledPackages() || this.hasPackagesVersionOutOfSync();
+            var existsExtraneous = this.hasExtraneousPackages(),
+                existsBowerJsonChanges = this.hasNotInstalledPackages() || this.hasPackagesVersionOutOfSync();
 
             return this._projectManager.syncDependenciesWithBowerJson(existsExtraneous, existsBowerJsonChanges);
         } else {
-            return (new $.Deferred()).reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
+            return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.NO_BOWER_JSON, {
                 message: Strings.ERROR_NO_BOWER_JSON
             }));
         }
@@ -652,15 +649,14 @@ define(function (require, exports, module) {
      * @return {$.Deferred}
      */
     BowerProject.prototype.removeBowerJson = function () {
-        var deferred = new $.Deferred();
-
         if (this._activeBowerJson === null) {
-            return deferred.resolve();
+            return $.Deferred().resolve();
         }
+
+        var deferred = new $.Deferred();
 
         this._activeBowerJson.remove().always(function () {
             this._activeBowerJson = null;
-
             this._packagesChanged();
 
             deferred.resolve();
@@ -694,7 +690,7 @@ define(function (require, exports, module) {
         if (this._processChanges) {
             return this._processPackagesChanges();
         } else {
-            return (new $.Deferred()).resolve();
+            return $.Deferred().resolve();
         }
     };
 
@@ -718,7 +714,7 @@ define(function (require, exports, module) {
                 isAnyModification = _.some(packagesArray, function (pkg) {
                     var currentPkg = this.getPackageByName(pkg.name);
 
-                    return (currentPkg) ? !currentPkg.isEqualTo(pkg) : true;
+                    return currentPkg ? !currentPkg.isEqualTo(pkg) : true;
                 }.bind(this));
 
                 if (isAnyModification) {
@@ -733,11 +729,11 @@ define(function (require, exports, module) {
      * @return {$.Deferred}
      */
     BowerProject.prototype.removeBowerRc = function () {
-        var deferred = new $.Deferred();
-
         if (this._activeBowerRc === null) {
-            return deferred.resolve();
+            return $.Deferred().resolve();
         }
+
+        var deferred = new $.Deferred();
 
         this._activeBowerRc.remove().always(function () {
             this._activeBowerRc = null;
@@ -815,17 +811,20 @@ define(function (require, exports, module) {
      * @private
      */
     BowerProject.prototype._updatePackagesDirectory = function () {
-        if (this.hasBowerRc()) {
-            var dir = this._activeBowerRc.Data.directory,
-                packagesDir;
-            if (dir) {
-                packagesDir = FileUtils.getDirectoryPath(dir);
-                if (packagesDir === dir) {
-                    packagesDir = FileUtils.getParentPath(dir);
-                }
-                this._packagesDirectory = packagesDir;
-                this._packagesDirectoryName = FileUtils.getBaseName(dir);
+        if (!this.hasBowerRc()) {
+            return;
+        }
+
+        var dir = this._activeBowerRc.Data.directory,
+            packagesDir;
+
+        if (dir) {
+            packagesDir = FileUtils.getDirectoryPath(dir);
+            if (packagesDir === dir) {
+                packagesDir = FileUtils.getParentPath(dir);
             }
+            this._packagesDirectory = packagesDir;
+            this._packagesDirectoryName = FileUtils.getBaseName(dir);
         }
     };
 

@@ -73,21 +73,14 @@ define(function (require, exports, module) {
     };
 
     BowerRc.prototype.loadConfiguration = function () {
-        var deferred = new $.Deferred();
-
-        this._getFileContent()
+        return this._getFileContent()
             .then(function (configuration) {
                 var configChanged = this._getConfigChanged(configuration);
 
                 this.Data = configuration;
 
-                deferred.resolve(configChanged);
-            }.bind(this))
-            .fail(function (error) {
-                deferred.reject(error);
-            });
-
-        return deferred.promise();
+                return configChanged;
+            }.bind(this));
     };
 
     BowerRc.prototype.onContentChanged = function () {
@@ -139,24 +132,18 @@ define(function (require, exports, module) {
      * @private
      */
     BowerRc.prototype._getFileContent = function () {
-        var deferred = new $.Deferred();
-
-        this.read().then(function (result) {
+        return this.read().then(function (result) {
             try {
-                var content = JSON.parse(result);
-
-                deferred.resolve(content);
+                return JSON.parse(result);
             } catch (ex) {
                 console.log("[bower] Error parsing .bowerrc", ex);
 
-                deferred.reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWERRC, {
+                return $.Deferred().reject(ErrorUtils.createError(ErrorUtils.EMALFORMED_BOWERRC, {
                     message: Strings.ERROR_MSG_MALFORMED_BOWERRC,
                     originalMessage: ex.message
                 }));
             }
-        }).fail(deferred.reject);
-
-        return deferred.promise();
+        });
     };
 
     /**

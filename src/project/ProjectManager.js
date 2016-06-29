@@ -99,18 +99,12 @@ define(function (require, exports) {
     }
 
     function listProjectDependencies() {
-        var deferred = new $.Deferred();
-
-        PackageManager.list(true).then(function (result) {
+        return PackageManager.list(true).then(function (result) {
             // create the package model
             return PackageFactory.createPackagesRecursive(result.dependencies);
         }).then(function (packages) {
-            deferred.resolve(_.values(packages));
-        }).fail(function (error) {
-            deferred.reject(error);
+            return _.values(packages);
         });
-
-        return deferred;
     }
 
     /**
@@ -139,7 +133,7 @@ define(function (require, exports) {
      * @return {BowerJson} Current active BowerJson object.
      */
     function getBowerJson() {
-        return (_bowerProject) ? _bowerProject.activeBowerJson : null;
+        return _bowerProject ? _bowerProject.activeBowerJson : null;
     }
 
     /**
@@ -167,31 +161,22 @@ define(function (require, exports) {
      * @private
      */
     function _loadBowerJson() {
-        var deferred = new $.Deferred(),
-            bowerJson;
+        var bowerJson;
 
-        BowerJson.findInPath(_bowerProject.getPath()).then(function () {
+        return BowerJson.findInPath(_bowerProject.getPath()).then(function () {
             bowerJson = new BowerJson(_bowerProject);
 
             return bowerJson.loadAllDependencies();
+        }).then(function () {
+            _bowerProject.activeBowerJson = bowerJson;
         }).fail(function (error) {
             if (!error || error.code !== ErrorUtils.EMALFORMED_BOWER_JSON) {
                 bowerJson = null;
             }
-        }).always(function () {
-
             _bowerProject.activeBowerJson = bowerJson;
-
+        }).always(function () {
             _notifyBowerJsonReloaded();
-
-            if (bowerJson) {
-                deferred.resolve();
-            } else {
-                deferred.reject();
-            }
         });
-
-        return deferred.promise();
     }
 
     /**
@@ -256,7 +241,7 @@ define(function (require, exports) {
     }
 
     function getBowerRc() {
-        return (_bowerProject) ? _bowerProject.activeBowerRc : null;
+        return _bowerProject ? _bowerProject.activeBowerRc : null;
     }
 
     function openBowerRc() {
@@ -280,28 +265,19 @@ define(function (require, exports) {
      * @private
      */
     function _loadBowerRc() {
-        var deferred = new $.Deferred(),
-            bowerRc;
+        var bowerRc;
 
-        BowerRc.findInPath(_bowerProject.getPath()).then(function () {
+        return BowerRc.findInPath(_bowerProject.getPath()).then(function () {
             bowerRc = new BowerRc(_bowerProject);
 
             return bowerRc.loadConfiguration();
-        }).fail(function () {
-            bowerRc = null;
-        }).always(function () {
+        }).then(function () {
             _bowerProject.activeBowerRc = bowerRc;
-
+        }).fail(function (error) {
+            _bowerProject.activeBowerRc = null;
+        }).always(function () {
             _notifyBowerRcReloaded();
-
-            if (bowerRc) {
-                deferred.resolve();
-            } else {
-                deferred.reject();
-            }
         });
-
-        return deferred.promise();
     }
 
     /**
@@ -317,14 +293,14 @@ define(function (require, exports) {
      * @return {Array}
      */
     function getProjectDependencies() {
-        return (_bowerProject) ? _bowerProject.getProjectPackages() : [];
+        return _bowerProject ? _bowerProject.getProjectPackages() : [];
     }
 
     /**
      * @return {object}
      */
     function getPackagesSummary() {
-        return (_bowerProject) ? _bowerProject.getPackagesSummary() : [];
+        return _bowerProject ? _bowerProject.getPackagesSummary() : [];
     }
 
     /**
@@ -403,15 +379,9 @@ define(function (require, exports) {
             return;
         }
 
-        var selectedItem = ProjectManager.getSelectedItem(),
-            activeDir;
-
         // get the cwd according to selection
-        if (selectedItem.isDirectory) {
-            activeDir = selectedItem.fullPath;
-        } else {
-            activeDir = selectedItem.parentPath;
-        }
+        var selectedItem = ProjectManager.getSelectedItem(),
+            activeDir = selectedItem.isDirectory ? selectedItem.fullPath : selectedItem.parentPath;
 
         _setActiveDir(activeDir);
     }
@@ -422,7 +392,7 @@ define(function (require, exports) {
      * @return {object}
      */
     function getProjectStatus() {
-        return (_bowerProject) ? _bowerProject.getStatus() : null;
+        return _bowerProject ? _bowerProject.getStatus() : null;
     }
 
     /**
@@ -450,34 +420,25 @@ define(function (require, exports) {
      * @param {boolean} existsMissing
      */
     function syncDependenciesWithBowerJson(existsExtraneous, existsBowerJsonChanges) {
-        var deferred = new $.Deferred(),
-            deferredCmds = [],
+        var deferredCmds = [],
             packages = {},
             syncError;
 
         function removeExtraneous() {
-            var pruneDeferred = new $.Deferred();
-
-            PackageManager.prune().then(function (removedPackages) {
+            return PackageManager.prune().then(function (removedPackages) {
                 // save the uninstalled package
                 packages.removed = removedPackages;
-
-                pruneDeferred.resolve();
             }).fail(function (error) {
                 syncError = error;
 
                 console.log("[bower-sync] \"prune\" error.", syncError);
 
-                pruneDeferred.reject(syncError);
+                return $.Deferred().reject(syncError);
             });
-
-            return pruneDeferred.promise();
         }
 
         function install() {
-            var installDeferred = new $.Deferred();
-
-            PackageManager.install().then(function (result) {
+            return PackageManager.install().then(function (result) {
                 if (result.installed.length !== 0) {
                     packages.installed = result.installed;
                 }
@@ -485,17 +446,13 @@ define(function (require, exports) {
                 if (result.updated.length !== 0) {
                     packages.updated = result.updated;
                 }
-
-                installDeferred.resolve();
             }).fail(function (error) {
                 syncError = error;
 
                 console.log("[bower-sync] \"install\" error.", syncError);
 
-                installDeferred.reject(syncError);
+                return $.Deferred().reject(syncError);
             });
-
-            return installDeferred.promise();
         }
 
         if (existsExtraneous) {
@@ -512,13 +469,11 @@ define(function (require, exports) {
             return cmdFn();
         }
 
-        Async.doSequentially(deferredCmds, onNextCmd, true).then(function () {
-            deferred.resolve(packages);
+        return Async.doSequentially(deferredCmds, onNextCmd, true).then(function () {
+            return packages;
         }).fail(function () {
-            deferred.reject(syncError);
+            return $.Deferred().reject(syncError);
         });
-
-        return deferred.promise();
     }
 
     /**
