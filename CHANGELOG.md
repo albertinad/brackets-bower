@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.15
+* Bug fixing and refactoring.
+
 ## v0.2.14
 * Improving error handling and notifications.
 

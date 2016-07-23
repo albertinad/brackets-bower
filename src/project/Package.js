@@ -102,12 +102,12 @@ define(function (require, exports, module) {
      */
     Package.isValidDependencyType = function (type) {
         switch (type) {
-        case DependencyType.PRODUCTION:
-        case DependencyType.DEVELOPMENT:
-        case DependencyType.UNKNOWN:
-            return true;
-        default:
-            return false;
+            case DependencyType.PRODUCTION:
+            case DependencyType.DEVELOPMENT:
+            case DependencyType.UNKNOWN:
+                return true;
+            default:
+                return false;
         }
     };
 
@@ -121,14 +121,14 @@ define(function (require, exports, module) {
 
         if (version && (version.trim() !== "")) {
             switch (type) {
-            case VersionOptions.TILDE:
-                fullVersion = TILDE + version;
-                break;
-            case VersionOptions.CARET:
-                fullVersion = CARET + version;
-                break;
-            default:
-                fullVersion = version;
+                case VersionOptions.TILDE:
+                    fullVersion = TILDE + version;
+                    break;
+                case VersionOptions.CARET:
+                    fullVersion = CARET + version;
+                    break;
+                default:
+                    fullVersion = version;
             }
         }
 

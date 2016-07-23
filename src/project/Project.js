@@ -375,12 +375,12 @@ define(function (require, exports, module) {
         _.forEach(this._packages, function (pkg) {
             if (pkg.isProjectDependency) {
                 switch (pkg.dependencyType) {
-                case Package.DependencyType.PRODUCTION:
-                case Package.DependencyType.UNKNOWN:
-                    packages.production.push(pkg);
-                    break;
-                default:
-                    packages.development.push(pkg);
+                    case Package.DependencyType.PRODUCTION:
+                    case Package.DependencyType.UNKNOWN:
+                        packages.production.push(pkg);
+                        break;
+                    default:
+                        packages.development.push(pkg);
                 }
             } else {
                 packages.dependenciesOnly.push(pkg);

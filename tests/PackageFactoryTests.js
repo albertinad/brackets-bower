@@ -150,37 +150,37 @@ define(function (require, exports, module) {
                 expect(pkg.installationDir).not.toBeNull();
 
                 switch (pkg.name) {
-                case "angular-aria":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    expect(pkg.hasDependency("angular")).toEqual(true);
-                    expect(pkg.hasDependant("angular-material")).toEqual(true);
-                    break;
-                case "angular":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    expect(pkg.hasDependant("angular-animate")).toEqual(true);
-                    expect(pkg.hasDependant("angular-aria")).toEqual(true);
-                    expect(pkg.hasDependant("angular-material")).toEqual(true);
-                    break;
-                case "angular-material":
-                    expect(pkg.isProductionDependency()).toEqual(true);
-                    expect(pkg.isProjectDependency).toEqual(true);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    expect(pkg.hasDependency("angular-animate")).toEqual(true);
-                    expect(pkg.hasDependency("angular-aria")).toEqual(true);
-                    expect(pkg.hasDependency("angular")).toEqual(true);
-                    break;
-                case "angular-animate":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    expect(pkg.hasDependency("angular")).toEqual(true);
-                    expect(pkg.hasDependant("angular-material")).toEqual(true);
-                    break;
+                    case "angular-aria":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        expect(pkg.hasDependency("angular")).toEqual(true);
+                        expect(pkg.hasDependant("angular-material")).toEqual(true);
+                        break;
+                    case "angular":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        expect(pkg.hasDependant("angular-animate")).toEqual(true);
+                        expect(pkg.hasDependant("angular-aria")).toEqual(true);
+                        expect(pkg.hasDependant("angular-material")).toEqual(true);
+                        break;
+                    case "angular-material":
+                        expect(pkg.isProductionDependency()).toEqual(true);
+                        expect(pkg.isProjectDependency).toEqual(true);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        expect(pkg.hasDependency("angular-animate")).toEqual(true);
+                        expect(pkg.hasDependency("angular-aria")).toEqual(true);
+                        expect(pkg.hasDependency("angular")).toEqual(true);
+                        break;
+                    case "angular-animate":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        expect(pkg.hasDependency("angular")).toEqual(true);
+                        expect(pkg.hasDependant("angular-material")).toEqual(true);
+                        break;
                 }
             });
         });
@@ -210,38 +210,38 @@ define(function (require, exports, module) {
                 expect(pkg.isInstalled()).toEqual(true);
 
                 switch (pkg.name) {
-                case "angular-aria":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    expect(pkg.hasDependency("angular")).toEqual(true);
-                    expect(pkg.hasDependant("angular-material")).toEqual(true);
-                    break;
-                case "angular":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    expect(pkg.hasDependant("angular-animate")).toEqual(true);
-                    expect(pkg.hasDependant("angular-aria")).toEqual(true);
-                    expect(pkg.hasDependant("angular-material")).toEqual(true);
-                    break;
-                case "angular-material":
-                    expect(pkg.isProductionDependency()).toEqual(false);
-                    expect(pkg.isDevDependency()).toEqual(true);
-                    expect(pkg.isProjectDependency).toEqual(true);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    expect(pkg.hasDependency("angular-animate")).toEqual(true);
-                    expect(pkg.hasDependency("angular-aria")).toEqual(true);
-                    expect(pkg.hasDependency("angular")).toEqual(true);
-                    break;
-                case "angular-animate":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    expect(pkg.hasDependency("angular")).toEqual(true);
-                    expect(pkg.hasDependant("angular-material")).toEqual(true);
-                    break;
+                    case "angular-aria":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        expect(pkg.hasDependency("angular")).toEqual(true);
+                        expect(pkg.hasDependant("angular-material")).toEqual(true);
+                        break;
+                    case "angular":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        expect(pkg.hasDependant("angular-animate")).toEqual(true);
+                        expect(pkg.hasDependant("angular-aria")).toEqual(true);
+                        expect(pkg.hasDependant("angular-material")).toEqual(true);
+                        break;
+                    case "angular-material":
+                        expect(pkg.isProductionDependency()).toEqual(false);
+                        expect(pkg.isDevDependency()).toEqual(true);
+                        expect(pkg.isProjectDependency).toEqual(true);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        expect(pkg.hasDependency("angular-animate")).toEqual(true);
+                        expect(pkg.hasDependency("angular-aria")).toEqual(true);
+                        expect(pkg.hasDependency("angular")).toEqual(true);
+                        break;
+                    case "angular-animate":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        expect(pkg.hasDependency("angular")).toEqual(true);
+                        expect(pkg.hasDependant("angular-material")).toEqual(true);
+                        break;
                 }
             });
         });
@@ -280,36 +280,36 @@ define(function (require, exports, module) {
                 expect(pkg.installationDir).not.toBeNull();
 
                 switch (pkg.name) {
-                case "jquery":
-                    expect(pkg.isProductionDependency()).toEqual(true);
-                    expect(pkg.isDevDependency()).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    break;
-                case "angular":
-                    expect(pkg.isProductionDependency()).toEqual(true);
-                    expect(pkg.isDevDependency()).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    break;
-                case "lodash":
-                    expect(pkg.isProductionDependency()).toEqual(true);
-                    expect(pkg.isDevDependency()).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    break;
-                case "jasmine":
-                    expect(pkg.isProductionDependency()).toEqual(false);
-                    expect(pkg.isDevDependency()).toEqual(true);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    break;
-                case "sinon":
-                    expect(pkg.isProductionDependency()).toEqual(false);
-                    expect(pkg.isDevDependency()).toEqual(true);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    break;
+                    case "jquery":
+                        expect(pkg.isProductionDependency()).toEqual(true);
+                        expect(pkg.isDevDependency()).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        break;
+                    case "angular":
+                        expect(pkg.isProductionDependency()).toEqual(true);
+                        expect(pkg.isDevDependency()).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        break;
+                    case "lodash":
+                        expect(pkg.isProductionDependency()).toEqual(true);
+                        expect(pkg.isDevDependency()).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        break;
+                    case "jasmine":
+                        expect(pkg.isProductionDependency()).toEqual(false);
+                        expect(pkg.isDevDependency()).toEqual(true);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        break;
+                    case "sinon":
+                        expect(pkg.isProductionDependency()).toEqual(false);
+                        expect(pkg.isDevDependency()).toEqual(true);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        break;
                 }
             });
         });
@@ -2120,28 +2120,28 @@ define(function (require, exports, module) {
                 expect(pkg.installationDir).not.toBeNull();
 
                 switch (pkg.name) {
-                case "angular-aria":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    break;
-                case "angular":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(false);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    break;
-                case "angular-material":
-                    expect(pkg.isProductionDependency()).toEqual(true);
-                    expect(pkg.isProjectDependency).toEqual(true);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(false);
-                    expect(pkg.bowerJsonVersion).toEqual("~0.10.0");
-                    break;
-                case "angular-animate":
-                    expect(pkg.isProjectDependency).toEqual(false);
-                    expect(pkg.hasDependencies()).toEqual(true);
-                    expect(pkg.hasDependants()).toEqual(true);
-                    break;
+                    case "angular-aria":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        break;
+                    case "angular":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(false);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        break;
+                    case "angular-material":
+                        expect(pkg.isProductionDependency()).toEqual(true);
+                        expect(pkg.isProjectDependency).toEqual(true);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(false);
+                        expect(pkg.bowerJsonVersion).toEqual("~0.10.0");
+                        break;
+                    case "angular-animate":
+                        expect(pkg.isProjectDependency).toEqual(false);
+                        expect(pkg.hasDependencies()).toEqual(true);
+                        expect(pkg.hasDependants()).toEqual(true);
+                        break;
                 }
             });
         });

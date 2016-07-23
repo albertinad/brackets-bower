@@ -1,7 +1,7 @@
 {
     "name": "brackets-bower",
     "title": "Brackets Bower",
-    "version": "0.2.14",
+    "version": "0.2.15",
     "description": "Manage your application's front-end dependencies using Bower. You can install and prune dependencies using the bower.json file and configure Bower through .bowerrc. Also, quickly install front-end packages by hitting Ctrl/Cmd-Alt-B, then start typing the name of a package. Once you see the package you want, hit Enter and the package will be installed into your project folder. NOTE: To install some packages, you must have Git installed.",
     "author": "Albertina Durante (https://github.com/albertinad)",
     "homepage": "https://github.com/albertinad/brackets-bower",
@@ -16,13 +16,13 @@
         "brackets": ">=1.0.0"
     },
     "devDependencies": {
-        "grunt": "0.4.5",
-        "grunt-cli": "0.1.13",
-        "grunt-contrib-jshint": "0.10.0",
-        "grunt-contrib-csslint": "0.4.0",
-        "grunt-jscs": "1.6.0",
-        "grunt-zip": "0.16.2",
-        "load-grunt-tasks": "1.0.0"
+        "grunt": "1.0.1",
+        "grunt-cli": "1.2.0",
+        "grunt-contrib-jshint": "1.0.0",
+        "grunt-contrib-csslint": "1.0.0",
+        "grunt-jscs": "3.0.1",
+        "grunt-zip": "0.17.1",
+        "load-grunt-tasks": "3.5.0"
     },
     "scripts": {
         "test": "grunt test"

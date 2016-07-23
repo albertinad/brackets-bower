@@ -50,75 +50,75 @@ define(function (require, exports) {
             extra;
 
         switch (originalCode) {
-        case "ENOENT":
-            code = ErrorUtils.NO_BOWER_JSON;
-            message = Strings.ERROR_NO_BOWER_JSON;
-            break;
-        case "ENOTINS":
-            code = ErrorUtils.PKG_NOT_INSTALLED;
-            message = Strings.ERROR_MSG_NO_PACKAGE_INSTALLED;
-            break;
-        case "ECONFLICT":
-            code = ErrorUtils.CONFLICT;
+            case "ENOENT":
+                code = ErrorUtils.NO_BOWER_JSON;
+                message = Strings.ERROR_NO_BOWER_JSON;
+                break;
+            case "ENOTINS":
+                code = ErrorUtils.PKG_NOT_INSTALLED;
+                message = Strings.ERROR_MSG_NO_PACKAGE_INSTALLED;
+                break;
+            case "ECONFLICT":
+                code = ErrorUtils.CONFLICT;
 
-            if (originalError.name) {
-                message = StringUtils.format(Strings.ERROR_MSG_DEPENDENCY_CONFLICT, originalError.name);
-            }
-
-            if (originalError.picks) {
-                extra = {
-                    pickPackages: PackageFactory.getPackages(originalError.picks)
-                };
-            }
-            break;
-        case "ENORESOLVER":
-            code = ErrorUtils.SRC_RESOLVER_NOT_FOUND;
-            message = Strings.ERROR_MSG_NO_RESOLVER;
-            break;
-        case "ENOTFOUND":
-            code = ErrorUtils.SRC_NOT_FOUND;
-            message = Strings.ERROR_MSG_NO_SOURCE;
-            break;
-        case "ENORESTARGET":
-            code = ErrorUtils.CANT_FOUND_TARGET;
-            message = Strings.ERROR_MSG_NO_TARGET;
-            break;
-        case "ECMDERR":
-            code = ErrorUtils.CMD_EXE;
-            break;
-        case "ENOGIT":
-            code = ErrorUtils.GIT_NOT_INSTALLED;
-            break;
-        case "ENOSVN":
-            code = ErrorUtils.SVN_NOT_FOUND;
-            break;
-        case "EHTTP":
-            code = ErrorUtils.HTTP_DOWNLOAD_FAIL;
-            break;
-        case "EINCOMPLETE":
-            code = ErrorUtils.DONWLOAD_INCOMPLETE;
-            message = Strings.ERROR_MSG_DOWNLOAD_INCOMPLETE;
-            break;
-        case "EMALFORMED":
-            if (originalError.file) {
-                if (originalError.file.match("bower.json")) {
-                    code = ErrorUtils.EMALFORMED_BOWER_JSON;
-                    message = Strings.ERROR_MSG_MALFORMED_BOWER_JSON;
-                } else {
-                    code = ErrorUtils.EMALFORMED_BOWERRC;
+                if (originalError.name) {
+                    message = StringUtils.format(Strings.ERROR_MSG_DEPENDENCY_CONFLICT, originalError.name);
                 }
-            } else {
-                code = ErrorUtils.EMALFORMED;
-                message = Strings.ERROR_MSG_MALFORMED_FILE;
-            }
-            break;
-        case "ECONRESET":
-            code = ErrorUtils.ECONNECTION_RESET;
-            message = Strings.ERROR_MSG_CONNECTION_PROBLEM;
-            break;
-        default:
-            code = ErrorUtils.UNKNOWN_ERROR;
-            message = Strings.ERROR_DEFAULT_MSG;
+
+                if (originalError.picks) {
+                    extra = {
+                        pickPackages: PackageFactory.getPackages(originalError.picks)
+                    };
+                }
+                break;
+            case "ENORESOLVER":
+                code = ErrorUtils.SRC_RESOLVER_NOT_FOUND;
+                message = Strings.ERROR_MSG_NO_RESOLVER;
+                break;
+            case "ENOTFOUND":
+                code = ErrorUtils.SRC_NOT_FOUND;
+                message = Strings.ERROR_MSG_NO_SOURCE;
+                break;
+            case "ENORESTARGET":
+                code = ErrorUtils.CANT_FOUND_TARGET;
+                message = Strings.ERROR_MSG_NO_TARGET;
+                break;
+            case "ECMDERR":
+                code = ErrorUtils.CMD_EXE;
+                break;
+            case "ENOGIT":
+                code = ErrorUtils.GIT_NOT_INSTALLED;
+                break;
+            case "ENOSVN":
+                code = ErrorUtils.SVN_NOT_FOUND;
+                break;
+            case "EHTTP":
+                code = ErrorUtils.HTTP_DOWNLOAD_FAIL;
+                break;
+            case "EINCOMPLETE":
+                code = ErrorUtils.DONWLOAD_INCOMPLETE;
+                message = Strings.ERROR_MSG_DOWNLOAD_INCOMPLETE;
+                break;
+            case "EMALFORMED":
+                if (originalError.file) {
+                    if (originalError.file.match("bower.json")) {
+                        code = ErrorUtils.EMALFORMED_BOWER_JSON;
+                        message = Strings.ERROR_MSG_MALFORMED_BOWER_JSON;
+                    } else {
+                        code = ErrorUtils.EMALFORMED_BOWERRC;
+                    }
+                } else {
+                    code = ErrorUtils.EMALFORMED;
+                    message = Strings.ERROR_MSG_MALFORMED_FILE;
+                }
+                break;
+            case "ECONRESET":
+                code = ErrorUtils.ECONNECTION_RESET;
+                message = Strings.ERROR_MSG_CONNECTION_PROBLEM;
+                break;
+            default:
+                code = ErrorUtils.UNKNOWN_ERROR;
+                message = Strings.ERROR_DEFAULT_MSG;
         }
 
         if (originalError) {
