@@ -5,5 +5,8 @@
     "dependencies": {
         "bower": "1.7.2",
         "ncp": "2.0.0"
+    },
+    "scripts": {
+        "postinstall": "npm dedupe"
     }
 }
